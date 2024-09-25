@@ -48,7 +48,7 @@ console.log('routesPath :', routesPath);
 console.log('middlewarePath :', middlewarePath);
 console.log('appJsPath :', appJsPath);
 console.log('indexPath :', indexPath);
-// console.log('modelTemplate :', modelTemplate(modelName, entityName));
+console.log('modelTemplate :', modelTemplate(modelName, entityName));
 // console.log('controllerTemplate :', controllerTemplate(modelName, entityName, modelFileName));
 // console.log('routeTemplate :', routeTemplate(modelName, controllerFileName));
 // console.log('updatedAppJsContent :', updatedAppJsContent(entityName, modelName, routesFileName, appJsPath));
@@ -64,11 +64,11 @@ fs.mkdirSync(path.dirname(routesPath), { recursive: true });
 fs.mkdirSync(path.dirname(middlewarePath), { recursive: true });
 // Écriture des fichiers
 
-fs.writeFileSync(modelPath, modelTemplate(modelName, entityName), encoding);
+// fs.writeFileSync(modelPath, modelTemplate(modelName, entityName), encoding);
 fs.writeFileSync(controllerPath, controllerTemplate(modelName, entityName, modelFileName), encoding);
 fs.writeFileSync(routesPath, routeTemplate(modelName, controllerFileName), encoding);
 fs.writeFileSync(middlewarePath, middlewareTemplate, encoding);
 fs.writeFileSync(appJsPath, updatedAppJsContent(entityName, modelName, routesFileName, appJsPath), encoding);
-fs.writeFileSync(indexPath, updateDatabaseIndex(entityName, modelName, modelFileName, indexPath), encoding);
+// fs.writeFileSync(indexPath, updateDatabaseIndex(entityName, modelName, modelFileName, indexPath), encoding);
 
 console.log('Les fichiers ont été générés avec succès et app.js a été mis à jour.');

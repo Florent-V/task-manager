@@ -54,6 +54,12 @@ export const defineAssociations = () => {
     foreignKey: 'labelId',
     onDelete: 'CASCADE'
   });
-
-
+  models.toDoListType.hasMany(models.toDoList, {
+    foreignKey: 'typeId',
+    onDelete: 'CASCADE'
+  });
+  models.toDoList.belongsTo(models.toDoListType, {
+    foreignKey: 'typeId',
+    onDelete: 'CASCADE'
+  });
 };

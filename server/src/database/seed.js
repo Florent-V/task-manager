@@ -1,6 +1,6 @@
 import sequelize from './connect.js';
 import models from '../models/index.js';
-const { role, user, product, toDoList, toDoItem, label } = models;
+const { role, user, product, toDoList, toDoListType, toDoItem, label } = models;
 
 export const seedDatabase = async () => {
   try {
@@ -116,12 +116,25 @@ export const seedDatabase = async () => {
         }
     ]);
 
+    const toDoListTypes = await toDoListType.bulkCreate([
+        {
+            name: 'Personal',
+        },
+        {
+            name: 'Work',
+        },
+        {
+            name: 'Shopping',
+        }
+    ]);
+
 
     const toDoLists = await toDoList.bulkCreate([
         {
             title: 'To Do List 1',
             description: 'Description of To Do List 1',
             userId: users[0].id,
+            typeId: toDoListTypes[0].id,
         },
         {
             title: 'To Do List 2',
@@ -134,19 +147,20 @@ export const seedDatabase = async () => {
             userId: users[2].id,
         },
         {
-          title: 'To Do List 4',
-          description: 'Description of To Do List 4',
-          userId: users[0].id,
+            title: 'To Do List 4',
+            description: 'Description of To Do List 4',
+            userId: users[0].id,
+            typeId: toDoListTypes[2].id,
         },
         {
-          title: 'To Do List 5',
-          description: 'Description of To Do List 5',
-          userId: users[1].id,
+            title: 'To Do List 5',
+            description: 'Description of To Do List 5',
+            userId: users[1].id,
         },
         {
-          title: 'To Do List 6',
-          description: 'Description of To Do List 6',
-          userId: users[2].id,
+            title: 'To Do List 6',
+            description: 'Description of To Do List 6',
+            userId: users[2].id,
         }
     ]);
     console.log('toDoLists', toDoLists.length);
@@ -168,21 +182,21 @@ export const seedDatabase = async () => {
             toDoListId: toDoLists[2].id,
         },
         {
-          title: 'To Do Item 4',
-          description: 'Description of To Do Item 4',
-          toDoListId: toDoLists[3].id,
+            title: 'To Do Item 4',
+            description: 'Description of To Do Item 4',
+            toDoListId: toDoLists[3].id,
         },
         {
-          title: 'To Do Item 5',
-          description: 'Description of To Do Item 5',
-          toDoListId: toDoLists[4].id,
+            title: 'To Do Item 5',
+            description: 'Description of To Do Item 5',
+            toDoListId: toDoLists[4].id,
         },
         {
-          title: 'To Do Item 6',
-          description: 'Description of To Do Item 6',
-          toDoListId: toDoLists[5].id,
+            title: 'To Do Item 6',
+            description: 'Description of To Do Item 6',
+            toDoListId: toDoLists[5].id,
         },
-      {
+        {
             title: 'To Do Item 7',
             description: 'Description of To Do Item 7',
             toDoListId: toDoLists[0].id,
@@ -213,8 +227,6 @@ export const seedDatabase = async () => {
             toDoListId: toDoLists[5].id,
       }
     ]);
-
-
 
     console.log('Données de test créées avec succès !');
   } catch (error) {

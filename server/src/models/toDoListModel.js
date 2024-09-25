@@ -15,6 +15,15 @@ const ToDoList = sequelize.define('ToDoList', {
     type: DataTypes.TEXT,
     allowNull: true,
   },
+  typeId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 1,
+    references: {
+      model: 'label',
+      key: 'id'
+    }
+  },
   },
   {
     tableName: 'to_do_list',

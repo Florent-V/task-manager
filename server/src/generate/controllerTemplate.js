@@ -7,7 +7,8 @@ import NotFoundError from '../error/notFoundError.js';
 export const create${modelName} = async (req, res, next) => {
   try {
     const ${entityName} = await ${modelName}.create(req.body);
-    res.status(201).json(${entityName});
+    res.data.${entityName} = ${entityName};
+    next();
   } catch (error) {
     return next(error)
   }
@@ -17,7 +18,8 @@ export const create${modelName} = async (req, res, next) => {
 export const getAll${modelName}s = async (req, res, next) => {
   try {
     const ${entityName}s = await ${modelName}.findAll();
-    res.status(200).json(${entityName}s);
+    res.data.${entityName}s = ${entityName}s;
+    next();
   } catch (error) {
     return next(error)
   }
@@ -29,7 +31,7 @@ export const get${modelName}ById = async (req, res, next) => {
     const ${entityName} = await ${modelName}.findByPk(req.params.id);
     if (!${entityName}) throw new NotFoundError('${entityName} Not Found');
 
-    res.status(200).json(${entityName});
+    res.data.${entityName} = ${entityName};
   } catch (error) {
     return next(error)
   }
@@ -44,7 +46,7 @@ export const update${modelName} = async (req, res, next) => {
     if (!updated) throw new NotFoundError('${entityName} Not Found');
 
     const updated${modelName} = await ${modelName}.findByPk(req.params.id);
-    res.status(200).json(updated${modelName});
+    res.data.${entityName} = updated${modelName};
   } catch (error) {
     return next(error)
   }

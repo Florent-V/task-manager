@@ -179,7 +179,7 @@ Product are linked to a user. Only the user who created the product can get, edi
 - DELETE /todolist/{:id}/todoitem/{:itemId} `Delete a todoitem by id in a todolist`
 
 I've made a script to generate a crud for a new entity. You can use it with :
-- `npm run generate-crud -- EntityName`
+- `npm run make:crud -- EntityName`
 Be careful, this feature is still in development and some modifications may be needed.
 
 

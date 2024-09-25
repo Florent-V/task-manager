@@ -92,7 +92,7 @@ onMounted(() => {
     <nav class="container mx-auto px-4 flex items-center justify-between">
       <div class="flex items-center space-x-8">
         <div class="flex items-center space-x-2">
-          <img src="@/assets/logo.png" alt="Logo" class="h-10 w-auto">
+          <img src="/logo.png" alt="Logo" class="h-10 w-auto">
           <RouterLink to="/"
                       class="text-xl font-bold hover:text-blue-600 dark:hover:text-yellow-300 transition duration-100">
             TechVerse
