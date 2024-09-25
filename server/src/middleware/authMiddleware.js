@@ -21,10 +21,12 @@ export const authenticateToken = (req, res, next) => {
 };
 
 export const authenticateByCookieSession = (req, res, next) => {
+  // TODO Delete console.log in production
   console.log('req.cookies:', req.cookies);
   console.log('req.signedCookies:', req.signedCookies);
   console.log('req.session:', req.session.token);
   try {
+    // TODO Delete auth by header in production use only cookie session
     const token = req.session.token || req.header('Authorization')?.split(' ')[1];
 
     if (!token) throw new InvalidTokenError('Access Denied: No token provided');
@@ -49,6 +51,7 @@ export const checkAuth = (req, res, next) => {
 
 export const isAdmin = async (req, res, next) => {
   try {
+    if (!req.user) throw new ForbiddenError('Require Admin Role!');
     const user = await User.findByPk(req.user.id);
     const roles = await user.getRoles();
 
@@ -64,6 +67,7 @@ export const isAdmin = async (req, res, next) => {
 
 export const isModerator = async (req, res, next) => {
   try {
+    if (!req.user) throw new ForbiddenError('Require Admin Role!');
     const user = await User.findByPk(req.user.id);
     const roles = await user.getRoles();
 
@@ -78,6 +82,7 @@ export const isModerator = async (req, res, next) => {
 
 export const isModeratorOrAdmin = async (req, res, next) => {
   try {
+    if (!req.user) throw new ForbiddenError('Require Admin Role!');
     const user = await User.findByPk(req.user.ifd);
     const roles = await user.getRoles();
 

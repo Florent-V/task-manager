@@ -13,6 +13,7 @@ import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import toDoListRoutes from './routes/toDoListRoutes.js';
+import toDoListTypeRoutes from './routes/toDoListTypeRoute.js';
 
 dotenv.config();
 const app = express();
@@ -59,6 +60,8 @@ app.use('/api/user', userRoutes);
 app.use('/api/product', productRoutes);
 // ToDoList && ToDoItem Routes
 app.use('/api/todolist', toDoListRoutes);
+// ToDoListType Routes
+app.use('/api/todolisttype', toDoListTypeRoutes);
 // Send middleware
 app.use(send);
 

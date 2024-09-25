@@ -32,6 +32,7 @@ export const get${modelName}ById = async (req, res, next) => {
     if (!${entityName}) throw new NotFoundError('${entityName} Not Found');
 
     res.data.${entityName} = ${entityName};
+    next();
   } catch (error) {
     return next(error)
   }
@@ -47,6 +48,7 @@ export const update${modelName} = async (req, res, next) => {
 
     const updated${modelName} = await ${modelName}.findByPk(req.params.id);
     res.data.${entityName} = updated${modelName};
+    next();
   } catch (error) {
     return next(error)
   }
