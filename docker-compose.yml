@@ -1,0 +1,101 @@
+services:
+#########################################
+#   Setup vue client container
+#########################################
+  client:
+    container_name: ${PROJECT_NAME}-client-${ENV_NAME}
+    #image: ${PROJECT_NAME}-vue-client
+    build:
+      context: ./client
+      dockerfile: DockerFile
+      args:
+        NODE_ENV: ${NODE_ENV}
+    ports:
+      - "${VITE_CLIENT_PORT}:${VITE_CLIENT_DOCKER_PORT}"
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - VITE_API_BASE_URL=${CLIENT_API_BASE_URL}
+    networks:
+      - internal
+    volumes:
+      - ./client:/usr/src/app
+      - client_node_modules:/usr/src/app/node_modules
+#########################################
+#   Setup express server container
+#########################################
+  api:
+    container_name: ${PROJECT_NAME}-app-${ENV_NAME}
+    #image: ${PROJECT_NAME}-node-mysql-app
+    restart: unless-stopped
+    build:
+      context: ./server
+      dockerfile: DockerFile
+      args:
+        NODE_ENV: ${NODE_ENV}
+        START_METHOD: ${START_METHOD}
+    ports:
+      - "${NODE_API_PORT}:${NODE_API_DOCKER_PORT}"
+    environment:
+      - SERVICE_NAME=app
+      - PROJECT_NAME=${PROJECT_NAME}
+      - NODE_ENV=${NODE_ENV}
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - COOKIE_SECRET=${COOKIE_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - ACCESS_TOKEN_LIFETIME=${ACCESS_TOKEN_LIFETIME}
+      - REFRESH_TOKEN_LIFETIME=${REFRESH_TOKEN_LIFETIME}
+      - SESSION_COOKIE_LIFETIME=${SESSION_COOKIE_LIFETIME}
+      - REFRESH_TOKEN_COOKIE_LIFETIME=${REFRESH_TOKEN_COOKIE_LIFETIME}
+      - START_METHOD=${START_METHOD}
+      - PRIVATE_KEY=${PRIVATE_KEY}
+      - PUBLIC_KEY=${PUBLIC_KEY}
+      - CLIENT_ORIGIN=${CLIENT_ORIGIN}
+    networks:
+      - internal
+    depends_on:
+      db:
+        condition: service_healthy
+    #command: ["/usr/wait-for-database.sh", "db:3306", "--", "nodemon", "app.js"]
+    volumes:
+      - ./server:/usr/src/app
+      -  api_node_modules:/usr/src/app/node_modules
+
+#########################################
+#   Setup MYSQL container
+#########################################
+  db:
+    container_name: ${DB_HOST}
+    image: mysql:8.0
+    restart: unless-stopped
+    ports:
+      - '${DB_PORT}:3306'
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${DB_NAME}
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - db-config:/etc/mysql
+      # - ./sql:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  db-config:
+  api_node_modules:
+  client_node_modules:
