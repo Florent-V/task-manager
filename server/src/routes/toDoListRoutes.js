@@ -1,6 +1,6 @@
 import express from 'express';
 import todoitemRoutes from './toDoItemRoutes.js';
-import { createToDoList, getAllToDoLists, getToDoListById, updateToDoList, deleteToDoList } from '../controllers/toDoListController.js';
+import { createToDoList, getAllToDoLists, getAllToDoListsByUser, getToDoListById, updateToDoList, deleteToDoList } from '../controllers/toDoListController.js';
 import { authenticateByCookieSession, isAdmin } from '../middleware/authMiddleware.js';
 import { setEntity, setCreateValidator, setUpdateValidator } from '../middleware/toDoListMiddleware.js';
 import { getUserRessources, getUserRessourceById, authorizeRessourceAccess, validator } from '../middleware/ressourceMiddleware.js';
@@ -17,7 +17,7 @@ router.use(setEntity);
 
 router.post('/', setCreateValidator, validator, createToDoList);
 
-router.get('/', getUserRessources);
+router.get('/', getAllToDoListsByUser);
 router.get('/all', isAdmin, getAllToDoLists);
 
 router.get('/:id', getUserRessourceById);

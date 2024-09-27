@@ -59,6 +59,7 @@ export const defineAssociations = () => {
     onDelete: 'CASCADE'
   });
   models.toDoList.belongsTo(models.toDoListType, {
+    as: 'type',
     foreignKey: 'typeId',
     onDelete: 'CASCADE'
   });

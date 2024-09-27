@@ -1,6 +1,7 @@
 import ToDoList from '../models/toDoListModel.js';
 import ToDoItem from '../models/toDoItemModel.js';
 import NotFoundError from '../error/notFoundError.js';
+import ToDoListType from "../models/toDoListTypeModel.js";
 
 // Création d'un ToDoList
 export const createToDoList = async (req, res, next) => {
@@ -26,13 +27,42 @@ export const getAllToDoLists = async (req, res, next) => {
   }
 };
 
+// Récupération de toutes les todolists d'un utilisateur
+export const getAllToDoListsByUser = async (req, res, next) => {
+  try {
+    console.log('req.user:', req.user);
+    const userId = req.user.id;
+    const todoLists = await ToDoList.findAll({
+      where: { userId },
+      include: [
+        {
+          model: ToDoItem,
+          as: 'toDoItems'
+        },
+        {
+          model: ToDoListType,
+          as: 'type',
+          attributes: ['id', 'name'],
+        }
+      ]
+    });
+    console.log('todoLists:', todoLists);
+    res.data.toDoLists = todoLists;
+    next();
+  } catch (error) {
+    return next(error);
+  }
+};
+
+
 // Récupération d'un ToDoList par ID
 export const getToDoListById = async (req, res, next) => {
   try {
+    console.log('todolist by id');
     const toDoList = await ToDoList.findByPk(req.params.id, {
       include: [
         {
-          model: ToDoItem, // Assure-toi que ce modèle est correctement importé
+          model: ToDoItem,
           as: 'toDoItems'
         }
       ]

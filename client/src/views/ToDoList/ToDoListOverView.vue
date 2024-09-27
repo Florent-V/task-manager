@@ -57,14 +57,13 @@ onMounted(fetchToDoLists);
       <h1 class="text-4xl font-bold my-4 text-center text-blue-800 dark:text-yellow-300">Mes ToDo Listes</h1>
       <!-- Add button -->
       <div v-if="!showForm" class="text-right">
-        <button @click="openCreateForm" class="bg-blue-600 dark:bg-yellow-400 text-white px-6 py-3 rounded-full">
+        <button @click="openCreateForm" class="bg-blue-600 dark:bg-yellow-400 text-white px-3 py-3 rounded-full">
           <span class="flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd"
                   d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
                   clip-rule="evenodd"/>
           </svg>
-          Ajouter une ToDo Liste
         </span>
         </button>
       </div>
@@ -94,6 +93,7 @@ onMounted(fetchToDoLists);
           <tr class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-md">
             <th class="px-6 py-3 text-left">Titre</th>
             <th class="px-6 py-3 text-left">Description</th>
+            <th class="px-6 py-3 text-center">Type</th>
             <th class="px-6 py-3 text-center">Action</th>
           </tr>
           </thead>
@@ -104,6 +104,9 @@ onMounted(fetchToDoLists);
             </td>
             <td class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300">
               {{ list.description }}
+            </td>
+            <td class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300">
+              {{ list.typeId }}
             </td>
             <td class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-center">
               <button @click="openEditForm(list)"

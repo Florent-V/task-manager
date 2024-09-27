@@ -24,7 +24,7 @@ export const authenticateByCookieSession = (req, res, next) => {
   // TODO Delete console.log in production
   console.log('req.cookies:', req.cookies);
   console.log('req.signedCookies:', req.signedCookies);
-  console.log('req.session:', req.session.token);
+  console.log('req.session:', req.session);
   try {
     // TODO Delete auth by header in production use only cookie session
     const token = req.session.token || req.header('Authorization')?.split(' ')[1];

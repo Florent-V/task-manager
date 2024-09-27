@@ -1,9 +1,10 @@
 import User from '../models/userModel.js';
+import RefreshToken from "../models/refreshTokenModel.js";
 import { hashPassword } from '../services/passwordService.js';
 import RefreshTokenError from '../error/refreshTokenError.js';
 import config from '../config/config.js';
 import { authenticateUser } from '../services/authService.js';
-import { createAuthTokens, storeRefreshToken, validateRefreshToken, rotateRefreshToken } from '../services/tokenService.js';
+import { createAuthTokens, storeRefreshToken, validateRefreshToken, rotateRefreshToken, authToken } from '../services/tokenService.js';
 
 const refreshTokensCookieOptions = {
   httpOnly: true,
@@ -95,9 +96,13 @@ export const handleRefreshToken = async (req, res, next) => {
   }
 }
 
-export const logout = (req, res) => {
+export const logout = async (req, res) => {
   try {
-    req.session = null;
+    if (req.session) {
+      const verified = authToken(req.session.token);
+      await RefreshToken.update({ valid: 0 }, { where: { userId: verified.id } });
+      req.session = null;
+    }
     res.clearCookie('refresh_token', {
       httpOnly: true,
       secure: true,
