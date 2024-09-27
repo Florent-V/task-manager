@@ -15,6 +15,7 @@ const handleFormSubmit = async (data) => {
     toDoLists.value[index] = response.toDoList;
   } else {
     // Create new to-do
+    console.log('new data', data);
     const response = await client.post('/api/todolist', data);
     toDoLists.value.push(response.toDoList);
   }
@@ -92,7 +93,7 @@ onMounted(fetchToDoLists);
           <thead>
           <tr class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-md">
             <th class="px-6 py-3 text-left">Titre</th>
-            <th class="px-6 py-3 text-left">Description</th>
+            <th class="px-6 py-3 text-left hidden md:table-cell">Description</th>
             <th class="px-6 py-3 text-center">Type</th>
             <th class="px-6 py-3 text-center">Action</th>
           </tr>
@@ -102,11 +103,11 @@ onMounted(fetchToDoLists);
             <td class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300">
               {{ list.title }}
             </td>
-            <td class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300">
+            <td class="hidden md:table-cell border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300">
               {{ list.description }}
             </td>
             <td class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300">
-              {{ list.typeId }}
+              {{ list.type.name }}
             </td>
             <td class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-center">
               <button @click="openEditForm(list)"

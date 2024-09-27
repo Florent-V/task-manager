@@ -17,6 +17,7 @@ const submitForm = () => {
   const data = {
     title: formData.value.title,
     description: formData.value.description,
+    typeId: formData.value.typeId,
   };
   emit('submit', data);
   closeForm();
@@ -31,6 +32,7 @@ const resetForm = () => {
   formData.value = {
     title: '',
     description: '',
+    typeId: 1,
   };
 };
 

@@ -184,73 +184,82 @@ onMounted(fetchToDoItems);
           Aucune tâche à afficher
         </div>
 
-        <ul v-else>
-          <li v-for="item in filteredToDoItems" :key="item.id"
-              class="flex gap-4 items-center bg-white dark:bg-gray-800 p-4 rounded-lg mb-2 shadow-lg dark:shadow-gray-700">
+        <div class="w-full bg-white dark:bg-gray-800 px-6 rounded-xl shadow-lg dark:shadow-gray-700">
+          <p class="py-3">{{ toDoList.description }}</p>
+          <!-- Title: Product List -->
+          <h2 class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-t-lg text-xl font-semibold">
+            A faire</h2>
 
-            <button @click="toggleToDoItemDone(item)"
-                    class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
-              <i :class="{ 'fa-solid fa-check-square': item.done, 'fa-regular fa-square': !item.done }"></i>
-            </button>
+          <div class="overflow-x-auto py-4">
+            <ul>
+              <li v-for="item in filteredToDoItems" :key="item.id"
+                  class="flex gap-4 items-center bg-white dark:bg-gray-800 p-4 rounded-lg mb-2 shadow-lg dark:shadow-gray-700">
 
-            <div v-if="isEditing && selectedToDoItem.id === item.id" class="flex-grow">
-              <ToDoItemFormComponent
-                  :initialData="selectedToDoItem"
-                  @submit="handleFormSubmit"
-                  @cancel="closeForm"
-              />
-            </div>
+                <button @click="toggleToDoItemDone(item)"
+                        class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
+                  <i :class="{ 'fa-solid fa-check-square': item.done, 'fa-regular fa-square': !item.done }"></i>
+                </button>
 
-            <div v-else class="flex-grow">
-              <span :class="{ 'line-through text-gray-400 dark:text-gray-500': item.done }">{{ item.title }}</span>
-            </div>
+                <div v-if="isEditing && selectedToDoItem.id === item.id" class="flex-grow">
+                  <ToDoItemFormComponent
+                      :initialData="selectedToDoItem"
+                      @submit="handleFormSubmit"
+                      @cancel="closeForm"
+                  />
+                </div>
 
-            <!-- Section de quantité avec boutons + et - -->
-            <div class="flex items-center gap-2 mr-4">
-              <button @click="decrementQuantity(item)" class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
-                <svg class="w-6 h-6 text-blue-600 dark:text-yellow-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14"/>
-                </svg>
-              </button>
+                <div v-else class="flex-grow">
+                  <span :class="{ 'line-through text-gray-400 dark:text-gray-500': item.done }">{{ item.title }}</span>
+                </div>
 
-<!--              <div class="border border-gray-300 dark:border-gray-600 px-4 py-1 rounded">-->
-<!--                {{ item.quantity }}-->
-<!--              </div>-->
-              <div class="border border-gray-300 dark:border-gray-600 px-4 py-1 rounded">
-                <!-- Si 'isEditingQuantity' est vrai pour cet item, on affiche un champ input -->
-                <input v-if="isEditingQuantity && selectedToDoItem.id === item.id"
-                       v-model="item.quantity"
-                       type="number"
-                       class="w-16 bg-transparent text-center border-none focus:outline-none"
-                       @blur="saveQuantity(item)"
-                       @keydown.enter="saveQuantity(item)"
-                       @keydown.esc="cancelEditQuantity(item)" />
-                <!-- Sinon on affiche simplement la quantité avec un événement click pour éditer -->
-                <span v-else @click="editQuantity(item)">
+                <!-- Section de quantité avec boutons + et - -->
+                <div v-if="toDoList.type.name === 'Shopping'" class="flex items-center gap-2 mr-4">
+                  <button @click="decrementQuantity(item)" class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
+                    <svg class="w-6 h-6 text-blue-600 dark:text-yellow-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14"/>
+                    </svg>
+                  </button>
+
+                  <div class="border border-gray-300 dark:border-gray-600 px-4 py-1 rounded">
+                    <!-- Si 'isEditingQuantity' est vrai pour cet item, on affiche un champ input -->
+                    <input v-if="isEditingQuantity && selectedToDoItem.id === item.id"
+                           v-model="item.quantity"
+                           type="number"
+                           class="w-16 bg-transparent text-center border-none focus:outline-none"
+                           @blur="saveQuantity(item)"
+                           @keydown.enter="saveQuantity(item)"
+                           @keydown.esc="cancelEditQuantity(item)" />
+                    <!-- Sinon on affiche simplement la quantité avec un événement click pour éditer -->
+                    <span v-else @click="editQuantity(item)">
                   {{ item.quantity }}
                 </span>
-              </div>
+                  </div>
 
-              <button @click="incrementQuantity(item)" class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
-                <svg class="w-6 h-6 text-blue-600 dark:text-yellow-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5"/>
-                </svg>
-              </button>
-            </div>
+                  <button @click="incrementQuantity(item)" class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
+                    <svg class="w-6 h-6 text-blue-600 dark:text-yellow-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5"/>
+                    </svg>
+                  </button>
+                </div>
 
-            <!-- Actions pour chaque item -->
-            <div class="flex items-center">
-              <button @click="openEditForm(item)"
-                      class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500 ml-2">
-                <i class="fas fa-edit"></i>
-              </button>
-              <button @click="deleteToDoItem(item)"
-                      class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500 ml-2">
-                <i class="fas fa-trash-alt"></i>
-              </button>
-            </div>
-          </li>
-        </ul>
+                <!-- Actions pour chaque item -->
+                <div class="flex items-center">
+                  <button @click="openEditForm(item)"
+                          class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500 ml-2">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button @click="deleteToDoItem(item)"
+                          class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500 ml-2">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+              </li>
+            </ul>
+
+          </div>
+        </div>
+
+
       </div>
 
 

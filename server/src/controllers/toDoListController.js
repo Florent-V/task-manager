@@ -10,7 +10,24 @@ export const createToDoList = async (req, res, next) => {
     req.body.userId = userId;
 
     res.statusCode = 201;
-    res.data.toDoList = await ToDoList.create(req.body);
+    const newToDoList = await ToDoList.create(req.body);
+
+    const toDoList = await ToDoList.findByPk(newToDoList.id, {
+      include: [
+        {
+          model: ToDoItem,
+          as: 'toDoItems'
+        },
+        {
+          model: ToDoListType,
+          as: 'type',
+          attributes: ['id', 'name'],
+        }
+      ]
+    });
+
+    res.data.toDoList = toDoList;
+
     next();
   } catch (error) {
     return next(error);
@@ -64,6 +81,11 @@ export const getToDoListById = async (req, res, next) => {
         {
           model: ToDoItem,
           as: 'toDoItems'
+        },
+        {
+          model: ToDoListType,
+          as: 'type',
+          attributes: ['id', 'name'],
         }
       ]
     });
@@ -87,7 +109,19 @@ export const updateToDoList = async (req, res, next) => {
 
     if (!updated) throw new NotFoundError('ToDoList Not Found');
 
-    res.data.toDoList = await ToDoList.findByPk(req.params.id);
+    res.data.toDoList = await ToDoList.findByPk(req.params.id, {
+      include: [
+        {
+          model: ToDoItem,
+          as: 'toDoItems'
+        },
+        {
+          model: ToDoListType,
+          as: 'type',
+          attributes: ['id', 'name'],
+        }
+      ]
+    });
     next();
   } catch (error) {
     return next(error);
