@@ -1,7 +1,11 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { client } from '@/utils/requestMaker.js';
+import { hookApi} from "@/utils/requestHook.js";
 import ToDoListFormComponent from "@/components/ToDoList/ToDoListFormComponent.vue";
+import LoaderComponent from "@/components/LoaderComponent.vue";
+
+const { isLoading, data, error, executeRequest } = hookApi();
 
 const toDoLists = ref([]);
 const showForm = ref(false);
@@ -42,7 +46,10 @@ const closeForm = () => {
 };
 
 const fetchToDoLists = async () => {
-  const data = await client.get('/api/todolist');
+  console.log('fetchToDoLists');
+  // const data = await client.get('/api/todolist');
+  const data = await executeRequest(() => client.get('/api/todolist'));
+  console.log('todolist', data);
   toDoLists.value = data.toDoLists;
 };
 
@@ -53,7 +60,6 @@ onMounted(fetchToDoLists);
 <template>
 
   <div class="container mx-auto px-4 py-12">
-
     <div class="flex justify-between items-center mb-6 px-6">
       <h1 class="text-4xl font-bold my-4 text-center text-blue-800 dark:text-yellow-300">Mes ToDo Listes</h1>
       <!-- Add button -->
@@ -81,10 +87,11 @@ onMounted(fetchToDoLists);
     <!--    spacing div -->
     <div class="h-6"></div>
 
+    <!-- Loader -->
+    <LoaderComponent v-if="isLoading" />
 
-    <div class="w-full bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg dark:shadow-gray-700">
-
-      <!-- Title: Product List -->
+    <div v-else class="w-full bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg dark:shadow-gray-700">
+      <!-- Title Table -->
       <h2 class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-t-lg text-xl font-semibold">
         ToDo Listes</h2>
 

@@ -2,11 +2,14 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { client } from '@/utils/requestMaker.js';
+import { hookApi} from "@/utils/requestHook.js";
 import ToDoItemFormComponent from "@/components/ToDoList/ToDoItemFormComponent.vue";
 import ToggleComponent from "@/components/ToggleComponent.vue";
+import LoaderComponent from "@/components/LoaderComponent.vue";
 
 const route = useRoute();
 const router = useRouter();
+const { isLoading, data, error, executeRequest } = hookApi();
 
 const toDoList = ref({});
 const toDoItems = ref([]);
@@ -15,16 +18,18 @@ const isEditing = ref(false);
 const newToDoItem = ref({ title: '', description: '' });
 const selectedToDoItem = ref(null); // Pour l'édition
 const showOnlyPending = ref(false);
-const isLoading = ref(true);
+// const isLoading = ref(true);
 const isEditingQuantity = ref(false);
 
 // Récupération des items de la ToDoList
 const fetchToDoItems = async () => {
   try {
-    const data = await client.get(`/api/todolist/${route.params.id}/todoitem`);
+    // const data = await client.get(`/api/todolist/${route.params.id}/todoitem`);
+    const data = await executeRequest(() => client.get(`/api/todolist/${route.params.id}/todoitem`));
+    console.log('coucou', data);
     toDoItems.value = data.toDoItems;
     toDoList.value = data.toDoList;
-    // await new Promise(r => setTimeout(r, 20000));
+    await new Promise(r => setTimeout(r, 20000));
   } catch (error) {
     console.error('Error fetching data:', error);
   } finally {
@@ -107,11 +112,11 @@ const decrementQuantity = async (item) => {
 // Fonction pour mettre à jour la quantité dans la base de données
 const updateItemQuantityInDatabase = async (item) => {
   console.log('Mise à jour de la quantité...', `/api/todolist/${route.params.id}/todoitem/${item.id}`);
-    const response = await client.patch(`/api/todolist/${route.params.id}/todoitem/${item.id}`,  { quantity: item.quantity });
-    console.log('response', response);
-    const index = toDoItems.value.findIndex(i => i.id === response.toDoItem.id);
-    toDoItems.value[index].quantity = response.toDoItem.quantity;
-    console.log('Quantité mise à jour avec succès');
+  const response = await client.patch(`/api/todolist/${route.params.id}/todoitem/${item.id}`,  { quantity: item.quantity });
+  console.log('response', response);
+  const index = toDoItems.value.findIndex(i => i.id === response.toDoItem.id);
+  toDoItems.value[index].quantity = response.toDoItem.quantity;
+  console.log('Quantité mise à jour avec succès');
 };
 
 // Fonction pour commencer l'édition de la quantité
@@ -159,7 +164,6 @@ onMounted(fetchToDoItems);
         </div>
       </div>
 
-
       <!-- ToDoForm -->
       <ToDoItemFormComponent
           v-if="isCreating"
@@ -169,14 +173,7 @@ onMounted(fetchToDoItems);
       />
 
       <!-- Loader -->
-      <div v-if="isLoading" class="loader-wrapper">
-        <div class="dot-loader">
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-        </div>
-      </div>
+      <LoaderComponent v-if="isLoading" />
 
       <div v-else>
         <!-- Liste des ToDoItems -->
@@ -186,7 +183,7 @@ onMounted(fetchToDoItems);
 
         <div class="w-full bg-white dark:bg-gray-800 px-6 rounded-xl shadow-lg dark:shadow-gray-700">
           <p class="py-3">{{ toDoList.description }}</p>
-          <!-- Title: Product List -->
+          <!-- Title Table -->
           <h2 class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-t-lg text-xl font-semibold">
             A faire</h2>
 
@@ -255,14 +252,10 @@ onMounted(fetchToDoItems);
                 </div>
               </li>
             </ul>
-
           </div>
+
         </div>
-
-
       </div>
-
-
     </div>
   </div>
 
