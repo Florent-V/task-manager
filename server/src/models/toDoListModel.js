@@ -20,7 +20,7 @@ const ToDoList = sequelize.define('ToDoList', {
     allowNull: false,
     defaultValue: 1,
     references: {
-      model: 'toDoListType',
+      model: 'to_do_list_type',
       key: 'id'
     }
   },

@@ -75,10 +75,9 @@ app.listen(port, async () => {
   try {
     // Replace true by false when sync isn't needed
     // Replace force by alter to keep data
-    await initDB(true, 'alter');
+    await initDB(true, 'force');
     console.log(`Server is running on port ${port}`);
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }
 });
-

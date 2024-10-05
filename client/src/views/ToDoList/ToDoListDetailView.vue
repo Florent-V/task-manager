@@ -9,7 +9,7 @@ import LoaderComponent from "@/components/LoaderComponent.vue";
 
 const route = useRoute();
 const router = useRouter();
-const { isLoading, data, error, executeRequest } = hookApi();
+const { isLoading, error, executeRequest } = hookApi();
 
 const toDoList = ref({});
 const toDoItems = ref([]);
@@ -18,7 +18,6 @@ const isEditing = ref(false);
 const newToDoItem = ref({ title: '', description: '' });
 const selectedToDoItem = ref(null); // Pour l'édition
 const showOnlyPending = ref(false);
-// const isLoading = ref(true);
 const isEditingQuantity = ref(false);
 
 // Récupération des items de la ToDoList

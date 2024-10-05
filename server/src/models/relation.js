@@ -36,6 +36,15 @@ export const defineAssociations = () => {
     foreignKey: 'userId',
     onDelete: 'CASCADE'
   });
+  models.toDoListType.hasMany(models.toDoList, {
+    foreignKey: 'typeId',
+    onDelete: 'CASCADE'
+  });
+  models.toDoList.belongsTo(models.toDoListType, {
+    as: 'type',
+    foreignKey: 'typeId',
+    onDelete: 'CASCADE'
+  });
   models.toDoList.hasMany(models.toDoItem, {
     as: 'toDoItems',
     foreignKey: 'toDoListId',
@@ -54,13 +63,5 @@ export const defineAssociations = () => {
     foreignKey: 'labelId',
     onDelete: 'CASCADE'
   });
-  models.toDoListType.hasMany(models.toDoList, {
-    foreignKey: 'typeId',
-    onDelete: 'CASCADE'
-  });
-  models.toDoList.belongsTo(models.toDoListType, {
-    as: 'type',
-    foreignKey: 'typeId',
-    onDelete: 'CASCADE'
-  });
 };
+
