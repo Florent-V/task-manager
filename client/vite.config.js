@@ -7,11 +7,12 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 import dotenv from 'dotenv';
 
 dotenv.config();
+console.log('process.env.VITE_CLIENT_DOCKER_PORT:', process.env.VITE_CLIENT_DOCKER_PORT);
 
 // https://vitejs.dev/config/
 export default defineConfig({
   server: {
-    port: process.env.VITE_CLIENT_PORT || 8080
+    port: process.env.VITE_CLIENT_DOCKER_PORT || 8080
   },
   plugins: [
     vue(),

@@ -1,18 +1,22 @@
 # Utiliser une image de base Node.js
 FROM node:20-alpine
 
+ARG NODE_ENV
+ARG START_METHOD
+
 # Créer un répertoire de travail
 WORKDIR /usr/src/app
 
 # Copier package.json et package-lock.json
 COPY package.json ./
+# COPY package-lock.json ./
 
 # Installer les dépendances
-ARG NODE_ENV
+# Si NODE_ENV vaut production, installer seulement les prod dependencies, sinon tout installer
 RUN if [ "$NODE_ENV" = "production" ]; then \
-    npm ci --only=production; \
+      npm i --only=production; \
     else \
-    npm install; \
+      npm i; \
     fi
 
 # Copier le reste de l'application
@@ -21,6 +25,7 @@ COPY . .
 COPY wait-for-database.sh /usr/wait-for-database.sh
 RUN chmod +x /usr/wait-for-database.sh
 
-# Lire la méthode de démarrage et le port à partir de .env
+# Démarrer l'application en fonction de START_METHOD
 # CMD ["sh", "-c", "npm run dev"]
-CMD ["/usr/wait-for-database.sh", "db:3306", "--", "npm run dev"]
+# CMD ["/usr/wait-for-database.sh", "db:3306", "--", "npm run dev"]
+CMD ["sh", "-c", "/usr/wait-for-database.sh db:3306 -- npm run $START_METHOD"]

@@ -3,6 +3,9 @@ server/node_modules/
 .vscode/
 package-lock.json
 .env
+.env.development
+.env.test
+.env.production
 server/public/uploads/*.png
 server/public/uploads/*.jpg
 server/public/uploads/*.jpeg
