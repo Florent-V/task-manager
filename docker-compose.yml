@@ -7,7 +7,7 @@ services:
     restart: unless-stopped
     build:
       context: ./client
-      dockerfile: DockerFile
+      dockerfile: client/dev.DockerFile
       args:
         NODE_ENV: ${NODE_ENV}
         START_METHOD: ${START_METHOD}
