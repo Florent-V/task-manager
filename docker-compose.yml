@@ -7,7 +7,7 @@ services:
     restart: unless-stopped
     build:
       context: ./client
-      dockerfile: client/dev.DockerFile
+      dockerfile: dev.DockerFile
       args:
         NODE_ENV: ${NODE_ENV}
         START_METHOD: ${START_METHOD}
@@ -22,7 +22,6 @@ services:
     volumes:
       - ./client:/usr/src/app
       - client_node_modules:/usr/src/app/node_modules
-    command: sh -c "echo Starting with method ${START_METHOD} && npm run ${START_METHOD}"
 
 #########################################
 #   Setup express server container

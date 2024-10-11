@@ -21,7 +21,8 @@ const app = express();
 const port = process.env.NODE_API_DOCKER_PORT || 3000;
 
 const corsOptions = {
-  origin: process.env.CLIENT_ORIGIN || "http://localhost:8080",
+  // origin: process.env.CLIENT_ORIGIN || "http://localhost:8080",
+  origin: "http://localhost:5050",
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   allowedHeaders: ["Origin", "Content-Type", "Accept"],
   credentials: true // Autorise l'envoi de cookies et informations d'authentification
