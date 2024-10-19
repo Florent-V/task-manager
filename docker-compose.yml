@@ -8,13 +8,9 @@ services:
     build:
       context: ./client
       dockerfile: dev.DockerFile
-      args:
-        NODE_ENV: ${NODE_ENV}
-        START_METHOD: ${START_METHOD}
     ports:
       - "${VITE_CLIENT_PORT}:${VITE_CLIENT_DOCKER_PORT}"
     environment:
-      - NODE_ENV=${NODE_ENV}
       - VITE_API_BASE_URL=${API_BASE_URL}
       - VITE_CLIENT_DOCKER_PORT=${VITE_CLIENT_DOCKER_PORT}
     networks:

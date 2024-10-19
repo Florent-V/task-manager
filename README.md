@@ -227,6 +227,12 @@ When you use this template, try follow the checklist to update your info properl
 - [ ] Remove the `.github` folder which contains the funding info
 - [ ] Clean up the READMEs and remove routes
 
+# Deploy
+
+Use docker-compose-prod to deploy the project. You can use the following command to start the project :
+```bash
+docker-compose -f docker-compose-prod.yml up --build
+```
 
 # TODO
 
@@ -335,9 +341,6 @@ Les contributions sont les bienvenues ! Veuillez suivre les étapes suivantes po
 ## License
 
 Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus de détails.
-
-
-
 
 Lorsque le conteneur MySQL démarrera, il exécutera automatiquement tous les scripts .sql présents dans le dossier /docker-entrypoint-initdb.d (qui correspond à votre dossier sql local) lors de la première initialisation de la base de données.
 
