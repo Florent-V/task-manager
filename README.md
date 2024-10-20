@@ -234,6 +234,7 @@ Use docker-compose-prod to deploy the project. You can use the following command
 docker-compose -f docker-compose-prod.yml up --build
 # or
 docker compose -f docker-compose-prod.yml up --build -d
+sudo docker compose -f docker-compose-prod.yml down --rmi all --volumes --remove-orphans
 ```
 The '-d' option is to start the project in detached mode.
 

@@ -29,7 +29,7 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
       - "traefik.http.routers.client.rule=Host(`${CLIENT_URL}`)"
-      - "traefik.http.services.client.loadbalancer.server.port=${VITE_CLIENT_DOCKER_PORT}"
+      - "traefik.http.services.client.loadbalancer.server.port=5050"
       - "traefik.http.routers.client.entrypoints=websecure"
       - "traefik.http.routers.client.tls.certresolver=${CERT_RESOLVER}"
 
@@ -67,7 +67,7 @@ services:
       - CLIENT_ORIGIN=${CLIENT_URL}
       - NODE_API_DOCKER_PORT=${NODE_API_DOCKER_PORT}
     networks:
-#      - web
+      - web
       - internal
     depends_on:
       db:
