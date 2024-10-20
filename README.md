@@ -232,7 +232,10 @@ When you use this template, try follow the checklist to update your info properl
 Use docker-compose-prod to deploy the project. You can use the following command to start the project :
 ```bash
 docker-compose -f docker-compose-prod.yml up --build
+# or
+docker compose -f docker-compose-prod.yml up --build -d
 ```
+The '-d' option is to start the project in detached mode.
 
 # TODO
 
