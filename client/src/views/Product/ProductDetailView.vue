@@ -3,8 +3,9 @@ import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { client } from '@/utils/requestMaker.js';
 import ProductFormComponent from '@/components/Product/ProductFormComponent.vue';
+import { apiBaseUrl} from "@/utils/requestMaker.js";
 
-const baseApiUrl = import.meta.env.VITE_API_BASE_URL;
+const baseApiUrl = apiBaseUrl;
 
 const route = useRoute();
 const router = useRouter();

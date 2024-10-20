@@ -3,8 +3,12 @@ import { useAuthStore } from "@/stores/authStore";
 import router from '../router';
 
 console.log('VITE_API_BASE_URL', import.meta.env.VITE_API_BASE_URL)
+export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL.includes('localhost')
+    ? import.meta.env.VITE_API_BASE_URL
+    : `https://${import.meta.env.VITE_API_BASE_URL}`;
+
 export const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/',
+  baseURL: apiBaseUrl,
   headers: {
     'Content-Type': 'application/json',
   },

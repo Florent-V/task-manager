@@ -2,10 +2,11 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { client } from '@/utils/requestMaker.js';
+import { apiBaseUrl} from "@/utils/requestMaker.js";
 
 const router = useRouter();
 const products = ref([]);
-const baseApiUrl = import.meta.env.VITE_API_BASE_URL;
+const baseApiUrl = apiBaseUrl;
 
 
 const navigateToCreateProduct = () => {
