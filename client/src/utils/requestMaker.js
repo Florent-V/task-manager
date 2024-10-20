@@ -7,6 +7,8 @@ export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL.includes('localhost'
     ? import.meta.env.VITE_API_BASE_URL
     : `https://${import.meta.env.VITE_API_BASE_URL}`;
 
+console.log('apiBaseUrl:', apiBaseUrl);
+
 export const apiClient = axios.create({
   baseURL: apiBaseUrl,
   headers: {
