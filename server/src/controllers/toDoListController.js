@@ -63,7 +63,6 @@ export const getAllToDoListsByUser = async (req, res, next) => {
         }
       ]
     });
-    console.log('todoLists:', todoLists);
     res.data.toDoLists = todoLists;
     next();
   } catch (error) {

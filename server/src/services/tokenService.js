@@ -10,7 +10,6 @@ export function createAuthTokens(user) {
 }
 
 export const generateToken = (id, username) => {
-  console.log('config.accessTokenLifetime:', config.accessTokenLifetime);
   return jwt.sign(
     { id, username },
     config.jwtPrivateKey,
@@ -49,7 +48,7 @@ export async function storeRefreshToken(user, refreshToken) {
 export async function rotateRefreshToken(refreshTokenEntity, newRefreshToken) {
   refreshTokenEntity.token = newRefreshToken;
   refreshTokenEntity.expires = new Date().setDate(new Date().getDate() + 7);
-  return await refreshTokenEntity.save();
+  await refreshTokenEntity.save();
 }
 
 export async function validateRefreshToken(refreshToken) {

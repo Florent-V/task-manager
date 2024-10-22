@@ -21,6 +21,7 @@ export default {
   jwtPublicKey: process.env.PUBLIC_KEY.replace(/\\n/g, '\n'),
   cookieSecret: process.env.COOKIE_SECRET,
   accessTokenLifetime: process.env.ACCESS_TOKEN_LIFETIME,
+  accessTokenCookieLifetime: process.env.ACCESS_TOKEN_COOKIE_LIFETIME,
   refreshTokenLifetime: process.env.REFRESH_TOKEN_LIFETIME,
   sessionCookieLifetime: process.env.SESSION_COOKIE_LIFETIME,
   refreshTokenCookieLifetime: process.env.REFRESH_TOKEN_COOKIE_LIFETIME,

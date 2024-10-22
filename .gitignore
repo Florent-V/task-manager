@@ -1,9 +1,12 @@
 server/node_modules/
+client/node_modules/
+client/dev-dist/
+client/dist/
 .idea/
 .vscode/
 package-lock.json
+.env.old
 .env
-.env.development
 .env.test
 .env.production
 server/public/uploads/*.png

@@ -16,4 +16,4 @@ COPY . .
 
 # Utiliser START_METHOD pour lancer la commande npm run avec la méthode spécifiée
 # CMD sh -c "echo 'Starting with method: ${START_METHOD}' && npm run START_METHOD"
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "start"]

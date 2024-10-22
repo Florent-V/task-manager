@@ -66,6 +66,7 @@ services:
       - PUBLIC_KEY=${PUBLIC_KEY}
       - CLIENT_ORIGIN=${CLIENT_URL}
       - NODE_API_DOCKER_PORT=${NODE_API_DOCKER_PORT}
+      - ACCESS_TOKEN_COOKIE_LIFETIME=${ACCESS_TOKEN_COOKIE_LIFETIME}
     networks:
       - web
       - internal
