@@ -28,7 +28,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=web"
-      - "traefik.http.routers.client.rule=Host(`${CLIENT_URL}`)"
+      - "traefik.http.routers.api.rule=Host(`${CLIENT_URL}`) && PathPrefix(`/api`)"
       - "traefik.http.services.client.loadbalancer.server.port=5050"
       - "traefik.http.routers.client.entrypoints=websecure"
       - "traefik.http.routers.client.tls.certresolver=${CERT_RESOLVER}"
