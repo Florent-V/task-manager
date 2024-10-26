@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { client } from '@/utils/requestMaker.js';
 import { hookApi} from "@/utils/requestHook.js";
 import ToDoListFormComponent from "@/components/ToDoList/ToDoListFormComponent.vue";
@@ -7,6 +8,7 @@ import LoaderComponent from "@/components/LoaderComponent.vue";
 
 const { isLoading, data, error, executeRequest } = hookApi();
 
+const router = useRouter();
 const toDoLists = ref([]);
 const showForm = ref(false);
 const selectedToDo = ref(null); // For editing
@@ -18,8 +20,6 @@ const handleFormSubmit = async (data) => {
     const index = toDoLists.value.findIndex(list => list.id === response.toDoList.id);
     toDoLists.value[index] = response.toDoList;
   } else {
-    // Create new to-do
-    console.log('new data', data);
     const response = await client.post('/api/todolist', data);
     toDoLists.value.push(response.toDoList);
   }
@@ -53,13 +53,17 @@ const fetchToDoLists = async () => {
   toDoLists.value = data.toDoLists;
 };
 
+const redirectToItem = (id) => {
+  router.push(`/toDoList/${id}`);
+};
+
 onMounted(fetchToDoLists);
 
 </script>
 
 <template>
 
-  <div class="container mx-auto px-4 py-12">
+  <div class="container mx-auto px-1 py-12">
     <div class="flex justify-between items-center mb-6 px-6">
       <h1 class="text-4xl font-bold my-4 text-center text-blue-800 dark:text-yellow-300">Mes ToDo Listes</h1>
       <!-- Add button -->
@@ -90,46 +94,51 @@ onMounted(fetchToDoLists);
     <!-- Loader -->
     <LoaderComponent v-if="isLoading" />
 
-    <div v-else class="w-full bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg dark:shadow-gray-700">
-      <!-- Title Table -->
-      <h2 class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-t-lg text-xl font-semibold">
-        ToDo Listes</h2>
+    <div v-else class="w-full bg-white dark:bg-gray-800 p-3 rounded-xl shadow-lg dark:shadow-gray-700">
 
-      <div class="overflow-x-auto py-4">
+      <div class="overflow-x-auto">
         <table class="min-w-full table-auto">
           <thead>
           <tr class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-md">
             <th class="px-6 py-3 text-left">Titre</th>
             <th class="px-6 py-3 text-left hidden md:table-cell">Description</th>
             <th class="px-6 py-3 text-center">Type</th>
-            <th class="px-6 py-3 text-center">Action</th>
+            <th class="px-6 py-3 text-center w-[5rem]">Action</th>
           </tr>
           </thead>
           <tbody>
           <tr v-for="list in toDoLists" :key="list.id" class="hover:bg-gray-100 dark:hover:bg-gray-600 transition">
-            <td class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300">
+            <td
+                class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300 cursor-pointer"
+                @click="redirectToItem(list.id)"
+            >
               {{ list.title }}
             </td>
-            <td class="hidden md:table-cell border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300">
+            <td
+                class="hidden md:table-cell border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300 cursor-pointer"
+                @click="redirectToItem(list.id)"
+            >
               {{ list.description }}
             </td>
-            <td class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300">
+            <td
+                class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300 cursor-pointer"
+                @click="redirectToItem(list.id)"
+            >
               {{ list.type.name }}
             </td>
             <td class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-center">
-              <button @click="openEditForm(list)"
-                      class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500 mr-2">
-                <i class="fas fa-edit"></i>
-              </button>
-              <button @click="deleteList(list)"
-                      class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500 mr-2">
-                <i class="fas fa-trash-alt"></i>
-              </button>
-              <RouterLink :to="`/toDoList/${list.id}`">
-                <button class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
-                  <i class="fas fa-eye"></i>
+              <div class="flex justify-around">
+                <button @click="openEditForm(list)"
+                        class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
+                  <i class="fas fa-edit"></i>
                 </button>
-              </RouterLink>
+                <button @click="deleteList(list)"
+                        class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+
+              </div>
+
             </td>
           </tr>
           </tbody>

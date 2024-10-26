@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { client } from '@/utils/requestMaker.js';
 import { hookApi} from "@/utils/requestHook.js";
 import ToDoItemFormComponent from "@/components/ToDoList/ToDoItemFormComponent.vue";
+import ToDoItemInlineFormComponent from "@/components/ToDoList/ToDoItemInlineFormComponent.vue";
 import ToggleComponent from "@/components/ToggleComponent.vue";
 import LoaderComponent from "@/components/LoaderComponent.vue";
 
@@ -46,9 +47,7 @@ const filteredToDoItems = computed(() => {
 const handleFormSubmit = async (data) => {
   if (selectedToDoItem.value) {
     // Update existing to-do item
-    console.log('data', data);
     const response = await client.patch(`/api/todolist/${route.params.id}/todoitem/${selectedToDoItem.value.id}`, data);
-    console.log('response', response);
     const index = toDoItems.value.findIndex(item => item.id === response.toDoItem.id);
     toDoItems.value[index] = response.toDoItem;
   } else {
@@ -112,7 +111,6 @@ const decrementQuantity = async (item) => {
 const updateItemQuantityInDatabase = async (item) => {
   console.log('Mise à jour de la quantité...', `/api/todolist/${route.params.id}/todoitem/${item.id}`);
   const response = await client.patch(`/api/todolist/${route.params.id}/todoitem/${item.id}`,  { quantity: item.quantity });
-  console.log('response', response);
   const index = toDoItems.value.findIndex(i => i.id === response.toDoItem.id);
   toDoItems.value[index].quantity = response.toDoItem.quantity;
   console.log('Quantité mise à jour avec succès');
@@ -152,7 +150,7 @@ onMounted(fetchToDoItems);
       <div class="flex justify-between align-center mb-4">
         <ToggleComponent
             v-model:state="showOnlyPending"
-            label="Uniquement non fait"
+            label="Supprimer fait"
         />
         <div v-if="!isCreating" class="text-right">
           <button @click="openCreateForm" class="w-14 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-full">
@@ -188,7 +186,7 @@ onMounted(fetchToDoItems);
 
           <div class="overflow-x-auto py-4">
             <ul>
-              <li v-for="item in filteredToDoItems" :key="item.id"
+              <li v-for="item in filteredToDoItems.filter(item => !item.done)" :key="item.id"
                   class="flex gap-4 items-center bg-white dark:bg-gray-800 p-4 rounded-lg mb-2 shadow-lg dark:shadow-gray-700">
 
                 <button @click="toggleToDoItemDone(item)"
@@ -197,7 +195,7 @@ onMounted(fetchToDoItems);
                 </button>
 
                 <div v-if="isEditing && selectedToDoItem.id === item.id" class="flex-grow">
-                  <ToDoItemFormComponent
+                  <ToDoItemInlineFormComponent
                       :initialData="selectedToDoItem"
                       @submit="handleFormSubmit"
                       @cancel="closeForm"
@@ -205,7 +203,12 @@ onMounted(fetchToDoItems);
                 </div>
 
                 <div v-else class="flex-grow">
-                  <span :class="{ 'line-through text-gray-400 dark:text-gray-500': item.done }">{{ item.title }}</span>
+                  <span
+                      :class="[{ 'line-through text-gray-400 dark:text-gray-500': item.done }, { 'cursor-pointer': !item.done }]"
+                      @click="openEditForm(item)"
+                  >
+                    {{ item.title }}
+                  </span>
                 </div>
 
                 <!-- Section de quantité avec boutons + et - -->
@@ -240,10 +243,6 @@ onMounted(fetchToDoItems);
 
                 <!-- Actions pour chaque item -->
                 <div class="flex items-center">
-                  <button @click="openEditForm(item)"
-                          class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500 ml-2">
-                    <i class="fas fa-edit"></i>
-                  </button>
                   <button @click="deleteToDoItem(item)"
                           class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500 ml-2">
                     <i class="fas fa-trash-alt"></i>
@@ -253,6 +252,37 @@ onMounted(fetchToDoItems);
             </ul>
           </div>
 
+          <div v-if="filteredToDoItems.filter(item => item.done).length > 0" class="mt-4">
+            <h2 class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-t-lg text-xl font-semibold">
+              Fait</h2>
+
+            <div class="overflow-x-auto py-4">
+              <ul>
+                <li v-for="item in filteredToDoItems.filter(item => item.done)" :key="item.id"
+                    class="flex gap-4 items-center bg-white dark:bg-gray-800 p-4 rounded-lg mb-2 shadow-lg dark:shadow-gray-700">
+
+                  <button @click="toggleToDoItemDone(item)"
+                          class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
+                    <i :class="{ 'fa-solid fa-check-square': item.done, 'fa-regular fa-square': !item.done }"></i>
+                  </button>
+
+                  <div class="flex-grow">
+                    <span :class="[{ 'line-through text-gray-400 dark:text-gray-500': item.done }, { 'cursor-pointer': !item.done }]">
+                      {{ item.title }}
+                    </span>
+                  </div>
+
+                  <!-- Actions pour chaque item -->
+                  <div class="flex items-center">
+                    <button @click="deleteToDoItem(item)"
+                            class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500 ml-2">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </div>

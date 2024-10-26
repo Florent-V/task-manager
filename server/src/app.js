@@ -35,7 +35,8 @@ app.use(express.urlencoded({ extended: true }));
 // Dans ton middleware d'application
 app.use(cookieParser(process.env.COOKIE_SECRET));
 // serve the `backend/public` folder for public resources
-app.use(express.static('public'));
+app.use('/api/uploads', express.static('public/uploads'));
+
 
 // Middlewares
 app.use(init);

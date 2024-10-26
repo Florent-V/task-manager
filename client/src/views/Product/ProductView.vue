@@ -6,8 +6,7 @@ import { apiBaseUrl} from "@/utils/requestMaker.js";
 
 const router = useRouter();
 const products = ref([]);
-const baseApiUrl = apiBaseUrl;
-
+const filesApiUrl = `${apiBaseUrl}/api/uploads`;
 
 const navigateToCreateProduct = () => {
   router.push('/product/new');
@@ -41,7 +40,7 @@ onMounted(async () => {
         :key="product.id"
         class="bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white p-4 rounded-lg shadow-md"
       >
-        <img :src="`${baseApiUrl}/uploads/${product.image}`" alt="Product Image" class="w-full h-60 object-cover mb-4 rounded-lg">
+        <img :src="`${filesApiUrl}/${product.image}`" alt="Product Image" class="w-full h-60 object-cover mb-4 rounded-lg">
         <h2 class="text-lg font-semibold">{{ product.name }}</h2>
         <p class="text-gray-600 dark:text-gray-300">{{ product.description }}</p>
         <p class="text-yellow-400 mt-2">{{ product.price }} €</p>
