@@ -5,7 +5,7 @@ import { client } from '@/utils/requestMaker.js';
 import ProductFormComponent from '@/components/Product/ProductFormComponent.vue';
 import { apiBaseUrl} from "@/utils/requestMaker.js";
 
-const baseApiUrl = apiBaseUrl;
+const filesApiUrl = `${apiBaseUrl}/api/uploads`;
 
 const route = useRoute();
 const router = useRouter();
@@ -32,7 +32,7 @@ const handleQuickEdit = (editedProduct) => {
 <template>
   <div class="container mx-auto p-6">
     <div class="bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white p-6 rounded-lg shadow-md">
-      <img :src="`${baseApiUrl}/uploads/${product.image}`" alt="Product Image" class="w-full h-60 object-cover mb-4 rounded-lg">
+      <img :src="`${filesApiUrl}/${product.image}`" alt="Product Image" class="w-full h-60 object-cover mb-4 rounded-lg">
       <h1 class="text-2xl font-bold">{{ product.name }}</h1>
       <p class="text-gray-700 dark:text-gray-300 mt-4">{{ product.description }}</p>
       <p class="text-yellow-500 mt-4">{{ product.price }} €</p>
