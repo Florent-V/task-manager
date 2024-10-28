@@ -1,8 +1,10 @@
 <script setup>
-import {ref, onMounted, computed} from 'vue';
-import {initializeTheme} from '@/utils/initDarkMode';
+import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import { initializeTheme } from '@/utils/initDarkMode';
 import { useAuthStore } from '@/stores/authStore';
 
+const router = useRouter();
 const userStore = useAuthStore();
 const user = computed(() => userStore.user);
 
@@ -70,11 +72,11 @@ const manageOutsideClickListener = () => {
 
 const logout = () => {
   userStore.logout();
+  router.push(`/`);
 }
 
 onMounted(() => {
   initializeTheme(isDarkMode);
-  console.log('User:', user.value);
 });
 </script>
 
@@ -173,7 +175,8 @@ onMounted(() => {
 
         <template v-if="user">
           <div class="relative">
-            <img @click.stop="toggleUserDropdown" :src="user.photoUrl ?? 'https://i.pravatar.cc/150?img=3'" alt="User photo"
+            <img @click.stop="toggleUserDropdown" :src="user.photoUrl ?? 'https://i.pravatar.cc/150?img=3'"
+                 alt="User photo"
                  class="h-10 w-10 rounded-full cursor-pointer">
             <div v-show="isUserDropdownOpen"
                  class="absolute right-0 mt-2 w-64 bg-blue-100 dark:bg-gray-700 rounded-md shadow-lg">
@@ -185,22 +188,25 @@ onMounted(() => {
               <ul>
                 <li>
                   <a href="#"
-                       class="block px-4 py-2 text-sm hover:bg-blue-200 dark:hover:bg-gray-600">
-                  Dashboard
+                     class="block px-4 py-2 text-sm hover:bg-blue-200 dark:hover:bg-gray-600">
+                    Dashboard
                   </a>
                 </li>
                 <li>
                   <a href="#"
-                       class="block px-4 py-2 text-sm hover:bg-blue-200 dark:hover:bg-gray-600">
+                     class="block px-4 py-2 text-sm hover:bg-blue-200 dark:hover:bg-gray-600">
                     Settings
                   </a>
                 </li>
                 <li>
-                  <button @click="logout" class="ml-4 flex items-center gap-1 py-2 text-sm text-red-600 hover:text-red-800">
+                  <button @click="logout"
+                          class="ml-4 flex items-center gap-1 py-2 text-sm text-red-600 hover:text-red-800">
                     <span>Sign Out</span>
                     <!-- Icône SVG de déconnexion -->
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-10V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h6a2 2 0 002-2v-1" />
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-10V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h6a2 2 0 002-2v-1"/>
                     </svg>
                   </button>
                 </li>

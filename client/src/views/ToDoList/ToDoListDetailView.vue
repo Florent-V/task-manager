@@ -172,12 +172,7 @@ onMounted(fetchToDoItems);
       <!-- Loader -->
       <LoaderComponent v-if="isLoading" />
 
-      <div v-else>
-        <!-- Liste des ToDoItems -->
-        <div v-if="toDoItems.length === 0" class="text-center text-gray-400 dark:text-gray-500 mt-8">
-          Aucune tâche à afficher
-        </div>
-
+      <div v-else-if="toDoItems.length">
         <div class="w-full bg-white dark:bg-gray-800 px-6 rounded-xl shadow-lg dark:shadow-gray-700">
           <p class="py-3">{{ toDoList.description }}</p>
           <!-- Title Table -->
@@ -285,6 +280,10 @@ onMounted(fetchToDoItems);
           </div>
         </div>
       </div>
+
+      <div v-else>
+        <p class="text-center text-gray-400 dark:text-gray-500 mt-8">Aucune tâche à afficher</p>
+      </div>
     </div>
   </div>
 
@@ -293,10 +292,6 @@ onMounted(fetchToDoItems);
 <style scoped>
 .container {
   max-width: 1200px;
-}
-
-.input-field {
-  transition: all 0.3s ease;
 }
 
 table {
@@ -312,76 +307,5 @@ th, td {
 
 button {
   cursor: pointer;
-}
-
-.loader-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 5rem;
-}
-
-.dot-loader {
-  display: inline-block;
-  position: relative;
-  width: 80px;
-  height: 13px;
-}
-
-.dot-loader div {
-  position: absolute;
-  top: 0;
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
-  background: #3498db; /* Couleur principale du loader */
-  animation-timing-function: cubic-bezier(0, 1, 1, 0);
-}
-
-.dot-loader div:nth-child(1) {
-  left: 8px;
-  animation: dot1 0.6s infinite;
-}
-
-.dot-loader div:nth-child(2) {
-  left: 8px;
-  animation: dot2 0.6s infinite;
-}
-
-.dot-loader div:nth-child(3) {
-  left: 32px;
-  animation: dot2 0.6s infinite;
-}
-
-.dot-loader div:nth-child(4) {
-  left: 56px;
-  animation: dot3 0.6s infinite;
-}
-
-@keyframes dot1 {
-  0% {
-    transform: scale(0);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes dot2 {
-  0% {
-    transform: translate(0, 0);
-  }
-  100% {
-    transform: translate(24px, 0);
-  }
-}
-
-@keyframes dot3 {
-  0% {
-    transform: scale(1);
-  }
-  100% {
-    transform: scale(0);
-  }
 }
 </style>

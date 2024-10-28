@@ -55,6 +55,8 @@ export const signin = async (req, res, next) => {
     await storeRefreshToken(user, refreshToken);
 
     // Envoie les tokens dans les cookies
+    console.log('refreshTokensCookieOptions', refreshTokensCookieOptions);
+    console.log('accessTokensCookieOptions', accessTokensCookieOptions);
     res.cookie('refresh_token', refreshToken, refreshTokensCookieOptions);
     res.cookie('access_token', token, accessTokensCookieOptions);
 

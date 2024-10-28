@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { client } from '@/utils/requestMaker.js';
-import { hookApi} from "@/utils/requestHook.js";
+import { hookApi } from "@/utils/requestHook.js";
 import ToDoListFormComponent from "@/components/ToDoList/ToDoListFormComponent.vue";
 import LoaderComponent from "@/components/LoaderComponent.vue";
 
@@ -31,7 +31,7 @@ const openCreateForm = () => {
   showForm.value = true;
 };
 const openEditForm = (list) => {
-  selectedToDo.value = {...list};
+  selectedToDo.value = { ...list };
   showForm.value = true;
 };
 
@@ -46,7 +46,6 @@ const closeForm = () => {
 };
 
 const fetchToDoLists = async () => {
-  console.log('fetchToDoLists');
   // const data = await client.get('/api/todolist');
   const data = await executeRequest(() => client.get('/api/todolist'));
   console.log('todolist', data);
@@ -92,9 +91,9 @@ onMounted(fetchToDoLists);
     <div class="h-6"></div>
 
     <!-- Loader -->
-    <LoaderComponent v-if="isLoading" />
+    <LoaderComponent v-if="isLoading"/>
 
-    <div v-else class="w-full bg-white dark:bg-gray-800 p-3 rounded-xl shadow-lg dark:shadow-gray-700">
+    <div v-else-if="toDoLists.length" class="w-full bg-white dark:bg-gray-800 p-3 rounded-xl shadow-lg dark:shadow-gray-700">
 
       <div class="overflow-x-auto">
         <table class="min-w-full table-auto">
@@ -107,45 +106,46 @@ onMounted(fetchToDoLists);
           </tr>
           </thead>
           <tbody>
-          <tr v-for="list in toDoLists" :key="list.id" class="hover:bg-gray-100 dark:hover:bg-gray-600 transition">
-            <td
-                class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300 cursor-pointer"
-                @click="redirectToItem(list.id)"
-            >
-              {{ list.title }}
-            </td>
-            <td
-                class="hidden md:table-cell border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300 cursor-pointer"
-                @click="redirectToItem(list.id)"
-            >
-              {{ list.description }}
-            </td>
-            <td
-                class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300 cursor-pointer"
-                @click="redirectToItem(list.id)"
-            >
-              {{ list.type.name }}
-            </td>
-            <td class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-center">
-              <div class="flex justify-around">
-                <button @click="openEditForm(list)"
-                        class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button @click="deleteList(list)"
-                        class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
-                  <i class="fas fa-trash-alt"></i>
-                </button>
-
-              </div>
-
-            </td>
-          </tr>
+            <tr v-for="list in toDoLists" :key="list.id" class="hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+              <td
+                  class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300 cursor-pointer"
+                  @click="redirectToItem(list.id)"
+              >
+                {{ list.title }}
+              </td>
+              <td
+                  class="hidden md:table-cell border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300 cursor-pointer"
+                  @click="redirectToItem(list.id)"
+              >
+                {{ list.description }}
+              </td>
+              <td
+                  class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300 cursor-pointer"
+                  @click="redirectToItem(list.id)"
+              >
+                {{ list.type.name }}
+              </td>
+              <td class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-center">
+                <div class="flex justify-around">
+                  <button @click="openEditForm(list)"
+                          class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button @click="deleteList(list)"
+                          class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
     </div>
 
+    <div v-else>
+      <p class="text-center text-gray-700 dark:text-gray-300 text-xl">Aucune Liste trouvée</p>
+    </div>
   </div>
 </template>
 
