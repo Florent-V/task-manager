@@ -1,5 +1,5 @@
 <h1 align="center"><a href="https://github.com/ElanYoung/vite-vue-js-starter-template" target="_blank">
-🚀 Express - MYSQL - Vue 3  Starter  🚀
+🚀 Express - MYSQL - Vue 3  Task Manager App  🚀
 </a></h1>
 
 <p align="center">
@@ -29,9 +29,11 @@
   </a>
 </p>
 
-This template should help get you started developing a full stack app with Vue 3 in Vite and Express with MySQL.
-It comes pre-configured with several essential dependencies that will help you get started with your Vue3 project right away.
+This project is a task manager app with a front in VueJS and a back in Express.
+This app allows you to manage your tasks and your todolists. You can create, edit and delete tasks and todolists.
+You can also create a todolist and add tasks to it.
 All is dockerized and ready to use.
+This project is production ready with a docker-compose-prod.yml file which contains the configuration for a production environment on traefik. 
 
 ![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)
 ![Vue.js](https://img.shields.io/badge/vuejs-%2335495e.svg?style=for-the-badge&logo=vuedotjs&logoColor=%234FC08D)
@@ -47,23 +49,21 @@ All is dockerized and ready to use.
 ![MySQL](https://img.shields.io/badge/mysql-4479A1.svg?style=for-the-badge&logo=mysql&logoColor=white)
 ![WebStorm](https://img.shields.io/badge/webstorm-143?style=for-the-badge&logo=webstorm&logoColor=white&color=black)
 
-
 <!-- TOC -->
-* [Front - VueJS](#front---vuejs)
-  * [Overview](#overview)
-    * [Vue3](#vue3)
-    * [Features](#features)
-    * [Testing](#testing)
-    * [Styling](#styling)
-    * [Code Quality](#code-quality)
-* [Back - Express](#back---express)
-  * [Overview](#overview-1)
-    * [Features](#features-1)
-    * [API Endpoints](#api-endpoints)
+* [Front - VueJS - Overview](#front---vuejs---overview)
+  * [Vue3](#vue3)
+  * [Features](#features)
+  * [Testing](#testing)
+  * [Styling](#styling)
+  * [Code Quality](#code-quality)
+* [Back - Express - Overview](#back---express---overview)
+  * [Features](#features-1)
+  * [API Endpoints](#api-endpoints)
 * [Installation](#installation)
   * [How To Setup](#how-to-setup)
   * [Configuration .env](#configuration-env)
   * [Checklist](#checklist)
+* [Deploy](#deploy)
 * [TODO](#todo)
   * [Docker](#docker)
     * [Start the containers](#start-the-containers)
@@ -81,12 +81,9 @@ All is dockerized and ready to use.
   * [License](#license)
 <!-- TOC -->
 
+# Front - VueJS - Overview
 
-# Front - VueJS
-
-## Overview
-
-### Vue3
+## Vue3
 + ⚡️ [Vite 5](https://github.com/vitejs/vite) - born with fastness
 + [PWA Plugin](https://www.npmjs.com/package/vite-plugin-pwa): A Vite plugin that helps you build progressive web applications (PWA) by generating a service worker and a manifest file for your application.
 + 🖖 [Vue 3](https://github.com/vuejs/core) - Composition API and `<script setup>`
@@ -94,45 +91,41 @@ All is dockerized and ready to use.
 + 📦 [Pinia](https://github.com/vuejs/pinia) - Intuitive, type safe and flexible Store for Vue
 + 🔗 [Axios](https://github.com/axios/axios) - Promise based HTTP client for the browser and node.js
 
-### Features
+## Features
 
 + Landing Page
-+ Some Demo Pages
-+ Signin/Signup Page
++ Signin/Signup
 + Handle user with pinia
-+ Local crud with pinia
 + DB crud with axios
 + Responsive Design
 + Dark Mode
 
-### Testing
+## Testing
 
 + [Nightwatch](https://nightwatchjs.org/): A testing library for running end-to-end tests in your application.
 + [Vitest](https://vitest.dev/): A unit testing library, can also be used to test components with `vue test utils`.
 
-### Styling
+## Styling
 
 + [Tailwind CSS](https://tailwindui.com/): A utility-first CSS framework that helps you build custom user interfaces.
 + [Sass](https://sass-lang.com/): A CSS preprocessor that allows you to use variables and functions in your CSS.
 
-### Code Quality
+## Code Quality
 
 + [ESLint](https://eslint.org/): A linting tool for JavaScript and TypeScript code.
 + [Prettier](https://prettier.io/): A code formatter that ensures consistency in your code style.
 
-# Back - Express
+# Back - Express - Overview
 
-## Overview
-
-### Features
+## Features
 
 + CRUD operations with MySQL and Sequelize
 + JWT Authentication with roles based authentication
 + Containerized with Docker
 + Refresh Token
-+ Cookie Session
++ Session Token
 
-### API Endpoints
+## API Endpoints
 
 All routes are prefixed by `/api`.
 
@@ -151,17 +144,6 @@ All following routes are protected by JWT token. You need to be authenticated to
 - POST /user/{:userId}/role/{:roleId} `Add a role to a user (only for admin)`
 - DELETE /user/{:id} `Delete a user by id (only for admin)`
 - DELETE /user/{:userId}/role/{:roleId} `Delete a role to a user (only for admin)`
----
-**Product**
-All following routes are protected by JWT token. You need to be authenticated to access them.
-Product are linked to a user. Only the user who created the product can get, edit or delete it.
-- GET /product `Get all user's products`
-- GET /product/all `Get all products (only for admin)`
-- POST /product
-- GET /product/{:id} `Get a product by id(only for the user who created it)`
-- PATCH /product/edit/{:id} `Edit a product by id(only for the user who created it)`
-- POST /product/{:id} `Delete a product by id(only for the user who created it)`
-- DELETE /product/{:id} `Delete a product by id(only for the user who created it)`
 ---
 **ToDoList and ToDoItem**
 All following routes are protected by JWT token. You need to be authenticated to access them.
@@ -183,14 +165,14 @@ I've made a script to generate a crud for a new entity. You can use it with :
 Be careful, this feature is still in development and some modifications may be needed.
 
 
-# Installation
+# Local Installation
 
 ## How To Setup
 
 - [Create a repo from this template on GitHub](https://github.com/Florent-V/starter-vue-express/generate).
 - If you prefer, just `git clone https://github.com/Florent-V/starter-vue-express.git`
-- `cd starter-vue-express`
-- configure .env file. See [Setup configuration](#configuration) below
+- `cd task-manager`
+- configure .env file. See [Setup configuration](#configuration-env) below
 - `docker compose up --build`
 - Enjoy !
 
@@ -200,15 +182,15 @@ Be careful, this feature is still in development and some modifications may be n
 
 ## Configuration .env
 
-1. Copy the `.env.example` file to `.env` and configure the variables as needed.
+1. Copy the `.env.template` file to `.env` and configure the variables as needed.
 2. Configuration of PRIVATE and PUBLIC key for JWT token :
-- Generate private key :  
-`openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:4096`
-- Generate public key :  
-`openssl rsa -pubout -in private_key.pem -out public_key.pem`
-- Copy the content of the private and public key in the .env file :  
-`cat private_key.pem`  
-`cat public_key.pem` 
+   - Generate private key :  
+   `openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:4096`
+   - Generate public key :  
+   `openssl rsa -pubout -in private_key.pem -out public_key.pem`
+   - Copy the content of the private and public key in the .env file :  
+   `cat private_key.pem`  
+   `cat public_key.pem` 
 3. To generate a secret key for the JWT token, you can use the following command :
 ```bash
 openssl rand -base64 64
@@ -221,22 +203,31 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'));"
 When you use this template, try follow the checklist to update your info properly
 
 - [ ] Change the author name in `LICENSE`
-- [ ] Change the title in `App.vue`
+- [ ] Change informations in `index.html`
 - [ ] Change the hostname in `vite.config.js`
 - [ ] Change the favicon in `public`
 - [ ] Remove the `.github` folder which contains the funding info
-- [ ] Clean up the READMEs and remove routes
+- [ ] Clean up the README and remove routes
 
-# Deploy
+# Deploy in production
 
-Use docker-compose-prod to deploy the project. You can use the following command to start the project :
+This project is production ready with traefik.  
+Use docker-compose-prod to deploy the project.
+You need to configure the .env file with the domain you want to use and a .env.production file with the same variables as the .env file
+for frontend because in production mode, vueJS will use the .env.production file.
+You can use the following command to start the project :
 ```bash
 docker-compose -f docker-compose-prod.yml up --build
 # or
 docker compose -f docker-compose-prod.yml up --build -d
-sudo docker compose -f docker-compose-prod.yml down --rmi all --volumes --remove-orphans
 ```
 The '-d' option is to start the project in detached mode.
+And it's done ! You can now access the project on the domain you've configured in the .env file.
+
+To clean up the project, you can use the following command :
+```bash
+sudo docker compose -f docker-compose-prod.yml down --rmi all --volumes --remove-orphans
+```
 
 # TODO
 
@@ -246,33 +237,41 @@ The '-d' option is to start the project in detached mode.
 - critère validation mot de passe
 - service toast message
 
-## Docker
+# Docker Help Commands
+
+This project use docker, if you're not familiar with it, here are some useful commands :
 
 ### Start the containers
 ```bash	
-docker-compose up --build
+docker compose up --build
 ```
 
 ### Stop the containers
 ```bash
-docker-compose down
+docker compose down
 ```
 
 ### Restart the containers
 ```bash
-docker-compose down
-docker-compose up --build
+docker compose down
+docker compose up --build
 ```
 
 ### Access to the MySQL container
 ```bash
-docker exec -it ${PROJECT_NAME}-app-${ENV_NAME} sh
+docker exec -it ${PROJECT_NAME}-db-${ENV_NAME} sh
 ```
 
 ### Access to the Node container
 ```bash
-docker exec -it ${PROJECT_NAME}-db-${ENV_NAME} sh
+docker exec -it ${PROJECT_NAME}-app-${ENV_NAME} sh
 ```
+
+### Access to the Client container
+```bash
+docker exec -it ${PROJECT_NAME}-client-${ENV_NAME} sh
+```
+
 
 ### Execute a SQL script in the MySQL container
 
@@ -309,7 +308,7 @@ source /path/to/script.sql
 
 #### Method 4 : Docker-compose
 
-Before the `docker-compose up --build` command, add the following lines in the `docker-compose.yml` file if you want to execute the scripts at the start of the MySQL container :
+Before the `docker compose up --build` command, add the following lines in the `docker-compose.yml` file if you want to execute the scripts at the start of the MySQL container :
 
 ```yml
 services:
@@ -334,17 +333,17 @@ mysqldump -u<username> -p<password> <database_name> > /path/to/script.sql
 
 ## Contributing
 
-Les contributions sont les bienvenues ! Veuillez suivre les étapes suivantes pour contribuer :
+Contributions are welcome! Please follow the steps below to contribute:
 
-1. Forkez le projet.
-2. Créez votre branche de fonctionnalité (`git checkout -b feature/AmazingFeature`).
-3. Commitez vos changements (`git commit -m 'Add some AmazingFeature'`).
-4. Poussez vers la branche (`git push origin feature/AmazingFeature`).
-5. Ouvrez une Pull Request.
+1. Fork the Project.
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`).
+4. Push to the Branch (`git push origin feature/AmazingFeature`).
+5. Open a Pull Request.
 
 ## License
 
-Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus de détails.
+This project is under MIT license. See the LICENSE file for more details.
 
 Lorsque le conteneur MySQL démarrera, il exécutera automatiquement tous les scripts .sql présents dans le dossier /docker-entrypoint-initdb.d (qui correspond à votre dossier sql local) lors de la première initialisation de la base de données.
 

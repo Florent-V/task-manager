@@ -28,9 +28,9 @@ export default defineConfig({
       },
 
       manifest: {
-        name: 'vue-pwa',
-        short_name: 'vue-pwa',
-        description: 'test pwa',
+        name: 'task-manager',
+        short_name: 'task-manager',
+        description: 'Application de gestion de liste de tâches',
         theme_color: '#f0f0f0',
       },
 
