@@ -1,5 +1,6 @@
 import sequelize from './connect.js';
 import models from '../models/index.js';
+
 const { role, user, product, toDoList, toDoListType, toDoItem, label } = models;
 
 export const seedDatabase = async () => {
@@ -14,10 +15,17 @@ export const seedDatabase = async () => {
 
     const users = await user.bulkCreate([
       {
-        username: 'userUser',
+        username: 'userUser_1',
         firstName: 'Alice',
         lastName: 'Smith',
-        email: 'user@mail.com',
+        email: 'user1@mail.com',
+        password: '$2a$10$KH1D8E6BfPJFsoxBJYA5TuVItCzipAxI52JiRl0gKLKCgMOsjM.6q',
+      },
+      {
+        username: 'userUser_2',
+        firstName: 'Peter',
+        lastName: 'Jackson',
+        email: 'user2@mail.com',
         password: '$2a$10$KH1D8E6BfPJFsoxBJYA5TuVItCzipAxI52JiRl0gKLKCgMOsjM.6q',
       },
       {
@@ -105,126 +113,127 @@ export const seedDatabase = async () => {
     ]);
 
     const labels = await label.bulkCreate([
-        {
-            name: 'low',
-        },
-        {
-            name: 'medium',
-        },
-        {
-            name: 'high',
-        }
+      {
+        name: 'low',
+      },
+      {
+        name: 'medium',
+      },
+      {
+        name: 'high',
+      }
     ]);
 
     const toDoListTypes = await toDoListType.bulkCreate([
-        {
-            name: 'Personal',
-        },
-        {
-            name: 'Work',
-        },
-        {
-            name: 'Shopping',
-        }
+      {
+        name: 'Personal',
+      },
+      {
+        name: 'Work',
+      },
+      {
+        name: 'Shopping',
+      }
     ]);
 
 
     const toDoLists = await toDoList.bulkCreate([
-        {
-            title: 'To Do List 1',
-            description: 'Description of To Do List 1',
-            userId: users[0].id,
-            typeId: toDoListTypes[0].id,
-        },
-        {
-            title: 'To Do List 2',
-            description: 'Description of To Do List 2',
-            userId: users[1].id,
-        },
-        {
-            title: 'To Do List 3',
-            description: 'Description of To Do List 3',
-            userId: users[2].id,
-        },
-        {
-            title: 'To Do List 4',
-            description: 'Description of To Do List 4',
-            userId: users[0].id,
-            typeId: toDoListTypes[2].id,
-        },
-        {
-            title: 'To Do List 5',
-            description: 'Description of To Do List 5',
-            userId: users[1].id,
-        },
-        {
-            title: 'To Do List 6',
-            description: 'Description of To Do List 6',
-            userId: users[2].id,
-        }
+      {
+        title: 'To Do List 1',
+        description: 'Description of To Do List 1',
+        typeId: toDoListTypes[0].id,
+      },
+      {
+        title: 'To Do List 2',
+        description: 'Description of To Do List 2',
+      },
+      {
+        title: 'To Do List 3',
+        description: 'Description of To Do List 3',
+      },
+      {
+        title: 'To Do List 4',
+        description: 'Description of To Do List 4',
+        userId: users[0].id,
+      },
+      {
+        title: 'To Do List 5',
+        description: 'Description of To Do List 5',
+      },
+      {
+        title: 'To Do List 6',
+        description: 'Description of To Do List 6',
+      }
     ]);
     console.log('toDoLists', toDoLists.length);
 
+    await toDoLists[0].addUsers([users[0], users[1]]);
+    await toDoLists[1].addUser(users[1]);
+    await toDoLists[2].addUsers([users[2], users[0]]);
+    await toDoLists[3].addUser(users[0]);
+    await toDoLists[4].addUser(users[1]);
+    await toDoLists[5].addUsers([users[2], users[1]]);
+
     const toDoItems = await toDoItem.bulkCreate([
-        {
-            title: 'To Do Item 1',
-            description: 'Description of To Do Item 1',
-            toDoListId: toDoLists[0].id,
-        },
-        {
-            title: 'To Do Item 2',
-            description: 'Description of To Do Item 2',
-            toDoListId: toDoLists[1].id,
-        },
-        {
-            title: 'To Do Item 3',
-            description: 'Description of To Do Item 3',
-            toDoListId: toDoLists[2].id,
-        },
-        {
-            title: 'To Do Item 4',
-            description: 'Description of To Do Item 4',
-            toDoListId: toDoLists[3].id,
-        },
-        {
-            title: 'To Do Item 5',
-            description: 'Description of To Do Item 5',
-            toDoListId: toDoLists[4].id,
-        },
-        {
-            title: 'To Do Item 6',
-            description: 'Description of To Do Item 6',
-            toDoListId: toDoLists[5].id,
-        },
-        {
-            title: 'To Do Item 7',
-            description: 'Description of To Do Item 7',
-            toDoListId: toDoLists[0].id,
-        },
-        {
-            title: 'To Do Item 8',
-            description: 'Description of To Do Item 8',
-            toDoListId: toDoLists[1].id,
-        },
-        {
-            title: 'To Do Item 9',
-            description: 'Description of To Do Item 9',
-            toDoListId: toDoLists[2].id,
-        },
-        {
-            title: 'To Do Item 10',
-            description: 'Description of To Do Item 10',
-            toDoListId: toDoLists[3].id,
-        },
-        {
-            title: 'To Do Item 11',
-            description: 'Description of To Do Item 11',
-            toDoListId: toDoLists[4].id,
-        },
-        {
-            title: 'To Do Item 12',
-            description: 'Description of To Do Item 12',
-            toDoListId: toDoLists[5].id,
+      {
+        title: 'To Do Item 1',
+        description: 'Description of To Do Item 1',
+        toDoListId: toDoLists[0].id,
+      },
+      {
+        title: 'To Do Item 2',
+        description: 'Description of To Do Item 2',
+        toDoListId: toDoLists[1].id,
+      },
+      {
+        title: 'To Do Item 3',
+        description: 'Description of To Do Item 3',
+        toDoListId: toDoLists[2].id,
+      },
+      {
+        title: 'To Do Item 4',
+        description: 'Description of To Do Item 4',
+        toDoListId: toDoLists[3].id,
+      },
+      {
+        title: 'To Do Item 5',
+        description: 'Description of To Do Item 5',
+        toDoListId: toDoLists[4].id,
+      },
+      {
+        title: 'To Do Item 6',
+        description: 'Description of To Do Item 6',
+        toDoListId: toDoLists[5].id,
+      },
+      {
+        title: 'To Do Item 7',
+        description: 'Description of To Do Item 7',
+        toDoListId: toDoLists[0].id,
+      },
+      {
+        title: 'To Do Item 8',
+        description: 'Description of To Do Item 8',
+        toDoListId: toDoLists[1].id,
+      },
+      {
+        title: 'To Do Item 9',
+        description: 'Description of To Do Item 9',
+        toDoListId: toDoLists[2].id,
+      },
+      {
+        title: 'To Do Item 10',
+        description: 'Description of To Do Item 10',
+        toDoListId: toDoLists[3].id,
+      },
+      {
+        title: 'To Do Item 11',
+        description: 'Description of To Do Item 11',
+        toDoListId: toDoLists[4].id,
+      },
+      {
+        title: 'To Do Item 12',
+        description: 'Description of To Do Item 12',
+        toDoListId: toDoLists[5].id,
       }
     ]);
 

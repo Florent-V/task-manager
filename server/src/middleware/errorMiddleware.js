@@ -7,7 +7,7 @@ export const errorHandler = (error, req, res, next) => {
   Object.getOwnPropertyNames(error).forEach((key) => {
     serializedError[key] = error[key];
   });
-  
+  res.data = {};
   res.status(error.status || 500).send(serializedError);
 }
 
@@ -16,6 +16,6 @@ export const notFound = (req, res, next) => {
 }
 
 export const logError = (err, req, res, next) => {
-  console.log("logError()", err);
+  console.log("### logError()", err);
   next(err);
 }

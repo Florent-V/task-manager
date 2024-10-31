@@ -26,8 +26,8 @@ export const authenticateByCookieSession = (req, res, next) => {
   console.log('req.signedCookies:', req.signedCookies);
   try {
     // TODO Delete auth by header in production use only cookie
-    // const token = req.header('Authorization')?.split(' ')[1];
-    const token = req.signedCookies.access_token;
+    const token = req.header('Authorization')?.split(' ')[1];
+    // const token = req.signedCookies.access_token;
 
     if (!token) throw new InvalidTokenError('Access Denied: No token provided');
   
