@@ -47,6 +47,16 @@ apiClient.interceptors.response.use(
         return Promise.reject(_error);
       }
     }
+
+    if (error.response && error.response.status === 403) {
+      console.error('Interceptor - 403:', error.response.data.message);
+      router.push('/403');
+    }
+
+    if (error.response && error.response.status === 404) {
+      console.error('Interceptor - 404:', error.response.data.message);
+      router.push('/404');
+    }
     console.error('Interceptor - Out');
     return Promise.reject(error);
   }

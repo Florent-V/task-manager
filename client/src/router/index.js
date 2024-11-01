@@ -10,6 +10,7 @@ import AboutView from '@/views/AboutView.vue'
 import HelloView from '@/views/HelloView.vue'
 import NotFound from '@/views/NotFound.vue'
 import TestView from '@/views/Demo/TestView.vue'
+import Forbidden from "@/views/Forbidden.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -63,6 +64,16 @@ const router = createRouter({
     ...authRoutes,
     ...productRoutes,
     ...toDoListRoutes,
+    {
+      path: '/404',
+      name: '404NotFound',
+      component: NotFound,
+    },
+    {
+      path: '/403',
+      name: '403Forbidden',
+      component: Forbidden,
+    },
     {
       path: '/:pathMatch(.*)*', // Correspond à toutes les routes non définies
       name: 'NotFound',
