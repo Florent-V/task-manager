@@ -1,3 +1,4 @@
+import QRCode from 'qrcode';
 import ToDoList from '../models/toDoListModel.js';
 import ToDoItem from '../models/toDoItemModel.js';
 import NotFoundError from '../error/notFoundError.js';
@@ -162,3 +163,44 @@ export const deleteToDoList = async (req, res, next) => {
     return next(error);
   }
 };
+
+// Share toDoList
+export const shareToDoList = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    if (!userId) throw new ForbiddenError('Access denied: You do not have permission to share ToDoList');
+
+    // Récupérer ou générer le lien de partage
+    const shareLink = `${process.env.CLIENT_ORIGIN}/todolist/${req.params.id}/join`;
+
+    // Générer le QR code à partir du lien de partage
+    QRCode.toDataURL(shareLink, (err, url) => {
+      if (err) return res.status(500).json({ error: 'Erreur QR Code' });
+      res.json({
+        qrCodeUrl: url,
+        linkUrl: shareLink
+      });
+    });
+
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// join todolist
+export const joinToDoList = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    if (!userId) throw new ForbiddenError('Access denied: You do not have permission to join ToDoList');
+
+    // vérifier si userId est déjà dans la liste
+    const isUserInList = await res.data.toDoList.hasUser(userId);
+    if (isUserInList) throw new ForbiddenError('Access denied: You are already in the list');
+
+    await res.data.toDoList.addUsers([userId]);
+
+    next();
+  } catch (error) {
+    return next(error);
+  }
+}
