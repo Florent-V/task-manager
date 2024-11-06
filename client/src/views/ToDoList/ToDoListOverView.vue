@@ -6,7 +6,7 @@ import { hookApi } from "@/utils/requestHook.js";
 import ToDoListFormComponent from "@/components/ToDoList/ToDoListFormComponent.vue";
 import LoaderComponent from "@/components/LoaderComponent.vue";
 
-const { isLoading, data, error, executeRequest } = hookApi();
+const { isLoading, error, executeRequest } = hookApi();
 
 const router = useRouter();
 const toDoLists = ref([]);
@@ -46,10 +46,13 @@ const closeForm = () => {
 };
 
 const fetchToDoLists = async () => {
-  // const data = await client.get('/api/todolist');
-  const data = await executeRequest(() => client.get('/api/todolist'));
-  console.log('todolist', data);
-  toDoLists.value = data.toDoLists;
+  try {
+    const data = await executeRequest(() => client.get('/api/todolist'));
+    console.log('todolist', data);
+    toDoLists.value = data.toDoLists;
+  } catch (e) {
+    console.error(e);
+  }
 };
 
 const redirectToItem = (id) => {
@@ -93,7 +96,7 @@ onMounted(fetchToDoLists);
     <!-- Loader -->
     <LoaderComponent v-if="isLoading"/>
 
-    <div v-else-if="toDoLists.length" class="w-full bg-white dark:bg-gray-800 p-3 rounded-xl shadow-lg dark:shadow-gray-700">
+    <div v-if="toDoLists.length" class="w-full bg-white dark:bg-gray-800 p-3 rounded-xl shadow-lg dark:shadow-gray-700">
 
       <div class="overflow-x-auto">
         <table class="min-w-full table-auto">
@@ -142,9 +145,12 @@ onMounted(fetchToDoLists);
         </table>
       </div>
     </div>
-
     <div v-else>
       <p class="text-center text-gray-700 dark:text-gray-300 text-xl">Aucune Liste trouvée</p>
+    </div>
+
+    <div v-if="error">
+      <p class="text-center text-red-700 dark:text-red-300 text-xl">{{ error }}</p>
     </div>
   </div>
 </template>

@@ -5,15 +5,17 @@ export function hookApi() {
   const isLoading = ref(false);
   const error = ref(null);
 
-  const executeRequest = async (requestFn) => {
+  const executeRequest = async (requestPromise) => {
     isLoading.value = true;
     error.value = null;
 
     try {
       // Appel de la fonction passée comme paramètre
-      return await requestFn();
+      return await requestPromise();
     } catch (err) {
-      error.value = err;
+      console.error('hookApi() - Erreur lors de la requête:', err);
+      error.value = 'Erreur lors de la requête, veuillez réessayer';
+      throw err;
     } finally {
       isLoading.value = false;
     }

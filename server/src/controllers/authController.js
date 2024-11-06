@@ -4,7 +4,7 @@ import { hashPassword } from '../services/passwordService.js';
 import RefreshTokenError from '../error/refreshTokenError.js';
 import config from '../config/config.js';
 import { authenticateUser } from '../services/authService.js';
-import { createAuthTokens, storeRefreshToken, validateRefreshToken, rotateRefreshToken, authToken } from '../services/tokenService.js';
+import { createAuthTokens, storeRefreshToken, validateRefreshToken, rotateRefreshToken, decodeToken } from '../services/tokenService.js';
 
 // Options des cookies
 const refreshTokensCookieOptions = {
@@ -55,8 +55,7 @@ export const signin = async (req, res, next) => {
     await storeRefreshToken(user, refreshToken);
 
     // Envoie les tokens dans les cookies
-    console.log('token', token);
-    res.cookie('refresh_token', refreshToken, refreshTokensCookieOptions);
+    // res.cookie('refresh_token', refreshToken, refreshTokensCookieOptions);
     res.cookie('access_token', token, accessTokensCookieOptions);
 
     return res.status(200).send({
@@ -66,8 +65,8 @@ export const signin = async (req, res, next) => {
       lastName: user.lastName,
       email: user.email,
       roles: authorities,
-      // token,
-      // refreshToken
+      //token,
+      //refreshToken
     });
   } catch (error) {
     return next(error);
@@ -108,11 +107,6 @@ export const handleRefreshToken = async (req, res, next) => {
 
 export const logout = async (req, res) => {
   try {
-    if (req.session) {
-      const verified = authToken(req.session.token);
-      await RefreshToken.update({ valid: 0 }, { where: { userId: verified.id } });
-      req.session = null;
-    }
     res.clearCookie('refresh_token', {
       httpOnly: true,
       secure: true,
@@ -126,11 +120,18 @@ export const logout = async (req, res) => {
       sameSite: 'Strict',
       path: '/'
     });
-    
+
+    const token = req.signedCookies.access_token;
+    if (token) {
+      const decoded = decodeToken(token);
+      console.log('decoded:', decoded);
+      await RefreshToken.update({ valid: 0 }, { where: { userId: decoded.id } });
+    }
+
     return res.status(200).send({
       message: "You've been signed out successfully!"
     });
   } catch (error) {
-    return next(error);
+    console.log('error', error);
   }
 };

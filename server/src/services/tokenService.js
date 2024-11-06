@@ -24,7 +24,7 @@ export const generateRefreshToken = (id, username) => {
   return jwt.sign(
     { id, username },
     config.jwtRefreshSecret,
-    { 
+    {
       expiresIn: config.refreshTokenLifetime,
     }
   );
@@ -34,7 +34,9 @@ export async function storeRefreshToken(user, refreshToken) {
   // Update existing refresh token
   const existingToken = await user.getRefreshToken();
   if (existingToken) {
+    console.log('#### existingToken:', existingToken);
     existingToken.token = refreshToken;
+    existingToken.valid = true;
     existingToken.expires = new Date().setDate(new Date().getDate() + 7);
     return await existingToken.save();
   }
@@ -47,18 +49,25 @@ export async function storeRefreshToken(user, refreshToken) {
 
 export async function rotateRefreshToken(refreshTokenEntity, newRefreshToken) {
   refreshTokenEntity.token = newRefreshToken;
+  refreshTokenEntity.valid = true;
   refreshTokenEntity.expires = new Date().setDate(new Date().getDate() + 7);
   await refreshTokenEntity.save();
 }
 
 export async function validateRefreshToken(refreshToken) {
   if (!refreshToken) throw new RefreshTokenError('Access Denied: No refresh token provided');
+  let decodedRefreshToken;
 
-  const decodedRefreshToken = authRefreshToken(refreshToken);
+  try {
+    decodedRefreshToken = authRefreshToken(refreshToken);
+  } catch (error) {
+    throw new RefreshTokenError('Invalid refresh token');
+  }
+
   const userId = decodedRefreshToken.id;
-
   const userRefreshTokenEntity = await getUserRefreshToken(userId);
   const isValid = await userRefreshTokenEntity.isValid(refreshToken);
+
   if (!isValid) {
     throw new RefreshTokenError('Invalid refresh token');
   }
@@ -76,6 +85,10 @@ export async function getUserRefreshToken(userId) {
 
 export const authToken = (token) => {
   return jwt.verify(token, config.jwtPublicKey);
+};
+
+export const decodeToken = (token) => {
+  return jwt.decode(token);
 };
 
 export const authRefreshToken = (token) => {

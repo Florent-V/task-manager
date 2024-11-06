@@ -65,6 +65,7 @@ export const useAuthStore = defineStore('auth', {
         console.log('refreshToken() - Tentative de rafraîchissement du token...');
         const data = await client.post('/api/auth/refresh-token', {});
         console.log('refreshToken() - Token rafraîchi:', data);
+        return data;
       } catch (error) {
         console.error('refreshToken() - Erreur lors du rafraîchissement du token:');
         throw error;

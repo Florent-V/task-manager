@@ -44,7 +44,7 @@ apiClient.interceptors.response.use(
       } catch (_error) {
         console.error('Interceptor - Error in try/catch');
         router.push('/signin');
-        return Promise.reject(_error);
+        // return Promise.reject(_error);
       }
     }
 
@@ -70,11 +70,11 @@ const request = async (requestPromise) => {
     return response.data ?? response;
   } catch (error) {
     console.error('Request Maker Erreur lors de la requête:', {
-      url: error.config.url,
+      url: error?.config?.url,
       status: error.response?.status,
       name: error.response?.data?.name,
       message: error.response?.data?.message,
-      // stack: error.response?.data?.stack,
+      stack: error.response?.data?.stack,
     });
     throw error;
   }
