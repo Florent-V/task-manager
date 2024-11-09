@@ -7,16 +7,15 @@
     <div class="container mx-auto px-4">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div>
-          <h3 class="text-xl font-semibold mb-4">About TechVerse</h3>
-          <p>Your gateway to the future of technology. We bring you the most innovative and cutting-edge products from around the world.</p>
+          <h3 class="text-xl font-semibold mb-4">About Task Manager</h3>
+          <p>Task Manager est une application de gestion de tâches et de liste de courses</p>
         </div>
         <div>
           <h3 class="text-xl font-semibold mb-4">Quick Links</h3>
           <ul class="space-y-2">
-            <li><a href="#" class="hover:text-blue-300">Home</a></li>
-            <li><a href="#" class="hover:text-blue-300">Products</a></li>
-            <li><a href="#" class="hover:text-blue-300">About Us</a></li>
-            <li><a href="#" class="hover:text-blue-300">Contact</a></li>
+            <li><a href="/" class="hover:text-blue-300">Home</a></li>
+            <li><a href="/" class="hover:text-blue-300">About Us</a></li>
+            <li><a href="/" class="hover:text-blue-300">Contact</a></li>
           </ul>
         </div>
         <div>
@@ -33,7 +32,7 @@
         </div>
       </div>
       <div class="mt-8 pt-8 border-t border-gray-700 text-center">
-        <p>&copy; 2024 TechVerse. All rights reserved.</p>
+        <p>&copy; 2024 Task Manager. All rights reserved.</p>
       </div>
     </div>
   </footer>

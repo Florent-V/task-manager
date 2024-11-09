@@ -1,46 +1,23 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import NProgress from '@/plugins/nprogress'
-import demoRoutes from "@/router/demoRoutes.js";
 import authRoutes from "@/router/authRoutes.js";
-import productRoutes from "@/router/productRoutes.js";
 import toDoListRoutes from "@/router/toDoListRoutes.js";
-import WelcomeView from '../views/WelcomeView.vue'
-import HomeView from "@/views/HomeView.vue";
 import AboutView from '@/views/AboutView.vue'
-import HelloView from '@/views/HelloView.vue'
 import NotFound from '@/views/NotFound.vue'
-import TestView from '@/views/Demo/TestView.vue'
 import Forbidden from "@/views/Forbidden.vue";
+import ToDoListOverView from "@/views/ToDoList/ToDoListOverView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
       path: '/',
-      name: 'welcome',
+      name: 'Mes ToDos',
       meta: {
-        title: 'Welcome',
-        description: 'This is the home page'
+        title: 'TodoSummary',
+        description: 'Sommaire des ToDos'
       },
-      component: WelcomeView
-    },
-    {
-      path: '/home',
-      name: 'home',
-      meta: {
-        title: 'Home',
-        description: 'This is the home page'
-      },
-      component: HomeView
-    },
-    {
-      path: '/hello/:name',
-      name: 'hello',
-      meta: {
-        title: 'Hello',
-        description: 'This is the hello page'
-      },
-      component: HelloView
+      component: ToDoListOverView
     },
     {
       path: '/about',
@@ -51,18 +28,7 @@ const router = createRouter({
       },
       component: AboutView
     },
-    {
-      path: '/test',
-      name: 'test',
-      meta: {
-        title: 'Test',
-        description: 'This is the test page'
-      },
-      component: TestView
-    },
-    ...demoRoutes,
     ...authRoutes,
-    ...productRoutes,
     ...toDoListRoutes,
     {
       path: '/404',
