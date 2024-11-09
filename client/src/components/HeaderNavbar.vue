@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { initializeTheme } from '@/utils/initDarkMode';
 import { useAuthStore } from '@/stores/authStore';
+import logger from "@/utils/logger.js";
 
 const router = useRouter();
 const userStore = useAuthStore();
@@ -63,11 +64,11 @@ const anyDropdownOpen = () =>
 const manageOutsideClickListener = () => {
   if (anyDropdownOpen()) {
     document.addEventListener('click', closeDropdowns);
-    console.log('Event listener added');
+    logger.debug('Event listener added');
     return;
   }
   document.removeEventListener('click', closeDropdowns);
-  console.log('Event listener removed');
+  logger.debug('Event listener removed');
 };
 
 const logout = () => {

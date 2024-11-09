@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useProductsStore } from '@/stores/productsStore';
 import FormComponent from '@/components/Demo/FormComponent_1.vue'
+import logger from "@/utils/logger.js";
 
 const showForm = ref(false);
 const editingProduct = ref(null);
@@ -39,13 +40,13 @@ const closeForm = () => {
 };
 
 const handleFormSubmit = (formData) => {
-  console.log('formData', formData);
+  logger.debug('formData', formData);
   if (editingProduct.value) {
-    console.log('editingProduct', editingProduct.value);
+    logger.debug('editingProduct', editingProduct.value);
     // Mettre à jour le produit existant
     productsStore.updateProduct({ ...formData, id: editingProduct.value.id });
   } else {
-    console.log('new product');
+    logger.debug('new product');
     // Ajouter un nouveau produit
     productsStore.addProduct(formData);
   }

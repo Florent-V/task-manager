@@ -4,6 +4,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
 import LoaderComponent from "@/components/LoaderComponent.vue";
+import logger from "@/utils/logger.js";
 
 const router = useRouter();
 const route = useRoute();
@@ -14,7 +15,7 @@ const successMessage = ref('');
 async function joinToDoList() {
   try {
     const data = await executeRequest(() => client.post(`/api/todolist/${route.params.id}/join`))
-    console.log('data', data);
+    logger.debug('data', data);
     successMessage.value = 'Vous avez rejoint la ToDoList avec succès !';
   } catch (error) {
     error.value = error.response?.data?.message || "Une erreur s'est produite lors de l'ajout à la ToDoList.";

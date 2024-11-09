@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch, onMounted, onBeforeUnmount, nextTick  } from 'vue';
+import logger from "@/utils/logger.js";
 
 const emit = defineEmits(['submit', 'cancel']);
 const props = defineProps({
@@ -14,7 +15,7 @@ const isSubmitted = ref(false);
 
 const submitForm = () => {
   if (!formData.value.title || !formData.value.title.trim() || isSubmitted.value || formData.value.title === props.initialData.title) {
-    console.log('submitForm - no title or already submitted');
+    logger.debug('submitForm - no title or already submitted');
     closeForm();
     return;
   }

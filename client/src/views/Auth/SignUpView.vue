@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore';
+import logger from "@/utils/logger.js";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -17,17 +18,17 @@ const signupForm = ref({
 
 const handleSignup = async () => {
   if (signupForm.value.password !== signupForm.value.confirmPassword) {
-    console.error('Passwords do not match');
+    logger.error('Passwords do not match');
     // Handle password mismatch error
     return;
   }
 
   try {
     const data = await authStore.signup(signupForm.value);
-    console.log('Signup successful:', data);
+    logger.debug('Signup successful:', data);
     router.push({ name: 'signin' });
   } catch (error) {
-    console.error('Signup failed:', error.response?.data || error.message);
+    logger.error('Signup failed:', error.response?.data || error.message);
     // Handle signup error (e.g., show error message)
   }
 };

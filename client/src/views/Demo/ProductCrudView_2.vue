@@ -1,8 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
 import { useRouter } from 'vue-router'
 import FormComponentBis from '@/components/Demo/FormComponent_2.vue'
+import logger from "@/utils/logger.js";
 
 const router = useRouter()
 const isFormVisible = ref(false)
@@ -40,11 +40,11 @@ const fetchProducts = async () => {
   //   const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/product`)
   //   products.value = response.data
   // } catch (error) {
-  //   console.error('Error fetching products:', error)
+  //   logger.error('Error fetching products:', error)
   //   // Fallback to sample data if API fails
   //   products.value = sampleProducts
   // }
-  console.log('fetchProducts')
+  logger.debug('fetchProducts')
 }
 
 const deleteProduct = async (id) => {
@@ -53,10 +53,10 @@ const deleteProduct = async (id) => {
   //     await axios.delete(`${import.meta.env.VITE_BASE_URL}/api/product/${id}`)
   //     products.value = products.value.filter(product => product.id !== id)
   //   } catch (error) {
-  //     console.error('Error deleting product:', error)
+  //     logger.error('Error deleting product:', error)
   //   }
   // }
-  console.log('deleteProduct')
+  logger.debug('deleteProduct')
 }
 
 const truncateText = (text, length) => {
@@ -84,7 +84,7 @@ const handleFormSubmit = async (formData) => {
   //   }
   //   isFormVisible.value = false
   // } catch (error) {
-  //   console.error('Error submitting product:', error)
+  //   logger.error('Error submitting product:', error)
   // Fallback to local update for demo purposes
   if (formData.id) {
     const index = products.value.findIndex(p => p.id === formData.id)
@@ -97,7 +97,7 @@ const handleFormSubmit = async (formData) => {
   }
   isFormVisible.value = false
 
-  console.log('handleFormSubmit')
+  logger.debug('handleFormSubmit')
 }
 
 onMounted(fetchProducts)

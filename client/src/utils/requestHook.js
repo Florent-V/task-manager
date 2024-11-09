@@ -1,5 +1,6 @@
 // Hook pour gérer les appels API
 import { ref } from 'vue';
+import logger from "@/utils/logger.js";
 
 export function hookApi() {
   const isLoading = ref(false);
@@ -13,7 +14,7 @@ export function hookApi() {
       // Appel de la fonction passée comme paramètre
       return await requestPromise();
     } catch (err) {
-      console.error('hookApi() - Erreur lors de la requête:', err);
+      logger.error('hookApi() - Erreur lors de la requête:', err);
       error.value = 'Erreur lors de la requête, veuillez réessayer';
       throw err;
     } finally {

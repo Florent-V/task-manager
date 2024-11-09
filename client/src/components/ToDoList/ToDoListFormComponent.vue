@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, computed, onMounted } from 'vue';
 import { client } from '@/utils/requestMaker.js';
+import logger from "@/utils/logger.js";
 
 const props = defineProps({
   initialData: {
@@ -43,7 +44,7 @@ watch(() => props.initialData, (newValue) => {
 
 const fetchToDoListTypes = async () => {
     const data  = await client.get('/api/todolisttype');
-    console.log('todolisttype', data);
+    logger.debug('todolisttype', data);
     toDoListTypes.value = data.toDoListTypes;
 };
 

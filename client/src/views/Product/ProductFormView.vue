@@ -3,6 +3,7 @@ import { reactive, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import ProductFormComponent from '@/components/Product/ProductFormComponent.vue';
 import { client } from '@/utils/requestMaker.js';
+import logger from "@/utils/logger.js";
 
 const route = useRoute();
 const state = reactive({
@@ -24,9 +25,9 @@ onMounted(async () => {
       const data = await client.get(`/api/product/${route.params.id}`);
       // Mettre à jour l'objet product entier
       state.product = { ...data.product };
-      console.log('product in productFormView', state.product);
+      logger.debug('product in productFormView', state.product);
     } catch (error) {
-      console.error("Erreur lors de la récupération du produit", error);
+      logger.error("Erreur lors de la récupération du produit", error);
     } 
   } 
 });

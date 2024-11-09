@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
+import logger from "@/utils/logger.js";
 import ToDoListFormComponent from "@/components/ToDoList/ToDoListFormComponent.vue";
 import LoaderComponent from "@/components/LoaderComponent.vue";
 
@@ -48,10 +49,10 @@ const closeForm = () => {
 const fetchToDoLists = async () => {
   try {
     const data = await executeRequest(() => client.get('/api/todolist'));
-    console.log('todolist', data);
+    logger.debug('todolist', data);
     toDoLists.value = data.toDoLists;
   } catch (e) {
-    console.error(e);
+    logger.error(e);
   }
 };
 

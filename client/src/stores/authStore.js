@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia';
 import { client } from '@/utils/requestMaker.js';
+import logger from "@/utils/logger.js";
 
 const getLocalStorageUser = () => {
   const storedUser = localStorage.getItem('user');
-  console.log('getLocalStorageUser() - storedUser:', storedUser);
-  console.log('getLocalStorageUser() - storedUser parsed:', JSON.parse(storedUser));
+  logger.debug('getLocalStorageUser() - storedUser:', storedUser);
+  logger.debug('getLocalStorageUser() - storedUser parsed:', JSON.parse(storedUser));
   return storedUser ? JSON.parse(storedUser) : null;
 };
 
@@ -19,69 +20,69 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async login(email, password) {
       try {
-        console.log('Tentative de connexion...');
+        logger.debug('Tentative de connexion...');
         const data = await client.post(
           '/api/auth/signin',
           { email, password }
         );
-        console.log('Connexion réussie:', data);
+        logger.debug('Connexion réussie:', data);
         localStorage.setItem('user', JSON.stringify(data));
         this.user = data;
         this.authenticated = true;
         return data;
       } catch (error) {
-        console.error('Erreur lors de la connexion:', error);
+        logger.error('Erreur lors de la connexion:', error);
         throw error;
       }
     },
     async signup(signupForm) {
       try {
-        console.log('Tentative d\'inscription...');
+        logger.debug('Tentative d\'inscription...');
         const data = await client.post(
           '/api/auth/signup',
           signupForm
         );
-        console.log('Inscription réussie:', data);
+        logger.debug('Inscription réussie:', data);
         return data;
       } catch (error) {
-        console.error('Erreur lors de l\'inscription:', error);
+        logger.error('Erreur lors de l\'inscription:', error);
         throw error;
       }
     },
     async logout() {
       try {
-        console.log('logout() - Tentative de déconnexion...');
+        logger.debug('logout() - Tentative de déconnexion...');
         await client.post('/api/auth/logout', {});
-        console.log('logout() - Déconnexion réussie');
+        logger.debug('logout() - Déconnexion réussie');
         localStorage.removeItem('user');
         this.user = null;
         this.authenticated = false;
       } catch (error) {
-        console.log('logout() - Erreur lors de la déconnexion:', error);
+        logger.debug('logout() - Erreur lors de la déconnexion:', error);
       }
     },
     async refreshToken() {
       try {
-        console.log('refreshToken() - Tentative de rafraîchissement du token...');
+        logger.debug('refreshToken() - Tentative de rafraîchissement du token...');
         const data = await client.post('/api/auth/refresh-token', {});
-        console.log('refreshToken() - Token rafraîchi:', data);
+        logger.debug('refreshToken() - Token rafraîchi:', data);
         return data;
       } catch (error) {
-        console.error('refreshToken() - Erreur lors du rafraîchissement du token:');
+        logger.error('refreshToken() - Erreur lors du rafraîchissement du token:');
         throw error;
       }
     },
     async checkAuth() {
       try {
-        console.log('checkAuth() - Vérification de l\'authentification...');
+        logger.debug('checkAuth() - Vérification de l\'authentification...');
         const data = await client.get('/api/auth/check');
-        console.log('checkAuth() - Authentification vérifiée:', data);
+        logger.debug('checkAuth() - Authentification vérifiée:', data);
         if (data) {
           this.authenticated = data.isAuthenticated;
           this.user = data.username;
         }
       } catch (error) {
-        console.error('checkAuth() - Erreur lors de la vérification de l\'authentification:');
+        logger.error('checkAuth() - Erreur lors de la vérification de l\'authentification:');
         throw error;
       }
     },
