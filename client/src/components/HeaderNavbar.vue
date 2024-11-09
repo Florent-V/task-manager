@@ -89,19 +89,13 @@ onMounted(() => {
           <img src="@/assets/logo-head.webp" alt="Logo" class="h-10 w-auto">
           <RouterLink to="/"
                       class="text-xl font-bold hover:text-blue-600 dark:hover:text-yellow-300 transition duration-100">
-            TechVerse
+            Task Manager
           </RouterLink>
         </div>
         <ul class="hidden md:flex space-x-6 text-lg">
           <li>
-            <RouterLink to="/home" class="hover:text-blue-600 dark:hover:text-yellow-300 transition duration-100">
+            <RouterLink to="/" class="hover:text-blue-600 dark:hover:text-yellow-300 transition duration-100">
               Home
-            </RouterLink>
-          </li>
-          <li>
-            <RouterLink to="/product"
-                        class="hover:text-blue-600 dark:hover:text-yellow-300 transition duration-100">
-              Product
             </RouterLink>
           </li>
           <li>
@@ -109,49 +103,6 @@ onMounted(() => {
                         class="hover:text-blue-600 dark:hover:text-yellow-300 transition duration-100">
               ToDoList
             </RouterLink>
-          </li>
-          <li class="relative">
-            <button @click.stop="toggleResourcesDropdown"
-                    class="hover:text-blue-600 dark:hover:text-yellow-300 transition duration-100">
-              Demo
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mb-1 inline-block ml-1" fill="none"
-                   viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-              </svg>
-            </button>
-            <ul v-show="isResourcesDropdownOpen"
-                class="absolute left-0 mt-2 w-48 bg-blue-100 dark:bg-gray-700 rounded-md shadow-lg">
-              <li>
-                <RouterLink to="/demo-product"
-                            class="block px-4 py-2 text-base hover:bg-blue-200 dark:hover:bg-gray-600">
-                  Demo Product
-                </RouterLink>
-              </li>
-              <li>
-                <RouterLink to="/demo-features"
-                            class="block px-4 py-2 text-base hover:bg-blue-200 dark:hover:bg-gray-600">
-                  Demo Features
-                </RouterLink>
-              </li>
-              <li>
-                <RouterLink to="/demo-product-crud-1"
-                            class="block px-4 py-2 text-base hover:bg-blue-200 dark:hover:bg-gray-600">
-                  Demo Crud #1
-                </RouterLink>
-              </li>
-              <li>
-                <RouterLink to="/demo-product-crud-2"
-                            class="block px-4 py-2 text-base hover:bg-blue-200 dark:hover:bg-gray-600">
-                  Demo Crud #2
-                </RouterLink>
-              </li>
-              <li>
-                <RouterLink to="/localtodolist"
-                            class="block px-4 py-2 text-base hover:bg-blue-200 dark:hover:bg-gray-600">
-                  Local ToDoList
-                </RouterLink>
-              </li>
-            </ul>
           </li>
           <li>
             <RouterLink to="/about" class="hover:text-blue-600 dark:hover:text-yellow-300 transition duration-100">
@@ -239,15 +190,9 @@ onMounted(() => {
          class="md:hidden bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300 dark:from-gray-900 dark:via-purple-900 dark:to-indigo-900 py-2">
       <ul class="px-4 space-y-2">
         <li>
-          <RouterLink to="/home"
+          <RouterLink to="/"
                       class="block py-2 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-yellow-300 transition duration-300">
             Home
-          </RouterLink>
-        </li>
-        <li>
-          <RouterLink to="/product"
-                      class="block py-2 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-yellow-300 transition duration-300">
-            Product
           </RouterLink>
         </li>
         <li>
@@ -261,48 +206,6 @@ onMounted(() => {
                       class="block py-2 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-yellow-300 transition duration-300">
             About
           </RouterLink>
-        </li>
-        <li>
-          <button @click.stop="toggleMobileResourcesDropdown"
-                  class="w-full text-left py-2 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-yellow-300 transition duration-300 flex justify-between items-center">
-            Demo
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                 stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-            </svg>
-          </button>
-          <ul v-show="isMobileResourcesDropdownOpen" class="pl-4 space-y-2 mt-2">
-            <li>
-              <RouterLink to="/demo-product"
-                          class="block py-2 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-yellow-300 transition duration-300">
-                Demo Product
-              </RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/demo-features"
-                          class="block py-2 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-yellow-300 transition duration-300">
-                Demo Features
-              </RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/demo-product-crud-1"
-                          class="block py-2 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-yellow-300 transition duration-300">
-                Demo Crud #1
-              </RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/demo-product-crud-2"
-                          class="block py-2 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-yellow-300 transition duration-300">
-                Demo Crud #2
-              </RouterLink>
-            </li>
-            <li>
-              <RouterLink to="/localtodolist"
-                          class="block py-2 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-yellow-300 transition duration-300">
-                Local ToDoList
-              </RouterLink>
-            </li>
-          </ul>
         </li>
       </ul>
     </div>
