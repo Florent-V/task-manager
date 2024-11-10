@@ -21,7 +21,7 @@ const handleLogin = async () => {
     if (response.username) {
       // Met à jour les informations de l'utilisateur dans le store
       // Redirige vers la page d'accueil ou une autre page après le login
-      router.push({ name: 'home' });
+      router.push({ name: 'TodoSummary' });
     }
   } catch (error) {
     logger.error('Login failed:', error);

@@ -12,9 +12,9 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'Mes ToDos',
+      name: 'TodoSummary',
       meta: {
-        title: 'TodoSummary',
+        title: 'Mes Todos',
         description: 'Sommaire des ToDos'
       },
       component: ToDoListOverView

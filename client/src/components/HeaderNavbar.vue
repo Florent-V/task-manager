@@ -73,7 +73,7 @@ const manageOutsideClickListener = () => {
 
 const logout = () => {
   userStore.logout();
-  router.push(`/`);
+  router.push(`/signin`);
 }
 
 onMounted(() => {
