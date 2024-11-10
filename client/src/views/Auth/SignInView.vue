@@ -3,6 +3,7 @@
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore';
 import { ref } from 'vue';
+import logger from "@/utils/logger.js";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -15,17 +16,17 @@ const error = ref(null);
 const handleLogin = async () => {
   try {
     const response = await authStore.login(loginForm.value.email, loginForm.value.password);
-    console.log('Login successful:', response);
+    logger.debug('Login successful:', response);
     // Handle successful login (e.g., redirect, save token)
     if (response.username) {
       // Met à jour les informations de l'utilisateur dans le store
       // Redirige vers la page d'accueil ou une autre page après le login
-      router.push({ name: 'home' });
+      router.push({ name: 'TodoSummary' });
     }
   } catch (error) {
-    console.error('Login failed:', error);
+    logger.error('Login failed:', error);
     if (error.status === 401) {
-      console.error('Invalid email or password');
+      logger.error('Invalid email or password');
       error.value = 'Mot de passe ou email incorrect';
       // Handle invalid email or password error
     }

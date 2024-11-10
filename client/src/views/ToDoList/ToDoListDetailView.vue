@@ -8,6 +8,7 @@ import ToDoItemInlineFormComponent from "@/components/ToDoList/ToDoItemInlineFor
 import ToggleComponent from "@/components/ToggleComponent.vue";
 import LoaderComponent from "@/components/LoaderComponent.vue";
 import QRCodeModal from "@/components/ToDoList/ToDoListQRCodeModal.vue";
+import logger from "@/utils/logger.js";
 
 const route = useRoute();
 const router = useRouter();
@@ -32,7 +33,7 @@ const fetchToDoItems = async () => {
     toDoItems.value = data.toDoItems;
     toDoList.value = data.toDoList;
   } catch (error) {
-    console.error('Error fetching data:', error);
+    logger.error('Error fetching data:', error);
   } finally {
     isLoading.value = false;
   }
@@ -110,11 +111,11 @@ const decrementQuantity = async (item) => {
 
 // Fonction pour mettre à jour la quantité dans la base de données
 const updateItemQuantityInDatabase = async (item) => {
-  console.log('Mise à jour de la quantité...', `/api/todolist/${route.params.id}/todoitem/${item.id}`);
+  logger.debug('Mise à jour de la quantité...', `/api/todolist/${route.params.id}/todoitem/${item.id}`);
   const response = await client.patch(`/api/todolist/${route.params.id}/todoitem/${item.id}`, { quantity: item.quantity });
   const index = toDoItems.value.findIndex(i => i.id === response.toDoItem.id);
   toDoItems.value[index].quantity = response.toDoItem.quantity;
-  console.log('Quantité mise à jour avec succès');
+  logger.debug('Quantité mise à jour avec succès');
 };
 
 // Fonction pour partager la ToDoList
@@ -125,7 +126,7 @@ const shareToDoList = async () => {
     linkUrl.value = data.linkUrl;
     showQRCodeModal.value = true;
   } catch (error) {
-    console.error('Error sharing ToDoList:', error);
+    logger.error('Error sharing ToDoList:', error);
   }
 };
 

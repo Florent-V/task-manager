@@ -1,13 +1,14 @@
 import axios from "axios";
 import { useAuthStore } from "@/stores/authStore";
 import router from '../router';
+import logger from "@/utils/logger.js";
 
-console.log('VITE_API_BASE_URL', import.meta.env.VITE_API_BASE_URL)
+logger.debug('VITE_API_BASE_URL', import.meta.env.VITE_API_BASE_URL)
 export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL.includes('localhost')
     ? import.meta.env.VITE_API_BASE_URL
     : `https://${import.meta.env.VITE_API_BASE_URL}`;
 
-console.log('apiBaseUrl:', apiBaseUrl);
+logger.debug('apiBaseUrl:', apiBaseUrl);
 
 export const apiClient = axios.create({
   baseURL: apiBaseUrl,
@@ -21,43 +22,43 @@ apiClient.interceptors.response.use(
   async (error) => {
 
     const originalConfig  = error.config;
-    console.error('####Interceptor');
+    logger.error('####Interceptor');
     
     if (error.response && error.response.status === 401 && !originalConfig._retry) {
-      console.error('Interceptor - 401:', error.response.data.message);
+      logger.error('Interceptor - 401:', error.response.data.message);
       originalConfig._retry = true; // Prevent infinite loop
       const authStore = useAuthStore();
       
        // Si c'est une erreur de rafraîchissement, déconnectez l'utilisateur immédiatement
       if (error.response.data.name === 'RefreshTokenError') {
-        console.error(' Interceptor - RefreshTokenError');
+        logger.error(' Interceptor - RefreshTokenError');
         await authStore.logout();
         router.push('/signin');
         return Promise.reject(error);
       }
 
       try {
-        console.log('Interceptor - Tentative de rafraîchissement du token...');
+        logger.debug('Interceptor - Tentative de rafraîchissement du token...');
         const data = await authStore.refreshToken();
-        console.log('Interceptor - Token rafraîchi:', data);
+        logger.debug('Interceptor - Token rafraîchi:', data);
         return apiClient(originalConfig); // Retry the original request
       } catch (_error) {
-        console.error('Interceptor - Error in try/catch');
+        logger.error('Interceptor - Error in try/catch');
         router.push('/signin');
         // return Promise.reject(_error);
       }
     }
 
     if (error.response && error.response.status === 403) {
-      console.error('Interceptor - 403:', error.response.data.message);
+      logger.error('Interceptor - 403:', error.response.data.message);
       router.push('/403');
     }
 
     if (error.response && error.response.status === 404) {
-      console.error('Interceptor - 404:', error.response.data.message);
+      logger.error('Interceptor - 404:', error.response.data.message);
       router.push('/404');
     }
-    console.error('Interceptor - Out');
+    logger.error('Interceptor - Out');
     return Promise.reject(error);
   }
 );
@@ -65,11 +66,11 @@ apiClient.interceptors.response.use(
 const request = async (requestPromise) => {
   try {
     const response = await requestPromise;
-    console.log('requestMaker() - Success on :', response.config.url);
-    console.log('requestMaker() - Data:', response.data);
+    logger.debug('requestMaker() - Success on :', response.config.url);
+    logger.debug('requestMaker() - Data:', response.data);
     return response.data ?? response;
   } catch (error) {
-    console.error('Request Maker Erreur lors de la requête:', {
+    logger.error('Request Maker Erreur lors de la requête:', {
       url: error?.config?.url,
       status: error.response?.status,
       name: error.response?.data?.name,

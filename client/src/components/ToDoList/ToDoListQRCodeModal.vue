@@ -1,5 +1,6 @@
 <script setup>
 import { ref, defineProps, defineEmits } from 'vue';
+import logger from "@/utils/logger.js";
 
 const props = defineProps({
   qrCodeUrl: {
@@ -25,7 +26,7 @@ async function copyLink() {
     copySuccess.value = true;
     setTimeout(() => copySuccess.value = false, 2000); // Cache le message après 2 secondes
   } catch (error) {
-    console.error("Échec de la copie du lien :", error);
+    logger.error("Échec de la copie du lien :", error);
     copySuccess.value = false;
   }
 }

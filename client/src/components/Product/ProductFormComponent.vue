@@ -2,6 +2,7 @@
 import { reactive, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { client } from '@/utils/requestMaker.js';
+import logger from "@/utils/logger.js";
 
 // Router instance
 const route = useRoute();
@@ -74,16 +75,16 @@ const submitForm = async () => {
       return;
     }
     if (props.isEditMode) {
-      console.log('edit form', formData);
+      logger.debug('edit form', formData);
       await client.patchWithFile(`/api/product/${route.params.id}`, formData);
       router.push(`/product/${route.params.id}`);
     } else {
-      console.log('new form', formData);
+      logger.debug('new form', formData);
       const data = await client.postWithFile('/api/product', formData);
       router.push(`/product/${data.id}`);
     }
   } catch (error) {
-    console.error('Une erreur est survenue lors de la soumission du formulaire', error);
+    logger.error('Une erreur est survenue lors de la soumission du formulaire', error);
   }
 };
 </script>

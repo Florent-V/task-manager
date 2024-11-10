@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import logger from "@/utils/logger.js";
 
 // Utiliser le localStorage pour persister les produits
 const getLocalStorageProducts = () => {
@@ -52,14 +53,14 @@ export const useProductsStore = defineStore('productsStore', {
       setLocalStorageProducts(this.products);
     },
     addProduct(product) {
-      console.log('this.products before:', this.products);
-      console.log('addProduct:', product);
+      logger.debug('this.products before:', this.products);
+      logger.debug('addProduct:', product);
       const newId = Math.max(...this.products.map(p => p.id), 0) + 1;
-      console.log('newId:', newId);
+      logger.debug('newId:', newId);
       const newProduct = { ...product, id: newId };
-      console.log('newProduct:', newProduct);
+      logger.debug('newProduct:', newProduct);
       this.products.push(newProduct);
-      console.log('this.products after:', this.products);
+      logger.debug('this.products after:', this.products);
       setLocalStorageProducts(this.products);
     },
     updateProduct(updatedProduct) {
