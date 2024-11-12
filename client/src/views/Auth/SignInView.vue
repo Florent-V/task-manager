@@ -1,9 +1,9 @@
-
 <script setup>
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore';
 import { ref } from 'vue';
 import logger from "@/utils/logger.js";
+import useFormErrors from "@/utils/handleFormErrors.js";
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -11,29 +11,30 @@ const loginForm = ref({
   email: '',
   password: '',
 });
-const error = ref(null);
+
+// Utilitaire de gestions des erreurs de formulaire
+const { errors, defaultError, setDefaultError, setErrors, clearErrors } = useFormErrors({ ...loginForm.value });
 
 const handleLogin = async () => {
   try {
     const response = await authStore.login(loginForm.value.email, loginForm.value.password);
     logger.debug('Login successful:', response);
-    // Handle successful login (e.g., redirect, save token)
-    if (response.username) {
-      // Met à jour les informations de l'utilisateur dans le store
-      // Redirige vers la page d'accueil ou une autre page après le login
-      router.push({ name: 'TodoSummary' });
-    }
-  } catch (error) {
-    logger.error('Login failed:', error);
-    if (error.status === 401) {
+    router.push({ name: 'TodoSummary' });
+  } catch (err) {
+    logger.error('Login failed:', err.response?.data || err.message);
+    // Catch 401 error
+    if (err.status === 401) {
+      clearErrors();
       logger.error('Invalid email or password');
-      error.value = 'Mot de passe ou email incorrect';
-      // Handle invalid email or password error
+      setDefaultError('Mot de passe ou email incorrect');
+      return;
     }
-    // Handle login error (e.g., show error message)
+    // Catch other errors
+    setErrors(err);
   }
 };
 </script>
+
 <template>
   <div class="flex flex-col justify-center py-12 sm:px-6 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
@@ -51,6 +52,7 @@ const handleLogin = async () => {
               <input v-model="loginForm.email" id="email" type="email" required autocomplete="email"
                 class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100 sm:text-sm">
             </div>
+            <p v-if="errors.email" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.email }}</p>
           </div>
 
           <div class="mt-6">
@@ -59,8 +61,10 @@ const handleLogin = async () => {
               <input v-model="loginForm.password" id="password" type="password" required autocomplete="current-password"
                 class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100 sm:text-sm">
             </div>
-            <p v-if="error" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ error }}</p>
+            <p v-if="errors.password" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.password }}</p>
           </div>
+
+          <p v-if="defaultError" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ defaultError }}</p>
 
           <div class="mt-6 flex items-center justify-between">
             <div class="flex items-center">

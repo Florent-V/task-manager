@@ -83,8 +83,8 @@ const submitForm = async () => {
       const data = await client.postWithFile('/api/product', formData);
       router.push(`/product/${data.id}`);
     }
-  } catch (error) {
-    logger.error('Une erreur est survenue lors de la soumission du formulaire', error);
+  } catch (err) {
+    logger.error('Une erreur est survenue lors de la soumission du formulaire', err);
   }
 };
 </script>

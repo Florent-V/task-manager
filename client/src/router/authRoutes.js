@@ -1,17 +1,7 @@
-import RefreshTestView from "@/views/RefreshTestView.vue";
 import SignInView from "@/views/Auth/SignInView.vue";
 import SignUpView from "@/views/Auth/SignUpView.vue";
 
 export default [
-    {
-        path: '/refresh',
-        name: 'refresh',
-        meta: {
-            title: 'Refresh',
-            description: 'Refresh Test Page'
-        },
-        component: RefreshTestView
-    },
     {
         path: '/signin',
         name: 'signin',

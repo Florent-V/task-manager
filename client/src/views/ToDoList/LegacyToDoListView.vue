@@ -57,10 +57,15 @@ const getClassName = task => {
       </transition>
     </h1>
     <div class="flex mt-4">
+<!--      <input type="text"-->
+<!--             class="input-group-field flex-1 p-2 border rounded-l-lg border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700"-->
+<!--             v-model="newTask"-->
+<!--             @keyup.enter="addTask"-->
+<!--             placeholder="New task"-->
+<!--      />-->
       <input type="text"
              class="input-group-field flex-1 p-2 border rounded-l-lg border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700"
              v-model="newTask"
-             @keyup.enter="addTask"
              placeholder="New task"
       />
       <button @click="addTask" 

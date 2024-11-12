@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
 import ToDoItemFormComponent from "@/components/ToDoList/ToDoItemFormComponent.vue";
@@ -11,14 +11,14 @@ import QRCodeModal from "@/components/ToDoList/ToDoListQRCodeModal.vue";
 import logger from "@/utils/logger.js";
 
 const route = useRoute();
-const router = useRouter();
+
 const { isLoading, error, executeRequest } = hookApi();
 
 const toDoList = ref({});
 const toDoItems = ref([]);
 const isCreating = ref(false);
 const isEditing = ref(false);
-const newToDoItem = ref({ title: '', description: '' });
+const newToDoItem = ref({ title: '' });
 const selectedToDoItem = ref(null); // Pour l'édition
 const showOnlyPending = ref(false);
 const isEditingQuantity = ref(false);
@@ -32,8 +32,8 @@ const fetchToDoItems = async () => {
     const data = await executeRequest(() => client.get(`/api/todolist/${route.params.id}/todoitem`));
     toDoItems.value = data.toDoItems;
     toDoList.value = data.toDoList;
-  } catch (error) {
-    logger.error('Error fetching data:', error);
+  } catch (err) {
+    logger.error('Error fetching data:', err?.response?.data?.message || err.message);
   } finally {
     isLoading.value = false;
   }
@@ -46,18 +46,16 @@ const filteredToDoItems = computed(() => {
       : toDoItems.value;
 });
 
-const handleFormSubmit = async (data) => {
-  if (selectedToDoItem.value) {
-    // Update existing to-do item
-    const response = await client.patch(`/api/todolist/${route.params.id}/todoitem/${selectedToDoItem.value.id}`, data);
-    const index = toDoItems.value.findIndex(item => item.id === response.toDoItem.id);
-    toDoItems.value[index] = response.toDoItem;
-  } else {
-    // Create new to-do item
-    const response = await client.post(`/api/todolist/${route.params.id}/todoitem`, data);
-    toDoItems.value.push(response.toDoItem);
-  }
-  closeForm();
+const handleResponseFormSubmit = async (response) => {
+    if (selectedToDoItem.value) {
+      // Update existing to-do item
+      const index = toDoItems.value.findIndex(item => item.id === response.toDoItem.id);
+      toDoItems.value[index] = response.toDoItem;
+    } else {
+      // Create new to-do item
+      toDoItems.value.push(response.toDoItem);
+    }
+    closeForm();
 };
 
 // Ouvrir le formulaire de création
@@ -76,23 +74,32 @@ const openEditForm = (item) => {
 
 // Fermer le formulaire
 const closeForm = () => {
+  console.log('closeForm');
   selectedToDoItem.value = null;
   isCreating.value = false;
   isEditing.value = false;
-  newToDoItem.value = { title: '', description: '' };
+  newToDoItem.value = { title: '' };
 };
 
 // Flag ToDoItem as done
 const toggleToDoItemDone = async (item) => {
-  const response = await client.patch(`/api/todolist/${route.params.id}/todoitem/${item.id}`, { done: !item.done });
-  const index = toDoItems.value.findIndex(i => i.id === response.toDoItem.id);
-  toDoItems.value[index].done = !toDoItems.value[index].done;
+  try {
+    const response = await executeRequest(() => client.patch(`/api/todolist/${route.params.id}/todoitem/${item.id}`, { done: !item.done }));
+    const index = toDoItems.value.findIndex(i => i.id === response.toDoItem.id);
+    toDoItems.value[index].done = !toDoItems.value[index].done;
+  } catch (err) {
+    logger.error('Error updating ToDoItem:', err?.response?.data?.message || err.message);
+  }
 };
 
 // Delete ToDoItem
 const deleteToDoItem = async (item) => {
-  await client.delete(`/api/todolist/${route.params.id}/todoitem/${item.id}`);
-  toDoItems.value = toDoItems.value.filter(i => i.id !== item.id);
+  try {
+    await executeRequest(() => client.delete(`/api/todolist/${route.params.id}/todoitem/${item.id}`));
+    toDoItems.value = toDoItems.value.filter(i => i.id !== item.id);
+  } catch (err) {
+    logger.error('Error deleting ToDoItem:', err?.response?.data?.message || err.message);
+  }
 };
 
 // Fonction pour incrémenter la quantité
@@ -111,22 +118,26 @@ const decrementQuantity = async (item) => {
 
 // Fonction pour mettre à jour la quantité dans la base de données
 const updateItemQuantityInDatabase = async (item) => {
-  logger.debug('Mise à jour de la quantité...', `/api/todolist/${route.params.id}/todoitem/${item.id}`);
-  const response = await client.patch(`/api/todolist/${route.params.id}/todoitem/${item.id}`, { quantity: item.quantity });
-  const index = toDoItems.value.findIndex(i => i.id === response.toDoItem.id);
-  toDoItems.value[index].quantity = response.toDoItem.quantity;
-  logger.debug('Quantité mise à jour avec succès');
+  try {
+    logger.debug('Mise à jour de la quantité...', `/api/todolist/${route.params.id}/todoitem/${item.id}`);
+    const response = await executeRequest(() => client.patch(`/api/todolist/${route.params.id}/todoitem/${item.id}`, { quantity: item.quantity }));
+    const index = toDoItems.value.findIndex(i => i.id === response.toDoItem.id);
+    toDoItems.value[index].quantity = response.toDoItem.quantity;
+    logger.debug('Quantité mise à jour avec succès');
+  } catch (err) {
+    logger.error('Error updating quantity:', err?.response?.data?.message || err.message);
+  }
 };
 
 // Fonction pour partager la ToDoList
 const shareToDoList = async () => {
   try {
-    const data = await client.post(`/api/todolist/${route.params.id}/share`, {});
+    const data = await executeRequest(() => client.post(`/api/todolist/${route.params.id}/share`, {}));
     qrCodeUrl.value = data.qrCodeUrl;
     linkUrl.value = data.linkUrl;
     showQRCodeModal.value = true;
-  } catch (error) {
-    logger.error('Error sharing ToDoList:', error);
+  } catch (err) {
+    logger.error('Error sharing ToDoList:', err?.response?.data?.message || err.message);
   }
 };
 
@@ -200,7 +211,7 @@ onMounted(fetchToDoItems);
       <ToDoItemFormComponent
           v-if="isCreating"
           :initialData="selectedToDoItem"
-          @submit="handleFormSubmit"
+          @handleResponse="handleResponseFormSubmit"
           @cancel="closeForm"
       />
 
@@ -259,7 +270,7 @@ onMounted(fetchToDoItems);
                            type="number"
                            class="w-16 bg-transparent text-center border-none focus:outline-none"
                            @blur="saveQuantity(item)"
-                           @keydown.enter="saveQuantity(item)"
+                           @keydown.alt="saveQuantity(item)"
                            @keydown.esc="cancelEditQuantity(item)"/>
                     <!-- Sinon on affiche simplement la quantité avec un événement click pour éditer -->
                     <span v-else @click="editQuantity(item)">
@@ -326,6 +337,11 @@ onMounted(fetchToDoItems);
       <div v-else>
         <p class="text-center text-gray-400 dark:text-gray-500 mt-8">Aucune tâche à afficher</p>
       </div>
+
+      <div v-if="error">
+        <p class="text-center text-red-700 dark:text-red-300 text-xl">{{ error }}</p>
+      </div>
+
     </div>
   </div>
 

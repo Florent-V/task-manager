@@ -1,5 +1,6 @@
 import ToDoItem from '../models/toDoItemModel.js';
 import NotFoundError from '../error/notFoundError.js';
+import BadRequestError from "../error/badRequestError.js";
 
 // Création d'un ToDoItem
 export const createToDoItem = async (req, res, next) => {
@@ -32,7 +33,6 @@ export const getToDoItems = async (req, res, next) => {
 
 // Récupération d'un ToDoItem par ID
 export const getToDoItemById = async (req, res, next) => {
-  console.log('coucou')
   try {
     if (!req.toDoItem) {
       const toDoItem = await ToDoItem.findByPk(req.params.itemId);
@@ -48,7 +48,7 @@ export const getToDoItemById = async (req, res, next) => {
 // Mise à jour d'un ToDoItem
 export const updateToDoItem = async (req, res, next) => {
   try {
-    console.log('coucou')
+    throw new BadRequestError('Bad Request');
     console.log('req.body', req.body)
     console.log('req.params.itemId', req.params.itemId)
     const [updated] = await ToDoItem.update(req.body, {

@@ -28,6 +28,12 @@ apiClient.interceptors.response.use(
       logger.error('Interceptor - 401:', error.response.data.message);
       originalConfig._retry = true; // Prevent infinite loop
       const authStore = useAuthStore();
+
+      // Vérifiez si c'est une erreur sur la route de login
+      if (originalConfig.url.includes('/signin')) {
+        logger.error('Interceptor - On login, no refresh token needed');
+        return Promise.reject(error); // Retournez simplement l'erreur pour le login incorrect
+      }
       
        // Si c'est une erreur de rafraîchissement, déconnectez l'utilisateur immédiatement
       if (error.response.data.name === 'RefreshTokenError') {
@@ -70,12 +76,12 @@ const request = async (requestPromise) => {
     logger.debug('requestMaker() - Data:', response.data);
     return response.data ?? response;
   } catch (error) {
+    logger.error('Full error:', error);
     logger.error('Request Maker Erreur lors de la requête:', {
       url: error?.config?.url,
+      message: error.message,
       status: error.response?.status,
-      name: error.response?.data?.name,
-      message: error.response?.data?.message,
-      stack: error.response?.data?.stack,
+      data: error.response?.data
     });
     throw error;
   }

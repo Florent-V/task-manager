@@ -25,8 +25,8 @@ async function copyLink() {
     await navigator.clipboard.writeText(props.linkUrl);
     copySuccess.value = true;
     setTimeout(() => copySuccess.value = false, 2000); // Cache le message après 2 secondes
-  } catch (error) {
-    logger.error("Échec de la copie du lien :", error);
+  } catch (err) {
+    logger.error("Échec de la copie du lien :", err);
     copySuccess.value = false;
   }
 }
