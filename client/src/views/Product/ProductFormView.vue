@@ -26,8 +26,8 @@ onMounted(async () => {
       // Mettre à jour l'objet product entier
       state.product = { ...data.product };
       logger.debug('product in productFormView', state.product);
-    } catch (error) {
-      logger.error("Erreur lors de la récupération du produit", error);
+    } catch (err) {
+      logger.error("Erreur lors de la récupération du produit", err);
     } 
   } 
 });

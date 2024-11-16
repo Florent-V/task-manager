@@ -14,14 +14,12 @@ const toDoLists = ref([]);
 const showForm = ref(false);
 const selectedToDo = ref(null); // For editing
 
-const handleFormSubmit = async (data) => {
+const handleResponseFormSubmit = async (response) => {
   if (selectedToDo.value) {
     // Update existing to-do
-    const response = await client.patch(`/api/todolist/${selectedToDo.value.id}`, data);
     const index = toDoLists.value.findIndex(list => list.id === response.toDoList.id);
     toDoLists.value[index] = response.toDoList;
   } else {
-    const response = await client.post('/api/todolist', data);
     toDoLists.value.push(response.toDoList);
   }
   closeForm();
@@ -37,8 +35,12 @@ const openEditForm = (list) => {
 };
 
 const deleteList = async (list) => {
-  await client.delete(`/api/todolist/${list.id}`);
-  toDoLists.value = toDoLists.value.filter(item => item.id !== list.id);
+  try {
+    await executeRequest(() => client.delete(`/api/todolist/${list.id}`));
+    toDoLists.value = toDoLists.value.filter(item => item.id !== list.id);
+  } catch (err) {
+    logger.error("Error deleting to-do list", err?.response?.data?.message || err.message);
+  }
 };
 
 const closeForm = () => {
@@ -51,8 +53,8 @@ const fetchToDoLists = async () => {
     const data = await executeRequest(() => client.get('/api/todolist'));
     logger.debug('todolist', data);
     toDoLists.value = data.toDoLists;
-  } catch (e) {
-    logger.error(e);
+  } catch (err) {
+    logger.error("Error fetching to-do lists", err?.response?.data?.message || err.message);
   }
 };
 
@@ -87,7 +89,7 @@ onMounted(fetchToDoLists);
     <ToDoListFormComponent
         v-if="showForm"
         :initialData="selectedToDo"
-        @submit="handleFormSubmit"
+        @handleResponse="handleResponseFormSubmit"
         @cancel="closeForm"
     />
 
@@ -146,7 +148,7 @@ onMounted(fetchToDoLists);
         </table>
       </div>
     </div>
-    <div v-else>
+    <div v-if="!isLoading && !toDoLists.length">
       <p class="text-center text-gray-700 dark:text-gray-300 text-xl">Aucune Liste trouvée</p>
     </div>
 

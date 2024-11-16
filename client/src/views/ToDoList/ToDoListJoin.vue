@@ -17,8 +17,9 @@ async function joinToDoList() {
     const data = await executeRequest(() => client.post(`/api/todolist/${route.params.id}/join`))
     logger.debug('data', data);
     successMessage.value = 'Vous avez rejoint la ToDoList avec succès !';
-  } catch (error) {
-    error.value = error.response?.data?.message || "Une erreur s'est produite lors de l'ajout à la ToDoList.";
+  } catch (err) {
+    logger.error('Error joining ToDoList', err?.response?.data?.message || err.message);
+    error.value = "Une erreur s'est produite lors de l'ajout à la ToDoList.";
   } finally {
     isLoading.value = false;
   }

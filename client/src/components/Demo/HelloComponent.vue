@@ -12,12 +12,18 @@ function go() {
 <template>
   <div class="flex items-center justify-center">
     <div class="bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white p-6 rounded-lg shadow-md w-64 text-center">
+<!--      <input-->
+<!--        v-model="name"-->
+<!--        type="text"-->
+<!--        placeholder="Enter your name"-->
+<!--        @keydown.enter="go"-->
+<!--        class="bg-gray-100 dark:bg-gray-600 text-black dark:text-white p-2 rounded w-full mb-4"-->
+<!--      >-->
       <input
-        v-model="name"
-        type="text"
-        placeholder="Enter your name"
-        @keydown.enter="go"
-        class="bg-gray-100 dark:bg-gray-600 text-black dark:text-white p-2 rounded w-full mb-4"
+          v-model="name"
+          type="text"
+          placeholder="Enter your name"
+          class="bg-gray-100 dark:bg-gray-600 text-black dark:text-white p-2 rounded w-full mb-4"
       >
       <button
         :disabled="!name"

@@ -31,7 +31,7 @@ export const useAuthStore = defineStore('auth', {
         this.authenticated = true;
         return data;
       } catch (error) {
-        logger.error('Erreur lors de la connexion:', error);
+        logger.error('Erreur lors de la connexion:');
         throw error;
       }
     },
@@ -45,7 +45,7 @@ export const useAuthStore = defineStore('auth', {
         logger.debug('Inscription réussie:', data);
         return data;
       } catch (error) {
-        logger.error('Erreur lors de l\'inscription:', error);
+        logger.error('Erreur lors de l\'inscription');
         throw error;
       }
     },
@@ -58,7 +58,7 @@ export const useAuthStore = defineStore('auth', {
         this.user = null;
         this.authenticated = false;
       } catch (error) {
-        logger.debug('logout() - Erreur lors de la déconnexion:', error);
+        logger.debug('logout() - Erreur lors de la déconnexion');
       }
     },
     async refreshToken() {
@@ -68,7 +68,7 @@ export const useAuthStore = defineStore('auth', {
         logger.debug('refreshToken() - Token rafraîchi:', data);
         return data;
       } catch (error) {
-        logger.error('refreshToken() - Erreur lors du rafraîchissement du token:');
+        logger.error('refreshToken() - Erreur lors du rafraîchissement du token');
         throw error;
       }
     },

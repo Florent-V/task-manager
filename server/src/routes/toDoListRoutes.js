@@ -3,7 +3,7 @@ import toDoItemRoutes from './toDoItemRoutes.js';
 import { createToDoList, getAllToDoLists, getAllToDoListsByUser, getToDoListById, updateToDoList, deleteToDoList, shareToDoList, joinToDoList } from '../controllers/toDoListController.js';
 import { authenticateByCookieSession, isAdmin } from '../middleware/authMiddleware.js';
 import { setEntity, setCreateValidator, setUpdateValidator } from '../middleware/toDoListMiddleware.js';
-import { authorizeManyToManyRessourceAccess, validator } from '../middleware/ressourceMiddleware.js';
+import { authorizeManyToManyRessourceAccess, validate } from '../middleware/ressourceMiddleware.js';
 import ToDoList from "../models/toDoListModel.js";
 import NotFoundError from "../error/notFoundError.js";
 import User from "../models/userModel.js";
@@ -18,13 +18,13 @@ const getToDoListAndCheckAccess = [
 router.use(authenticateByCookieSession);
 router.use(setEntity);
 
-router.post('/', setCreateValidator, validator, createToDoList);
+router.post('/', setCreateValidator, validate, createToDoList);
 router.get('/', getAllToDoListsByUser);
 
 router.get('/all', isAdmin, getAllToDoLists);
 
 router.get('/:id', getToDoListAndCheckAccess);
-router.patch('/:id', getToDoListAndCheckAccess, setUpdateValidator, validator, updateToDoList);
+router.patch('/:id', getToDoListAndCheckAccess, setUpdateValidator, validate, updateToDoList);
 router.delete('/:id', getToDoListAndCheckAccess, deleteToDoList);
 
 // share todolist

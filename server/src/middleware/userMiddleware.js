@@ -2,29 +2,23 @@ import { signupSchema, signinSchema, updateUserSchema } from "../joiSchema/userJ
 import BadRequestError from "../error/badRequestError.js";
 import _ from 'lodash';
 
-export const validateSignup = (req, res, next) => {
-  const { error } = signupSchema.validate(req.body);
-  if (error) throw new BadRequestError(error.details[0].message);
-
-  req.body = _.pick(req.body, ['username', 'firstName', 'lastName', 'email', 'password']);
+export const setSignupValidator = (req, res, next) => {
+  req.body = _.pick(req.body, ['username', 'firstName', 'lastName', 'email', 'password', 'confirmPassword']);
+  req.schema = signupSchema;
 
   next();
 }
 
-export const validateSignin = (req, res, next) => {
-  const { error } = signinSchema.validate(req.body);
-  if (error) throw new BadRequestError(error.details[0].message);
-
+export const setSigninValidator = (req, res, next) => {
   req.body = _.pick(req.body, ['email', 'password']);
+  req.schema = signinSchema;
 
   next();
 }
 
-export const validateUpdateUser = (req, res, next) => {
-  const { error } = updateUserSchema.validate(req.body);
-  if (error) throw new BadRequestError(error.details[0].message);
-
-  req.body = _.pick(req.body, ['username', 'firstName', 'lastName', 'email', 'password']);
+export const setUpdateUserValidator = (req, res, next) => {
+  req.body = _.pick(req.body, ['username', 'firstName', 'lastName', 'email', 'password', 'confirmPassword']);
+  req.schema = updateUserSchema;
 
   next();
 }
