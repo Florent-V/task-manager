@@ -61,6 +61,7 @@ const closeForm = () => {
 };
 
 const resetForm = () => {
+  clearErrors();
   formData.value = {
     title: '',
     description: '',

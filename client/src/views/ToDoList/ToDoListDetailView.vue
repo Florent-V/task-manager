@@ -74,7 +74,6 @@ const openEditForm = (item) => {
 
 // Fermer le formulaire
 const closeForm = () => {
-  console.log('closeForm');
   selectedToDoItem.value = null;
   isCreating.value = false;
   isEditing.value = false;
@@ -236,9 +235,16 @@ onMounted(fetchToDoItems);
                 </button>
 
                 <div v-if="isEditing && selectedToDoItem.id === item.id" class="flex-grow">
-                  <ToDoItemInlineFormComponent
+<!--                  <ToDoItemInlineFormComponent-->
+<!--                      :initialData="selectedToDoItem"-->
+<!--                      @submit="handleFormSubmit"-->
+<!--                      @cancel="closeForm"-->
+<!--                  />-->
+                  <!-- ToDoForm -->
+                  <ToDoItemFormComponent
                       :initialData="selectedToDoItem"
-                      @submit="handleFormSubmit"
+                      :inline-form=true
+                      @handleResponse="handleResponseFormSubmit"
                       @cancel="closeForm"
                   />
                 </div>

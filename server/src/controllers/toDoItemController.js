@@ -48,7 +48,6 @@ export const getToDoItemById = async (req, res, next) => {
 // Mise à jour d'un ToDoItem
 export const updateToDoItem = async (req, res, next) => {
   try {
-    throw new BadRequestError('Bad Request');
     console.log('req.body', req.body)
     console.log('req.params.itemId', req.params.itemId)
     const [updated] = await ToDoItem.update(req.body, {
