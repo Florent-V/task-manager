@@ -1,6 +1,6 @@
 <template>
   <div class="container mx-auto px-4 py-8">
-    <h1 class="text-4xl font-bold text-center text-blue-800 dark:text-yellow-300 mb-8">Kanban Board</h1>
+    <h1 class="text-4xl font-bold text-center text-blue-800 dark:text-yellow-300 mb-8">KanbanModel Board</h1>
     <div class="flex gap-6">
       <div
           v-for="column in columns"
@@ -46,15 +46,33 @@ const columns = ref([
     id: 1,
     name: "À faire",
     tasks: [
-      { id: 1, title: "Configurer le projet", description: "Initialiser le dépôt Git", assignee: "Alice", dueDate: "2024-11-20" },
-      { id: 2, title: "Créer le Kanban", description: "Mettre en place les colonnes", assignee: "Bob", dueDate: "2024-11-22" },
+      {
+        id: 1,
+        title: "Configurer le projet",
+        description: "Initialiser le dépôt Git",
+        assignee: "Alice",
+        dueDate: "2024-11-20"
+      },
+      {
+        id: 2,
+        title: "Créer le Kanban",
+        description: "Mettre en place les colonnes",
+        assignee: "Bob",
+        dueDate: "2024-11-22"
+      },
     ],
   },
   {
     id: 2,
     name: "En cours",
     tasks: [
-      { id: 3, title: "Coder le backend", description: "API pour gérer les tâches", assignee: "Charlie", dueDate: "2024-11-25" },
+      {
+        id: 3,
+        title: "Coder le backend",
+        description: "API pour gérer les tâches",
+        assignee: "Charlie",
+        dueDate: "2024-11-25"
+      },
     ],
   },
   {

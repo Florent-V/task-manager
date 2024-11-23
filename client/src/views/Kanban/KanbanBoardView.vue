@@ -1,7 +1,7 @@
 <template>
   <div class="container mx-auto px-4 py-8">
     <h1 class="text-4xl font-bold text-center text-blue-800 dark:text-yellow-300 mb-8">
-      Tableau Kanban
+      Tableau KanbanModel
     </h1>
     <div class="flex gap-4 overflow-auto">
       <div
@@ -43,7 +43,7 @@
 <script setup>
 import { reactive } from 'vue';
 
-// Colonnes du tableau Kanban
+// Colonnes du tableau KanbanModel
 const columns = reactive([
   { id: 'todo', name: 'À faire' },
   { id: 'in_progress', name: 'En cours' },

@@ -1,5 +1,4 @@
 import { signupSchema, signinSchema, updateUserSchema } from "../joiSchema/userJoiSchema.js";
-import BadRequestError from "../error/badRequestError.js";
 import _ from 'lodash';
 
 export const setSignupValidator = (req, res, next) => {
