@@ -55,6 +55,7 @@ export const isAdmin = async (req, res, next) => {
     const roles = await user.getRoles();
 
     const access = checkAccess(roles, ['admin']);
+
     if (access) return next();
     
     throw new ForbiddenError('Require Admin Role!');

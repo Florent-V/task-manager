@@ -45,9 +45,10 @@ export const seedDatabase = async () => {
     ]);
 
     await users[0].addRole(roles[0]);
-    await users[1].addRole(roles[1]);
+    await users[1].addRole(roles[0]);
     await users[2].addRole(roles[1]);
-    await users[2].addRole(roles[2]);
+    await users[3].addRole(roles[1]);
+    await users[3].addRole(roles[2]);
 
     const products = await product.bulkCreate([
       {

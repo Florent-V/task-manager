@@ -1,6 +1,11 @@
 import { create, getAll, getById, remove, update } from "../middleware/basicCrudMiddleware.js";
 import { validate } from '../middleware/ressourceMiddleware.js';
-import { isAdmin } from '../middleware/authMiddleware.js';
+import { isAdmin, authenticateByCookieSession } from '../middleware/authMiddleware.js';
+
+const checkAdmin = [
+  authenticateByCookieSession,
+  isAdmin,
+]
 
 export const makeCrudRoutes = (router, {
   setEntity,
@@ -10,9 +15,9 @@ export const makeCrudRoutes = (router, {
   router.use(setEntity);
   router.get('/', getAll);
   router.get('/:id', getById);
-  router.post('/', isAdmin, setCreateValidator, validate, create);
-  router.patch('/:id', isAdmin, setUpdateValidator, validate, update);
-  router.delete('/:id', isAdmin, remove);
+  router.post('/', checkAdmin, setCreateValidator, validate, create);
+  router.patch('/:id', checkAdmin, setUpdateValidator, validate, update);
+  router.delete('/:id', checkAdmin, remove);
 
   return router;
 };

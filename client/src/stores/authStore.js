@@ -15,6 +15,7 @@ export const useAuthStore = defineStore('auth', {
     user: getLocalStorageUser(),
   }),
   getters: {
+    isAdmin: (state) => state.user?.roles?.includes('ROLE_ADMIN'),
     isAuthenticated: (state) => !!state.user,
   },
   actions: {
