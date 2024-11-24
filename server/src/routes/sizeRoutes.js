@@ -1,5 +1,5 @@
 import express from 'express';
-import { setEntity, setCreateValidator, setUpdateValidator } from "../middleware/toDoListTypeMiddleware.js";
+import { setEntity, setCreateValidator, setUpdateValidator } from "../middleware/sizeMiddleware.js";
 import { makeCrudRoutes} from "./crudMakerRoutes.js";
 
 const router = express.Router();

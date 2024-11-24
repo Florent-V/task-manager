@@ -1,7 +1,7 @@
 import sequelize from './connect.js';
 import models from '../models/index.js';
 
-const { role, user, product, toDoList, toDoListType, toDoItem, label } = models;
+const { role, user, product, toDoList, toDoListType, toDoItem, label, priority, size } = models;
 
 export const seedDatabase = async () => {
   try {
@@ -236,6 +236,20 @@ export const seedDatabase = async () => {
         toDoListId: toDoLists[5].id,
       }
     ]);
+
+    const priorities = await priority.bulkCreate([
+      { label: "Low", name: "Low", color: "#808080" },
+      { label: "Medium", name: "Medium", color: "#008000" },
+      { label: "High", name: "High", color: "#FF0000" },
+    ])
+
+    const sizes = await size.bulkCreate([
+      { label: "XS", name: "Extra Small", color: "#808080" },
+      { label: "S", name: "Small", color: "#008000" },
+      { label: "M", name: "Medium", color: "#FFA500" },
+      { label: "L", name: "Large", color: "#FF0000" },
+      { label: "XL", name: "Extra Large", color: "#800080" },
+    ])
 
     console.log('Données de test créées avec succès !');
   } catch (error) {
