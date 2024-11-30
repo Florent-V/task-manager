@@ -1,4 +1,4 @@
-<script setup>
+ToDoListTypeFormComponent.vue<script setup>
 import { ref, computed, watch } from 'vue';
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
@@ -70,7 +70,7 @@ const resetForm = () => {
 <template>
   <div>
     <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300">
-      {{ isEditing ? 'Editer un Type' : 'Ajouter un Type' }}
+      {{ isEditing ? 'Ajouter un Type' : 'Créer un Type' }}
     </h2>
     <form @submit.prevent="submitForm">
       <div class="mt-4">

@@ -9,7 +9,7 @@ const emit = defineEmits(['handleResponse', 'cancel']);
 const props = defineProps({
   initialData: {
     type: Object,
-    default: () => ({ name: '' }),
+    default: () => ({ name: '', label: '', color: '' }),
   },
 });
 
@@ -18,7 +18,7 @@ const formData = ref({ ...props.initialData });
 const isEditing = computed(() => !!formData.value.id);
 
 watch(() => props.initialData, (newValue) => {
-      formData.value = newValue ? { ...newValue } : { name: '' };
+      formData.value = newValue ? { ...newValue } : { name: '', label: '', color: '' };
     },
     { immediate: true }
 );
@@ -29,6 +29,8 @@ const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...form
 const submitForm = async () => {
   const data = {
     name: formData.value.name,
+    label: formData.value.label,
+    color: formData.value.color,
   };
 
   try {
@@ -36,12 +38,12 @@ const submitForm = async () => {
     if (formData.value.id) {
       // Update existing to-do
       response = await executeRequest(
-          () => client.patch(`/api/todolisttype/${formData.value.id}`, data)
+          () => client.patch(`/api/priority/${formData.value.id}`, data)
       );
     } else {
       // Create new to-do
       response = await executeRequest(
-          () => client.post('/api/todolisttype', data)
+          () => client.post('/api/priority', data)
       );
     }
     emit('handleResponse', response);
@@ -61,6 +63,8 @@ const resetForm = () => {
   clearErrors();
   formData.value = {
     name: '',
+    label: '',
+    color: '',
   };
 };
 
@@ -70,7 +74,7 @@ const resetForm = () => {
 <template>
   <div>
     <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300">
-      {{ isEditing ? 'Editer un Type' : 'Ajouter un Type' }}
+      {{ isEditing ? 'Modifier une priorité' : 'Créer une priorité' }}
     </h2>
     <form @submit.prevent="submitForm">
       <div class="mt-4">
@@ -83,6 +87,41 @@ const resetForm = () => {
         />
         <p v-if="errors.name" class="text-red-600 dark:text-red-400 mt-1">{{ errors.name }}</p>
       </div>
+
+      <div class="mt-4">
+        <label for="label" class="block text-gray-700 dark:text-gray-300">Label</label>
+        <input
+            type="text"
+            id="label"
+            v-model="formData.label"
+            class="mt-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+        />
+        <p v-if="errors.label" class="text-red-600 dark:text-red-400 mt-1">{{ errors.name }}</p>
+      </div>
+
+      <div class="mt-4">
+        <label for="color" class="block text-gray-700 dark:text-gray-300">Color</label>
+        <div class="flex items-center mt-2">
+          <input
+              type="color"
+              id="color"
+              v-model="formData.color"
+              class="w-12 h-12 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer"
+          />
+          <input
+              type="text"
+              v-model="formData.color"
+              class="ml-4 w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              placeholder="#000000"
+          />
+        </div>
+        <p v-if="errors.color" class="text-red-600 dark:text-red-400 mt-1">{{ errors.color }}</p>
+      </div>
+
+      <div>
+        <p v-if="defaultError" class="text-sm px-2 text-red-600 dark:text-red-400">{{ defaultError }}</p>
+      </div>
+
 
       <div class="flex justify-end gap-4 mt-6">
         <button
