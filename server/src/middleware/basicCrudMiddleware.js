@@ -53,6 +53,8 @@ export const update = async (req, res, next) => {
 }
 
 export const remove = async (req, res, next) => {
+  console.log('###################################')
+
   try {
     const { id } = req.params;
     const deleted = await req.entity.destroy({ where: { id } });

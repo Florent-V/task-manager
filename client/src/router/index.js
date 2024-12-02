@@ -1,17 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore';
-import NProgress from '@/plugins/nprogress'
+import NProgress from '@/plugins/nprogress';
 import authRoutes from "@/router/authRoutes.js";
 import toDoListRoutes from "@/router/toDoListRoutes.js";
 import adminRoutes from "@/router/adminRoutes.js";
-import AboutView from '@/views/AboutView.vue'
-import NotFound from '@/views/NotFound.vue'
+import kanbanRoutes from "@/router/kanbanRoutes.js";
+import AboutView from '@/views/AboutView.vue';
+import NotFound from '@/views/NotFound.vue';
 import Forbidden from "@/views/Forbidden.vue";
 import ToDoListOverView from "@/views/ToDoList/ToDoListOverView.vue";
-import KanbanBoardView from "@/views/Kanban/KanbanBoardView.vue";
-import KanbanBoardView2 from "@/views/Kanban/KanbanBoardView2.vue";
-import KanbanBoardView3 from "@/views/Kanban/KanbanBoardView3.vue";
 import AccessDeniedView from "@/views/AccessDeniedView.vue";
+
 
 const router = createRouter({
   history: createWebHistory(),
@@ -43,35 +42,9 @@ const router = createRouter({
       },
       component: AboutView
     },
-    {
-      path: '/kanban',
-      name: 'kanban',
-      meta: {
-        title: 'kanban',
-        description: 'This is the kanban page'
-      },
-      component: KanbanBoardView
-    },
-    {
-      path: '/kanban2',
-      name: 'kanban2',
-      meta: {
-        title: 'kanban2',
-        description: 'This is the kanban page'
-      },
-      component: KanbanBoardView2
-    },
-    {
-      path: '/kanban3',
-      name: 'kanban3',
-      meta: {
-        title: 'kanban3',
-        description: 'This is the kanban page'
-      },
-      component: KanbanBoardView3
-    },
     ...authRoutes,
     ...toDoListRoutes,
+    ...kanbanRoutes,
     ...adminRoutes,
     {
       path: '/404',

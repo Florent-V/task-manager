@@ -1,11 +1,10 @@
 import QRCode from 'qrcode';
 import ToDoList from '../models/toDoListModel.js';
 import ToDoItem from '../models/toDoItemModel.js';
-import NotFoundError from '../error/notFoundError.js';
 import ToDoListType from "../models/toDoListTypeModel.js";
 import User from "../models/userModel.js";
 import ForbiddenError from "../error/forbiddenError.js";
-
+import NotFoundError from '../error/notFoundError.js';
 const includeToDoList = [
   {
     model: ToDoItem,
@@ -48,6 +47,7 @@ export const getAllToDoLists = async (req, res, next) => {
     res.data.toDoLists = await ToDoList.findAll(
       { include: includeToDoList }
     );
+    next();
   } catch (error) {
     return next(error);
   }
@@ -131,34 +131,9 @@ export const updateToDoList = async (req, res, next) => {
     if (!updated) throw new NotFoundError('ToDoList Not Found');
 
     res.data.toDoList = await ToDoList.findByPk(req.params.id, {
-      include: [
-        {
-          model: ToDoItem,
-          as: 'toDoItems'
-        },
-        {
-          model: ToDoListType,
-          as: 'type',
-          attributes: ['id', 'name'],
-        }
-      ]
+      include: includeToDoList
     });
     next();
-  } catch (error) {
-    return next(error);
-  }
-};
-
-// Suppression d'un ToDoList
-export const deleteToDoList = async (req, res, next) => {
-  try {
-    const deleted = await ToDoList.destroy({
-      where: { id: req.params.id }
-    });
-
-    if (!deleted) throw new NotFoundError('ToDoList Not Found');
-
-    res.status(204).json();
   } catch (error) {
     return next(error);
   }

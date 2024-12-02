@@ -1,9 +1,10 @@
 import express from 'express';
 import toDoItemRoutes from './toDoItemRoutes.js';
-import { createToDoList, getAllToDoLists, getAllToDoListsByUser, getToDoListById, updateToDoList, deleteToDoList, shareToDoList, joinToDoList } from '../controllers/toDoListController.js';
+import { createToDoList, getAllToDoLists, getAllToDoListsByUser, getToDoListById, updateToDoList, shareToDoList, joinToDoList } from '../controllers/toDoListController.js';
 import { authenticateByCookieSession, isAdmin } from '../middleware/authMiddleware.js';
 import { setEntity, setCreateValidator, setUpdateValidator } from '../middleware/toDoListMiddleware.js';
 import { authorizeManyToManyRessourceAccess, validate } from '../middleware/ressourceMiddleware.js';
+import { remove } from '../middleware/basicCrudMiddleware.js';
 import ToDoList from "../models/toDoListModel.js";
 import NotFoundError from "../error/notFoundError.js";
 import User from "../models/userModel.js";
@@ -25,7 +26,7 @@ router.get('/all', isAdmin, getAllToDoLists);
 
 router.get('/:id', getToDoListAndCheckAccess);
 router.patch('/:id', getToDoListAndCheckAccess, setUpdateValidator, validate, updateToDoList);
-router.delete('/:id', getToDoListAndCheckAccess, deleteToDoList);
+router.delete('/:id', getToDoListAndCheckAccess, remove);
 
 // share todolist
 // router.post('/:id/share', getToDoListAndCheckAccess, async (req, res, next) => {
