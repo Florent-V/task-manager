@@ -65,7 +65,7 @@ export const signin = async (req, res, next) => {
       lastName: user.lastName,
       email: user.email,
       roles: authorities,
-      //token,
+      // token,
       //refreshToken
     });
   } catch (error) {

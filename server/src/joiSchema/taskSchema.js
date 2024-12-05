@@ -8,7 +8,7 @@ export const taskSchema = Joi.object({
   kanbanId: Joi.number().integer().required(),
   priorityId: Joi.number().integer().required(),
   sizeId: Joi.number().integer().required(),
-  statusId: Joi.number().integer().required(),
+  stageId: Joi.number().integer().required(),
   userId: Joi.number().integer().required(),
 });
 
@@ -20,6 +20,6 @@ export const updateTaskSchema = Joi.object({
   kanbanId: Joi.number().integer(),
   priorityId: Joi.number().integer(),
   sizeId: Joi.number().integer(),
-  statusId: Joi.number().integer(),
+  stageId: Joi.number().integer(),
   userId: Joi.number().integer(),
 });

@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../database/connect.js';
 
-const Status = sequelize.define('Status', {
+const Stage = sequelize.define('Stage', {
     name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -33,7 +33,7 @@ const Status = sequelize.define('Status', {
     },
   },
   {
-    tableName: 'status',
+    tableName: 'stage',
   });
 
-export default Status;
+export default Stage;

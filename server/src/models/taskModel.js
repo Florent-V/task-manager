@@ -60,11 +60,11 @@ const Task = sequelize.define('Task', {
         key: 'id',
       },
     },
-    statusId: {
+    stageId: {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: 'status',
+        model: 'stage',
         key: 'id',
       },
     },

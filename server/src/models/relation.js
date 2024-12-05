@@ -94,25 +94,23 @@ export const defineAssociations = () => {
     as: 'kanbans',
     through: 'user_kanban',
     foreignKey: 'userId',
-    otherKey: 'kanbanId',
     onDelete: 'CASCADE'
   });
   models.kanban.belongsToMany(models.user, {
     as: 'users',
     through: 'kanban_user',
     foreignKey: 'kanbanId',
-    otherKey: 'userId',
     onDelete: 'CASCADE'
   });
   //
-  // Relation Many-to-One Kanban et Status
+  // Relation Many-to-One Kanban et Stage
   //
-  models.kanban.hasMany(models.status, {
-    as: 'status',
+  models.kanban.hasMany(models.stage, {
+    as: 'stages',
     foreignKey: 'kanbanId',
     onDelete: 'CASCADE'
   });
-  models.status.belongsTo(models.kanban, {
+  models.stage.belongsTo(models.kanban, {
     as: 'kanban',
     foreignKey: 'kanbanId',
     onDelete: 'CASCADE'
@@ -131,16 +129,16 @@ export const defineAssociations = () => {
     onDelete: 'CASCADE'
   });
   //
-  // Relation Many-to-One Status et Task
+  // Relation Many-to-One Stage et Task
   //
-  models.status.hasMany(models.task, {
+  models.stage.hasMany(models.task, {
     as: 'tasks',
-    foreignKey: 'statusId',
+    foreignKey: 'stageId',
     onDelete: 'SET NULL'
   });
-  models.task.belongsTo(models.status, {
-    as: 'status',
-    foreignKey: 'statusId',
+  models.task.belongsTo(models.stage, {
+    as: 'stage',
+    foreignKey: 'stageId',
     onDelete: 'SET NULL'
   });
   //

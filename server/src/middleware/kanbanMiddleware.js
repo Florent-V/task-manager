@@ -8,7 +8,7 @@ export const setKanbanEntity = (req, res, next) => {
 }
 
 export const setKanbanCreateValidator = (req, res, next) => {
-  req.schema = newKanbanSchema;
+  req.schema = kanbanSchema;
   next();
 }
 

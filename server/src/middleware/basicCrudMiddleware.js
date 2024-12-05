@@ -11,7 +11,6 @@ export const getAll = async (req, res, next) => {
   }
 }
 
-
 export const getById = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -28,8 +27,7 @@ export const getById = async (req, res, next) => {
 
 export const create = async (req, res, next) => {
   try {
-    const resource = await req.entity.create(req.body);
-    res.data[lowercaseFirstLetter(req.entity.options.name.singular)] = resource;
+    res.data[lowercaseFirstLetter(req.entity.options.name.singular)] = await req.entity.create(req.body);
     next();
   } catch (error) {
     return next(error);
@@ -53,13 +51,11 @@ export const update = async (req, res, next) => {
 }
 
 export const remove = async (req, res, next) => {
-  console.log('###################################')
-
   try {
     const { id } = req.params;
     const deleted = await req.entity.destroy({ where: { id } });
 
-    if (!deleted) throw new NotFoundError('No record found');
+    if (!deleted) throw new NotFoundError(`No record found in ${req.entity.options.name.singular} with id ${id}`);
 
     res.status(204).json();
   } catch (error) {

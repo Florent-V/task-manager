@@ -15,6 +15,7 @@ import toDoListRoutes from './routes/toDoListRoutes.js';
 import toDoListTypeRoutes from './routes/toDoListTypeRoute.js';
 import priorityRoutes from './routes/priorityRoutes.js';
 import sizeRoutes from './routes/sizeRoutes.js';
+import kanbanRoutes from "./routes/kanbanRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -53,6 +54,8 @@ app.use('/api/product', productRoutes);
 app.use('/api/todolist', toDoListRoutes);
 // ToDoListType Routes
 app.use('/api/todolisttype', toDoListTypeRoutes);
+// Kanban Routes
+app.use('/api/kanban', kanbanRoutes);
 // Priority Routes
 app.use('/api/priority', priorityRoutes);
 // Sizes Routes
@@ -72,7 +75,7 @@ app.listen(port, async () => {
     // Replace force by alter to keep data
     // await initDB(true, 'force');
     await initDB(false, 'alter');
-    console.log(`Server is running on port ${port}`);
+    console.log(`Server Groupe is running on port ${port}`);
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }

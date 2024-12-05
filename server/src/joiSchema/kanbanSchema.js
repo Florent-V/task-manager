@@ -1,23 +1,19 @@
 import Joi from 'joi';
-
-export const kanbanSchema = Joi.object({
-  title: Joi.string().required(),
-  description: Joi.string().allow(null, ''),
-});
+import { stageSchema, stageSchemaForUpdateKanban } from "./stageSchema.js";
 
 export const newKanbanSchema = Joi.object({
   title: Joi.string().required(),
   description: Joi.string().allow(null, ''),
-  status: Joi.array().items(
-    Joi.object({
-      name: Joi.string().max(50).required(),
-      description: Joi.string().allow(null, '').max(200),
-      maxRecord: Joi.number().integer().min(1).max(99).required(),
-    })
-  ).required() // Le tableau de status est requis
+});
+
+export const kanbanSchema = Joi.object({
+  title: Joi.string().required(),
+  description: Joi.string().allow(null, ''),
+  stages: Joi.array().items(stageSchema).min(1).required(),
 });
 
 export const updateKanbanSchema = Joi.object({
-  title: Joi.string(),
+  title: Joi.string().required(),
   description: Joi.string().allow(null, ''),
+  stages: Joi.array().items(stageSchemaForUpdateKanban).min(1).required(),
 });

@@ -4,7 +4,6 @@ import NotFoundError from "../error/notFoundError.js";
 
 export const isToDoItemInToDoList = async (req, res, next) => {
   try {
-    console.log('req.params:', req.params);
     const { itemId, id: listId } = req.params;
   
     const toDoItem = await ToDoItem.findOne({ where: { id: itemId, todolistId: listId } });

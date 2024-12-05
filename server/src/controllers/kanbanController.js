@@ -1,13 +1,15 @@
+import sequelize from '../database/connect.js';
 import Kanban from '../models/kanbanModel.js';
-import Status from '../models/statusModel.js';
+import Stage from '../models/stageModel.js';
 import Task from "../models/taskModel.js";
+import User from "../models/userModel.js";
 import ForbiddenError from "../error/forbiddenError.js";
 import NotFoundError from '../error/notFoundError.js';
 
 const includeKanban = [
   {
-    model: Status,
-    as: 'status',
+    model: Stage,
+    as: 'stages',
   },
   {
     model: Task,
@@ -16,21 +18,34 @@ const includeKanban = [
 ]
 
 // Créer un nouveau kanban
-export const createKanban = async (req, res) => {
-  const { title, description, statuses } = req.body;
+export const createKanban = async (req, res, next) => {
 
   try {
-    const kanban = await Kanban.create({ title, description });
-    if (statuses && statuses.length > 0) {
-      const statusInstances = statuses.map((status) => ({
-        ...status,
-        kanbanId: kanban.id,
-      }));
-      await Status.bulkCreate(statusInstances);
-    }
-    res.status(201).json(kanban);
+    const userId = req.user.id;
+    if (!userId) throw new ForbiddenError('Access denied: You do not have permission to create ToDoList');
+
+    const result = await sequelize.transaction(async (t) => {
+      const { title, description, stages } = req.body;
+
+      // Crée un nouveau kanban
+      const newKanban = await Kanban.create(
+        { title, description, stages },
+        { transaction: t, include: {
+            model: Stage,
+            as: 'stages',
+          } }
+      );
+      // Associe la todolist à l'utilisateur courant
+      await newKanban.addUsers([userId], { transaction: t });
+
+      return { newKanban };
+    });
+
+    res.statusCode = 201;
+    res.data.kanban = result.newKanban;
+    next();
   } catch (error) {
-    res.status(500).json({ message: 'Erreur lors de la création du kanban', error });
+    return next(error);
   }
 };
 
@@ -72,56 +87,68 @@ export const getKanbansByUser = async (req, res, next) => {
 // Récupération d'un kanban par ID
 export const getKanbanById = async (req, res, next) => {
   try {
+    console.log('req.params', req.params);
     const kanban = await Kanban.findByPk(req.params.id, {
       include: includeKanban
     });
+
     if (!kanban) throw new NotFoundError('Kanban Not Found');
 
     res.data.kanban = kanban;
     next();
   } catch (error) {
-    return next
+    return next(error);
   }
 };
 
 
 // Mettre à jour un kanban
-export const updateKanban = async (req, res) => {
+export const updateKanban = async (req, res, next) => {
   const { id } = req.params;
-  const { title, description, statuses } = req.body;
+  const { title, description, stages } = req.body;
 
   try {
-    const kanban = await Kanban.findByPk(id);
-    if (!kanban) return res.status(404).json({ message: 'Kanban introuvable' });
+    // Démarrage d'une transaction
+    await sequelize.transaction(async (t) => {
+      // Récupérer le kanban existant
+      const kanban = res.data.kanban;
 
-    await kanban.update({ title, description });
+      // Mise à jour du Kanban
+      await kanban.update({ title, description }, { transaction: t });
 
-    if (statuses) {
-      await Status.destroy({ where: { kanbanId: id } }); // Supprime les anciens statuts
-      const statusInstances = statuses.map((status) => ({
-        ...status,
-        kanbanId: id,
-      }));
-      await Status.bulkCreate(statusInstances);
-    }
+      // Gestion des statuts
+      const existingStages = kanban.stages;
+      const existingIds = existingStages.map((stage) => stage.id);
 
-    res.json(kanban);
+      const stagesToUpdate = stages.filter((s) => s.id && existingIds.includes(s.id));
+      const stagesToCreate = stages.filter((s) => !s.id);
+      const stagesToDelete = existingStages.filter((stat) => !stages.some((s) => s.id === stat.id));
+
+      // Mise à jour des statuts existants
+      for (const stage of stagesToUpdate) {
+        await Stage.update(
+          { name: stage.name, description: stage.description, maxRecord: stage.maxRecord },
+          { where: { id: stage.id }, transaction: t }
+        );
+      }
+
+      // Création des nouveaux statuts
+      if (stagesToCreate.length > 0) {
+        const stagesWithKanbanId = stagesToCreate.map((stage) => ({
+          ...stage,
+          kanbanId: id,
+        }));
+        await Stage.bulkCreate(stagesWithKanbanId, { transaction: t });
+      }
+
+      // Suppression des statuts non inclus dans la requête
+      for (const stage of stagesToDelete) {
+        await stage.destroy({ transaction: t });
+      }
+    });
+
+    next();
   } catch (error) {
-    res.status(500).json({ message: 'Erreur lors de la mise à jour du kanban', error });
-  }
-};
-
-// Supprimer un kanban
-export const deleteKanban = async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const kanban = await Kanban.findByPk(id);
-    if (!kanban) return res.status(404).json({ message: 'Kanban introuvable' });
-
-    await kanban.destroy();
-    res.status(204).send();
-  } catch (error) {
-    res.status(500).json({ message: 'Erreur lors de la suppression du kanban', error });
+    return next(error);
   }
 };

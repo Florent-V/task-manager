@@ -37,7 +37,6 @@ export const getUserRessourceById = async (req, res, next) => {
 
 export const authorizeManyToManyRessourceAccess = async (req, res, next) => {
   try {
-
     if (!await res.data[lowercaseFirstLetter(req.entity.options.name.singular)].hasUser(req.user.id)) {
       throw new ForbiddenError('Access denied: You do not have permission to access this ressource');
     }
