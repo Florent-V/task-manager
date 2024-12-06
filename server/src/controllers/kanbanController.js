@@ -14,7 +14,12 @@ const includeKanban = [
   {
     model: Task,
     as: 'tasks',
-  }
+  },
+  {
+    model: User,
+    as: 'users',
+    attributes: ['id'],
+  },
 ]
 
 // Créer un nouveau kanban

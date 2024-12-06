@@ -18,7 +18,7 @@ export const createStage = async (req, res, next) => {
 };
 
 // Récupération de tous les stages d'un kanban
-export const getStages = async (req, res, next) => {
+export const getAllStagesByKanban = async (req, res, next) => {
   try {
     const { id: kanbanId } = req.params;
 

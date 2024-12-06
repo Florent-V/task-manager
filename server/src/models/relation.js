@@ -172,12 +172,12 @@ export const defineAssociations = () => {
   //
   models.user.hasMany(models.task, {
     as: 'tasks',
-    foreignKey: 'userId',
+    foreignKey: 'assignedToId',
     onDelete: 'SET NULL'
   });
   models.task.belongsTo(models.user, {
-    as: 'user',
-    foreignKey: 'userId',
+    as: 'assignee',
+    foreignKey: 'assignedToId',
     onDelete: 'SET NULL'
   });
 };
