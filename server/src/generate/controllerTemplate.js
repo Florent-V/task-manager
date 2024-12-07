@@ -68,6 +68,6 @@ export const delete${modelName} = async (req, res, next) => {
   }
 };
 `;
-}
+};
 
 export default controllerTemplate;

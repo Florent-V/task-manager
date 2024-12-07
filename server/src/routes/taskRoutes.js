@@ -6,7 +6,7 @@ import {
   setTaskUpdateValidator,
   checkTaskRelationship
 } from '../middleware/taskMiddleware.js';
-import { validate } from "../middleware/ressourceMiddleware.js";
+import { validate } from '../middleware/ressourceMiddleware.js';
 import {
   createTask,
   getAllTasksByKanban,

@@ -1,9 +1,9 @@
 import sequelize from '../database/connect.js';
 import Kanban from '../models/kanbanModel.js';
 import Stage from '../models/stageModel.js';
-import Task from "../models/taskModel.js";
-import User from "../models/userModel.js";
-import ForbiddenError from "../error/forbiddenError.js";
+import Task from '../models/taskModel.js';
+import User from '../models/userModel.js';
+import ForbiddenError from '../error/forbiddenError.js';
 import NotFoundError from '../error/notFoundError.js';
 
 const includeKanban = [
@@ -20,7 +20,7 @@ const includeKanban = [
     as: 'users',
     attributes: ['id'],
   },
-]
+];
 
 // Créer un nouveau kanban
 export const createKanban = async (req, res, next) => {
@@ -35,10 +35,12 @@ export const createKanban = async (req, res, next) => {
       // Crée un nouveau kanban
       const newKanban = await Kanban.create(
         { title, description, stages },
-        { transaction: t, include: {
+        {
+          transaction: t, include: {
             model: Stage,
             as: 'stages',
-          } }
+          }
+        }
       );
       // Associe la todolist à l'utilisateur courant
       await newKanban.addUsers([userId], { transaction: t });

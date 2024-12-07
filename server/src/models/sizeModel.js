@@ -1,7 +1,8 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../database/connect.js';
 
-const Size = sequelize.define('Size', {
+const Size = sequelize.define('Size',
+  {
     label: {
       type: DataTypes.STRING,
       allowNull: false,

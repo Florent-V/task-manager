@@ -1,23 +1,23 @@
-import Task from "../models/taskModel.js";
-import Size from "../models/sizeModel.js";
-import Priority from "../models/priorityModel.js";
-import { taskSchema, updateTaskSchema } from "../joiSchema/taskSchema.js";
-import NotFoundError from "../error/notFoundError.js";
+import Task from '../models/taskModel.js';
+import Size from '../models/sizeModel.js';
+import Priority from '../models/priorityModel.js';
+import { taskSchema, updateTaskSchema } from '../joiSchema/taskSchema.js';
+import NotFoundError from '../error/notFoundError.js';
 
 export const setTaskEntity = (req, res, next) => {
   req.entity = Task;
   next();
-}
+};
 
 export const setTaskCreateValidator = (req, res, next) => {
   req.schema = taskSchema;
   next();
-}
+};
 
 export const setTaskUpdateValidator = (req, res, next) => {
   req.schema = updateTaskSchema;
   next();
-}
+};
 
 export const isTaskInKanban = async (req, res, next) => {
   try {
@@ -32,7 +32,7 @@ export const isTaskInKanban = async (req, res, next) => {
   } catch (error) {
     return next(error);
   }
-}
+};
 
 export const checkTaskRelationship = async (req, res, next) => {
   try {
@@ -61,4 +61,4 @@ export const checkTaskRelationship = async (req, res, next) => {
   } catch (error) {
     return next(error);
   }
-}
+};

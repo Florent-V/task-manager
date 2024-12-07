@@ -1,5 +1,9 @@
 import express from 'express';
-import { testNativeDbConnection, testSequelizeDbConnection } from '../database/test.js';
+import {
+  testNativeDbConnection,
+  testSequelizeDbConnection
+} from '../database/test.js';
+
 const router = express.Router();
 
 router.get('/', (req, res) => {

@@ -1,6 +1,6 @@
-import Stage from "../models/stageModel.js";
-import { stageSchema, updateStageSchema } from "../joiSchema/stageSchema.js";
-import NotFoundError from "../error/notFoundError.js";
+import Stage from '../models/stageModel.js';
+import { stageSchema, updateStageSchema } from '../joiSchema/stageSchema.js';
+import NotFoundError from '../error/notFoundError.js';
 
 export const isStageInKanban = async (req, res, next) => {
   try {
@@ -20,14 +20,14 @@ export const isStageInKanban = async (req, res, next) => {
 export const setStageEntity = (req, res, next) => {
   req.entity = Stage;
   next();
-}
+};
 
 export const setStageCreateValidator = (req, res, next) => {
   req.schema = stageSchema;
   next();
-}
+};
 
 export const setStageUpdateValidator = (req, res, next) => {
   req.schema = updateStageSchema;
   next();
-}
+};

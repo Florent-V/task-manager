@@ -9,7 +9,7 @@ const updatedAppJsContent = (entityName, modelName, routesFileName, appJsPath) =
   let appJsContent = fs.readFileSync(appJsPath, 'utf-8');
   if (!appJsContent.includes(appImportStatement)) {
     // Ajouter l'import à la fin des imports
-    const lastImportIndex = appJsContent.lastIndexOf("import");
+    const lastImportIndex = appJsContent.lastIndexOf('import');
     const insertionPoint = appJsContent.indexOf('\n', lastImportIndex);
     appJsContent = appJsContent.slice(0, insertionPoint + 1) + appImportStatement + appJsContent.slice(insertionPoint + 1);
   }
@@ -20,6 +20,6 @@ const updatedAppJsContent = (entityName, modelName, routesFileName, appJsPath) =
   }
 
   return appJsContent;
-}
+};
 
 export default updatedAppJsContent;

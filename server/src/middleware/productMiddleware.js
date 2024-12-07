@@ -1,6 +1,5 @@
-import Product from "../models/productModel.js";
-import { productSchema, updateProductSchema } from "../joiSchema/productJoiSchema.js";
-import _ from 'lodash';
+import Product from '../models/productModel.js';
+import { productSchema, updateProductSchema } from '../joiSchema/productJoiSchema.js';
 import ForbiddenError from '../error/forbiddenError.js';
 
 // Middleware pour vérifier l'accès à un produit
@@ -24,9 +23,9 @@ export const setEntity = (req, res, next) => {
 export const setCreateValidator = (req, res, next) => {
   req.schema = productSchema;
   next();
-}
+};
 
 export const setUpdateValidator = (req, res, next) => {
   req.schema = updateProductSchema;
   next();
-}
+};

@@ -1,10 +1,11 @@
 import QRCode from 'qrcode';
 import ToDoList from '../models/toDoListModel.js';
 import ToDoItem from '../models/toDoItemModel.js';
-import ToDoListType from "../models/toDoListTypeModel.js";
-import User from "../models/userModel.js";
-import ForbiddenError from "../error/forbiddenError.js";
+import ToDoListType from '../models/toDoListTypeModel.js';
+import User from '../models/userModel.js';
+import ForbiddenError from '../error/forbiddenError.js';
 import NotFoundError from '../error/notFoundError.js';
+
 const includeToDoList = [
   {
     model: ToDoItem,
@@ -98,16 +99,17 @@ export const getUserToDoListById = async (req, res, next) => {
 
     const { id } = req.params;
     const todolist = await ToDoList.findOne({
-      include: [
-        ...includeToDoList,
-        {
-          model: User,
-          as: 'users',
-          where: { id: userId },
-          attributes: []
-        }
-      ],
-      where: { id } }
+        include: [
+          ...includeToDoList,
+          {
+            model: User,
+            as: 'users',
+            where: { id: userId },
+            attributes: []
+          }
+        ],
+        where: { id }
+      }
     );
 
     if (!todolist) throw new ForbiddenError('Access denied: You do not have permission to access this product');
@@ -178,4 +180,4 @@ export const joinToDoList = async (req, res, next) => {
   } catch (error) {
     return next(error);
   }
-}
+};

@@ -1,8 +1,26 @@
 import express from 'express';
-import { createProduct, getAllProducts, getProductById, updateProduct, deleteProduct } from '../controllers/productController.js';
-import { authenticateByCookieSession, isAdmin } from '../middleware/authMiddleware.js';
-import { setEntity, setCreateValidator, setUpdateValidator } from '../middleware/productMiddleware.js';
-import { getUserRessources, getUserRessourceById, authorizeRessourceAccess, validate } from '../middleware/ressourceMiddleware.js';
+import {
+  createProduct,
+  getAllProducts,
+  getProductById,
+  updateProduct,
+  deleteProduct
+} from '../controllers/productController.js';
+import {
+  authenticateByCookieSession,
+  isAdmin
+} from '../middleware/authMiddleware.js';
+import {
+  setEntity,
+  setCreateValidator,
+  setUpdateValidator
+} from '../middleware/productMiddleware.js';
+import {
+  getUserRessources,
+  getUserRessourceById,
+  authorizeRessourceAccess,
+  validate
+} from '../middleware/ressourceMiddleware.js';
 import upload from '../middleware/uploadMiddleware.js';
 
 const router = express.Router();

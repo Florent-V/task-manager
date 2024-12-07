@@ -1,10 +1,16 @@
 import User from '../models/userModel.js';
-import RefreshToken from "../models/refreshTokenModel.js";
+import RefreshToken from '../models/refreshTokenModel.js';
 import { hashPassword } from '../services/passwordService.js';
 import RefreshTokenError from '../error/refreshTokenError.js';
 import config from '../config/config.js';
 import { authenticateUser } from '../services/authService.js';
-import { createAuthTokens, storeRefreshToken, validateRefreshToken, rotateRefreshToken, decodeToken } from '../services/tokenService.js';
+import {
+  createAuthTokens,
+  storeRefreshToken,
+  validateRefreshToken,
+  rotateRefreshToken,
+  decodeToken
+} from '../services/tokenService.js';
 
 // Options des cookies
 const refreshTokensCookieOptions = {
@@ -14,7 +20,7 @@ const refreshTokensCookieOptions = {
   maxAge: config.refreshTokenCookieLifetime,
   signed: true,
   path: '/api/auth/refresh-token'
-}
+};
 
 const accessTokensCookieOptions = {
   httpOnly: true,
@@ -23,19 +29,19 @@ const accessTokensCookieOptions = {
   maxAge: config.accessTokenCookieLifetime,  // 1 heure
   signed: true,
   path: '/'
-}
+};
 
 export const signup = async (req, res, next) => {
   try {
     const hashedPassword = await hashPassword(req.body.password);
 
-    const user = await User.create({ 
+    const user = await User.create({
       ...req.body,
       password: hashedPassword
     });
     await user.setRoles([1]);
 
-    res.status(201).send({ message: "User registered successfully!" });
+    res.status(201).send({ message: 'User registered successfully!' });
   } catch (error) {
     return next(error);
   }
@@ -83,7 +89,7 @@ export const handleRefreshToken = async (req, res, next) => {
     }
 
     // Génération new access token
-    const { 
+    const {
       token: newAccessToken,
       refreshToken: newRefreshTokenValue
     } = createAuthTokens(user);
@@ -103,7 +109,7 @@ export const handleRefreshToken = async (req, res, next) => {
   } catch (error) {
     return next(error);
   }
-}
+};
 
 export const logout = async (req, res) => {
   try {
@@ -129,7 +135,7 @@ export const logout = async (req, res) => {
     }
 
     return res.status(200).send({
-      message: "You've been signed out successfully!"
+      message: 'You\'ve been signed out successfully!'
     });
   } catch (error) {
     console.log('error', error);

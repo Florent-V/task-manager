@@ -51,7 +51,7 @@ const closeForm = () => {
 const fetchToDoLists = async () => {
   try {
     const data = await executeRequest(() => client.get('/api/todolist'));
-    logger.debug('todolist', data);
+    logger.debug('todolists', data);
     toDoLists.value = data.toDoLists;
   } catch (err) {
     logger.error("Error fetching to-do lists", err?.response?.data?.message || err.message);

@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { stageSchema, stageSchemaForUpdateKanban } from "./stageSchema.js";
+import { stageSchema, stageSchemaForUpdateKanban } from './stageSchema.js';
 
 export const newKanbanSchema = Joi.object({
   title: Joi.string().required(),

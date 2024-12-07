@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import User from "../models/userModel.js";
-import Role from "../models/roleModel.js";
+import User from '../models/userModel.js';
+import Role from '../models/roleModel.js';
 import { getAuthorities } from '../services/authService.js';
 
 // Récupération de tous les Utilisateurs
@@ -10,7 +10,7 @@ export const getAllUsers = async (req, res, next) => {
     users = _.map(users, obj => _.omit(obj.get(), ['password']));
     res.status(200).json(users);
   } catch (error) {
-    return next(error)
+    return next(error);
   }
 };
 
@@ -23,7 +23,7 @@ export const getUserById = async (req, res, next) => {
     user = _.omit(user.get(), ['password']);
     res.status(200).json(user);
   } catch (error) {
-    return next(error)
+    return next(error);
   }
 };
 
@@ -40,7 +40,7 @@ export const updateUser = async (req, res, next) => {
     updatedUser = _.omit(updatedUser.get(), ['password']);
     res.status(200).json(updatedUser);
   } catch (error) {
-    return next(error)
+    return next(error);
   }
 };
 
@@ -55,7 +55,7 @@ export const deleteUser = async (req, res, next) => {
 
     res.status(204).json();
   } catch (error) {
-    return next(error)
+    return next(error);
   }
 };
 
@@ -73,7 +73,7 @@ export const addRoleUser = async (req, res, next) => {
     await user.addRole(role);
     res.status(200).json({ message: 'Role added to user successfully' });
   } catch (error) {
-    return next(error)
+    return next(error);
   }
 };
 
@@ -91,7 +91,7 @@ export const removeRoleUser = async (req, res, next) => {
     await user.removeRole(role);
     res.status(200).json({ message: 'Role removed from user successfully' });
   } catch (error) {
-    return next(error)
+    return next(error);
   }
 };
 
@@ -102,9 +102,9 @@ export const getConnectedUser = async (req, res, next) => {
     const autorities = await getAuthorities(user);
     user = _.omit(user.get(), ['password']);
     user.autorities = autorities;
-    
+
     res.status(200).json(user);
   } catch (error) {
-    return next(error)
+    return next(error);
   }
 };

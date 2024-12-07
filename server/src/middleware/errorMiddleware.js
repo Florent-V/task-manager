@@ -1,4 +1,4 @@
-import NotFoundError from "../error/notFoundError.js";
+import NotFoundError from '../error/notFoundError.js';
 
 export const errorHandler = (error, req, res, next) => {
   console.log('errorHandler()');
@@ -18,13 +18,13 @@ export const errorHandler = (error, req, res, next) => {
   }
 
   res.status(serializedError.status || 500).send(serializedError);
-}
+};
 
 export const notFound = (req, res, next) => {
   return next(new NotFoundError('Page Not Found'));
-}
+};
 
 export const logError = (err, req, res, next) => {
-  console.log("### logError()", err);
+  console.log('### logError()', err);
   next(err);
-}
+};

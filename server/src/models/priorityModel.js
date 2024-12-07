@@ -1,7 +1,8 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../database/connect.js';
 
-const Priority = sequelize.define('Priority', {
+const Priority = sequelize.define('Priority',
+  {
     label: {
       type: DataTypes.STRING,
       allowNull: false,

@@ -38,7 +38,7 @@ export async function testSequelizeDbConnection() {
           acquire: config.db.pool.acquire,
           idle: config.db.pool.idle
         }
-    });
+      });
     await sequelize.authenticate();
     console.log('Connexion à la base de données Sequelize réussie');
   } catch (error) {

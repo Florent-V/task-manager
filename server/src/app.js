@@ -4,7 +4,11 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
 import initDB from './database/init.js';
-import { errorHandler, notFound, logError } from './middleware/errorMiddleware.js';
+import {
+  errorHandler,
+  notFound,
+  logError
+} from './middleware/errorMiddleware.js';
 import { init, send } from './middleware/inOutMiddleware.js';
 
 import testRoutes from './routes/testRoutes.js';
@@ -15,7 +19,7 @@ import toDoListRoutes from './routes/toDoListRoutes.js';
 import toDoListTypeRoutes from './routes/toDoListTypeRoute.js';
 import priorityRoutes from './routes/priorityRoutes.js';
 import sizeRoutes from './routes/sizeRoutes.js';
-import kanbanRoutes from "./routes/kanbanRoutes.js";
+import kanbanRoutes from './routes/kanbanRoutes.js';
 
 dotenv.config();
 const app = express();
@@ -23,9 +27,9 @@ const app = express();
 const port = process.env.NODE_API_DOCKER_PORT || 3000;
 
 const corsOptions = {
-  origin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-  allowedHeaders: ["Origin", "Content-Type", "Accept"],
+  origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Origin', 'Content-Type', 'Accept'],
   credentials: true // Autorise l'envoi de cookies et informations d'authentification
 };
 

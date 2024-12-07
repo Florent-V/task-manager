@@ -1,11 +1,27 @@
 import express from 'express';
 import stageRoutes from './stageRoutes.js';
 import taskRoutes from './taskRoutes.js';
-import { createKanban, getAllKanbans, getKanbanById, getKanbansByUser, updateKanban } from '../controllers/kanbanController.js';
-import { authorizeManyToManyRessourceAccess, validate } from "../middleware/ressourceMiddleware.js";
-import { authenticateByCookieSession, isAdmin } from "../middleware/authMiddleware.js";
-import { setKanbanEntity, setKanbanCreateValidator, setKanbanUpdateValidator } from "../middleware/kanbanMiddleware.js";
-import { remove } from "../middleware/basicCrudMiddleware.js";
+import {
+  createKanban,
+  getAllKanbans,
+  getKanbanById,
+  getKanbansByUser,
+  updateKanban
+} from '../controllers/kanbanController.js';
+import {
+  authorizeManyToManyRessourceAccess,
+  validate
+} from '../middleware/ressourceMiddleware.js';
+import {
+  authenticateByCookieSession,
+  isAdmin
+} from '../middleware/authMiddleware.js';
+import {
+  setKanbanEntity,
+  setKanbanCreateValidator,
+  setKanbanUpdateValidator
+} from '../middleware/kanbanMiddleware.js';
+import { remove } from '../middleware/basicCrudMiddleware.js';
 
 
 const router = express.Router();

@@ -1,7 +1,17 @@
 import express from 'express';
-import { setCreateValidator, setUpdateValidator, isToDoItemInToDoList } from '../middleware/toDoItemMiddleware.js'; 
+import {
+  setCreateValidator,
+  setUpdateValidator,
+  isToDoItemInToDoList
+} from '../middleware/toDoItemMiddleware.js';
 import { validate } from '../middleware/ressourceMiddleware.js';
-import { createToDoItem, getToDoItems, getToDoItemById, updateToDoItem, deleteToDoItem } from '../controllers/toDoItemController.js';
+import {
+  createToDoItem,
+  getToDoItems,
+  getToDoItemById,
+  updateToDoItem,
+  deleteToDoItem
+} from '../controllers/toDoItemController.js';
 
 const router = express.Router({ mergeParams: true });
 

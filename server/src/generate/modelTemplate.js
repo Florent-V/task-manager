@@ -19,6 +19,6 @@ const ${modelName} = sequelize.define('${modelName}', {
 
 export default ${modelName};
 `;
-}
-  
+};
+
 export default modelTemplate;

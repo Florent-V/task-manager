@@ -1,5 +1,5 @@
-import Task from "../models/taskModel.js";
-import NotFoundError from "../error/notFoundError.js";
+import Task from '../models/taskModel.js';
+import NotFoundError from '../error/notFoundError.js';
 
 // Création d'une nouvelle tâche
 export const createTask = async (req, res, next) => {
@@ -7,7 +7,17 @@ export const createTask = async (req, res, next) => {
     const { id: kanbanId } = req.params;
     const { title, description, estimation, loggedTime, priorityId, sizeId, stageId, assignedToId } = req.body;
 
-    const newTask = await Task.create({ title, description, estimation, loggedTime, priorityId, sizeId, stageId, assignedToId, kanbanId });
+    const newTask = await Task.create({
+      title,
+      description,
+      estimation,
+      loggedTime,
+      priorityId,
+      sizeId,
+      stageId,
+      assignedToId,
+      kanbanId
+    });
 
     res.statusCode = 201;
     res.data = { task: newTask };
@@ -23,8 +33,8 @@ export const getAllTasksByKanban = async (req, res, next) => {
     const { id: kanbanId } = req.params;
 
     res.data = {
-       task: await Task.findAll({ where: { kanbanId } })
-    }
+      task: await Task.findAll({ where: { kanbanId } })
+    };
 
     next();
   } catch (error) {
@@ -58,7 +68,7 @@ export const updateTask = async (req, res, next) => {
     const [updated] = await Task.update(
       { title, description, estimation, loggedTime, priorityId, sizeId, stageId, assignedToId },
       { where: { id: taskId } }
-      );
+    );
 
     if (!updated) throw new NotFoundError('Task not found.');
 

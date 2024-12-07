@@ -1,5 +1,5 @@
-import { lowercaseFirstLetter } from "../services/stringService.js";
-import NotFoundError from "../error/notFoundError.js";
+import { lowercaseFirstLetter } from '../services/stringService.js';
+import NotFoundError from '../error/notFoundError.js';
 
 export const getAll = async (req, res, next) => {
   try {
@@ -9,7 +9,7 @@ export const getAll = async (req, res, next) => {
   } catch (error) {
     return next(error);
   }
-}
+};
 
 export const getById = async (req, res, next) => {
   try {
@@ -23,7 +23,7 @@ export const getById = async (req, res, next) => {
   } catch (error) {
     return next(error);
   }
-}
+};
 
 export const create = async (req, res, next) => {
   try {
@@ -32,7 +32,7 @@ export const create = async (req, res, next) => {
   } catch (error) {
     return next(error);
   }
-}
+};
 
 export const update = async (req, res, next) => {
   try {
@@ -48,7 +48,7 @@ export const update = async (req, res, next) => {
   } catch (error) {
     return next(error);
   }
-}
+};
 
 export const remove = async (req, res, next) => {
   try {
@@ -61,4 +61,4 @@ export const remove = async (req, res, next) => {
   } catch (error) {
     return next(error);
   }
-}
+};

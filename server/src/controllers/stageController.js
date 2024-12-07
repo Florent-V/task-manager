@@ -1,4 +1,4 @@
-import Stage from "../models/stageModel.js";
+import Stage from '../models/stageModel.js';
 import NotFoundError from '../error/notFoundError.js';
 
 // Création d'un nouveau stage

@@ -13,6 +13,6 @@ router.delete('/:id', delete${modelName});
 
 export default router;
 `;
-}
+};
 
 export default routeTemplate;

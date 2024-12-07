@@ -1,13 +1,31 @@
 import express from 'express';
 import toDoItemRoutes from './toDoItemRoutes.js';
-import { createToDoList, getAllToDoLists, getAllToDoListsByUser, getToDoListById, updateToDoList, shareToDoList, joinToDoList } from '../controllers/toDoListController.js';
-import { authenticateByCookieSession, isAdmin } from '../middleware/authMiddleware.js';
-import { setEntity, setCreateValidator, setUpdateValidator } from '../middleware/toDoListMiddleware.js';
-import { authorizeManyToManyRessourceAccess, validate } from '../middleware/ressourceMiddleware.js';
+import {
+  createToDoList,
+  getAllToDoLists,
+  getAllToDoListsByUser,
+  getToDoListById,
+  updateToDoList,
+  shareToDoList,
+  joinToDoList
+} from '../controllers/toDoListController.js';
+import {
+  authenticateByCookieSession,
+  isAdmin
+} from '../middleware/authMiddleware.js';
+import {
+  setEntity,
+  setCreateValidator,
+  setUpdateValidator
+} from '../middleware/toDoListMiddleware.js';
+import {
+  authorizeManyToManyRessourceAccess,
+  validate
+} from '../middleware/ressourceMiddleware.js';
 import { remove } from '../middleware/basicCrudMiddleware.js';
-import ToDoList from "../models/toDoListModel.js";
-import NotFoundError from "../error/notFoundError.js";
-import User from "../models/userModel.js";
+import ToDoList from '../models/toDoListModel.js';
+import NotFoundError from '../error/notFoundError.js';
+import User from '../models/userModel.js';
 
 const router = express.Router();
 
