@@ -1,107 +1,49 @@
 <script setup>
-import { ref } from "vue";
+import { ref, reactive, computed, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import { client } from '@/utils/requestMaker.js';
+import { hookApi } from "@/utils/requestHook.js";
 import TaskModal from "./TaskModal.vue"; // Modale pour afficher/éditer une tâche
+import logger from "@/utils/logger.js";
 
+const route = useRoute();
+const { isLoading, error, executeRequest } = hookApi();
+
+// Variables pour le Kanban
+const kanban = ref([]);
+const stages = ref([]);
+const tasks = ref([]);
+const sizes = ref([]);
+const priorities = ref([]);
+const users = ref([]);
 // États pour les modales
 const selectedTask = ref(null); // Tâche sélectionnée pour modification
 const showTaskModal = ref(false); // Contrôle l'affichage de la modale de modification
 const showAddTaskModal = ref(false); // Contrôle l'affichage de la modale d'ajout
 
-// Exemple de colonnes et tâches
-const columns = ref([
-  { id: 1, name: "Backlog", description: "Tâches à faire", maxRecords: 5 },
-  { id: 2, name: "Ready", description: "Tâches prêtes à être réalisées", maxRecords: 5 },
-  { id: 3, name: "In Progress", description: "Tâches en cours de réalisation", maxRecords: 5 },
-  { id: 4, name: "In Review", description: "Tâches en cours de revue", maxRecords: 5 },
-  { id: 5, name: "Done", description: "Tâches terminées", maxRecords: 5 },
-]);
+// Fonction qui compte le nombre de tâches dans une colonne
+const countTasks = (columnId) => tasks.value.filter((task) => task.stageId === columnId).length;
 
-// Exemple de fausse tâche
-const sampleTask = {
-  id: 1,
-  title: "Créer l'interface Kanban",
-  description: "Concevoir l'interface pour le tableau Kanban",
-  priority: "High",
-  size: "Medium",
-  estimation: 4,
-  loggedTime: 2,
-  assignedTo: "Jean Dupont",
+// Fonction pour enrichir les tasks avec les labels de priorité et de taille
+const enrichTasks = (tasks) => {
+  return tasks.map((task) => ({
+    ...task,
+    priorityLabel: priorities.value.find((p) => p.id === task.priorityId)?.label || 'Unknown',
+    priorityColor: priorities.value.find((p) => p.id === task.priorityId)?.color || 'gray',
+    sizeLabel: sizes.value.find((s) => s.id === task.sizeId)?.label || 'Unknown',
+    sizeColor: sizes.value.find((s) => s.id === task.sizeId)?.color || 'gray',
+    assignedTo: (() => {
+      const user = users.value.find((u) => u.id === task.assignedToId);
+      return user ? `${user.firstName} ${user.lastName}` : 'Unassigned';
+    })(),
+  }));
 };
-// Tableau de tâches : 6 taches
-const tasks = ref([
-  {
-    id: 1,
-    title: "Créer l'interface Kanban",
-    description: "Concevoir l'interface pour le tableau Kanban",
-    priorityId: 1,
-    sizeId: 2,
-    statusId: 2,
-    estimation: 4,
-    loggedTime: 2,
-    assignedTo: "Jean Dupont",
-  },
-  {
-    id: 2,
-    title: "Ajouter le drag and drop",
-    description: "Permettre le déplacement des tâches entre les colonnes",
-    priorityId: 2,
-    sizeId: 2,
-    statusId: 5,
-    estimation: 2,
-    loggedTime: 0,
-    assignedTo: "Alice Martin",
-  },
-  {
-    id: 3,
-    title: "Implémenter le backend",
-    description: "Créer les routes et les contrôleurs pour le backend",
-    priorityId: 3,
-    sizeId: 3,
-    statusId: 4,
-    estimation: 8,
-    loggedTime: 4,
-    assignedTo: "Bob Smith",
-  },
-  {
-    id: 4,
-    title: "Tester l'application",
-    description: "Effectuer des tests unitaires et fonctionnels",
-    priorityId: 1,
-    sizeId: 2,
-    statusId: 3,
-    estimation: 6,
-    loggedTime: 1,
-    assignedTo: "Charlie Brown",
-  },
-  {
-    id: 5,
-    title: "Déployer l'application",
-    description: "Mettre en ligne l'application sur un serveur",
-    priorityId: 3,
-    sizeId: 4,
-    statusId: 2,
-    estimation: 4,
-    loggedTime: 0,
-    assignedTo: "David Johnson",
-  },
-  {
-    id: 6,
-    title: "Ajouter des fonctionnalités",
-    description: "Ajouter des fonctionnalités supplémentaires à l'application",
-    priorityId: 1,
-    sizeId: 5,
-    statusId: 1,
-    estimation: 10,
-    loggedTime: 2,
-    assignedTo: "Eva Williams",
-  },
-]);
 
-// fonction qui compte le nombre de tâches dans une colonne
-const countTasks = (columnId) => tasks.value.filter((task) => task.statusId === columnId).length;
-
-// Filtrer les tâches en fonction de leur colonne
-const getTasksByStatus = (status) => tasks.value.filter((task) => task.statusId === status);
+// Fonction pour filtrer les tâches par status
+const getTasksByStatus = (status) => {
+  return tasks.value
+      .filter((task) => task.stageId === status);
+};
 
 // État pour le drag and drop
 let draggedTask = null;
@@ -110,15 +52,30 @@ let draggedTask = null;
 const handleDragStart = (task) => {
   draggedTask = task;
 };
-const handleDrop = (event, columnId) => {
+const handleDrop = async (event, columnId) => {
   if (!draggedTask) return;
-  const sourceColumn = draggedTask.statusId;
-  const targetColumn = columns.value.find((col) => col.id === columnId);
+  const sourceColumn = draggedTask.stageId;
+  const targetColumn = stages.value.find((col) => col.id === columnId);
 
   if (sourceColumn && targetColumn) {
-    draggedTask.statusId = columnId;
+    draggedTask.stageId = columnId;
   }
+  await updateTaskStage(draggedTask);
   draggedTask = null;
+};
+
+// Fonction pour mettre à jour le stage d'une tâche
+const updateTaskStage = async (task) => {
+  console.log('pre update task', task);
+  try {
+    const response = await executeRequest(() => client.patch(
+        `/api/kanban/${task.kanbanId}/task/${task.id}/`,
+        { stageId: task.stageId })
+    );
+    console.log('response', response);
+  } catch (error) {
+    console.error('Error:', error);
+  }
 };
 
 // Ajouter une nouvelle tâche
@@ -133,7 +90,7 @@ const addTask = (columnId) => {
     loggedTime: 0,
     assignedTo: "Non assigné",
   };
-  const column = columns.value.find((col) => col.id === columnId);
+  const column = stages.value.find((col) => col.id === columnId);
   if (column) column.tasks.push(newTask);
 };
 
@@ -185,6 +142,47 @@ function saveTask(newTask) {
   closeAddTaskModal();
 }
 
+const fetchKanban = async () => {
+  try {
+    const data = await executeRequest(() => client.get(`/api/kanban/${route.params.id}/`));
+    logger.debug('kanban', data);
+    kanban.value = data.kanban;
+    stages.value = data.kanban.stages;
+    users.value = data.kanban.users;
+    tasks.value = enrichTasks(data.kanban.tasks);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+const fetchPriority = async () => {
+  try {
+    const data = await executeRequest(() => client.get('/api/priority/'));
+    logger.debug('priority', data);
+    priorities.value = data.priorities;
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+const fetchSize = async () => {
+  try {
+    const data = await executeRequest(() => client.get('/api/size/'));
+    logger.debug('size', data);
+    sizes.value = data.sizes;
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
+const fetchData = async () => {
+  await fetchPriority();
+  await fetchSize();
+  await fetchKanban();
+};
+
+onMounted(fetchData);
+
 </script>
 
 <template>
@@ -192,7 +190,7 @@ function saveTask(newTask) {
     <h1 class="text-4xl font-bold mb-8 text-center text-blue-800 dark:text-yellow-300">Tableau KanbanModel</h1>
     <div class="grid grid-cols-5 gap-4">
       <div
-          v-for="column in columns"
+          v-for="column in stages"
           :key="column.id"
           class="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-700 p-4 flex flex-col"
       >
@@ -202,7 +200,7 @@ function saveTask(newTask) {
             <h2 class="text-lg font-bold text-gray-900 dark:text-gray-300">{{ column.name }}</h2>
             <span
                 class="bg-blue-100 dark:bg-gray-700 text-blue-600 dark:text-yellow-300 rounded-full px-3 py-1 text-sm">
-            {{ countTasks(column.id) }} / {{ column.maxRecords }}
+            {{ countTasks(column.id) }} / {{ column.maxRecord }}
           </span>
           </div>
           <p class="text-sm text-gray-600 dark:text-gray-400">{{ column.description }}</p>
@@ -231,10 +229,25 @@ function saveTask(newTask) {
               @click="openTaskModal(task)"
           >
             <h3 class="font-bold text-gray-900 dark:text-gray-300">{{ task.title }}</h3>
-            <p class="text-sm text-gray-600 dark:text-gray-400">{{ task.description }}</p>
+            <p class="text-gray-600 dark:text-gray-400">{{ task.description }}</p>
             <div class="flex justify-between items-center mt-2 text-sm">
-              <span class="text-gray-500 dark:text-gray-400">{{ task.priority }}</span>
-              <span class="text-gray-500 dark:text-gray-400">{{ task.size }}</span>
+              <span
+                  class="inline-block text-sm font-medium px-2 py-1 rounded-full"
+                  :style="{ backgroundColor: task.priorityColor }"
+              >
+                {{ task.priorityLabel }}
+              </span>
+              <span
+                  class="inline-block text-sm font-medium px-2 py-1 rounded-full"
+                  :style="{ backgroundColor: task.sizeColor }"
+              >
+                {{ task.sizeLabel }}
+              </span>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Assignee: {{ task.assignedTo }}</p>
+            <div class="flex justify-between items-center text-sm">
+              <p class="text-sm text-gray-500 dark:text-gray-400">Estimation: {{ task.estimation }}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Consigné: {{ task.loggedTime }}</p>
             </div>
           </div>
         </div>
@@ -253,18 +266,21 @@ function saveTask(newTask) {
     </div>
 
     <!-- Task Modal -->
-<!--    <TaskModal-->
-<!--        v-if="showTaskModal"-->
-<!--        :task="selectedTask"-->
-<!--        @close="closeTaskModal"-->
-<!--        @save="saveTask"-->
-<!--    />-->
+    <!--    <TaskModal-->
+    <!--        v-if="showTaskModal"-->
+    <!--        :task="selectedTask"-->
+    <!--        @close="closeTaskModal"-->
+    <!--        @save="saveTask"-->
+    <!--    />-->
 
     <TaskModal
         v-if="showAddTaskModal"
-        :task="selectedTask"
-        @close="closeAddTaskModal"
-        @save="saveTask"
+        :initialData="selectedTask"
+        :users="users"
+        :priorities="priorities"
+        :sizes="sizes"
+        @handleResponse="saveTask"
+        @cancel="closeAddTaskModal"
     />
   </div>
 </template>

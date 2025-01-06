@@ -98,7 +98,7 @@ export const defineAssociations = () => {
   });
   models.kanban.belongsToMany(models.user, {
     as: 'users',
-    through: 'kanban_user',
+    through: 'user_kanban',
     foreignKey: 'kanbanId',
     onDelete: 'CASCADE'
   });

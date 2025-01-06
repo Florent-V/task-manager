@@ -11,7 +11,6 @@ import QRCodeModal from "@/components/ToDoList/ToDoListQRCodeModal.vue";
 import logger from "@/utils/logger.js";
 
 const route = useRoute();
-
 const { isLoading, error, executeRequest } = hookApi();
 
 const toDoList = ref({});

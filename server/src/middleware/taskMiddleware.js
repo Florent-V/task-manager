@@ -36,26 +36,31 @@ export const isTaskInKanban = async (req, res, next) => {
 
 export const checkTaskRelationship = async (req, res, next) => {
   try {
+    console.log('req.body', req.body);
     const { assignedToId, stageId, sizeId, priorityId } = req.body;
 
     const kanban = res.data.kanban;
     // check if the user is in the kanban
-    if (!kanban.users.find(user => user.id === assignedToId)) {
+    if (assignedToId && !kanban.users.find(user => user.id === assignedToId)) {
       throw new NotFoundError('User not found in kanban');
     }
 
     // check if the stage is in the kanban
-    if (!kanban.stages.find(stage => stage.id === stageId)) {
+    if (stageId && !kanban.stages.find(stage => stage.id === stageId)) {
       throw new NotFoundError('Stage not found in kanban');
     }
 
     // check if size exist in database
-    const size = await Size.findByPk(sizeId);
-    if (!size) throw new NotFoundError('Size not found');
+    if (sizeId) {
+      const size = await Size.findByPk(sizeId);
+      if (!size) throw new NotFoundError('Size not found');
+    }
 
     // check if priority exist in database
-    const priority = await Priority.findByPk(priorityId);
-    if (!priority) throw new NotFoundError('Priority not found');
+    if (priorityId) {
+      const priority = await Priority.findByPk(priorityId);
+      if (!priority) throw new NotFoundError('Priority not found');
+    }
 
     next();
   } catch (error) {

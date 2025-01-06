@@ -1,42 +1,92 @@
 <script setup>
-import { reactive, watch } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
+import { client } from '@/utils/requestMaker.js';
+import { hookApi } from "@/utils/requestHook.js";
+import logger from "@/utils/logger.js";
+import useFormErrors from "@/utils/handleFormErrors.js";
 
+const emit = defineEmits(['handleResponse', 'cancel']);
 const props = defineProps({
-  kanban: {
+  initialData: {
     type: Object,
     default: () => ({
-      id: null,
       title: '',
       description: '',
-      statuses: [],
+      stages: [],
     }),
   },
 });
 
-const emit = defineEmits(['submitSuccess', 'cancel']);
+const formData = ref({ ...props.initialData });
+const isEditing = computed(() => !!formData.value.id);
+const { isLoading, error, executeRequest } = hookApi();
+// Utilitaire de gestions des erreurs de formulaire
+const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...formData.value });
 
-const form = reactive({
-  title: '',
-  description: '',
-  statuses: [],
-});
 
-watch(
-    () => props.kanban,
-    (newKanban) => {
-      form.title = newKanban.title || '';
-      form.description = newKanban.description || '';
-      form.statuses = newKanban.statuses || [];
+watch(() => props.initialData, (newValue) => {
+  formData.value = newValue ? { ...newValue } : { title: '', description: '', stages: [] };
     },
     { immediate: true }
 );
 
 const addStatus = () => {
-  form.statuses.push({ name: '', description: '', maxRecord: 1 });
+  formData.value.stages.push({ name: '', description: '', maxRecord: 1 });
 };
 
 const removeStatus = (index) => {
-  form.statuses.splice(index, 1);
+  formData.value.stages.splice(index, 1);
+};
+
+const submitForm = async () => {
+  const data = {
+    title: formData.value.title,
+    description: formData.value.description,
+    stages: formData.value.stages.map(({ id, name, description, maxRecord, kanbanId }) => ({
+      id,
+      name,
+      description,
+      maxRecord,
+      kanbanId,
+    })),
+  };
+
+  try {
+    let response;
+    if (formData.value.id) {
+      // Update existing to-do
+      response = await executeRequest(
+          () => client.patch(`/api/kanban/${formData.value.id}`, data)
+      );
+    } else {
+      // Create new to-do
+      response = await executeRequest(
+          () => client.post('/api/kanban', data)
+      );
+    }
+    emit('handleResponse', response);
+    closeForm();
+  } catch (err) {
+    logger.error('Error in form submission', err?.response?.data?.message || err.message);
+    console.log("err", err);
+    setErrors(err);
+    console.log("errors", errors);
+    console.log("defaultError", defaultError);
+  }
+};
+
+const closeForm = () => {
+  resetForm();
+  emit('cancel');
+};
+
+const resetForm = () => {
+  clearErrors();
+  formData.value = {
+    title: '',
+    description: '',
+    stages: [],
+  };
 };
 
 const submitKanban = () => {
@@ -45,24 +95,25 @@ const submitKanban = () => {
 </script>
 
 <template>
-  <div>
-    <h2 class="text-2xl font-bold mb-4 text-gray-700 dark:text-gray-300">
-      {{ kanban.id ? 'Modifier un Kanban' : 'Créer un Kanban' }}
+  <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg dark:shadow-gray-700">
+    <h2 class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 mb-2 px-4 py-2 rounded-t-lg text-xl font-semibold">
+      {{ isEditing ? 'Modifier un Kanban' : 'Créer un Kanban' }}
     </h2>
 
-    <form @submit.prevent="submitKanban">
+    <form @submit.prevent="submitForm">
       <!-- Titre du Kanban -->
       <div class="mb-4">
         <label for="title" class="block text-gray-700 dark:text-gray-300">Titre</label>
         <input
             type="text"
             id="title"
-            v-model="form.title"
-            maxlength="50"
+            v-model="formData.title"
+            maxlength="150"
             class="mt-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             placeholder="Titre du Kanban"
             required
         />
+        <p v-if="errors.title" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.title }}</p>
       </div>
 
       <!-- Description du Kanban -->
@@ -70,31 +121,32 @@ const submitKanban = () => {
         <label for="description" class="block text-gray-700 dark:text-gray-300">Description</label>
         <textarea
             id="description"
-            v-model="form.description"
+            v-model="formData.description"
             maxlength="200"
             class="mt-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             placeholder="Description (facultatif)"
         ></textarea>
+        <p v-if="errors.description" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.description }}</p>
       </div>
 
-      <!-- Statuts dynamiques -->
+      <!-- Stages dynamiques -->
       <div class="mb-6">
-        <h3 class="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300">Statuts</h3>
+        <h3 class="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300">Colonnes</h3>
         <div
             class="grid grid-cols-1 md:grid-cols-2 gap-4"
         >
           <div
-              v-for="(status, index) in form.statuses"
+              v-for="(stage, index) in formData.stages"
               :key="index"
               class="p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800"
           >
             <!-- Ligne 1 : Nom et MaxRecord -->
             <div class="flex items-center gap-4">
               <div class="flex-grow">
-                <label class="block text-gray-700 dark:text-gray-300">Nom du statut</label>
+                <label class="block text-gray-700 dark:text-gray-300">Nom de la colonne</label>
                 <input
                     type="text"
-                    v-model="status.name"
+                    v-model="stage.name"
                     maxlength="50"
                     placeholder="Nom du statut"
                     class="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
@@ -104,8 +156,8 @@ const submitKanban = () => {
               <div class="w-20">
                 <label class="block text-gray-700 dark:text-gray-300">Max</label>
                 <input
-                    type="number"
-                    v-model="status.maxRecord"
+                    type="text"
+                    v-model="stage.maxRecord"
                     min="1"
                     max="99"
                     class="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-center"
@@ -118,7 +170,7 @@ const submitKanban = () => {
             <div class="mt-4">
               <label class="block text-gray-700 dark:text-gray-300">Description</label>
               <textarea
-                  v-model="status.description"
+                  v-model="stage.description"
                   maxlength="200"
                   placeholder="Description (facultatif)"
                   class="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
@@ -135,31 +187,31 @@ const submitKanban = () => {
             </button>
           </div>
         </div>
+        <p v-if="errors.stages" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.stages }}</p>
 
         <!-- Ajouter un statut -->
         <button
             type="button"
             @click="addStatus"
-            class="text-blue-600 font-semibold mt-4"
+            class="text-blue-600 font-semibold mt-2"
         >
-          + Ajouter un statut
+          + Ajouter une colonne
         </button>
       </div>
 
       <!-- Boutons d'action -->
       <div class="flex justify-end gap-4">
         <button
-            type="button"
-            @click="$emit('cancel')"
-            class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition"
+            @click="closeForm"
+            class="w-full bg-gray-600 text-white px-6 py-3 rounded-lg"
         >
           Annuler
         </button>
         <button
             type="submit"
-            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+            class="w-full m-auto bg-blue-600 dark:bg-yellow-400 text-white dark:text-gray-900 hover:bg-blue-700 dark:hover:bg-yellow-500 px-6 py-3 rounded-lg text-lg transition duration-300 font-semibold"
         >
-          {{ kanban.id ? 'Modifier' : 'Créer' }}
+          {{ isEditing ? 'Modifier' : 'Créer' }}
         </button>
       </div>
     </form>

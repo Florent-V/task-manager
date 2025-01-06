@@ -4,6 +4,8 @@ import { useRouter } from 'vue-router';
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
 import logger from "@/utils/logger.js";
+import LoaderComponent from "@/components/LoaderComponent.vue";
+import KanbanFormComponent from "@/components/Kanban/KanbanFormComponent.vue";
 
 const { isLoading, error, executeRequest } = hookApi();
 
@@ -49,7 +51,7 @@ const closeForm = () => {
 const fetchKanbans = async () => {
   try {
     const data = await executeRequest(() => client.get('/api/kanban'));
-    logger.debug('todolist', data);
+    logger.debug('kanbans', data);
     kanbans.value = data.kanbans;
   } catch (err) {
     logger.error("Error fetching to-do lists", err?.response?.data?.message || err.message);
@@ -57,7 +59,7 @@ const fetchKanbans = async () => {
 };
 
 const redirectToItem = (id) => {
-  router.push(`/toDoList/${id}`);
+  router.push(`/kanban/${id}`);
 };
 
 onMounted(fetchKanbans);
@@ -83,13 +85,13 @@ onMounted(fetchKanbans);
       </div>
     </div>
 
-    <!-- ToDoForm -->
-<!--    <ToDoListFormComponent-->
-<!--        v-if="showForm"-->
-<!--        :initialData="selectedToDo"-->
-<!--        @handleResponse="handleResponseFormSubmit"-->
-<!--        @cancel="closeForm"-->
-<!--    />-->
+    <!-- KanbanForm -->
+    <KanbanFormComponent
+        v-if="showForm"
+        :initialData="selectedKanban"
+        @handleResponse="handleResponseFormSubmit"
+        @cancel="closeForm"
+    />
 
     <!--    spacing div -->
     <div class="h-6"></div>
@@ -109,32 +111,26 @@ onMounted(fetchKanbans);
           </tr>
           </thead>
           <tbody>
-          <tr v-for="list in toDoLists" :key="list.id" class="hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+          <tr v-for="kanban in kanbans" :key="kanban.id" class="hover:bg-gray-100 dark:hover:bg-gray-600 transition">
             <td
                 class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300 cursor-pointer"
-                @click="redirectToItem(list.id)"
+                @click="redirectToItem(kanban.id)"
             >
-              {{ list.title }}
+              {{ kanban.title }}
             </td>
             <td
                 class="hidden md:table-cell border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300 cursor-pointer"
-                @click="redirectToItem(list.id)"
+                @click="redirectToItem(kanban.id)"
             >
-              {{ list.description }}
-            </td>
-            <td
-                class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300 cursor-pointer"
-                @click="redirectToItem(list.id)"
-            >
-              {{ list.type.name }}
+              {{ kanban.description }}
             </td>
             <td class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-center">
               <div class="flex justify-around">
-                <button @click="openEditForm(list)"
+                <button @click="openEditForm(kanban)"
                         class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
                   <i class="fas fa-edit"></i>
                 </button>
-                <button @click="deleteList(list)"
+                <button @click="deleteKanban(kanban)"
                         class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
                   <i class="fas fa-trash-alt"></i>
                 </button>
@@ -145,8 +141,8 @@ onMounted(fetchKanbans);
         </table>
       </div>
     </div>
-    <div v-if="!isLoading && !toDoLists.length">
-      <p class="text-center text-gray-700 dark:text-gray-300 text-xl">Aucune Liste trouvée</p>
+    <div v-if="!isLoading && !kanbans.length">
+      <p class="text-center text-gray-700 dark:text-gray-300 text-xl">Aucun kanban trouvé</p>
     </div>
 
     <div v-if="error">

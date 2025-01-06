@@ -18,7 +18,7 @@ const includeKanban = [
   {
     model: User,
     as: 'users',
-    attributes: ['id'],
+    attributes: ['id', 'username', 'firstName', 'lastName'],
   },
 ];
 
