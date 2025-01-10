@@ -26,11 +26,8 @@ const showTaskFormModal = ref(false); // Contrôle l'affichage de la modale d'aj
 const countTasks = (columnId) => tasks.value.filter((task) => task.stageId === columnId).length;
 
 const unassignedTasks = computed(() => {
-  console.log("computed");
   return tasks.value.filter((task) => task.stageId === null);
-}
-
-);
+});
 
 const enrichTask = (task) => {
   return {
@@ -99,6 +96,7 @@ const handleResponseFormSubmit = async (response) => {
     // Update existing to-do item
     const index = tasks.value.findIndex(item => item.id === response.task.id);
     tasks.value[index] = response.task;
+    selectedTask.value = response.task;
   } else {
     console.log("create")
     // Create new to-do item
@@ -122,9 +120,25 @@ function openTaskFormModal() {
   showTaskFormModal.value = true;
 }
 
+function editTask() {
+  showTaskFormModal.value = true;
+}
+
 function closeTaskFormModal() {
   showTaskFormModal.value = false;
 }
+
+// Delete ToDoItem
+const deleteTask = async (id) => {
+  try {
+    await executeRequest(() => client.delete(`/api/kanban/${route.params.id}/task/${id}`));
+    tasks.value = tasks.value.filter(i => i.id !== id);
+    showTaskModal.value = false;
+    selectedTask.value = null;
+  } catch (err) {
+    logger.error('Error deleting Tasks:', err?.response?.data?.message || err.message);
+  }
+};
 
 const fetchKanban = async () => {
   try {
@@ -294,6 +308,8 @@ onMounted(fetchData);
         v-if="showTaskModal"
         :task="selectedTask"
         @close="closeTaskModal"
+        @delete="deleteTask"
+        @edit="editTask"
     />
 
     <TaskFormModal

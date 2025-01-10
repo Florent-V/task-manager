@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue';
+import ModalConfirmation from '@/components/ModalConfirmation.vue';
 
 // Props
 const props = defineProps({
@@ -14,6 +15,7 @@ const emit = defineEmits(['close', 'edit', 'delete', 'add-comment']);
 
 // State
 const newComment = ref('');
+const showDeleteConfirmationModal = ref(false);
 
 // Computed
 const sortedComments = computed(() => {
@@ -23,7 +25,10 @@ const sortedComments = computed(() => {
 // Methods
 const closeModal = () => emit('close');
 const editTask = () => emit('edit');
-const deleteTask = () => emit('delete');
+const deleteTask = () => {
+  showDeleteConfirmationModal.value = false;
+  emit('delete', props.task.id);
+};
 const addComment = () => {
   if (newComment.value.trim()) {
     emit('add-comment', newComment.value);
@@ -50,13 +55,10 @@ console.log('TaskViewModal', props.task);
         </h2>
         <div class="flex space-x-4">
           <button @click="editTask" class="text-gray-500 dark:text-gray-300 hover:text-blue-500">
-            <i class="fa-solid fa-pen"></i>
-            <span class="material-symbols-outlined">
-close
-</span>
+            <v-icon name="fa-edit" />
           </button>
-          <button @click="deleteTask" class="text-gray-500 dark:text-gray-300 hover:text-red-500">
-            <i class="fa-solid fa-trash"></i>
+          <button @click="showDeleteConfirmationModal = true" class="text-gray-500 dark:text-gray-300 hover:text-red-500">
+            <v-icon name="md-delete" />
           </button>
         </div>
       </div>
@@ -138,6 +140,15 @@ close
         </button>
       </div>
     </div>
+
+    <!-- Modale de confirmation -->
+    <ModalConfirmation
+        v-if="showDeleteConfirmationModal"
+        question="Êtes-vous sûr de vouloir supprimer cette tâche ?"
+        @confirm="deleteTask"
+        @cancel="showDeleteConfirmationModal = false"
+    />
+
   </div>
 </template>
 

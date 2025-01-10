@@ -89,6 +89,7 @@ export const updateTask = async (req, res, next) => {
 export const deleteTask = async (req, res, next) => {
   try {
     const { taskId } = req.params;
+    console.log('taskId:', taskId);
     const deleted = await Task.destroy({ where: { id: taskId } });
 
     if (!deleted) throw new NotFoundError('Task not found.');
