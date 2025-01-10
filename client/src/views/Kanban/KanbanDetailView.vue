@@ -1,9 +1,10 @@
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
-import TaskModal from "./TaskModal.vue"; // Modale pour afficher/éditer une tâche
+import TaskFormModal from "./TaskFormModal.vue"; // Modale pour afficher/éditer une tâche
+import TaskViewModal from '@/views/Kanban/TaskViewModal.vue';
 import logger from "@/utils/logger.js";
 
 const route = useRoute();
@@ -19,24 +20,36 @@ const users = ref([]);
 // États pour les modales
 const selectedTask = ref(null); // Tâche sélectionnée pour modification
 const showTaskModal = ref(false); // Contrôle l'affichage de la modale de modification
-const showAddTaskModal = ref(false); // Contrôle l'affichage de la modale d'ajout
+const showTaskFormModal = ref(false); // Contrôle l'affichage de la modale d'ajout
 
 // Fonction qui compte le nombre de tâches dans une colonne
 const countTasks = (columnId) => tasks.value.filter((task) => task.stageId === columnId).length;
 
-// Fonction pour enrichir les tasks avec les labels de priorité et de taille
-const enrichTasks = (tasks) => {
-  return tasks.map((task) => ({
+const unassignedTasks = computed(() => {
+  console.log("computed");
+  return tasks.value.filter((task) => task.stageId === null);
+}
+
+);
+
+const enrichTask = (task) => {
+  return {
     ...task,
     priorityLabel: priorities.value.find((p) => p.id === task.priorityId)?.label || 'Unknown',
     priorityColor: priorities.value.find((p) => p.id === task.priorityId)?.color || 'gray',
     sizeLabel: sizes.value.find((s) => s.id === task.sizeId)?.label || 'Unknown',
     sizeColor: sizes.value.find((s) => s.id === task.sizeId)?.color || 'gray',
+    stageLabel: stages.value.find((s) => s.id === task.stageId)?.name || 'Unknown',
     assignedTo: (() => {
       const user = users.value.find((u) => u.id === task.assignedToId);
       return user ? `${user.firstName} ${user.lastName}` : 'Unassigned';
     })(),
-  }));
+  };
+};
+
+// Fonction pour enrichir les tasks avec les labels de priorité et de taille
+const enrichTasks = (tasks) => {
+  return tasks.map((task) => enrichTask(task));
 };
 
 // Fonction pour filtrer les tâches par status
@@ -78,29 +91,24 @@ const updateTaskStage = async (task) => {
   }
 };
 
-// Ajouter une nouvelle tâche
-const addTask = (columnId) => {
-  const newTask = {
-    id: Date.now(),
-    title: "Nouvelle tâche",
-    description: "Description de la tâche",
-    priority: "Medium",
-    size: "Small",
-    estimation: 2,
-    loggedTime: 0,
-    assignedTo: "Non assigné",
-  };
-  const column = stages.value.find((col) => col.id === columnId);
-  if (column) column.tasks.push(newTask);
+const handleResponseFormSubmit = async (response) => {
+  console.log("handleResponseFormSubmit");
+  console.log("tasks", tasks.value);
+  if (selectedTask.value) {
+    console.log("update")
+    // Update existing to-do item
+    const index = tasks.value.findIndex(item => item.id === response.task.id);
+    tasks.value[index] = response.task;
+  } else {
+    console.log("create")
+    // Create new to-do item
+    tasks.value.push(enrichTask(response.task));
+  }
+  console.log("tasks", tasks.value);
+  closeTaskFormModal();
 };
 
-// Ouvrir la modale de tâche
-// const openTaskModal = (task) => {
-//   selectedTask.value = task;
-// };
-
 function openTaskModal(task) {
-  console.log('task', task);
   selectedTask.value = task;
   showTaskModal.value = true;
 }
@@ -109,37 +117,13 @@ function closeTaskModal() {
   showTaskModal.value = false;
 }
 
-function openAddTaskModal() {
-  selectedTask.value = {
-    title: "",
-    description: "",
-    priorityId: "",
-    sizeId: "",
-    estimatedTime: "",
-    loggedTime: "",
-    assignedToId: "",
-  }; // Tâche vide pour création
-  showAddTaskModal.value = true;
+function openTaskFormModal() {
+  selectedTask.value = null;
+  showTaskFormModal.value = true;
 }
 
-function closeAddTaskModal() {
-  showAddTaskModal.value = false;
-}
-
-function saveTask(newTask) {
-  console.log('newTask', newTask);
-  if (showAddTaskModal.value) {
-    // Ajouter la nouvelle tâche
-    tasks.push(newTask); // `tasks` doit être défini dans ton code comme la liste des tâches
-  } else if (showTaskModal.value) {
-    // Mettre à jour la tâche existante
-    Object.assign(
-        tasks.find((t) => t.id === newTask.id),
-        newTask
-    );
-  }
-  closeTaskModal();
-  closeAddTaskModal();
+function closeTaskFormModal() {
+  showTaskFormModal.value = false;
 }
 
 const fetchKanban = async () => {
@@ -254,7 +238,7 @@ onMounted(fetchData);
 
         <!-- Add Task Button -->
         <button
-            @click="openAddTaskModal"
+            @click="openTaskFormModal"
             class="mt-4 w-full bg-blue-600 dark:bg-yellow-400 text-white py-2 rounded-lg flex items-center justify-center space-x-2 hover:bg-blue-700 dark:hover:bg-yellow-500"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -265,22 +249,59 @@ onMounted(fetchData);
       </div>
     </div>
 
-    <!-- Task Modal -->
-    <!--    <TaskModal-->
-    <!--        v-if="showTaskModal"-->
-    <!--        :task="selectedTask"-->
-    <!--        @close="closeTaskModal"-->
-    <!--        @save="saveTask"-->
-    <!--    />-->
+    <!-- Unassigned Tasks Section -->
+    <div v-if="unassignedTasks.length" class="mb-8">
+      <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4 text-center">Tâches sans colonne</h2>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-700 p-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div
+              v-for="task in unassignedTasks"
+              :key="task.id"
+              class="task bg-gray-100 dark:bg-gray-700 rounded-lg p-4 shadow hover:shadow-md dark:hover:shadow-gray-600 cursor-pointer"
+              @click="openTaskModal(task)"
+          >
+            <h3 class="font-bold text-gray-900 dark:text-gray-300">{{ task.title }}</h3>
+            <p class="text-gray-600 dark:text-gray-400">{{ task.description }}</p>
+            <div class="flex justify-between items-center mt-2 text-sm">
+              <span
+                  class="inline-block text-sm font-medium px-2 py-1 rounded-full"
+                  :style="{ backgroundColor: task.priorityColor }"
+              >
+                {{ task.priorityLabel }}
+              </span>
+              <span
+                  class="inline-block text-sm font-medium px-2 py-1 rounded-full"
+                  :style="{ backgroundColor: task.sizeColor }"
+              >
+                {{ task.sizeLabel }}
+              </span>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Assignee: {{ task.assignedTo }}</p>
+            <div class="flex justify-between items-center text-sm">
+              <p class="text-sm text-gray-500 dark:text-gray-400">Estimation: {{ task.estimation }}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Consigné: {{ task.loggedTime }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <TaskModal
-        v-if="showAddTaskModal"
+<!--     Task Modal -->
+    <TaskViewModal
+        v-if="showTaskModal"
+        :task="selectedTask"
+        @close="closeTaskModal"
+    />
+
+    <TaskFormModal
+        v-if="showTaskFormModal"
         :initialData="selectedTask"
         :users="users"
         :priorities="priorities"
         :sizes="sizes"
-        @handleResponse="saveTask"
-        @cancel="closeAddTaskModal"
+        :stages="stages"
+        @handleResponse="handleResponseFormSubmit"
+        @cancel="closeTaskFormModal"
     />
   </div>
 </template>

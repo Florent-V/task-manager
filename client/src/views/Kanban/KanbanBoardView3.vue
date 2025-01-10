@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from "vue";
-import TaskModal from "./TaskModal.vue"; // Modale pour afficher/éditer une tâche
+import TaskModal from "./TaskFormModal.vue"; // Modale pour afficher/éditer une tâche
 
 // États pour les modales
 const selectedTask = ref(null); // Tâche sélectionnée pour modification

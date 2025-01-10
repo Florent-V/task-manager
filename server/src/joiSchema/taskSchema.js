@@ -5,10 +5,10 @@ export const taskSchema = Joi.object({
   description: Joi.string().allow(null, ''),
   estimation: Joi.number().integer().min(0).required(),
   loggedTime: Joi.number().integer().min(0).required(),
-  priorityId: Joi.number().integer().required(),
-  sizeId: Joi.number().integer().required(),
-  stageId: Joi.number().integer().required(),
-  assignedToId: Joi.number().integer().required(),
+  priorityId: Joi.number().integer(),
+  sizeId: Joi.number().integer(),
+  stageId: Joi.number().integer(),
+  assignedToId: Joi.number().integer(),
 });
 
 export const updateTaskSchema = Joi.object({

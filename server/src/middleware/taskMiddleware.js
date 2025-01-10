@@ -36,7 +36,6 @@ export const isTaskInKanban = async (req, res, next) => {
 
 export const checkTaskRelationship = async (req, res, next) => {
   try {
-    console.log('req.body', req.body);
     const { assignedToId, stageId, sizeId, priorityId } = req.body;
 
     const kanban = res.data.kanban;
