@@ -51,6 +51,9 @@ console.log('TaskViewModal', props.task);
         <div class="flex space-x-4">
           <button @click="editTask" class="text-gray-500 dark:text-gray-300 hover:text-blue-500">
             <i class="fa-solid fa-pen"></i>
+            <span class="material-symbols-outlined">
+close
+</span>
           </button>
           <button @click="deleteTask" class="text-gray-500 dark:text-gray-300 hover:text-red-500">
             <i class="fa-solid fa-trash"></i>

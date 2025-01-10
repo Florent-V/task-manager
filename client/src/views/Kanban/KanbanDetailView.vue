@@ -171,7 +171,10 @@ onMounted(fetchData);
 
 <template>
   <div class="container mx-auto px-1 py-12">
-    <h1 class="text-4xl font-bold mb-8 text-center text-blue-800 dark:text-yellow-300">Tableau KanbanModel</h1>
+    <h1 class="text-4xl font-bold mb-8 text-center text-blue-800 dark:text-yellow-300">
+      Tableau KanbanModel
+    </h1>
+
     <div class="grid grid-cols-5 gap-4">
       <div
           v-for="column in stages"

@@ -115,9 +115,10 @@ const resetForm = () => {
       <div class="flex justify-between items-center border-b pb-4 dark:border-gray-600">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-yellow-300">
           {{ isEditing ? "Modifier la tâche" : "Créer une tâche" }}
+
         </h2>
         <button @click="closeForm" class="text-gray-500 dark:text-gray-300 hover:text-red-500">
-          <i class="fa-solid fa-xmark"></i>
+          <v-icon name="md-close" />
         </button>
       </div>
 
