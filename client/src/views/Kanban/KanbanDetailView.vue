@@ -29,6 +29,7 @@ const unassignedTasks = computed(() => {
   return tasks.value.filter((task) => task.stageId === null);
 });
 
+// Fonction pour enrichir les tasks avec les labels de priorité et de taille
 const enrichTask = (task) => {
   return {
     ...task,
@@ -44,7 +45,6 @@ const enrichTask = (task) => {
   };
 };
 
-// Fonction pour enrichir les tasks avec les labels de priorité et de taille
 const enrichTasks = (tasks) => {
   return tasks.map((task) => enrichTask(task));
 };
@@ -55,10 +55,9 @@ const getTasksByStatus = (status) => {
       .filter((task) => task.stageId === status);
 };
 
-// État pour le drag and drop
+// Gestion drag and drop
 let draggedTask = null;
 
-// Gestion du drag and drop
 const handleDragStart = (task) => {
   draggedTask = task;
 };
@@ -89,43 +88,39 @@ const updateTaskStage = async (task) => {
 };
 
 const handleResponseFormSubmit = async (response) => {
-  console.log("handleResponseFormSubmit");
-  console.log("tasks", tasks.value);
   if (selectedTask.value) {
-    console.log("update")
     // Update existing to-do item
     const index = tasks.value.findIndex(item => item.id === response.task.id);
     tasks.value[index] = response.task;
     selectedTask.value = response.task;
   } else {
-    console.log("create")
     // Create new to-do item
     tasks.value.push(enrichTask(response.task));
   }
-  console.log("tasks", tasks.value);
   closeTaskFormModal();
 };
 
-function openTaskModal(task) {
+const openTaskModal = (task) => {
   selectedTask.value = task;
   showTaskModal.value = true;
 }
 
-function closeTaskModal() {
-  showTaskModal.value = false;
-}
-
-function openTaskFormModal() {
+const openTaskFormModal = () => {
   selectedTask.value = null;
   showTaskFormModal.value = true;
 }
 
-function editTask() {
+const editTask = () => {
   showTaskFormModal.value = true;
 }
 
-function closeTaskFormModal() {
+const closeTaskModal = () => {
+  showTaskModal.value = false;
+  selectedTask.value = null;
+}
+const closeTaskFormModal = () => {
   showTaskFormModal.value = false;
+  selectedTask.value = null;
 }
 
 // Delete ToDoItem
@@ -133,8 +128,7 @@ const deleteTask = async (id) => {
   try {
     await executeRequest(() => client.delete(`/api/kanban/${route.params.id}/task/${id}`));
     tasks.value = tasks.value.filter(i => i.id !== id);
-    showTaskModal.value = false;
-    selectedTask.value = null;
+    closeTaskModal();
   } catch (err) {
     logger.error('Error deleting Tasks:', err?.response?.data?.message || err.message);
   }
@@ -180,7 +174,6 @@ const fetchData = async () => {
 };
 
 onMounted(fetchData);
-
 </script>
 
 <template>
@@ -230,7 +223,9 @@ onMounted(fetchData);
               @click="openTaskModal(task)"
           >
             <h3 class="font-bold text-gray-900 dark:text-gray-300">{{ task.title }}</h3>
-            <p class="text-gray-600 dark:text-gray-400">{{ task.description }}</p>
+            <p class="text-gray-600 dark:text-gray-400">
+              {{ task.description.length > 100 ? task.description.substring(0, 100) + '...' : task.description }}
+            </p>
             <div class="flex justify-between items-center mt-2 text-sm">
               <span
                   class="inline-block text-sm font-medium px-2 py-1 rounded-full"
@@ -278,7 +273,9 @@ onMounted(fetchData);
               @click="openTaskModal(task)"
           >
             <h3 class="font-bold text-gray-900 dark:text-gray-300">{{ task.title }}</h3>
-            <p class="text-gray-600 dark:text-gray-400">{{ task.description }}</p>
+            <p class="text-gray-600 dark:text-gray-400">
+              {{ task.description.length > 100 ? task.description.substring(0, 100) + '...' : task.description }}
+            </p>
             <div class="flex justify-between items-center mt-2 text-sm">
               <span
                   class="inline-block text-sm font-medium px-2 py-1 rounded-full"
@@ -303,7 +300,7 @@ onMounted(fetchData);
       </div>
     </div>
 
-<!--     Task Modal -->
+    <!--     Task Modal -->
     <TaskViewModal
         v-if="showTaskModal"
         :task="selectedTask"
