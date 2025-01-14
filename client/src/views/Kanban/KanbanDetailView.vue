@@ -1,26 +1,24 @@
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
+import logger from "@/utils/logger.js";
 import TaskFormModal from "./TaskFormModal.vue"; // Modale pour afficher/éditer une tâche
 import TaskViewModal from '@/views/Kanban/TaskViewModal.vue';
-import logger from "@/utils/logger.js";
 
 const route = useRoute();
 const { isLoading, error, executeRequest } = hookApi();
 
-// Variables pour le Kanban
 const kanban = ref([]);
 const stages = ref([]);
 const tasks = ref([]);
 const sizes = ref([]);
 const priorities = ref([]);
 const users = ref([]);
-// États pour les modales
-const selectedTask = ref(null); // Tâche sélectionnée pour modification
-const showTaskModal = ref(false); // Contrôle l'affichage de la modale de modification
-const showTaskFormModal = ref(false); // Contrôle l'affichage de la modale d'ajout
+const selectedTask = ref(null);
+const showTaskModal = ref(false);
+const showTaskFormModal = ref(false);
 
 // Fonction qui compte le nombre de tâches dans une colonne
 const countTasks = (columnId) => tasks.value.filter((task) => task.stageId === columnId).length;
@@ -304,6 +302,7 @@ onMounted(fetchData);
     <TaskViewModal
         v-if="showTaskModal"
         :task="selectedTask"
+        :users="users"
         @close="closeTaskModal"
         @delete="deleteTask"
         @edit="editTask"

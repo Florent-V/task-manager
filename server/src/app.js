@@ -77,8 +77,8 @@ app.listen(port, async () => {
   try {
     // Replace true by false when sync isn't needed
     // Replace force by alter to keep data
-    // await initDB(true, 'force');
-    await initDB(false, 'alter');
+    await initDB(true, 'force');
+    // await initDB(true, 'alter');
     console.log(`Server Groupe is running on port ${port}`);
   } catch (error) {
     console.error('Unable to connect to the database:', error);

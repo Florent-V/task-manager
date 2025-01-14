@@ -1,7 +1,7 @@
 import sequelize from './connect.js';
 import models from '../models/index.js';
 
-const { role, user, product, toDoList, toDoListType, toDoItem, label, priority, size, kanban, task, stage } = models;
+const { role, user, product, toDoList, toDoListType, toDoItem, label, priority, size, kanban, task, stage, comment } = models;
 
 export const seedDatabase = async () => {
   try {
@@ -347,6 +347,45 @@ export const seedDatabase = async () => {
     await kanbans[0].addUsers([users[0], users[1]]);
     await kanbans[1].addUsers([users[0], users[1]]);
     await kanbans[2].addUsers([users[0]]);
+
+    const comments = await comment.bulkCreate([
+      {
+        title: 'Comment 1',
+        content: 'Content of comment 1',
+        taskId: tasks[0].id,
+        authorId: users[0].id,
+      },
+      {
+        title: 'Comment 2',
+        content: 'Content of comment 2',
+        taskId: tasks[1].id,
+        authorId: users[1].id,
+      },
+      {
+        title: 'Comment 3',
+        content: 'Content of comment 3',
+        taskId: tasks[0].id,
+        authorId: users[0].id,
+      },
+      {
+        title: 'Comment 4',
+        content: 'Content of comment 4',
+        taskId: tasks[1].id,
+        authorId: users[1].id,
+      },
+      {
+        title: 'Comment 5',
+        content: 'Content of comment 5',
+        taskId: tasks[1].id,
+        authorId: users[0].id,
+      },
+      {
+        title: 'Comment 6',
+        content: 'Content of comment 6',
+        taskId: tasks[0].id,
+        authorId: users[1].id,
+      },
+    ]);
 
     console.log('Données de test créées avec succès !');
   } catch (error) {

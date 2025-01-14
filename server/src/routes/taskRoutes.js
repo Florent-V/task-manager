@@ -1,4 +1,5 @@
 import express from 'express';
+import commentRoutes from './commentRoutes.js';
 import {
   isTaskInKanban,
   setTaskEntity,
@@ -25,5 +26,7 @@ router.use('/:taskId', isTaskInKanban);
 router.get('/:taskId', getTaskById);
 router.patch('/:taskId', setTaskUpdateValidator, validate, checkTaskRelationship, updateTask);
 router.delete('/:taskId', deleteTask);
+
+router.use('/:taskId/comment', commentRoutes);
 
 export default router;

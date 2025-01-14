@@ -1,9 +1,11 @@
 <script setup>
-import { ref, watch, computed, onMounted } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
-import logger from "@/utils/logger.js";
 import useFormErrors from "@/utils/handleFormErrors.js";
+import logger from "@/utils/logger.js";
+
+const { isLoading, error, executeRequest } = hookApi();
 
 const emit = defineEmits(['handleResponse', 'cancel']);
 const props = defineProps({
@@ -17,12 +19,11 @@ const props = defineProps({
   },
 });
 
+// Gestion du formulaire
 const formData = ref({ ...props.initialData });
 const isEditing = computed(() => !!formData.value.id);
-const { isLoading, error, executeRequest } = hookApi();
 // Utilitaire de gestions des erreurs de formulaire
 const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...formData.value });
-
 
 watch(() => props.initialData, (newValue) => {
   formData.value = newValue ? { ...newValue } : { title: '', description: '', stages: [] };
@@ -68,10 +69,7 @@ const submitForm = async () => {
     closeForm();
   } catch (err) {
     logger.error('Error in form submission', err?.response?.data?.message || err.message);
-    console.log("err", err);
     setErrors(err);
-    console.log("errors", errors);
-    console.log("defaultError", defaultError);
   }
 };
 
@@ -88,16 +86,17 @@ const resetForm = () => {
     stages: [],
   };
 };
-
-const submitKanban = () => {
-  emit('submitSuccess', { ...form });
-};
 </script>
 
 <template>
+
+  <div>
+    <h1 class="text-4xl font-bold my-4 text-blue-800 dark:text-yellow-300">Créer un nouveau kanban</h1>
+  </div>
+
   <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg dark:shadow-gray-700">
     <h2 class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 mb-2 px-4 py-2 rounded-t-lg text-xl font-semibold">
-      {{ isEditing ? 'Modifier un Kanban' : 'Créer un Kanban' }}
+      {{ isEditing ? 'Kanban - Modification' : 'Kanban - Création' }}
     </h2>
 
     <form @submit.prevent="submitForm">
@@ -197,6 +196,9 @@ const submitKanban = () => {
         >
           + Ajouter une colonne
         </button>
+
+        <p v-if="error" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ error }}</p>
+        <p v-if="defaultError" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ defaultError }}</p>
       </div>
 
       <!-- Boutons d'action -->
@@ -216,6 +218,9 @@ const submitKanban = () => {
       </div>
     </form>
   </div>
+
+
+
 </template>
 
 

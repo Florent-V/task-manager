@@ -18,13 +18,11 @@ export const createTask = async (req, res, next) => {
       assignedToId,
       kanbanId
     });
-    console.log('newTask:', newTask);
     const createdTask = await Task.findByPk(newTask.id);
-    console.log('createdTask:', createdTask);
 
     res.statusCode = 201;
     res.data = { task: createdTask };
-    console.log('res.data:', res.data);
+
     next();
   } catch (error) {
     return next(error);

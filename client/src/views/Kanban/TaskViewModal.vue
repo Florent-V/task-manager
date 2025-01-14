@@ -1,11 +1,24 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import { client } from '@/utils/requestMaker.js';
+import { hookApi } from "@/utils/requestHook.js";
 import ModalConfirmation from '@/components/ModalConfirmation.vue';
+import CommentFormComponent from '@/components/Kanban/CommentFormComponent.vue';
+import logger from '@/utils/logger.js';
+import useFormErrors from "@/utils/handleFormErrors.js";
+
+const route = useRoute();
+const { isLoading, error, executeRequest } = hookApi();
 
 // Props
 const props = defineProps({
   task: {
     type: Object,
+    required: true,
+  },
+  users: {
+    type: Array,
     required: true,
   },
 });
@@ -14,13 +27,33 @@ const props = defineProps({
 const emit = defineEmits(['close', 'edit', 'delete', 'add-comment']);
 
 // State
-const newComment = ref('');
+const comments = ref([]);
+const selectedComment = ref(null);
+const formData = ref({});
 const showDeleteConfirmationModal = ref(false);
+
+// Utilitaire de gestions des erreurs de formulaire
+const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ content: '' });
 
 // Computed
 const sortedComments = computed(() => {
-  return [...(props.task.comments || [])].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  return comments.value.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 });
+
+// Fonction pour enrichir les commentaires avec le nom de l'utilisateur
+const enrichComment = (comment) => {
+  return {
+    ...comment,
+    authorName: (() => {
+      const user = props.users.find((u) => u.id === comment.authorId);
+      return user ? `${user.firstName} ${user.lastName}` : 'Unknown User';
+    })(),
+  };
+};
+
+const enrichComments = (comments) => {
+  return comments.map((comment) => enrichComment(comment));
+};
 
 // Methods
 const closeModal = () => emit('close');
@@ -29,10 +62,42 @@ const deleteTask = () => {
   showDeleteConfirmationModal.value = false;
   emit('delete', props.task.id);
 };
-const addComment = () => {
-  if (newComment.value.trim()) {
-    emit('add-comment', newComment.value);
-    newComment.value = '';
+// const postComment = async () => {
+//   const data = {
+//     content: formData.value.content.trim(),
+//   };
+//
+//   try {
+//     let response;
+//     if (formData.value.id) {
+//       // Update existing task
+//       response = await executeRequest(
+//           () => client.patch(`/api/kanban/${route.params.id}/task/${formData.value.id}`, data)
+//       );
+//     } else {
+//       // Create new task
+//       response = await executeRequest(
+//           () => client.post(`/api/kanban/${route.params.id}/task/${props.task.id}/comment`, data)
+//       );
+//     }
+//     console.log("form comment response", response);
+//     formData.value.content = '';
+//   } catch (err) {
+//     logger.error('Error in form submission', err?.response?.data?.message || err.message);
+//     setErrors(err);
+//   }
+//
+// };
+
+const handleResponseFormSubmit = async (response) => {
+  if (selectedComment.value) {
+    // Update existing to-do item
+    const index = comments.value.findIndex(item => item.id === response.comment.id);
+    comments.value[index] = response.comment;
+    selectedComment.value = null;
+  } else {
+    // Create new to-do item
+    comments.value.push(enrichComment(response.comment));
   }
 };
 
@@ -42,12 +107,27 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('fr-FR', options);
 };
 
+const fetchComments = async () => {
+  try {
+    const data = await executeRequest(() => client.get(`/api/kanban/${route.params.id}/task/${props.task.id}/comment`));
+    logger.debug('comments', data);
+    comments.value = enrichComments(data.comments);
+    console.log('enrichedComments', comments.value);
+    console.log('sortedComments', sortedComments.value);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+};
+
 console.log('TaskViewModal', props.task);
+onMounted(fetchComments);
 </script>
 
 <template>
   <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div class="bg-white dark:bg-gray-800 w-full max-w-4xl rounded-lg shadow-lg p-6">
+    <div
+        class="bg-white dark:bg-gray-800 w-full max-w-4xl rounded-lg shadow-lg p-6 max-h-[90vh] overflow-y-auto"
+    >
       <!-- Header -->
       <div class="flex justify-between items-center border-b pb-4 dark:border-gray-600">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-yellow-300">
@@ -107,27 +187,33 @@ console.log('TaskViewModal', props.task);
           <div v-for="comment in sortedComments" :key="comment.id" class="p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
             <div class="flex justify-between">
               <p class="text-sm font-medium text-gray-800 dark:text-gray-200">
-                {{ comment.userFirstName }} {{ comment.userLastName }}
+                {{ comment.authorName }}
               </p>
               <p class="text-sm text-gray-500 dark:text-gray-400">{{ formatDate(comment.createdAt) }}</p>
             </div>
             <p class="mt-2 text-gray-600 dark:text-gray-300">{{ comment.content }}</p>
           </div>
         </div>
-        <form @submit.prevent="addComment" class="mt-6 space-y-4">
-          <textarea
-              v-model="newComment"
-              rows="3"
-              class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
-              placeholder="Ajouter un commentaire..."
-          ></textarea>
-          <button
-              type="submit"
-              class="px-4 py-2 rounded-lg bg-blue-600 dark:bg-yellow-400 text-white hover:bg-blue-700 dark:hover:bg-yellow-500"
-          >
-            Poster le commentaire
-          </button>
-        </form>
+        <CommentFormComponent
+          :comment="selectedComment"
+          :task="props.task"
+          @handleResponse="handleResponseFormSubmit"
+        />
+
+<!--        <form @submit.prevent="postComment" class="mt-6 space-y-4">-->
+<!--          <textarea-->
+<!--              v-model="formData.content"-->
+<!--              rows="3"-->
+<!--              class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"-->
+<!--              placeholder="Ajouter un commentaire..."-->
+<!--          ></textarea>-->
+<!--          <button-->
+<!--              type="submit"-->
+<!--              class="px-4 py-2 rounded-lg bg-blue-600 dark:bg-yellow-400 text-white hover:bg-blue-700 dark:hover:bg-yellow-500"-->
+<!--          >-->
+<!--            Poster le commentaire-->
+<!--          </button>-->
+<!--        </form>-->
       </div>
 
       <!-- Footer -->
