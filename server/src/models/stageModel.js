@@ -8,11 +8,15 @@ const Stage = sequelize.define('Stage',
       allowNull: false,
       validate: {
         notEmpty: true,
+        len: [1, 50],
       },
     },
     description: {
-      type: DataTypes.TEXT,
+      type: DataTypes.STRING,
       allowNull: true,
+      validate: {
+        len: [0, 150],
+      },
     },
     maxRecord: {
       type: DataTypes.INTEGER,
@@ -20,6 +24,7 @@ const Stage = sequelize.define('Stage',
       validate: {
         isInt: true,
         min: 1,
+        max: 99,
       },
     },
     // Champ relationnel

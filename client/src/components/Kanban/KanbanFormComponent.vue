@@ -19,17 +19,20 @@ const props = defineProps({
   },
 });
 
+
 // Gestion du formulaire
 const formData = ref({ ...props.initialData });
+watch(() => props.initialData, (newValue) => {
+      formData.value = newValue ? { ...newValue } : { title: '', description: '', stages: [] };
+    },
+    { immediate: true }
+);
+
 const isEditing = computed(() => !!formData.value.id);
 // Utilitaire de gestions des erreurs de formulaire
 const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...formData.value });
 
-watch(() => props.initialData, (newValue) => {
-  formData.value = newValue ? { ...newValue } : { title: '', description: '', stages: [] };
-    },
-    { immediate: true }
-);
+
 
 const addStatus = () => {
   formData.value.stages.push({ name: '', description: '', maxRecord: 1 });
@@ -105,9 +108,9 @@ const resetForm = () => {
         <label for="title" class="block text-gray-700 dark:text-gray-300">Titre</label>
         <input
             type="text"
+            maxlength="50"
             id="title"
             v-model="formData.title"
-            maxlength="150"
             class="mt-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             placeholder="Titre du Kanban"
             required
@@ -120,8 +123,8 @@ const resetForm = () => {
         <label for="description" class="block text-gray-700 dark:text-gray-300">Description</label>
         <textarea
             id="description"
+            maxlength="250"
             v-model="formData.description"
-            maxlength="200"
             class="mt-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             placeholder="Description (facultatif)"
         ></textarea>
@@ -145,8 +148,8 @@ const resetForm = () => {
                 <label class="block text-gray-700 dark:text-gray-300">Nom de la colonne</label>
                 <input
                     type="text"
-                    v-model="stage.name"
                     maxlength="50"
+                    v-model="stage.name"
                     placeholder="Nom du statut"
                     class="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     required
@@ -167,10 +170,11 @@ const resetForm = () => {
 
             <!-- Ligne 2 : Description -->
             <div class="mt-4">
-              <label class="block text-gray-700 dark:text-gray-300">Description</label>
+              <label for="stageDescription" class="block text-gray-700 dark:text-gray-300">Description</label>
               <textarea
+                  id="stageDescription"
+                  maxlength="150"
                   v-model="stage.description"
-                  maxlength="200"
                   placeholder="Description (facultatif)"
                   class="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               ></textarea>
@@ -197,7 +201,6 @@ const resetForm = () => {
           + Ajouter une colonne
         </button>
 
-        <p v-if="error" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ error }}</p>
         <p v-if="defaultError" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ defaultError }}</p>
       </div>
 

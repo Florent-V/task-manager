@@ -18,7 +18,7 @@ export default function useFormErrors(fields) {
         // Remplit les erreurs pour chaque champ ou le message général
         errorDetails.forEach((err) => {
           if (fields.hasOwnProperty(err.field)) {
-            errors.value[err.field] = err.message;
+            errors.value[err.field] = (errors.value[err.field] || '') + ` ${err.message}`;
           } else {
             defaultError.value += `${err.field} - ${err.message} `;
           }
