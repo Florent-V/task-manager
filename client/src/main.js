@@ -3,6 +3,7 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
+import { cropText } from '@/utils/crop.js';
 
 import { OhVueIcon, addIcons } from "oh-vue-icons";
 import * as MdIcons from "oh-vue-icons/icons/md";
@@ -16,6 +17,7 @@ addIcons(...Md);
 
 const app = createApp(App)
 
+app.config.globalProperties.$cropText = cropText;
 app.component("v-icon", OhVueIcon);
 app.use(createPinia())
 app.use(router)

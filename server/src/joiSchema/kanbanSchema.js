@@ -55,7 +55,7 @@ export const updateKanbanSchema = Joi.object({
       'string.max': 'La description ne peut pas dépasser 250 caractères.',
     }),
   stages: Joi.array()
-    .items(stageSchema)
+    .items(stageSchemaForUpdateKanban)
     .min(1)
     .messages({
       'array.min': 'Le kanban doit avoir au moins une colonne.',

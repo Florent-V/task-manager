@@ -6,6 +6,9 @@ import { hookApi } from "@/utils/requestHook.js";
 import logger from "@/utils/logger.js";
 import useFormErrors from "@/utils/handleFormErrors.js";
 
+const route = useRoute();
+const { isLoading, error, executeRequest } = hookApi();
+
 const emit = defineEmits(['handleResponse', 'cancel']);
 const props = defineProps({
   initialData: {
@@ -29,33 +32,30 @@ const props = defineProps({
   },
 });
 
-const route = useRoute();
-const { isLoading, error, executeRequest } = hookApi();
-const formData = ref({ ...props.initialData });
-const isEditing = computed(() => !!formData.value.id);
-
 const newTask = {
-  title: "",
-  description: "",
+  title: null,
+  description: null,
   estimation: 0,
   loggedTime: 0,
-  priorityId: "",
-  sizeId: "",
-  stageId: "",
-  assignedToId: "",
+  priorityId: null,
+  sizeId: null,
+  stageId: null,
+  assignedToId: null,
 };
 
+// Gestion du formulaire
+const formData = ref({ ...props.initialData });
 watch(() => props.initialData, (newValue) => {
       formData.value = newValue ? { ...newValue } : { ...newTask };
     },
     { immediate: true }
 );
-
-console.log('formData', formData.value);
+const isEditing = computed(() => !!formData.value.id);
 // Utilitaire de gestions des erreurs de formulaire
 const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...formData.value });
 
 const submitForm = async () => {
+  logger.debug("submitForm");
   const data = {
     title: formData.value.title,
     description: formData.value.description,
@@ -69,7 +69,7 @@ const submitForm = async () => {
   console.log("data", data);
   // Filtrer les clés ayant des valeurs non vides
   const filteredData = Object.fromEntries(
-      Object.entries(data).filter(([key, value]) => value !== "")
+      Object.entries(data).filter(([key, value]) => value !== null)
   );
 
   console.log("data après filtrage", filteredData);
@@ -97,11 +97,13 @@ const submitForm = async () => {
 };
 
 const closeForm = () => {
+  logger.debug("closeForm");
   resetForm();
   emit('cancel');
 };
 
 const resetForm = () => {
+  logger.debug("resetForm");
   clearErrors();
   formData.value = { ...newTask };
 };
@@ -157,7 +159,7 @@ const resetForm = () => {
                   v-model="formData.priorityId"
                   class="w-full mt-1 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
               >
-                <option selected value="">Choisir une option</option>
+                <option selected value=null>Choisir une option</option>
                 <option v-for="priority in priorities" :key="priority.id" :value="priority.id">
                   {{ priority.label }}
                 </option>
@@ -170,7 +172,7 @@ const resetForm = () => {
                   v-model="formData.sizeId"
                   class="w-full mt-1 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
               >
-                <option selected value="">Choisir une option</option>
+                <option selected value=null>Choisir une option</option>
                 <option v-for="size in sizes" :key="size.id" :value="size.id">
                   {{ size.label }}
                 </option>
@@ -212,7 +214,7 @@ const resetForm = () => {
                   v-model="formData.assignedToId"
                   class="w-full mt-1 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
               >
-                <option selected value="">Choisir une option</option>
+                <option selected value=null>Choisir une option</option>
                 <option v-for="member in users" :key="member.id" :value="member.id">
                   {{ member.firstName }} {{ member.lastName }}
                 </option>
@@ -225,7 +227,7 @@ const resetForm = () => {
                   v-model="formData.stageId"
                   class="w-full mt-1 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
               >
-                <option selected value="">Choisir une option</option>
+                <option selected value=null>Choisir une option</option>
                 <option v-for="stage in stages" :key="stage.id" :value="stage.id">
                   {{ stage.name }}
                 </option>

@@ -113,13 +113,13 @@ onMounted(fetchKanbans);
                     class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300 cursor-pointer"
                     @click="redirectToItem(kanban.id)"
                 >
-                  {{ kanban.title }}
+                  {{ $cropText(kanban.title, 50) }}
                 </td>
                 <td
                     class="hidden md:table-cell border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300 cursor-pointer"
                     @click="redirectToItem(kanban.id)"
                 >
-                  {{ kanban.description }}
+                  {{ $cropText(kanban.description, 70) }}
                 </td>
                 <td class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-center">
                   <div class="flex justify-around">

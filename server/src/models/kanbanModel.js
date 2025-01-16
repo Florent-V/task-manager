@@ -9,7 +9,7 @@ const Kanban = sequelize.define('Kanban',
       primaryKey: true,
     },
     title: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.STRING(50),
       allowNull: false,
       validate: {
         notEmpty: true,

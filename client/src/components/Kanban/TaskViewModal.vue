@@ -62,32 +62,6 @@ const deleteTask = () => {
   showDeleteConfirmationModal.value = false;
   emit('delete', props.task.id);
 };
-// const postComment = async () => {
-//   const data = {
-//     content: formData.value.content.trim(),
-//   };
-//
-//   try {
-//     let response;
-//     if (formData.value.id) {
-//       // Update existing task
-//       response = await executeRequest(
-//           () => client.patch(`/api/kanban/${route.params.id}/task/${formData.value.id}`, data)
-//       );
-//     } else {
-//       // Create new task
-//       response = await executeRequest(
-//           () => client.post(`/api/kanban/${route.params.id}/task/${props.task.id}/comment`, data)
-//       );
-//     }
-//     console.log("form comment response", response);
-//     formData.value.content = '';
-//   } catch (err) {
-//     logger.error('Error in form submission', err?.response?.data?.message || err.message);
-//     setErrors(err);
-//   }
-//
-// };
 
 const handleResponseFormSubmit = async (response) => {
   if (selectedComment.value) {

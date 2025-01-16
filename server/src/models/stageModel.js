@@ -4,7 +4,7 @@ import sequelize from '../database/connect.js';
 const Stage = sequelize.define('Stage',
   {
     name: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(50),
       allowNull: false,
       validate: {
         notEmpty: true,
@@ -12,7 +12,7 @@ const Stage = sequelize.define('Stage',
       },
     },
     description: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(150),
       allowNull: true,
       validate: {
         len: [0, 150],

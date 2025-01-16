@@ -9,10 +9,11 @@ const Task = sequelize.define('Task',
       primaryKey: true,
     },
     title: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(100),
       allowNull: false,
       validate: {
         notEmpty: true,
+        len: [1, 100],
       },
     },
     description: {
