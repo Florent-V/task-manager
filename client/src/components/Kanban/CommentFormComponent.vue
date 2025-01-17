@@ -2,9 +2,12 @@
 import { ref, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { client } from '@/utils/requestMaker.js';
-import { hookApi } from "@/utils/requestHook.js";
-import logger from "@/utils/logger.js";
-import useFormErrors from "@/utils/handleFormErrors.js";
+import { hookApi } from '@/utils/requestHook.js';
+import useFormErrors from '@/utils/handleFormErrors.js';
+import logger from '@/utils/logger.js';
+
+const route = useRoute();
+const { isLoading, error, executeRequest } = hookApi();
 
 const emit = defineEmits(['handleResponse', 'cancel']);
 const props = defineProps({
@@ -21,19 +24,15 @@ const props = defineProps({
   },
 });
 
-const route = useRoute();
 const formData = ref({ ...props.initialData });
-const isEditing = computed(() => !!formData.value.id);
-const { isLoading, error, executeRequest } = hookApi();
-// Utilitaire de gestions des erreurs de formulaire
-const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...formData.value });
-
-
 watch(() => props.initialData, (newValue) => {
-  formData.value = newValue ? { ...newValue } : { title: '', description: '', stages: [] };
+      formData.value = newValue ? { ...newValue } : { title: '', description: '', stages: [] };
     },
     { immediate: true }
 );
+const isEditing = computed(() => !!formData.value.id);
+// Utilitaire de gestions des erreurs de formulaire
+const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...formData.value });
 
 const submitForm = async () => {
   const data = {
@@ -58,10 +57,7 @@ const submitForm = async () => {
     closeForm();
   } catch (err) {
     logger.error('Error in form submission', err?.response?.data?.message || err.message);
-    console.log("err", err);
     setErrors(err);
-    console.log("errors", errors);
-    console.log("defaultError", defaultError);
   }
 };
 
@@ -81,15 +77,16 @@ const resetForm = () => {
 
 <template>
   <form @submit.prevent="submitForm" class="mt-6 space-y-4">
-          <textarea
-              v-model="formData.content"
-              rows="3"
-              class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
-              placeholder="Ajouter un commentaire..."
-          ></textarea>
+    <textarea
+      v-model="formData.content"
+      rows="3"
+      class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
+      placeholder="Ajouter un commentaire..."
+    ></textarea>
+    <p v-if="errors.content" class="text-red-500 dark:text-red-400">{{ errors.content }}</p>
     <button
-        type="submit"
-        class="px-4 py-2 rounded-lg bg-blue-600 dark:bg-yellow-400 text-white hover:bg-blue-700 dark:hover:bg-yellow-500"
+      type="submit"
+      class="px-4 py-2 rounded-lg bg-blue-600 dark:bg-yellow-400 text-white hover:bg-blue-700 dark:hover:bg-yellow-500"
     >
       Poster le commentaire
     </button>

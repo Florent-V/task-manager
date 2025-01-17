@@ -19,7 +19,6 @@ const props = defineProps({
   },
 });
 
-
 // Gestion du formulaire
 const formData = ref({ ...props.initialData });
 watch(() => props.initialData, (newValue) => {
@@ -31,8 +30,6 @@ watch(() => props.initialData, (newValue) => {
 const isEditing = computed(() => !!formData.value.id);
 // Utilitaire de gestions des erreurs de formulaire
 const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...formData.value });
-
-
 
 const addStatus = () => {
   formData.value.stages.push({ name: '', description: '', maxRecord: 1 });

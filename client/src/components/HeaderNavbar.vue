@@ -106,6 +106,12 @@ onMounted(() => {
             </RouterLink>
           </li>
           <li>
+            <RouterLink to="/kanban"
+                        class="hover:text-blue-600 dark:hover:text-yellow-300 transition duration-100">
+              Kanban
+            </RouterLink>
+          </li>
+          <li>
             <RouterLink to="/about" class="hover:text-blue-600 dark:hover:text-yellow-300 transition duration-100">
               About
             </RouterLink>
@@ -200,6 +206,12 @@ onMounted(() => {
           <RouterLink to="/toDoList"
                       class="block py-2 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-yellow-300 transition duration-300">
             ToDoList
+          </RouterLink>
+        </li>
+        <li>
+          <RouterLink to="/kanban"
+                      class="block py-2 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-yellow-300 transition duration-300">
+            Kanban
           </RouterLink>
         </li>
         <li>

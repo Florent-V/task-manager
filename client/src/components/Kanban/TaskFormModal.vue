@@ -66,13 +66,10 @@ const submitForm = async () => {
     stageId: formData.value.stageId,
     assignedToId: formData.value.assignedToId,
   };
-  console.log("data", data);
   // Filtrer les clés ayant des valeurs non vides
   const filteredData = Object.fromEntries(
       Object.entries(data).filter(([key, value]) => value !== null)
   );
-
-  console.log("data après filtrage", filteredData);
 
   try {
     let response;
@@ -87,7 +84,6 @@ const submitForm = async () => {
           () => client.post(`/api/kanban/${route.params.id}/task`, filteredData)
       );
     }
-    console.log("form task response", response);
     emit('handleResponse', response);
     closeForm();
   } catch (err) {

@@ -97,7 +97,6 @@ const handleResponseFormSubmit = async (response) => {
 };
 
 const openTaskModal = (task) => {
-  console.log("task", task);
   selectedTask.value = task;
   showTaskModal.value = true;
 };
@@ -184,7 +183,7 @@ onMounted(fetchData);
     <div class="overflow-x-auto flex-grow">
       <!-- Grille avec colonnes dynamiques -->
       <div
-          class="grid gap-4 auto-cols-[minmax(250px,1fr)] grid-flow-col"
+          class="grid gap-4 auto-cols-[minmax(300px,1fr)] grid-flow-col"
           :style="{ gridTemplateColumns: stages.length <= 5 ? `repeat(${stages.length}, minmax(0, 1fr))` : '' }"
       >
         <div
@@ -271,6 +270,8 @@ onMounted(fetchData);
           </button>
         </div>
       </div>
+
+      <p v-if="error" class="text-center text-red-500 dark:text-red-400">{{ error }}</p>
 
       <!-- Unassigned Tasks Section -->
       <div v-if="unassignedTasks.length" class="mb-8">

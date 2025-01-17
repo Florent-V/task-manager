@@ -6,6 +6,9 @@ const Comment = sequelize.define('Comment',
     title: {
       type: DataTypes.STRING,
       allowNull: true,
+      validate: {
+        len: [0, 50],
+      },
     },
     content: {
       type: DataTypes.TEXT,

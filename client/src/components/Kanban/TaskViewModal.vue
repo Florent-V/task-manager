@@ -3,15 +3,15 @@ import { computed, ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
+import logger from '@/utils/logger.js';
+import LoaderComponent from '@/components/LoaderComponent.vue';
 import ModalConfirmation from '@/components/ModalConfirmation.vue';
 import CommentFormComponent from '@/components/Kanban/CommentFormComponent.vue';
-import logger from '@/utils/logger.js';
-import useFormErrors from "@/utils/handleFormErrors.js";
 
 const route = useRoute();
 const { isLoading, error, executeRequest } = hookApi();
 
-// Props
+const emit = defineEmits(['close', 'edit', 'delete', 'add-comment']);
 const props = defineProps({
   task: {
     type: Object,
@@ -23,17 +23,11 @@ const props = defineProps({
   },
 });
 
-// Emits
-const emit = defineEmits(['close', 'edit', 'delete', 'add-comment']);
-
 // State
 const comments = ref([]);
 const selectedComment = ref(null);
 const formData = ref({});
 const showDeleteConfirmationModal = ref(false);
-
-// Utilitaire de gestions des erreurs de formulaire
-const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ content: '' });
 
 // Computed
 const sortedComments = computed(() => {
@@ -65,12 +59,12 @@ const deleteTask = () => {
 
 const handleResponseFormSubmit = async (response) => {
   if (selectedComment.value) {
-    // Update existing to-do item
+    // Update existing comment
     const index = comments.value.findIndex(item => item.id === response.comment.id);
     comments.value[index] = response.comment;
     selectedComment.value = null;
   } else {
-    // Create new to-do item
+    // Create new comment
     comments.value.push(enrichComment(response.comment));
   }
 };
@@ -86,14 +80,11 @@ const fetchComments = async () => {
     const data = await executeRequest(() => client.get(`/api/kanban/${route.params.id}/task/${props.task.id}/comment`));
     logger.debug('comments', data);
     comments.value = enrichComments(data.comments);
-    console.log('enrichedComments', comments.value);
-    console.log('sortedComments', sortedComments.value);
-  } catch (error) {
-    console.error('Error:', error);
+  } catch (err) {
+    logger.error('Error fetching comments', err);
   }
 };
 
-console.log('TaskViewModal', props.task);
 onMounted(fetchComments);
 </script>
 
@@ -154,8 +145,11 @@ onMounted(fetchComments);
         </div>
       </div>
 
+      <!-- Loader -->
+      <LoaderComponent v-if="isLoading"/>
+
       <!-- Comments Section -->
-      <div class="mt-8">
+      <div v-else class="mt-8">
         <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300">Commentaires</h3>
         <div class="mt-4 space-y-4">
           <div v-for="comment in sortedComments" :key="comment.id" class="p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
@@ -168,26 +162,15 @@ onMounted(fetchComments);
             <p class="mt-2 text-gray-600 dark:text-gray-300">{{ comment.content }}</p>
           </div>
         </div>
+
+        <p v-if="error" class="mt-4 text-red-600 dark:text-red-400">{{ error }}</p>
+
         <CommentFormComponent
           :comment="selectedComment"
           :task="props.task"
           @handleResponse="handleResponseFormSubmit"
         />
 
-<!--        <form @submit.prevent="postComment" class="mt-6 space-y-4">-->
-<!--          <textarea-->
-<!--              v-model="formData.content"-->
-<!--              rows="3"-->
-<!--              class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"-->
-<!--              placeholder="Ajouter un commentaire..."-->
-<!--          ></textarea>-->
-<!--          <button-->
-<!--              type="submit"-->
-<!--              class="px-4 py-2 rounded-lg bg-blue-600 dark:bg-yellow-400 text-white hover:bg-blue-700 dark:hover:bg-yellow-500"-->
-<!--          >-->
-<!--            Poster le commentaire-->
-<!--          </button>-->
-<!--        </form>-->
       </div>
 
       <!-- Footer -->
