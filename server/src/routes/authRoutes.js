@@ -1,11 +1,20 @@
 import express from 'express';
-import { signup, signin, logout, handleRefreshToken } from '../controllers/authController.js';
 import {
-    setSignupValidator,
-    setSigninValidator
+  signup,
+  signin,
+  logout,
+  handleRefreshToken
+} from '../controllers/authController.js';
+import {
+  setSignupValidator,
+  setSigninValidator
 } from '../middleware/userMiddleware.js';
-import { validate } from "../middleware/ressourceMiddleware.js";
-import { checkDuplicateUsernameOrEmail, authenticateByCookieSession, checkAuth } from '../middleware/authMiddleware.js';
+import { validate } from '../middleware/ressourceMiddleware.js';
+import {
+  checkDuplicateUsernameOrEmail,
+  authenticateByCookieSession,
+  checkAuth
+} from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 

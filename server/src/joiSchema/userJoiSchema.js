@@ -7,7 +7,7 @@ export const signupSchema = Joi.object({
   email: Joi.string().email().required(),
   password: Joi.string().min(6).required(),
   confirmPassword: Joi.any().valid(Joi.ref('password')).required().label('confirm password')
-      .messages({ 'any.only': '{{#label}} does not match password' }),
+    .messages({ 'any.only': '{{#label}} does not match password' }),
 });
 
 export const signinSchema = Joi.object({

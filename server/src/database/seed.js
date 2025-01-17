@@ -1,7 +1,7 @@
 import sequelize from './connect.js';
 import models from '../models/index.js';
 
-const { role, user, product, toDoList, toDoListType, toDoItem, label } = models;
+const { role, user, product, toDoList, toDoListType, toDoItem, label, priority, size, kanban, task, stage, comment } = models;
 
 export const seedDatabase = async () => {
   try {
@@ -45,9 +45,10 @@ export const seedDatabase = async () => {
     ]);
 
     await users[0].addRole(roles[0]);
-    await users[1].addRole(roles[1]);
+    await users[1].addRole(roles[0]);
     await users[2].addRole(roles[1]);
-    await users[2].addRole(roles[2]);
+    await users[3].addRole(roles[1]);
+    await users[3].addRole(roles[2]);
 
     const products = await product.bulkCreate([
       {
@@ -235,6 +236,155 @@ export const seedDatabase = async () => {
         description: 'Description of To Do Item 12',
         toDoListId: toDoLists[5].id,
       }
+    ]);
+
+    const priorities = await priority.bulkCreate([
+      { label: 'Low', name: 'Low', color: '#808080' },
+      { label: 'Medium', name: 'Medium', color: '#008000' },
+      { label: 'High', name: 'High', color: '#FF0000' },
+    ]);
+
+    const sizes = await size.bulkCreate([
+      { label: 'XS', name: 'Extra Small', color: '#808080' },
+      { label: 'S', name: 'Small', color: '#008000' },
+      { label: 'M', name: 'Medium', color: '#FFA500' },
+      { label: 'L', name: 'Large', color: '#FF0000' },
+      { label: 'XL', name: 'Extra Large', color: '#800080' },
+    ]);
+
+    const kanbans = await kanban.bulkCreate([
+      {
+        title: 'Kanban 1',
+        description: 'Description of Kanban 1',
+      },
+      {
+        title: 'Kanban 2',
+        description: 'Description of Kanban 2',
+      },
+      {
+        title: 'Kanban 3',
+        description: 'Description of Kanban 3',
+      },
+    ]);
+
+    const stages = await stage.bulkCreate([
+      { name: "Backlog", description: "Tâches à faire", maxRecord: 10, kanbanId: kanbans[0].id },
+      { name: "Ready", description: "Tâches prêtes à être réalisées", maxRecord: 5, kanbanId: kanbans[0].id },
+      { name: "In Progress", description: "Tâches en cours de réalisation", maxRecord: 3, kanbanId: kanbans[0].id },
+      { name: "In Review", description: "Tâches en cours de revue", maxRecord: 5, kanbanId: kanbans[0].id },
+      { name: "Done", description: "Tâches terminées", maxRecord: 5, kanbanId: kanbans[0].id },
+    ]);
+
+    const tasks = await task.bulkCreate([
+      {
+        title: "Créer l'interface Kanban",
+        description: "Concevoir l'interface pour le tableau Kanban",
+        priorityId: 1,
+        sizeId: 2,
+        stageId: 3,
+        estimation: 4,
+        loggedTime: 2,
+        assignedToId: users[0].id,
+        kanbanId: kanbans[0].id,
+      },
+      {
+        title: "Ajouter le drag and drop",
+        description: "Permettre le déplacement des tâches entre les colonnes",
+        priorityId: 2,
+        sizeId: 2,
+        stageId: 5,
+        estimation: 2,
+        loggedTime: 0,
+        assignedToId: users[0].id,
+        kanbanId: kanbans[0].id,
+      },
+      {
+        title: "Implémenter le backend",
+        description: "Créer les routes et les contrôleurs pour le backend",
+        priorityId: 3,
+        sizeId: 3,
+        stageId: 4,
+        estimation: 8,
+        loggedTime: 4,
+        assignedToId: users[0].id,
+        kanbanId: kanbans[0].id,
+      },
+      {
+        title: "Tester l'application",
+        description: "Effectuer des tests unitaires et fonctionnels",
+        priorityId: 1,
+        sizeId: 2,
+        stageId: 3,
+        estimation: 6,
+        loggedTime: 1,
+        assignedToId: users[1].id,
+        kanbanId: kanbans[0].id,
+      },
+      {
+        title: "Déployer l'application",
+        description: "Mettre en ligne l'application sur un serveur",
+        priorityId: 3,
+        sizeId: 4,
+        stageId: 2,
+        estimation: 4,
+        loggedTime: 0,
+        assignedToId: users[0].id,
+        kanbanId: kanbans[0].id,
+      },
+      {
+        title: "Ajouter des fonctionnalités",
+        description: "Ajouter des fonctionnalités supplémentaires à l'application",
+        priorityId: 1,
+        sizeId: 5,
+        stageId: 1,
+        estimation: 10,
+        loggedTime: 2,
+        assignedToId: users[1].id,
+        kanbanId: kanbans[0].id,
+      },
+    ]);
+
+    await kanbans[0].addUsers([users[0], users[1]]);
+    await kanbans[1].addUsers([users[0], users[1]]);
+    await kanbans[2].addUsers([users[0]]);
+
+    const comments = await comment.bulkCreate([
+      {
+        title: 'Comment 1',
+        content: 'Content of comment 1',
+        taskId: tasks[0].id,
+        authorId: users[0].id,
+      },
+      {
+        title: 'Comment 2',
+        content: 'Content of comment 2',
+        taskId: tasks[1].id,
+        authorId: users[1].id,
+      },
+      {
+        title: 'Comment 3',
+        content: 'Content of comment 3',
+        taskId: tasks[0].id,
+        authorId: users[0].id,
+      },
+      {
+        title: 'Comment 4',
+        content: 'Content of comment 4',
+        taskId: tasks[1].id,
+        authorId: users[1].id,
+      },
+      {
+        title: 'Comment 5',
+        content: 'Content of comment 5',
+        taskId: tasks[1].id,
+        authorId: users[0].id,
+      },
+      {
+        title: 'Comment 6',
+        content: 'Content of comment 6',
+        taskId: tasks[0].id,
+        authorId: users[1].id,
+      },
     ]);
 
     console.log('Données de test créées avec succès !');

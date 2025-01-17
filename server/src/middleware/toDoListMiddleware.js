@@ -1,5 +1,5 @@
-import ToDoList from "../models/toDoListModel.js";
-import { toDoListSchema, updateToDoListSchema } from "../joiSchema/toDoListSchema.js";
+import ToDoList from '../models/toDoListModel.js';
+import { toDoListSchema, updateToDoListSchema } from '../joiSchema/toDoListSchema.js';
 import ForbiddenError from '../error/forbiddenError.js';
 
 export const authorizeToDoListAccess = async (req, res, next) => {
@@ -17,14 +17,14 @@ export const authorizeToDoListAccess = async (req, res, next) => {
 export const setEntity = (req, res, next) => {
   req.entity = ToDoList;
   next();
-}
+};
 
 export const setCreateValidator = (req, res, next) => {
   req.schema = toDoListSchema;
   next();
-}
+};
 
 export const setUpdateValidator = (req, res, next) => {
   req.schema = updateToDoListSchema;
   next();
-}
+};

@@ -4,7 +4,11 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
 import initDB from './database/init.js';
-import { errorHandler, notFound, logError } from './middleware/errorMiddleware.js';
+import {
+  errorHandler,
+  notFound,
+  logError
+} from './middleware/errorMiddleware.js';
 import { init, send } from './middleware/inOutMiddleware.js';
 
 import testRoutes from './routes/testRoutes.js';
@@ -13,6 +17,9 @@ import userRoutes from './routes/userRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import toDoListRoutes from './routes/toDoListRoutes.js';
 import toDoListTypeRoutes from './routes/toDoListTypeRoute.js';
+import priorityRoutes from './routes/priorityRoutes.js';
+import sizeRoutes from './routes/sizeRoutes.js';
+import kanbanRoutes from './routes/kanbanRoutes.js';
 
 dotenv.config();
 const app = express();
@@ -20,9 +27,9 @@ const app = express();
 const port = process.env.NODE_API_DOCKER_PORT || 3000;
 
 const corsOptions = {
-  origin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-  allowedHeaders: ["Origin", "Content-Type", "Accept"],
+  origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Origin', 'Content-Type', 'Accept'],
   credentials: true // Autorise l'envoi de cookies et informations d'authentification
 };
 
@@ -51,6 +58,12 @@ app.use('/api/product', productRoutes);
 app.use('/api/todolist', toDoListRoutes);
 // ToDoListType Routes
 app.use('/api/todolisttype', toDoListTypeRoutes);
+// Kanban Routes
+app.use('/api/kanban', kanbanRoutes);
+// Priority Routes
+app.use('/api/priority', priorityRoutes);
+// Sizes Routes
+app.use('/api/size', sizeRoutes);
 // Send middleware
 app.use(send);
 
@@ -64,8 +77,9 @@ app.listen(port, async () => {
   try {
     // Replace true by false when sync isn't needed
     // Replace force by alter to keep data
+    // await initDB(true, 'force');
     await initDB(false, 'alter');
-    console.log(`Server is running on port ${port}`);
+    console.log(`Server Groupe is running on port ${port}`);
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }

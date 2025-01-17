@@ -10,7 +10,7 @@ export const authenticateToken = (req, res, next) => {
   try {
     const token = req.header('Authorization')?.split(' ')[1];
     if (!token) throw new InvalidTokenError('Access Denied: No token provided');
-    
+
     const verified = authToken(token);
     req.user = verified;
     next();
@@ -30,7 +30,7 @@ export const authenticateByCookieSession = (req, res, next) => {
     const token = req.signedCookies.access_token;
 
     if (!token) throw new InvalidTokenError('Access Denied: No token provided');
-  
+
     const verified = authToken(token);
     console.log('verified:', verified);
     req.user = verified;
@@ -44,7 +44,7 @@ export const checkAuth = (req, res, next) => {
   res.data = {
     username: req.user.username,
     isAuthenticated: true
-  }
+  };
   next();
 };
 
@@ -55,8 +55,9 @@ export const isAdmin = async (req, res, next) => {
     const roles = await user.getRoles();
 
     const access = checkAccess(roles, ['admin']);
+
     if (access) return next();
-    
+
     throw new ForbiddenError('Require Admin Role!');
 
   } catch (error) {
@@ -107,8 +108,8 @@ export const checkDuplicateUsernameOrEmail = async (req, res, next) => {
 
     if (user) {
       throw new ConflictError(user.username === req.body.username
-        ? "Failed! Username is already in use!"
-        : "Failed! Email is already in use!");
+                              ? 'Failed! Username is already in use!'
+                              : 'Failed! Email is already in use!');
     }
 
     next();

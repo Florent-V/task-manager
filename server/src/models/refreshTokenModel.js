@@ -3,26 +3,27 @@ import sequelize from '../database/connect.js';
 import bcrypt from 'bcryptjs';
 import { hashPassword } from '../services/passwordService.js';
 
-const RefreshToken = sequelize.define('RefreshToken', {
-  token: {
+const RefreshToken = sequelize.define('RefreshToken',
+  {
+    token: {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
-  },
-  expires: {
+    },
+    expires: {
       type: DataTypes.DATE,
       allowNull: false,
-  },
-  valid: {
+    },
+    valid: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
+    },
   },
-},
-{
-  tableName: 'refresh_token',
-  hooks: {
+  {
+    tableName: 'refresh_token',
+    hooks: {
       beforeCreate: async (refreshToken, options) => {
-          refreshToken.token = await hashPassword(refreshToken.token);
+        refreshToken.token = await hashPassword(refreshToken.token);
       },
       beforeUpdate: async (refreshToken, options) => {
         // Vérifiez si le token a été modifié avant de le hacher à nouveau
@@ -30,8 +31,8 @@ const RefreshToken = sequelize.define('RefreshToken', {
           refreshToken.token = await hashPassword(refreshToken.token);
         }
       }
-  }
-});
+    }
+  });
 
 RefreshToken.prototype.isValid = async function (token) {
   console.log('Debug Validation Token:', {

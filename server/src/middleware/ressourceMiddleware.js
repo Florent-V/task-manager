@@ -9,9 +9,9 @@ export const getUserRessources = async (req, res, next) => {
     console.log('req.entity', req.entity);
 
     const resources = await req.entity.findAll({ where: { userId } });
-  
+
     if (!resources) throw new NotFoundError('No record found');
-  
+
     res.data[lowercaseFirstLetter(req.entity.options.name.plural)] = resources;
     next();
   } catch (error) {
@@ -23,11 +23,11 @@ export const getUserRessourceById = async (req, res, next) => {
   try {
     const { id } = req.params;
     const userId = req.user.id;
-    
+
     const resource = await req.entity.findOne({ where: { id, userId } });
-  
+
     if (!resource) throw new ForbiddenError('Access denied: You do not have permission to access this product');
-  
+
     res.data[lowercaseFirstLetter(req.entity.options.name.singular)] = resource;
     next();
   } catch (error) {
@@ -37,7 +37,6 @@ export const getUserRessourceById = async (req, res, next) => {
 
 export const authorizeManyToManyRessourceAccess = async (req, res, next) => {
   try {
-
     if (!await res.data[lowercaseFirstLetter(req.entity.options.name.singular)].hasUser(req.user.id)) {
       throw new ForbiddenError('Access denied: You do not have permission to access this ressource');
     }

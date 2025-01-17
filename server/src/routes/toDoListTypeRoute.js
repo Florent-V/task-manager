@@ -1,14 +1,13 @@
 import express from 'express';
-import { createToDoListType, getAllToDoListTypes, getToDoListTypeById, updateToDoListType, deleteToDoListType } from '../controllers/toDoListTypeController.js';
-import { isAdmin } from '../middleware/authMiddleware.js';
+import { setEntity, setCreateValidator, setUpdateValidator } from '../middleware/toDoListTypeMiddleware.js';
+import { makeCrudRoutes } from './crudMakerRoutes.js';
 
 const router = express.Router();
 
-router.get('/', getAllToDoListTypes);
-router.get('/:id', getToDoListTypeById);
-
-router.post('/', isAdmin, createToDoListType);
-router.put('/:id', isAdmin, updateToDoListType);
-router.delete('/:id', isAdmin, deleteToDoListType);
+makeCrudRoutes(router, {
+  setEntity,
+  setCreateValidator,
+  setUpdateValidator,
+});
 
 export default router;

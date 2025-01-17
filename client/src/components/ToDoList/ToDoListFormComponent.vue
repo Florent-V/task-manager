@@ -147,7 +147,7 @@ onMounted(fetchToDoListTypes);
             <p v-if="errors.description" class="mt-2 text-sm text-red-600 dark:text-red-400">A{{
                 errors.description
               }}</p>
-            <p v-if="defaultError" class="mt-2 text-sm text-red-600 dark:text-red-400">B{{ defaultError }}</p>
+            <p v-if="defaultError" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ defaultError }}</p>
 
           </div>
 

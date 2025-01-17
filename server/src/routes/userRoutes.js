@@ -1,8 +1,21 @@
 import express from 'express';
-import { getAllUsers, getUserById, updateUser, deleteUser, addRoleUser, removeRoleUser, getConnectedUser } from '../controllers/userController.js';
-import { authenticateToken, isAdmin, isModerator, isModeratorOrAdmin } from '../middleware/authMiddleware.js';
+import {
+  getAllUsers,
+  getUserById,
+  updateUser,
+  deleteUser,
+  addRoleUser,
+  removeRoleUser,
+  getConnectedUser
+} from '../controllers/userController.js';
+import {
+  authenticateToken,
+  isAdmin,
+  isModerator,
+  isModeratorOrAdmin
+} from '../middleware/authMiddleware.js';
 import { setUpdateUserValidator } from '../middleware/userMiddleware.js';
-import { validate } from "../middleware/ressourceMiddleware.js";
+import { validate } from '../middleware/ressourceMiddleware.js';
 
 const router = express.Router();
 

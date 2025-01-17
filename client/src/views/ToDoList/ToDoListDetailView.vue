@@ -11,7 +11,6 @@ import QRCodeModal from "@/components/ToDoList/ToDoListQRCodeModal.vue";
 import logger from "@/utils/logger.js";
 
 const route = useRoute();
-
 const { isLoading, error, executeRequest } = hookApi();
 
 const toDoList = ref({});
@@ -29,8 +28,9 @@ const linkUrl = ref(null);
 // Récupération des items de la ToDoList
 const fetchToDoItems = async () => {
   try {
-    const data = await executeRequest(() => client.get(`/api/todolist/${route.params.id}/todoitem`));
-    toDoItems.value = data.toDoItems;
+    const data = await executeRequest(() => client.get(`/api/todolist/${route.params.id}/`));
+    logger.debug('todolist', data);
+    toDoItems.value = data.toDoList.toDoItems;
     toDoList.value = data.toDoList;
   } catch (err) {
     logger.error('Error fetching data:', err?.response?.data?.message || err.message);

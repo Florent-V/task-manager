@@ -8,11 +8,11 @@ const updateDatabaseIndex = (entityName, modelName, modelFileName, indexPath) =>
   let indexContent = fs.readFileSync(indexPath, 'utf-8');
   if (!indexContent.includes(importStatement)) {
     // Ajouter l'import à la fin des imports
-    const lastImportIndex = indexContent.lastIndexOf("import");
+    const lastImportIndex = indexContent.lastIndexOf('import');
     const insertionPoint = indexContent.indexOf('\n', lastImportIndex);
     indexContent = indexContent.slice(0, insertionPoint + 1) + importStatement + indexContent.slice(insertionPoint + 1);
   }
-  
+
   if (!indexContent.includes(dbAssignmentStatement)) {
     // Ajouter l'assignation à la fin des assignations db
     const dbEndIndex = indexContent.lastIndexOf('db.');
@@ -21,6 +21,6 @@ const updateDatabaseIndex = (entityName, modelName, modelFileName, indexPath) =>
   }
 
   return indexContent;
-}
+};
 
 export default updateDatabaseIndex;

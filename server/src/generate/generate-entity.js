@@ -23,10 +23,10 @@ if (!entityName) {
 
 // Folder and file names
 const modelName = entityName.charAt(0).toUpperCase() + entityName.slice(1);
-const modelFileName = `${entityName}Model.js`
-const controllerFileName = `${entityName}Controller.js`
-const routesFileName = `${entityName}Route.js`
-const middlewareFileName = `${entityName}Middleware.js`
+const modelFileName = `${entityName}Model.js`;
+const controllerFileName = `${entityName}Controller.js`;
+const routesFileName = `${entityName}Route.js`;
+const middlewareFileName = `${entityName}Middleware.js`;
 
 // Paths
 const modelPath = path.join(__dirname, 'models', modelFileName);
