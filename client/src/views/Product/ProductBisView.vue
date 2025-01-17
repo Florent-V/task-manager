@@ -61,13 +61,13 @@ onMounted(async () => {
             <td class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300">${{ product.price }}</td>
             <td class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-center">
               <button class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500 mr-2">
-                <i class="fas fa-edit"></i>
+                <v-icon name="fa-edit" scale="1.3" />
               </button>
               <button class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500 mr-2">
-                <i class="fas fa-trash-alt"></i>
+                <v-icon name="fa-regular-trash-alt" scale="1.3" />
               </button>
               <button class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
-                <i class="fas fa-eye"></i>
+                <v-icon name="md-removeredeye" scale="1.3" />
               </button>
             </td>
           </tr>

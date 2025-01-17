@@ -125,11 +125,11 @@ onMounted(fetchKanbans);
                   <div class="flex justify-around">
                     <button @click="openEditForm(kanban)"
                             class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
-                      <i class="fas fa-edit"></i>
+                      <v-icon name="fa-edit" scale="1.3" />
                     </button>
                     <button @click="deleteKanban(kanban)"
                             class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
-                      <i class="fas fa-trash-alt"></i>
+                      <v-icon name="fa-regular-trash-alt" scale="1.3" />
                     </button>
                   </div>
                 </td>
