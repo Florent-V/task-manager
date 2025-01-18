@@ -71,7 +71,7 @@ const getClassName = task => {
       <button @click="addTask" 
               class="button bg-blue-500 text-white px-4 rounded-r-lg hover:bg-blue-600"
       >
-        <i class="fa fa-plus"></i> Add
+        <v-icon name="md-add" scale="1.2" /> Add
       </button>
     </div>
 
@@ -79,12 +79,12 @@ const getClassName = task => {
       <button class="button warning small bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
               @click="clearCompleted"
       >
-        <i class="fa-regular fa-square-check"></i> Clear Completed
+        <v-icon name="fa-regular-check-square" scale="1.2" /> Clear Completed
       </button>
       <button class="button alert small bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
               @click="clearAll"
       >
-        <i class="fa fa-trash"></i> Clear All
+        <v-icon name="fa-regular-trash-alt" scale="1.2" /> Clear All
       </button>
     </div>
 
@@ -103,7 +103,7 @@ const getClassName = task => {
         <button class="tasks__item__remove button alert bg-red-500 text-white rounded-lg p-2 hover:bg-red-600"
                 @click="removeTask(index)"
         >
-          <i class="fa fa-trash"></i>
+          <v-icon name="fa-regular-trash-alt" scale="1.2" />
         </button>
       </li>
     </transition-group>

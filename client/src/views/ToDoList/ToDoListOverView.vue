@@ -73,13 +73,9 @@ onMounted(fetchToDoLists);
       <h1 class="text-4xl font-bold my-4 text-center text-blue-800 dark:text-yellow-300">Mes ToDo Listes</h1>
       <!-- Add button -->
       <div v-if="!showForm" class="text-right">
-        <button @click="openCreateForm" class="bg-blue-600 dark:bg-yellow-400 text-white px-3 py-3 rounded-full">
+        <button @click="openCreateForm" class="bg-blue-600 dark:bg-yellow-400 text-white px-2 py-2 rounded-full">
           <span class="flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd"
-                  d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                  clip-rule="evenodd"/>
-          </svg>
+          <v-icon name="md-add" scale="1.6" />
         </span>
         </button>
       </div>
@@ -135,11 +131,11 @@ onMounted(fetchToDoLists);
                 <div class="flex justify-around">
                   <button @click="openEditForm(list)"
                           class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
-                    <i class="fas fa-edit"></i>
+                    <v-icon name="fa-edit" scale="1.2" />
                   </button>
                   <button @click="deleteList(list)"
                           class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
-                    <i class="fas fa-trash-alt"></i>
+                    <v-icon name="fa-regular-trash-alt" scale="1.2" />
                   </button>
                 </div>
               </td>
