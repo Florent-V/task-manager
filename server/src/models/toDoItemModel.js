@@ -9,8 +9,12 @@ const ToDoItem = sequelize.define('ToDoItem',
       primaryKey: true,
     },
     title: {
-      type: DataTypes.STRING,
+      type: DataTypes.STRING(50),
       allowNull: false,
+      validate: {
+        notEmpty: true,
+        len: [2, 50],
+      },
     },
     description: {
       type: DataTypes.TEXT,
@@ -20,6 +24,11 @@ const ToDoItem = sequelize.define('ToDoItem',
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue: 1,
+    },
+    image: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: null,
     },
     done: {
       type: DataTypes.BOOLEAN,

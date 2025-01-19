@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router';
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
 import ToDoItemFormComponent from "@/components/ToDoList/ToDoItemFormComponent.vue";
-import ToDoItemInlineFormComponent from "@/components/ToDoList/ToDoItemInlineFormComponent.vue";
+import ToDoItemImageModalComponent from "@/components/ToDoList/ToDoItemImageModalComponent.vue";
 import ToggleComponent from "@/components/ToggleComponent.vue";
 import LoaderComponent from "@/components/LoaderComponent.vue";
 import QRCodeModal from "@/components/ToDoList/ToDoListQRCodeModal.vue";
@@ -24,6 +24,7 @@ const isEditingQuantity = ref(false);
 const showQRCodeModal = ref(false);
 const qrCodeUrl = ref(null);
 const linkUrl = ref(null);
+const showItemImageModal = ref(false);
 
 // Récupération des items de la ToDoList
 const fetchToDoItems = async () => {
@@ -47,15 +48,15 @@ const filteredToDoItems = computed(() => {
 });
 
 const handleResponseFormSubmit = async (response) => {
-    if (selectedToDoItem.value) {
-      // Update existing to-do item
-      const index = toDoItems.value.findIndex(item => item.id === response.toDoItem.id);
-      toDoItems.value[index] = response.toDoItem;
-    } else {
-      // Create new to-do item
-      toDoItems.value.push(response.toDoItem);
-    }
-    closeForm();
+  if (selectedToDoItem.value) {
+    // Update existing to-do item
+    const index = toDoItems.value.findIndex(item => item.id === response.toDoItem.id);
+    toDoItems.value[index] = response.toDoItem;
+  } else {
+    // Create new to-do item
+    toDoItems.value.push(response.toDoItem);
+  }
+  closeForm();
 };
 
 // Ouvrir le formulaire de création
@@ -160,6 +161,17 @@ const cancelEditQuantity = () => {
   selectedToDoItem.value = null;
 };
 
+const showItemImage = (item) => {
+  logger.debug('Affichage de l\'image');
+  selectedToDoItem.value = { ...item };
+  showItemImageModal.value = true;
+};
+
+const closeItemImageModal = () => {
+  showItemImageModal.value = false;
+  selectedToDoItem.value = null;
+};
+
 onMounted(fetchToDoItems);
 </script>
 
@@ -180,14 +192,15 @@ onMounted(fetchToDoItems);
           <div v-if="!isCreating" class="text-right">
             <button @click="openCreateForm" class="w-14 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-full">
             <span class="items-center">
-              <v-icon name="md-add" scale="1.6" />
+              <v-icon name="md-add" scale="1.6"/>
             </span>
             </button>
           </div>
           <div class="text-right">
-            <button @click="shareToDoList" class="flex w-14 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-full">
+            <button @click="shareToDoList"
+                    class="flex w-14 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-full">
               <span class="m-auto">
-                <v-icon name="md-share-outlined" scale="1.6" />
+                <v-icon name="md-share-outlined" scale="1.6"/>
               </span>
             </button>
           </div>
@@ -229,7 +242,7 @@ onMounted(fetchToDoItems);
 
                 <button @click="toggleToDoItemDone(item)"
                         class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
-                  <v-icon name='md-checkboxoutlineblank' />
+                  <v-icon name='md-checkboxoutlineblank'/>
                 </button>
 
                 <div v-if="isEditing && selectedToDoItem.id === item.id" class="flex-grow">
@@ -255,7 +268,7 @@ onMounted(fetchToDoItems);
                 <div v-if="toDoList.type.name === 'Shopping'" class="flex items-center gap-2 mr-4">
                   <button @click="decrementQuantity(item)"
                           class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
-                    <v-icon name="fa-minus" scale="1.2" />
+                    <v-icon name="fa-minus" scale="1.2"/>
                   </button>
 
                   <div class="border border-gray-300 dark:border-gray-600 px-4 py-1 rounded">
@@ -273,17 +286,26 @@ onMounted(fetchToDoItems);
                 </span>
                   </div>
 
-                  <button @click="incrementQuantity(item)"
-                          class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
-                    <v-icon name="fa-plus" scale="1.2" />
+                  <button
+                      @click="incrementQuantity(item)"
+                      class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500"
+                  >
+                    <v-icon name="fa-plus" scale="1.2"/>
                   </button>
                 </div>
 
                 <!-- Actions pour chaque item -->
                 <div class="flex items-center">
+                  <button
+                      v-if="item.image"
+                      @click="showItemImage(item)"
+                      class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500 ml-2"
+                  >
+                    <v-icon name="md-photocamera-round" scale="1.2"/>
+                  </button>
                   <button @click="deleteToDoItem(item)"
                           class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500 ml-2">
-                    <v-icon name="fa-regular-trash-alt" scale="1.2" />
+                    <v-icon name="fa-regular-trash-alt" scale="1.2"/>
                   </button>
                 </div>
               </li>
@@ -301,7 +323,7 @@ onMounted(fetchToDoItems);
 
                   <button @click="toggleToDoItemDone(item)"
                           class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
-                    <v-icon name='md-checkbox-outlined' />
+                    <v-icon name='md-checkbox-outlined'/>
                   </button>
 
                   <div class="flex-grow">
@@ -315,7 +337,7 @@ onMounted(fetchToDoItems);
                   <div class="flex items-center">
                     <button @click="deleteToDoItem(item)"
                             class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500 ml-2">
-                      <v-icon name="fa-regular-trash-alt" scale="1.2" />
+                      <v-icon name="fa-regular-trash-alt" scale="1.2"/>
                     </button>
                   </div>
                 </li>
@@ -335,6 +357,12 @@ onMounted(fetchToDoItems);
 
     </div>
   </div>
+
+  <ToDoItemImageModalComponent
+      v-if="showItemImageModal"
+      :imageUrl="selectedToDoItem.image"
+      @close="closeItemImageModal"
+  />
 
 </template>
 

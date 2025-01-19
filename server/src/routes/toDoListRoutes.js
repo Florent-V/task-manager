@@ -26,6 +26,7 @@ import { remove } from '../middleware/basicCrudMiddleware.js';
 import ToDoList from '../models/toDoListModel.js';
 import NotFoundError from '../error/notFoundError.js';
 import User from '../models/userModel.js';
+import upload from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();
 

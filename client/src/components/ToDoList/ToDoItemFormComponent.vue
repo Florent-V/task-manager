@@ -23,9 +23,11 @@ const { isLoading, error, executeRequest } = hookApi();
 const formData = ref({ ...props.initialData });
 const isEditing = computed(() => !!formData.value.id);
 const isSubmitted = ref(false);
+const imageError = ref(null);
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 watch(() => props.initialData, (newValue) => {
-      formData.value = newValue ? { ...newValue } : { title: '' };
+      formData.value = newValue ? { ...newValue } : { title: '', image: null };
     },
     { immediate: true }
 );
@@ -33,11 +35,42 @@ watch(() => props.initialData, (newValue) => {
 // Utilitaire de gestions des erreurs de formulaire
 const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...formData.value });
 
+function handleFile(event) {
+  imageError.value = null;
+  const selectedFile = event.target.files[0];
+  if (!selectedFile) return;
+
+  if (selectedFile.size > MAX_FILE_SIZE) {
+    error.value = 'Le fichier dépasse la taille maximale autorisée de 20 Mo.';
+    // On nettoie le champ file
+    event.target.value = '';
+    return;
+  }
+
+  formData.value.image = selectedFile;
+  // const reader = new FileReader();
+  // reader.readAsDataURL(selectedFile);
+  // reader.onload = () => {
+  //   email.value.attachments.push({
+  //     filename: selectedFile.name,
+  //     content: reader.result,
+  //     size: selectedFile.size,
+  //   });
+  //   // On nettoie le champ file pour ajoute d'autres fichiers
+  //   event.target.value = '';
+  // };
+  // reader.onerror = (error) => {
+  //   console.log('Error: ', error);
+  // };
+}
 const submitForm = async () => {
   if (isSubmitted.value) return;
   const data = {
     title: formData.value.title,
   };
+  if (formData.value.image) {
+    data.image = formData.value.image;
+  }
 
   try {
     let response;
@@ -49,7 +82,7 @@ const submitForm = async () => {
     } else {
       // Create new to-do item
       response = await executeRequest(
-          () => client.post(`/api/todolist/${route.params.id}/todoitem`, data)
+          () => client.postWithFile(`/api/todolist/${route.params.id}/todoitem`, data)
       );
     }
     emit('handleResponse', response);
@@ -87,13 +120,79 @@ onMounted( async () => {
       {{ isEditing ? 'Edition :' : 'Nouvelle tâche :' }}
     </h2>
 
+<!--    <form id="newToDoItemForm" @submit.prevent="submitForm">-->
+<!--      <div class="">-->
+<!--        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-x-0">-->
+<!--          &lt;!&ndash; Name field &ndash;&gt;-->
+<!--          <div class="relative col-span-2 md:col-span-3">-->
+<!--            <input-->
+<!--                type="text"-->
+<!--                maxlength="50"-->
+<!--                id="title"-->
+<!--                placeholder=" "-->
+<!--                class="peer border border-gray-300 dark:border-gray-600 pt-6 pb-2 p-4 rounded-lg md:rounded-r-none focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 transition w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-white"-->
+<!--                v-model="formData.title"-->
+<!--            />-->
+<!--            <label-->
+<!--                for="title"-->
+<!--                class="rounded absolute left-3 top-1 bg-white dark:bg-gray-700 px-1 text-gray-600 dark:text-gray-100 transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:left-4 peer-placeholder-shown:text-gray-400 dark:peer-placeholder-shown:text-gray-100 peer-placeholder-shown:bg-transparent peer-focus:bg-white dark:peer-focus:bg-gray-700 peer-focus:top-1 peer-focus:left-3 peer-focus:text-blue-600 dark:peer-focus:text-yellow-400 peer-not-placeholder-shown:top-2 peer-not-placeholder-shown:left-3 peer-not-placeholder-shown:bg-white dark:peer-not-placeholder-shown:bg-gray-700"-->
+<!--            >-->
+<!--              Titre-->
+<!--            </label>-->
+
+<!--          </div>-->
+
+<!--          <div class="col-span-2 md:order-3 md:col-span-4">-->
+<!--            <p v-if="errors.title" class="text-sm px-2 text-red-600 dark:text-red-400">{{ errors.title }}</p>-->
+<!--          </div>-->
+
+<!--          <div>-->
+<!--            <label for="image" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Image</label>-->
+<!--            <input-->
+<!--                @change="handleFile"-->
+<!--                type="file"-->
+<!--                id="image"-->
+<!--                class="bg-white dark:bg-gray-600 text-gray-900 dark:text-white p-2 rounded w-full"-->
+<!--                accept=".gif, .jpg, .jpeg, .png, .tif, .tiff, .bmp, .webp"-->
+<!--            >-->
+<!--          </div>-->
+
+<!--          &lt;!&ndash; Cancel button &ndash;&gt;-->
+<!--          <div class="text-center flex md:col-span-4 md:order-4">-->
+<!--            <button-->
+<!--                type="button"-->
+<!--                @click="closeForm"-->
+<!--                class="w-full m-0 bg-gray-600 text-white px-6 py-3 rounded-lg"-->
+<!--            >-->
+<!--              Cancel-->
+<!--            </button>-->
+<!--          </div>-->
+
+<!--          &lt;!&ndash; Add button &ndash;&gt;-->
+<!--          <div class="text-center flex">-->
+<!--            <button-->
+<!--                type="submit"-->
+<!--                class="w-full m-0 bg-blue-600 dark:bg-yellow-400 text-white dark:text-gray-900 hover:bg-blue-700 dark:hover:bg-yellow-500 px-6 py-3 rounded-lg md:rounded-l-none text-lg transition duration-300 font-semibold"-->
+<!--            >-->
+<!--              {{ isEditing ? 'Modifier' : '+ Ajouter' }}-->
+<!--            </button>-->
+<!--          </div>-->
+
+<!--          <div class="order-5 col-span-2 md:col-span-4">-->
+<!--            <p v-if="defaultError" class="text-sm px-2 text-red-600 dark:text-red-400">{{ defaultError }}</p>-->
+<!--            <p v-if="error" class="text-sm px-2 text-red-600 dark:text-red-400">{{ error }}</p>-->
+<!--          </div>-->
+
+<!--        </div>-->
+<!--      </div>-->
+<!--    </form>-->
     <form id="newToDoItemForm" @submit.prevent="submitForm">
-      <div class="">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-x-0">
           <!-- Name field -->
           <div class="relative col-span-2 md:col-span-3">
             <input
                 type="text"
+                maxlength="50"
                 id="title"
                 placeholder=" "
                 class="peer border border-gray-300 dark:border-gray-600 pt-6 pb-2 p-4 rounded-lg md:rounded-r-none focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 transition w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
@@ -105,11 +204,48 @@ onMounted( async () => {
             >
               Titre
             </label>
-
           </div>
 
           <div class="col-span-2 md:order-3 md:col-span-4">
             <p v-if="errors.title" class="text-sm px-2 text-red-600 dark:text-red-400">{{ errors.title }}</p>
+          </div>
+
+          <!-- File upload field -->
+          <div class="relative col-span-2 md:col-span-3">
+            <!-- Hidden file input -->
+            <input
+                type="file"
+                id="image"
+                accept="image/*"
+                capture="environment"
+                class="hidden"
+                @change="handleFile"
+            />
+
+            <!-- Custom button with image icon -->
+            <label
+                for="image"
+                class="flex items-center justify-center gap-2 cursor-pointer bg-blue-600 dark:bg-yellow-400 text-white dark:text-gray-900 px-6 py-3 rounded-lg hover:bg-blue-700 dark:hover:bg-yellow-500 transition duration-300 font-semibold"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 10l1.75-3.25a2 2 0 011.786-1.114h10.928a2 2 0 011.786 1.114L21 10m-18 0a2 2 0 00-2 2v6a2 2 0 002 2h18a2 2 0 002-2v-6a2 2 0 00-2-2M9 16a3 3 0 100-6 3 3 0 000 6zm6 0h.01" />
+              </svg>
+              Ajouter une image
+            </label>
+
+            <!-- Display the selected file name -->
+            <p
+                v-if="formData.image"
+                class="mt-2 text-sm text-gray-600 dark:text-gray-300"
+            >
+              Image sélectionnée : {{ formData.image.name }}
+            </p>
+          </div>
+
+          <!-- Display image-specific errors -->
+          <div class="col-span-2 md:order-3 md:col-span-4">
+            <p v-if="errors.image" class="text-sm px-2 text-red-600 dark:text-red-400">{{ errors.image }}</p>
+            <p v-if="imageError" class="text-sm px-2 text-red-600 dark:text-red-400">{{ imageError }}</p>
           </div>
 
           <!-- Cancel button -->
@@ -135,10 +271,9 @@ onMounted( async () => {
 
           <div class="order-5 col-span-2 md:col-span-4">
             <p v-if="defaultError" class="text-sm px-2 text-red-600 dark:text-red-400">{{ defaultError }}</p>
+            <p v-if="error" class="text-sm px-2 text-red-600 dark:text-red-400">{{ error }}</p>
           </div>
-
         </div>
-      </div>
     </form>
 
 <!--            <div class="py-4">-->
@@ -174,6 +309,7 @@ onMounted( async () => {
       <input
           class="peer border border-gray-300 dark:border-gray-600 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 transition w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           type="text"
+          maxlength="50"
           id="title"
           v-model="formData.title"
           @blur="submitForm"
@@ -184,6 +320,7 @@ onMounted( async () => {
     </div>
     <div>
       <p v-if="defaultError" class="text-sm px-2 text-red-600 dark:text-red-400">{{ defaultError }}</p>
+      <p v-if="error" class="text-sm px-2 text-red-600 dark:text-red-400">{{ error }}</p>
     </div>
   </div>
 

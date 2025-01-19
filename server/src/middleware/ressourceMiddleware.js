@@ -65,7 +65,7 @@ export const validate = (req, res, next) => {
     const { error } = req.schema.validate(req.body, { abortEarly: false });
     if (error) {
       const errors = error.details.map(err => ({
-        field: err.path[0], // Nom du champ (ex: "firstName")
+        field: err.path[0], // Nom du champ
         message: err.message // Message d'erreur
       }));
 
