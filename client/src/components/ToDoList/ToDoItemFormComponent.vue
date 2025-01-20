@@ -206,12 +206,8 @@ onMounted( async () => {
             </label>
           </div>
 
-          <div class="col-span-2 md:order-3 md:col-span-4">
-            <p v-if="errors.title" class="text-sm px-2 text-red-600 dark:text-red-400">{{ errors.title }}</p>
-          </div>
-
           <!-- File upload field -->
-          <div class="relative col-span-2 md:col-span-3">
+          <div class="relative col-span-2 md:col-span-1">
             <!-- Hidden file input -->
             <input
                 type="file"
@@ -225,12 +221,10 @@ onMounted( async () => {
             <!-- Custom button with image icon -->
             <label
                 for="image"
-                class="flex items-center justify-center gap-2 cursor-pointer bg-blue-600 dark:bg-yellow-400 text-white dark:text-gray-900 px-6 py-3 rounded-lg hover:bg-blue-700 dark:hover:bg-yellow-500 transition duration-300 font-semibold"
+                class="flex items-center justify-center gap-2 cursor-pointer w-full h-full m-0 bg-blue-600 dark:bg-yellow-400 text-white dark:text-gray-900 hover:bg-blue-700 dark:hover:bg-yellow-500 px-6 py-3 rounded-lg md:rounded-l-none text-lg transition duration-300 font-semibold"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 10l1.75-3.25a2 2 0 011.786-1.114h10.928a2 2 0 011.786 1.114L21 10m-18 0a2 2 0 00-2 2v6a2 2 0 002 2h18a2 2 0 002-2v-6a2 2 0 00-2-2M9 16a3 3 0 100-6 3 3 0 000 6zm6 0h.01" />
-              </svg>
-              Ajouter une image
+              <v-icon name="md-add" scale="1.2" />
+              <v-icon name="md-photocamera" scale="1.2" />
             </label>
 
             <!-- Display the selected file name -->
@@ -242,14 +236,18 @@ onMounted( async () => {
             </p>
           </div>
 
+          <div class="col-span-2 md:col-span-4">
+            <p v-if="errors.title" class="text-sm px-2 text-red-600 dark:text-red-400">{{ errors.title }}</p>
+          </div>
+
           <!-- Display image-specific errors -->
-          <div class="col-span-2 md:order-3 md:col-span-4">
+          <div class="col-span-2 md:col-span-4">
             <p v-if="errors.image" class="text-sm px-2 text-red-600 dark:text-red-400">{{ errors.image }}</p>
             <p v-if="imageError" class="text-sm px-2 text-red-600 dark:text-red-400">{{ imageError }}</p>
           </div>
 
           <!-- Cancel button -->
-          <div class="text-center flex md:col-span-4 md:order-4">
+          <div class="text-center flex col-span-2 md:col-span-2 md:mr-1">
             <button
                 type="button"
                 @click="closeForm"
@@ -260,16 +258,16 @@ onMounted( async () => {
           </div>
 
           <!-- Add button -->
-          <div class="text-center flex">
+          <div class="text-center flex col-span-2 md:col-span-2 md:ml-1">
             <button
                 type="submit"
-                class="w-full m-0 bg-blue-600 dark:bg-yellow-400 text-white dark:text-gray-900 hover:bg-blue-700 dark:hover:bg-yellow-500 px-6 py-3 rounded-lg md:rounded-l-none text-lg transition duration-300 font-semibold"
+                class="w-full m-0 bg-blue-600 dark:bg-yellow-400 text-white dark:text-gray-900 hover:bg-blue-700 dark:hover:bg-yellow-500 px-6 py-3 rounded-lg text-lg transition duration-300 font-semibold"
             >
               {{ isEditing ? 'Modifier' : '+ Ajouter' }}
             </button>
           </div>
 
-          <div class="order-5 col-span-2 md:col-span-4">
+          <div class="col-span-2 md:col-span-4">
             <p v-if="defaultError" class="text-sm px-2 text-red-600 dark:text-red-400">{{ defaultError }}</p>
             <p v-if="error" class="text-sm px-2 text-red-600 dark:text-red-400">{{ error }}</p>
           </div>
