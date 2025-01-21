@@ -5,6 +5,9 @@ import NotFoundError from '../error/notFoundError.js';
 export const createToDoItem = async (req, res, next) => {
   try {
     req.body.toDoListId = req.params.id;
+    if (req.file) {
+      req.body.image = req.file.filename
+    }
 
     res.statusCode = 201;
     res.data.toDoItem = await ToDoItem.create(req.body);

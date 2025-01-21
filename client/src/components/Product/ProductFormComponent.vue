@@ -57,7 +57,6 @@ watch(
 const handleFileUpload = (event) => {
   const file = event.target.files[0];
   localForm.image = file;
-  // sdfds
 };
 
 const submitForm = async () => {

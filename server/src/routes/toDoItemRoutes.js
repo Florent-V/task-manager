@@ -12,10 +12,11 @@ import {
   updateToDoItem,
   deleteToDoItem
 } from '../controllers/toDoItemController.js';
+import upload from "../middleware/uploadMiddleware.js";
 
 const router = express.Router({ mergeParams: true });
 
-router.post('/', setCreateValidator, validate, createToDoItem);
+router.post('/', upload.single('image'), setCreateValidator, validate, createToDoItem);
 
 router.get('/', getToDoItems);
 
