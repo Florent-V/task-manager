@@ -48,6 +48,40 @@ export default defineConfig({
       },
     })
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          // 1. Séparer les composants volumineux
+          if (id.includes('/src/components/')) {
+            const componentName = id.split('/src/components/')[1].split('.')[0];
+            return `components/${componentName}`;
+          }
+
+          // 2. Séparer les vues (pages)
+          if (id.includes('/src/views/')) {
+            const viewName = id.split('/src/views/')[1].split('.')[0];
+            return `views/${viewName}`;
+          }
+
+          // 3. Séparer les modules du store (si volumineux)
+          if (id.includes('/src/stores/')) {
+            return 'stores';
+          }
+
+          // 4. Séparer les utilitaires (si volumineux)
+          if (id.includes('/src/utils/')) {
+            return 'utils';
+          }
+
+          // 5. Regrouper les dépendances tierces (si nécessaire)
+          if (id.includes('/node_modules/')) {
+            return 'vendor';
+          }
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
