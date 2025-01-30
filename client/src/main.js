@@ -6,14 +6,37 @@ import router from './router'
 import { cropText } from '@/utils/crop.js';
 
 import { OhVueIcon, addIcons } from "oh-vue-icons";
-import * as MdIcons from "oh-vue-icons/icons/md";
-import * as FaIcons from "oh-vue-icons/icons/fa";
+import { MdClose,
+  MdDelete,
+  MdAdd,
+  MdPhotocamera,
+  MdPhotocameraRound,
+  MdRemoveredeye,
+  MdShareOutlined,
+  MdCheckboxOutlined,
+  MdCheckboxoutlineblank,
+  FaMinus,
+  FaPlus,
+  FaEdit,
+  FaRegularTrashAlt,
+  FaRegularCheckSquare
+} from "oh-vue-icons/icons";
 
-const Fa = Object.values({ ...FaIcons });
-const Md = Object.values({ ...MdIcons });
-
-addIcons(...Fa);
-addIcons(...Md);
+addIcons(MdClose,
+  MdDelete,
+  MdAdd,
+  MdPhotocamera,
+  MdPhotocameraRound,
+  MdRemoveredeye,
+  MdShareOutlined,
+  MdCheckboxOutlined,
+  MdCheckboxoutlineblank,
+  FaMinus,
+  FaPlus,
+  FaEdit,
+  FaRegularTrashAlt,
+  FaRegularCheckSquare
+);
 
 const app = createApp(App)
 
