@@ -41,6 +41,7 @@ export const getToDoItemById = async (req, res, next) => {
       toDoItem = await ToDoItem.findByPk(req.params.itemId);
       if (!toDoItem) throw new NotFoundError('ToDoItem Not Found');
     }
+
     res.data = { toDoItem };
     next();
   } catch (error) {
@@ -51,6 +52,9 @@ export const getToDoItemById = async (req, res, next) => {
 // Mise à jour d'un ToDoItem
 export const updateToDoItem = async (req, res, next) => {
   try {
+    if (req.file) {
+      req.body.image = req.file.filename
+    }
     const [updated] = await ToDoItem.update(req.body, {
       where: { id: req.params.itemId }
     });

@@ -222,12 +222,7 @@ onMounted(() => {
         </li>
       </ul>
     </div>
-
   </header>
-
-  <!-- Spacer to prevent content from being hidden under the fixed navbar -->
-  <div class="h-20"></div>
-
 </template>
 
 <style scoped>

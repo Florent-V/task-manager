@@ -80,7 +80,7 @@ onMounted(fetchToDoListTypes);
 </script>
 
 <template>
-  <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg dark:shadow-gray-700">
+  <div class="bg-white dark:bg-gray-800 mb-4 p-6 rounded-xl shadow-lg dark:shadow-gray-700">
     <h2 class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-t-lg text-xl font-semibold">
       {{ isEditing ? 'Modifier une ToDo List' : 'Créer une ToDo List' }}
     </h2>

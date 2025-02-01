@@ -77,7 +77,7 @@ const submitForm = async () => {
     if (formData.value.id) {
       // Update existing to-do item
       response = await executeRequest(
-          () => client.patch(`/api/todolist/${route.params.id}/todoitem/${formData.value.id}`, data)
+          () => client.patchWithFile(`/api/todolist/${route.params.id}/todoitem/${formData.value.id}`, data)
       );
     } else {
       // Create new to-do item
@@ -226,11 +226,13 @@ onMounted( async () => {
               <v-icon name="md-add" scale="1.2" />
               <v-icon name="md-photocamera" scale="1.2" />
             </label>
+          </div>
 
-            <!-- Display the selected file name -->
+          <!-- Display the selected file name -->
+          <div class="col-span-2 md:col-span-4">
             <p
                 v-if="formData.image"
-                class="mt-2 text-sm text-gray-600 dark:text-gray-300"
+                class="text-sm text-gray-600 dark:text-gray-300"
             >
               Image sélectionnée : {{ formData.image.name }}
             </p>

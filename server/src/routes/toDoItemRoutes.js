@@ -22,7 +22,7 @@ router.get('/', getToDoItems);
 
 router.use('/:itemId', isToDoItemInToDoList);
 router.get('/:itemId', getToDoItemById);
-router.patch('/:itemId', setUpdateValidator, validate, updateToDoItem);
+router.patch('/:itemId', upload.single('image'), setUpdateValidator, validate, updateToDoItem);
 router.delete('/:itemId', deleteToDoItem);
 
 export default router;
