@@ -5,7 +5,7 @@
 <template>
   <footer class="bg-blue-900 dark:bg-gray-900 text-white py-12 transition-colors duration-300">
     <div class="container mx-auto px-4">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div>
           <h3 class="text-xl font-semibold mb-4">About Task Manager</h3>
           <p>Task Manager est une application de gestion de tâches et de liste de courses</p>

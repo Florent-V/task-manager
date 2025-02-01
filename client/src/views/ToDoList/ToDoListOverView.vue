@@ -2,10 +2,10 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { client } from '@/utils/requestMaker.js';
-import { hookApi } from "@/utils/requestHook.js";
-import logger from "@/utils/logger.js";
-import ToDoListFormComponent from "@/components/ToDoList/ToDoListFormComponent.vue";
-import LoaderComponent from "@/components/LoaderComponent.vue";
+import { hookApi } from '@/utils/requestHook.js';
+import logger from '@/utils/logger.js';
+import ToDoListFormComponent from '@/components/ToDoList/ToDoListFormComponent.vue';
+import LoaderComponent from '@/components/LoaderComponent.vue';
 
 const { isLoading, error, executeRequest } = hookApi();
 
@@ -39,7 +39,7 @@ const deleteList = async (list) => {
     await executeRequest(() => client.delete(`/api/todolist/${list.id}`));
     toDoLists.value = toDoLists.value.filter(item => item.id !== list.id);
   } catch (err) {
-    logger.error("Error deleting to-do list", err?.response?.data?.message || err.message);
+    logger.error('Error deleting to-do list', err?.response?.data?.message || err.message);
   }
 };
 
@@ -54,7 +54,7 @@ const fetchToDoLists = async () => {
     logger.debug('todolists', data);
     toDoLists.value = data.toDoLists;
   } catch (err) {
-    logger.error("Error fetching to-do lists", err?.response?.data?.message || err.message);
+    logger.error('Error fetching to-do lists', err?.response?.data?.message || err.message);
   }
 };
 
@@ -68,14 +68,18 @@ onMounted(fetchToDoLists);
 
 <template>
 
-  <div class="container mx-auto px-1 py-12">
-    <div class="flex justify-between items-center mb-6 px-6">
-      <h1 class="text-4xl font-bold my-4 text-center text-blue-800 dark:text-yellow-300">Mes ToDo Listes</h1>
+  <div class="container mx-auto py-4">
+
+    <!-- ToDoList Top Bar -->
+    <div class="flex justify-between items-center mb-4 px-4">
+      <h1 class="text-4xl font-bold my-4 text-center text-blue-800 dark:text-yellow-300">
+        Mes ToDo Listes
+      </h1>
       <!-- Add button -->
       <div v-if="!showForm" class="text-right">
-        <button @click="openCreateForm" class="bg-blue-600 dark:bg-yellow-400 text-white px-2 py-2 rounded-full">
+        <button class="bg-blue-600 dark:bg-yellow-400 text-white px-2 py-2 rounded-full" @click="openCreateForm">
           <span class="flex items-center">
-          <v-icon name="md-add" scale="1.6" />
+          <v-icon name="md-add" scale="1.6"/>
         </span>
         </button>
       </div>
@@ -85,18 +89,14 @@ onMounted(fetchToDoLists);
     <ToDoListFormComponent
         v-if="showForm"
         :initialData="selectedToDo"
-        @handleResponse="handleResponseFormSubmit"
         @cancel="closeForm"
+        @handleResponse="handleResponseFormSubmit"
     />
-
-    <!--    spacing div -->
-    <div class="h-6"></div>
 
     <!-- Loader -->
     <LoaderComponent v-if="isLoading"/>
 
     <div v-if="toDoLists.length" class="w-full bg-white dark:bg-gray-800 p-3 rounded-xl shadow-lg dark:shadow-gray-700">
-
       <div class="overflow-x-auto">
         <table class="min-w-full table-auto">
           <thead>
@@ -108,38 +108,38 @@ onMounted(fetchToDoLists);
           </tr>
           </thead>
           <tbody>
-            <tr v-for="list in toDoLists" :key="list.id" class="hover:bg-gray-100 dark:hover:bg-gray-600 transition">
-              <td
-                  class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300 cursor-pointer"
-                  @click="redirectToItem(list.id)"
-              >
-                {{ list.title }}
-              </td>
-              <td
-                  class="hidden md:table-cell border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300 cursor-pointer"
-                  @click="redirectToItem(list.id)"
-              >
-                {{ list.description }}
-              </td>
-              <td
-                  class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300 cursor-pointer"
-                  @click="redirectToItem(list.id)"
-              >
-                {{ list.type.name }}
-              </td>
-              <td class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-center">
-                <div class="flex justify-around">
-                  <button @click="openEditForm(list)"
-                          class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
-                    <v-icon name="fa-edit" scale="1.2" />
-                  </button>
-                  <button @click="deleteList(list)"
-                          class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
-                    <v-icon name="fa-regular-trash-alt" scale="1.2" />
-                  </button>
-                </div>
-              </td>
-            </tr>
+          <tr v-for="list in toDoLists" :key="list.id" class="hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+            <td
+                class="border-t border-gray-300 dark:border-gray-600 px-4 py-4 text-gray-900 dark:text-gray-300 cursor-pointer"
+                @click="redirectToItem(list.id)"
+            >
+              {{ list.title }}
+            </td>
+            <td
+                class="hidden md:table-cell border-t border-gray-300 dark:border-gray-600 px-4 py-4 text-gray-900 dark:text-gray-300 cursor-pointer"
+                @click="redirectToItem(list.id)"
+            >
+              {{ list.description }}
+            </td>
+            <td
+                class="border-t border-gray-300 dark:border-gray-600 px-4 py-4 text-gray-900 dark:text-gray-300 cursor-pointer"
+                @click="redirectToItem(list.id)"
+            >
+              {{ list.type.name }}
+            </td>
+            <td class="border-t border-gray-300 dark:border-gray-600 px-4 py-4 text-center">
+              <div class="flex justify-around">
+                <button class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500"
+                        @click="openEditForm(list)">
+                  <v-icon name="fa-edit" scale="1.2"/>
+                </button>
+                <button class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500"
+                        @click="deleteList(list)">
+                  <v-icon name="fa-regular-trash-alt" scale="1.2"/>
+                </button>
+              </div>
+            </td>
+          </tr>
           </tbody>
         </table>
       </div>
@@ -153,7 +153,6 @@ onMounted(fetchToDoLists);
     </div>
   </div>
 </template>
-
 
 <style scoped>
 /* Optional styles to make it look nicer */
