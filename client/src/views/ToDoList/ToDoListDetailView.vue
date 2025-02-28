@@ -49,6 +49,7 @@ const filteredToDoItems = computed(() => {
 });
 
 const handleResponseFormSubmit = async (response) => {
+  console.log("## Response", response);
   if (selectedToDoItem.value) {
     // Update existing to-do item
     const index = toDoItems.value.findIndex(item => item.id === response.toDoItem.id);
@@ -258,8 +259,10 @@ onUnmounted(() => {
       <ToDoItemFormComponent
           v-if="isCreating"
           :initialData="selectedToDoItem"
+          :toDoItems="toDoItems"
           @cancel="closeForm"
           @handleResponse="handleResponseFormSubmit"
+          @useSuggest="selectedToDoItem = true"
       />
 
       <!-- Loader -->

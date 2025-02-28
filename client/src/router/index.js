@@ -86,12 +86,10 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth) {
     console.log('authStore.isAuthenticated', authStore.isAuthenticated)
     if (!authStore.isAuthenticated) {
-      console.log('ici', to.name)
       // Si l'utilisateur n'est pas connecté
       return next({ name: 'signin' });
     }
     if (to.meta.role && !authStore.user.roles.includes(to.meta.role)) {
-      console.log('ici2', to.name)
       // Si l'utilisateur n'a pas le rôle requis
       return next({ name: 'accessDenied' }); // Redirigez vers une page appropriée
     }
