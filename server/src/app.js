@@ -9,7 +9,8 @@ import {
   notFound,
   logError
 } from './middleware/errorMiddleware.js';
-import { init, send } from './middleware/inOutMiddleware.js';
+import { init, send, setRouteFound } from './middleware/inOutMiddleware.js';
+import { adminRouter } from './admin/admin.js';
 
 import testRoutes from './routes/testRoutes.js';
 import authRoutes from './routes/authRoutes.js';
@@ -20,6 +21,7 @@ import toDoListTypeRoutes from './routes/toDoListTypeRoute.js';
 import priorityRoutes from './routes/priorityRoutes.js';
 import sizeRoutes from './routes/sizeRoutes.js';
 import kanbanRoutes from './routes/kanbanRoutes.js';
+import { authenticateByCookieSession } from "./middleware/authMiddleware.js";
 
 dotenv.config();
 const app = express();
@@ -43,27 +45,30 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
 // serve the `backend/public` folder for public resources
 app.use('/api/uploads', express.static('public/uploads'));
+// Utiliser le routeur AdminJS
+
 
 // Middlewares
 app.use(init);
 // Test Routes
 app.use('', testRoutes);
+app.use('/admin-panel',setRouteFound, authenticateByCookieSession, adminRouter);
 // Auth Routes
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', setRouteFound, authRoutes);
 // User Routes
-app.use('/api/user', userRoutes);
+app.use('/api/user', setRouteFound, userRoutes);
 // Tutorial Routes
-app.use('/api/product', productRoutes);
+app.use('/api/product', setRouteFound, productRoutes);
 // ToDoList && ToDoItem Routes
-app.use('/api/todolist', toDoListRoutes);
+app.use('/api/todolist', setRouteFound, toDoListRoutes);
 // ToDoListType Routes
-app.use('/api/todolisttype', toDoListTypeRoutes);
+app.use('/api/todolisttype', setRouteFound, toDoListTypeRoutes);
 // Kanban Routes
-app.use('/api/kanban', kanbanRoutes);
+app.use('/api/kanban', setRouteFound, kanbanRoutes);
 // Priority Routes
-app.use('/api/priority', priorityRoutes);
+app.use('/api/priority', setRouteFound, priorityRoutes);
 // Sizes Routes
-app.use('/api/size', sizeRoutes);
+app.use('/api/size', setRouteFound, sizeRoutes);
 // Send middleware
 app.use(send);
 
@@ -77,8 +82,8 @@ app.listen(port, async () => {
   try {
     // Replace true by false when sync isn't needed
     // Replace force by alter to keep data
-    await initDB(true, 'force');
-    // await initDB(false, 'alter');
+    // await initDB(true, 'force');
+    await initDB(false, 'alter');
     console.log(`Server Groupe is running on port ${port}`);
   } catch (error) {
     console.error('Unable to connect to the database:', error);
