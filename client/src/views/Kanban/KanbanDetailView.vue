@@ -173,9 +173,7 @@ onMounted(fetchData);
     <h1 class="text-4xl font-bold mb-8 text-center text-blue-800 dark:text-yellow-300 break-words">
       {{ kanban.title }}
     </h1>
-    <p class="text-lg text-gray-600 dark:text-gray-400 mb-8 break-words">
-      {{ kanban.description }}
-    </p>
+    <p class="text-lg text-gray-600 dark:text-gray-400 mb-8 break-words" v-html="kanban.description"></p>
 
     <!-- Loader -->
     <LoaderComponent v-if="isLoading"/>

@@ -1,9 +1,11 @@
 <script setup>
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
 import useFormErrors from "@/utils/handleFormErrors.js";
 import logger from "@/utils/logger.js";
+import Quill from 'quill';
+import 'quill/dist/quill.snow.css';
 
 const { isLoading, error, executeRequest } = hookApi();
 
@@ -18,6 +20,9 @@ const props = defineProps({
     }),
   },
 });
+
+// Référence pour l'éditeur
+const editorContainer = ref(null);
 
 // Gestion du formulaire
 const formData = ref({ ...props.initialData });
@@ -86,6 +91,28 @@ const resetForm = () => {
     stages: [],
   };
 };
+
+onMounted(async () => {
+  if (editorContainer.value) {
+    const quill = new Quill(editorContainer.value, {
+      theme: 'snow',
+      placeholder: 'Écris ici...',
+      modules: {
+        toolbar: [
+          [{ header: [1, 2, false] }],
+          ['bold', 'italic', 'underline'],
+          [{ list: 'ordered' }, { list: 'bullet' }],
+          ['link', 'image']
+        ]
+      }
+    });
+
+    // Synchroniser le contenu avec formData.description
+    quill.on('text-change', () => {
+      formData.value.description = quill.root.innerHTML;
+    });
+  }
+});
 </script>
 
 <template>
@@ -116,15 +143,9 @@ const resetForm = () => {
       </div>
 
       <!-- Description du Kanban -->
-      <div class="mb-4">
+      <div id="quill-container" class="mb-4">
         <label for="description" class="block text-gray-700 dark:text-gray-300">Description</label>
-        <textarea
-            id="description"
-            maxlength="250"
-            v-model="formData.description"
-            class="mt-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            placeholder="Description (facultatif)"
-        ></textarea>
+        <div ref="editorContainer" class="border-none w-full bg-white dark:bg-gray-700"></div>
         <p v-if="errors.description" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.description }}</p>
       </div>
 
@@ -222,5 +243,7 @@ const resetForm = () => {
 
 
 </template>
+<style scoped>
 
+</style>
 
