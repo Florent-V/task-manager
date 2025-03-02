@@ -6,7 +6,7 @@ import { hookApi } from "@/utils/requestHook.js";
 import logger from "@/utils/logger.js";
 import useFormErrors from "@/utils/handleFormErrors.js";
 
-const emit = defineEmits(['handleResponse', 'cancel']);
+const emit = defineEmits(['handleResponse', 'cancel', 'useSuggest']);
 const props = defineProps({
   initialData: {
     type: Object,
@@ -15,6 +15,10 @@ const props = defineProps({
   inlineForm: {
     type: Boolean,
     default: false,
+  },
+  toDoItems: {
+    type: Array,
+    default: () => [],
   },
 });
 
@@ -25,6 +29,7 @@ const isEditing = computed(() => !!formData.value.id);
 const isSubmitted = ref(false);
 const imageError = ref(null);
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const suggestions = ref([]);
 
 watch(() => props.initialData, (newValue) => {
       formData.value = newValue ? { ...newValue } : { title: '', image: null };
@@ -34,6 +39,19 @@ watch(() => props.initialData, (newValue) => {
 
 // Utilitaire de gestions des erreurs de formulaire
 const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...formData.value });
+
+// Surveiller les changements dans le champ de saisie du titre
+watch(() => formData.value.title, (newTitle) => {
+  if (newTitle) {
+    suggestions.value = props.toDoItems.filter(item =>
+        item.title.toLowerCase().includes(newTitle.toLowerCase())
+    );
+    console.log('suggestions.value', suggestions.value);
+  } else {
+    suggestions.value = [];
+  }
+});
+
 
 function handleFile(event) {
   imageError.value = null;
@@ -67,6 +85,7 @@ const submitForm = async () => {
   if (isSubmitted.value) return;
   const data = {
     title: formData.value.title,
+    done: formData.value.done || false,
   };
   if (formData.value.image) {
     data.image = formData.value.image;
@@ -106,6 +125,15 @@ const resetForm = () => {
   };
 };
 
+const selectSuggestion = (suggestion) => {
+  formData.value.title = suggestion.title;
+  formData.value.done = false;
+  formData.value.id = suggestion.id;
+  suggestions.value = [];
+  emit('useSuggest');
+  submitForm();
+};
+
 onMounted( async () => {
   document.getElementById('title').focus();
   clearErrors();
@@ -120,72 +148,6 @@ onMounted( async () => {
       {{ isEditing ? 'Edition :' : 'Nouvelle tâche :' }}
     </h2>
 
-<!--    <form id="newToDoItemForm" @submit.prevent="submitForm">-->
-<!--      <div class="">-->
-<!--        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-x-0">-->
-<!--          &lt;!&ndash; Name field &ndash;&gt;-->
-<!--          <div class="relative col-span-2 md:col-span-3">-->
-<!--            <input-->
-<!--                type="text"-->
-<!--                maxlength="50"-->
-<!--                id="title"-->
-<!--                placeholder=" "-->
-<!--                class="peer border border-gray-300 dark:border-gray-600 pt-6 pb-2 p-4 rounded-lg md:rounded-r-none focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 transition w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-white"-->
-<!--                v-model="formData.title"-->
-<!--            />-->
-<!--            <label-->
-<!--                for="title"-->
-<!--                class="rounded absolute left-3 top-1 bg-white dark:bg-gray-700 px-1 text-gray-600 dark:text-gray-100 transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:left-4 peer-placeholder-shown:text-gray-400 dark:peer-placeholder-shown:text-gray-100 peer-placeholder-shown:bg-transparent peer-focus:bg-white dark:peer-focus:bg-gray-700 peer-focus:top-1 peer-focus:left-3 peer-focus:text-blue-600 dark:peer-focus:text-yellow-400 peer-not-placeholder-shown:top-2 peer-not-placeholder-shown:left-3 peer-not-placeholder-shown:bg-white dark:peer-not-placeholder-shown:bg-gray-700"-->
-<!--            >-->
-<!--              Titre-->
-<!--            </label>-->
-
-<!--          </div>-->
-
-<!--          <div class="col-span-2 md:order-3 md:col-span-4">-->
-<!--            <p v-if="errors.title" class="text-sm px-2 text-red-600 dark:text-red-400">{{ errors.title }}</p>-->
-<!--          </div>-->
-
-<!--          <div>-->
-<!--            <label for="image" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Image</label>-->
-<!--            <input-->
-<!--                @change="handleFile"-->
-<!--                type="file"-->
-<!--                id="image"-->
-<!--                class="bg-white dark:bg-gray-600 text-gray-900 dark:text-white p-2 rounded w-full"-->
-<!--                accept=".gif, .jpg, .jpeg, .png, .tif, .tiff, .bmp, .webp"-->
-<!--            >-->
-<!--          </div>-->
-
-<!--          &lt;!&ndash; Cancel button &ndash;&gt;-->
-<!--          <div class="text-center flex md:col-span-4 md:order-4">-->
-<!--            <button-->
-<!--                type="button"-->
-<!--                @click="closeForm"-->
-<!--                class="w-full m-0 bg-gray-600 text-white px-6 py-3 rounded-lg"-->
-<!--            >-->
-<!--              Cancel-->
-<!--            </button>-->
-<!--          </div>-->
-
-<!--          &lt;!&ndash; Add button &ndash;&gt;-->
-<!--          <div class="text-center flex">-->
-<!--            <button-->
-<!--                type="submit"-->
-<!--                class="w-full m-0 bg-blue-600 dark:bg-yellow-400 text-white dark:text-gray-900 hover:bg-blue-700 dark:hover:bg-yellow-500 px-6 py-3 rounded-lg md:rounded-l-none text-lg transition duration-300 font-semibold"-->
-<!--            >-->
-<!--              {{ isEditing ? 'Modifier' : '+ Ajouter' }}-->
-<!--            </button>-->
-<!--          </div>-->
-
-<!--          <div class="order-5 col-span-2 md:col-span-4">-->
-<!--            <p v-if="defaultError" class="text-sm px-2 text-red-600 dark:text-red-400">{{ defaultError }}</p>-->
-<!--            <p v-if="error" class="text-sm px-2 text-red-600 dark:text-red-400">{{ error }}</p>-->
-<!--          </div>-->
-
-<!--        </div>-->
-<!--      </div>-->
-<!--    </form>-->
     <form id="newToDoItemForm" @submit.prevent="submitForm">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-x-0">
           <!-- Name field -->
@@ -204,6 +166,13 @@ onMounted( async () => {
             >
               Titre
             </label>
+            <ul v-if="suggestions.length" class="absolute z-10 w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg mt-1">
+              <li v-for="suggestion in suggestions" :key="suggestion.id"
+                  class="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                  @click="selectSuggestion(suggestion)">
+                {{ suggestion.title }}
+              </li>
+            </ul>
           </div>
 
           <!-- File upload field -->
