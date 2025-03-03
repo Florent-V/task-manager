@@ -58,19 +58,19 @@ This project is production ready with a docker-compose-prod.yml file which conta
   * [Code Quality](#code-quality)
 * [Back - Express - Overview](#back---express---overview)
   * [Features](#features-1)
-  * [API Endpoints](#api-endpoints)
-* [Installation](#installation)
+* [Local Installation](#local-installation)
   * [How To Setup](#how-to-setup)
   * [Configuration .env](#configuration-env)
   * [Checklist](#checklist)
-* [Deploy](#deploy)
+* [Deploy in production](#deploy-in-production)
 * [TODO](#todo)
-  * [Docker](#docker)
+* [Docker Help Commands](#docker-help-commands)
     * [Start the containers](#start-the-containers)
     * [Stop the containers](#stop-the-containers)
     * [Restart the containers](#restart-the-containers)
     * [Access to the MySQL container](#access-to-the-mysql-container)
     * [Access to the Node container](#access-to-the-node-container)
+    * [Access to the Client container](#access-to-the-client-container)
     * [Execute a SQL script in the MySQL container](#execute-a-sql-script-in-the-mysql-container)
       * [Method 1 : Script already in the container](#method-1--script-already-in-the-container)
       * [Method 2 : Copy the script in the container and execute it](#method-2--copy-the-script-in-the-container-and-execute-it)
@@ -124,46 +124,7 @@ This project is production ready with a docker-compose-prod.yml file which conta
 + Containerized with Docker
 + Refresh Token
 + Session Token
-
-## API Endpoints
-
-All routes are prefixed by `/api`.
-
----
-**Authentification**
-- POST /signup
-- POST /signin
-- POST /logout
----
-**User**
-All following routes are protected by JWT token. You need to be authenticated to access them.
-- GET /user  `Get all users (only for admin or moderator)`
-- GET /user/me
-- GET /user/{:id} `Get a user by id (only for admin)`
-- PATCH /user/{:id} `Edit a user by id (only for admin)`
-- POST /user/{:userId}/role/{:roleId} `Add a role to a user (only for admin)`
-- DELETE /user/{:id} `Delete a user by id (only for admin)`
-- DELETE /user/{:userId}/role/{:roleId} `Delete a role to a user (only for admin)`
----
-**ToDoList and ToDoItem**
-All following routes are protected by JWT token. You need to be authenticated to access them.
-Product are linked to a user. Only the user who created the product can get, edit or delete it.
-- GET /todolist `Get all user's todolists`
-- GET /todolist/all `Get all todolists (only for admin)`
-- POST /todolist `Create a todolist`
-- GET /todolist/{:id} `Get a todolist by id(only for the user who created it)`
-- PATCH /todolist/{:id} `Edit a todolist by id(only for the user who created it)`
-- DELETE /todolist/{:id} `Delete a todolist by id(only for the user who created it)`
-- POST /todolist/{:id}/todoitem `Create a todoitem in a todolist`
-- GET /todolist/{:id}/todoitem `Get all todoitems in a todolist`
-- GET /todolist/{:id}/todoitem/{:itemId} `Get a todoitem by id in a todolist`
-- PATCH /todolist/{:id}/todoitem/{:itemId} `Edit a todoitem by id in a todolist`
-- DELETE /todolist/{:id}/todoitem/{:itemId} `Delete a todoitem by id in a todolist`
-
-I've made a script to generate a crud for a new entity. You can use it with :
-- `npm run make:crud -- EntityName`
-Be careful, this feature is still in development and some modifications may be needed.
-
++ AdminJS Dashboard to manage the database
 
 # Local Installation
 
@@ -176,7 +137,9 @@ Be careful, this feature is still in development and some modifications may be n
 - `docker compose up --build`
 - Enjoy !
 
-> The project will start locally at localhost:${NODE_API_PORT}
+> The project will start locally at localhost:${VITE_CLIENT_PORT}
+> The adminJs dashboard will start locally at localhost:${NODE_API_PORT}/admin-panel
+> You can authenticate with credentials in src/databse/seed.js
 
 > I haven't try to launch the project without docker, but you can try with `npm start` or `npm run dev` if you have a MySQL database running on your machine. Don't forget to configure the .env file in the root of the project.
 
@@ -207,7 +170,7 @@ When you use this template, try follow the checklist to update your info properl
 - [ ] Change the hostname in `vite.config.js`
 - [ ] Change the favicon in `public`
 - [ ] Remove the `.github` folder which contains the funding info
-- [ ] Clean up the README and remove routes
+- [ ] Clean up the README
 
 # Deploy in production
 
@@ -231,7 +194,6 @@ sudo docker compose -f docker-compose-prod.yml down --rmi all --volumes --remove
 
 # TODO
 
-- Intégrer des messages d'erreurs plus explicites dans les formulaires
 - Ajouter des tests unitaires
 - Valider les formulaires côté front
 - critère validation mot de passe
