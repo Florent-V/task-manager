@@ -4,6 +4,8 @@ import { useRoute } from 'vue-router';
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from '@/utils/requestHook.js';
 import { setTitle, setDescription } from "@/utils/documentInfos.js";
+import { useAuthStore } from '@/stores/authStore';
+import { storeToRefs } from 'pinia';
 import logger from '@/utils/logger.js';
 import LoaderComponent from '@/components/LoaderComponent.vue';
 import TaskFormModal from '@/components/Kanban/TaskFormModal.vue';
@@ -11,6 +13,8 @@ import TaskViewModal from '@/components/Kanban/TaskViewModal.vue';
 
 const route = useRoute();
 const { isLoading, error, executeRequest } = hookApi();
+const authStore = useAuthStore();
+const { user } = storeToRefs(authStore);
 
 const kanban = ref([]);
 const stages = ref([]);
@@ -52,7 +56,6 @@ const enrichTask = (task) => {
 const enrichTasks = (tasks) => {
   return tasks.map((task) => enrichTask(task));
 };
-
 
 // Gestion drag and drop
 let draggedTask = null;
@@ -103,8 +106,14 @@ const openTaskModal = (task) => {
   showTaskModal.value = true;
 };
 
-const openTaskFormModal = () => {
+const openTaskFormModal = (columnId = null) => {
   selectedTask.value = null;
+  selectedTask.value = {
+    stageId: columnId,
+    assignedToId: getCurrentUserId(),
+    priorityId: priorities.value[0]?.id || null,
+    sizeId: sizes.value[0]?.id || null,
+  };
   showTaskFormModal.value = true;
 };
 
@@ -165,6 +174,11 @@ const fetchData = async () => {
   await fetchPriority();
   await fetchSize();
   await fetchKanban();
+};
+
+const getCurrentUserId = () => {
+  const connectedUser = users.value.find(u => u.id === user.value.id);
+  return connectedUser ? connectedUser.id : null;
 };
 
 onMounted(async () => {
@@ -263,7 +277,7 @@ onMounted(async () => {
 
           <!-- Add Task Button -->
           <button
-              @click="openTaskFormModal"
+              @click="openTaskFormModal(column.id)"
               class="mt-4 w-full bg-blue-600 dark:bg-yellow-400 text-white py-2 rounded-lg flex items-center justify-center space-x-2 hover:bg-blue-700 dark:hover:bg-yellow-500"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"

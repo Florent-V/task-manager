@@ -26,7 +26,6 @@ const props = defineProps({
 // State
 const comments = ref([]);
 const selectedComment = ref(null);
-const formData = ref({});
 const showDeleteConfirmationModal = ref(false);
 
 // Computed
@@ -196,5 +195,4 @@ onMounted(fetchComments);
 </template>
 
 <style scoped>
-/* Ajoutez des styles personnalisés ici si nécessaire */
 </style>
