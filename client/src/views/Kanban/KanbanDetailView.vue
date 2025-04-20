@@ -169,7 +169,7 @@ onMounted(fetchData);
 </script>
 
 <template>
-  <div class="container mx-auto px-1 pt-6 flex-grow flex flex-col">
+  <div class="container mx-auto mb-8 px-1 pt-6 flex-grow flex flex-col">
     <h1 class="text-4xl font-bold mb-8 text-center text-blue-800 dark:text-yellow-300 break-words">
       {{ kanban.title }}
     </h1>
