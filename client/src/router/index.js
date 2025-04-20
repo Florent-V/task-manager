@@ -81,10 +81,7 @@ router.beforeEach((to, from, next) => {
 
   descriptionElement.setAttribute('content', description || defaultDescription)
 
-  console.log('to.meta.requiresAuth', to.meta.requiresAuth)
-
   if (to.meta.requiresAuth) {
-    console.log('authStore.isAuthenticated', authStore.isAuthenticated)
     if (!authStore.isAuthenticated) {
       // Si l'utilisateur n'est pas connecté
       return next({ name: 'signin' });

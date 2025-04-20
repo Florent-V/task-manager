@@ -46,7 +46,6 @@ watch(() => formData.value.title, (newTitle) => {
     suggestions.value = props.toDoItems.filter(item =>
         item.title.toLowerCase().includes(newTitle.toLowerCase())
     );
-    console.log('suggestions.value', suggestions.value);
   } else {
     suggestions.value = [];
   }
