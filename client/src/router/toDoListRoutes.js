@@ -9,7 +9,6 @@ export default [
         meta: {
             title: 'Local ToDoList',
             description: 'This is the Local ToDoList page',
-            requiresAuth: true,
         },
         component: LegacyToDoListView
     },
@@ -19,7 +18,6 @@ export default [
         meta: {
             title: 'ToDoList Over View',
             description: 'This is the ToDoList page',
-            requiresAuth: true,
         },
         component: ToDoListOverView
     },
@@ -29,7 +27,6 @@ export default [
         meta: {
             title: 'ToDoList',
             description: 'This is the ToDoList page',
-            requiresAuth: true,
         },
         component: ToDoListDetailView
     },
@@ -39,7 +36,6 @@ export default [
         meta: {
             title: 'ToDoList',
             description: 'This is the ToDoList page',
-            requiresAuth: true,
         },
         component: ToDoListJoin
     }

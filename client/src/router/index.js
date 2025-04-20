@@ -76,9 +76,7 @@ router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
 
   document.title = title || defaultTitle
-
   const descriptionElement = document.querySelector('meta[name="description"]')
-
   descriptionElement.setAttribute('content', description || defaultDescription)
 
   if (to.meta.requiresAuth) {
