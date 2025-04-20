@@ -88,8 +88,9 @@ const handleResponseFormSubmit = async (response) => {
   if (selectedTask.value) {
     // Update existing task
     const index = tasks.value.findIndex(item => item.id === response.task.id);
-    tasks.value[index] = response.task;
-    selectedTask.value = response.task;
+    const enrichedTask = enrichTask(response.task);
+    tasks.value[index] = enrichedTask;
+    selectedTask.value = enrichedTask;
   } else {
     // Create new task
     tasks.value.push(enrichTask(response.task));
