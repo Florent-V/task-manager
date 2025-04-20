@@ -29,6 +29,14 @@ const openCreateForm = () => {
   selectedKanban.value = null;
   showForm.value = true;
 };
+
+const getTemplateKanban = () => {
+  return kanbans.value.map(k => ({
+    title: k.title,
+    stages: k.stages,
+  }));
+};
+
 const openEditForm = (list) => {
   selectedKanban.value = { ...list };
   showForm.value = true;
@@ -73,6 +81,7 @@ onMounted(fetchKanbans);
     <KanbanFormComponent
         v-if="showForm"
         :initialData="selectedKanban"
+        :templateKanban="getTemplateKanban()"
         @handleResponse="handleResponseFormSubmit"
         @cancel="closeForm"
     />

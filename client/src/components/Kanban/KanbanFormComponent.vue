@@ -19,10 +19,28 @@ const props = defineProps({
       stages: [],
     }),
   },
+  templateKanban: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 // Référence pour l'éditeur
 const editorContainer = ref(null);
+const selectedTemplate = ref(null);
+
+const applyTemplate = () => {
+  console.log('Template sélectionné:', selectedTemplate.value);
+  if (selectedTemplate.value) {
+    const template = props.templateKanban.find(t => t.title === selectedTemplate.value);
+    if (template) {
+      formData.value.stages = template.stages.map(stage => ({ ...stage }));
+      return;
+    }
+    console.log('Aucun template sélectionné');
+    formData.value.stages = [];
+  }
+};
 
 // Gestion du formulaire
 const formData = ref({ ...props.initialData });
@@ -125,6 +143,22 @@ onMounted(async () => {
     <h2 class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 mb-2 px-4 py-2 rounded-t-lg text-xl font-semibold">
       {{ isEditing ? 'Kanban - Modification' : 'Kanban - Création' }}
     </h2>
+
+    <!-- Menu déroulant pour sélectionner un template -->
+    <div class="mb-4">
+      <label for="template" class="block text-gray-700 dark:text-gray-300">Sélectionner un template</label>
+      <select
+          id="template"
+          v-model="selectedTemplate"
+          @change="applyTemplate"
+          class="mt-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+      >
+        <option value=null selected>Aucun</option>
+        <option v-for="template in props.templateKanban" :key="template.title" :value="template.title">
+          {{ template.title }}
+        </option>
+      </select>
+    </div>
 
     <form @submit.prevent="submitForm">
       <!-- Titre du Kanban -->
