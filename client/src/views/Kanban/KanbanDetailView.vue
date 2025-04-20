@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from '@/utils/requestHook.js';
+import { setTitle, setDescription } from "@/utils/documentInfos.js";
 import logger from '@/utils/logger.js';
 import LoaderComponent from '@/components/LoaderComponent.vue';
 import TaskFormModal from '@/components/Kanban/TaskFormModal.vue';
@@ -165,7 +166,11 @@ const fetchData = async () => {
   await fetchKanban();
 };
 
-onMounted(fetchData);
+onMounted(async () => {
+  await fetchData();
+  setTitle(`Kanban - ${kanban.value.title}`);
+  setDescription(`Kanban - ${kanban.value.description}`);
+});
 </script>
 
 <template>
