@@ -35,7 +35,7 @@ export default [
         name: 'ToDoListJoin',
         meta: {
             title: 'ToDoList',
-            description: 'This is the ToDoList page',
+            description: 'This is the ToDoList join page',
         },
         component: ToDoListJoin
     }

@@ -1,3 +1,4 @@
+import QRCode from 'qrcode';
 import sequelize from '../database/connect.js';
 import Kanban from '../models/kanbanModel.js';
 import Stage from '../models/stageModel.js';
@@ -27,7 +28,7 @@ export const createKanban = async (req, res, next) => {
 
   try {
     const userId = req.user.id;
-    if (!userId) throw new ForbiddenError('Access denied: You do not have permission to create ToDoList');
+    if (!userId) throw new ForbiddenError('Access denied: You do not have permission to create Kanban');
 
     const result = await sequelize.transaction(async (t) => {
       const { title, description, stages } = req.body;
@@ -42,7 +43,7 @@ export const createKanban = async (req, res, next) => {
           }
         }
       );
-      // Associe la todolist à l'utilisateur courant
+      // Associe la kanban à l'utilisateur courant
       await newKanban.addUsers([userId], { transaction: t });
 
       return { newKanban };
@@ -94,11 +95,9 @@ export const getKanbansByUser = async (req, res, next) => {
 // Récupération d'un kanban par ID
 export const getKanbanById = async (req, res, next) => {
   try {
-    console.log('req.params', req.params);
     const kanban = await Kanban.findByPk(req.params.id, {
       include: includeKanban
     });
-
     if (!kanban) throw new NotFoundError('Kanban Not Found');
 
     res.data.kanban = kanban;
@@ -155,6 +154,76 @@ export const updateKanban = async (req, res, next) => {
     });
 
     next();
+  } catch (error) {
+    return next(error);
+  }
+};
+
+
+// Share Kanban
+export const shareKanban = async (req, res, next) => {
+  try {
+    // Récupérer ou générer le lien de partage
+    const shareLink = `${process.env.CLIENT_ORIGIN}/kanban/${req.params.id}/join`;
+
+    // Générer le QR code à partir du lien de partage
+    QRCode.toDataURL(shareLink, (err, url) => {
+      if (err) return res.status(500).json({ error: 'Erreur QR Code' });
+      res.json({
+        qrCodeUrl: url,
+        linkUrl: shareLink
+      });
+    });
+
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const addMemberByMail = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ where: { email } });
+    if (!user) throw new NotFoundError('User Not Found');
+
+    await res.data.kanban.addUsers([user.id]);
+
+    next();
+  } catch (error) {
+    return next(error);
+  }
+}
+
+// join kanban
+export const joinKanban = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    if (!userId) throw new ForbiddenError('Access denied: You do not have permission to join Kanban');
+
+    // vérifier si userId est déjà dans le kanban
+    const isUserInList = await res.data.kanban.hasUser(userId);
+    if (isUserInList) throw new ForbiddenError('Access denied: You are already in the list');
+
+    await res.data.kanban.addUsers([userId]);
+
+    next();
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// leave kanban
+export const leaveKanban = async (req, res, next) => {
+  try {
+    // Si l'utilisateur est le seul membre du kanban, le kanban est supprimé
+    if (res.data.kanban.users.length === 1) {
+      await res.data.kanban.destroy();
+    } else {
+      const userId = req.user.id;
+      await res.data.kanban.removeUsers([userId]);
+    }
+    res.status(204).json();
   } catch (error) {
     return next(error);
   }

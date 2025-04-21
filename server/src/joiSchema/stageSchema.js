@@ -12,7 +12,8 @@ export const stageSchema = Joi.object({
     .allow(null, '')
     .messages({
       'string.max': 'La description de la colonne ne peut pas dépasser 150 caractères.',
-    }), maxRecord: Joi.number().integer().min(1).max(99).required(),
+    }),
+  maxRecord: Joi.number().integer().min(1).max(99).required(),
 });
 
 export const stageSchemaForUpdateKanban = Joi.object({
@@ -28,7 +29,9 @@ export const stageSchemaForUpdateKanban = Joi.object({
     .allow(null, '')
     .messages({
       'string.max': 'La description de la colonne ne peut pas dépasser 150 caractères.',
-    }), maxRecord: Joi.number().integer().min(1).max(99).required(), kanbanId: Joi.string().guid(),
+    }),
+  maxRecord: Joi.number().integer().min(1).max(99).required(),
+  kanbanId: Joi.string().guid(),
 });
 
 export const updateStageSchema = Joi.object({
@@ -43,5 +46,6 @@ export const updateStageSchema = Joi.object({
     .allow(null, '')
     .messages({
       'string.max': 'La description de la colonne ne peut pas dépasser 150 caractères.',
-    }), maxRecord: Joi.number().integer().min(1).max(99),
+    }),
+  maxRecord: Joi.number().integer().min(1).max(99),
 });
