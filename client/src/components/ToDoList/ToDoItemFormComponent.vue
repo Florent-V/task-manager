@@ -51,14 +51,13 @@ watch(() => formData.value.title, (newTitle) => {
   }
 });
 
-
 function handleFile(event) {
   imageError.value = null;
   const selectedFile = event.target.files[0];
   if (!selectedFile) return;
 
   if (selectedFile.size > MAX_FILE_SIZE) {
-    error.value = 'Le fichier dépasse la taille maximale autorisée de 20 Mo.';
+    error.value = 'Le fichier dépasse la taille maximale autorisée de 10 Mo.';
     // On nettoie le champ file
     event.target.value = '';
     return;

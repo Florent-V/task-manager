@@ -22,6 +22,7 @@ import { MdClose,
   FaRegularCheckSquare,
   BiThreeDotsVertical,
   MdExittoappRound,
+  MdModeedit,
 } from "oh-vue-icons/icons";
 
 addIcons(MdClose,
@@ -40,6 +41,7 @@ addIcons(MdClose,
   FaRegularCheckSquare,
   BiThreeDotsVertical,
   MdExittoappRound,
+  MdModeedit,
 );
 
 const app = createApp(App)
