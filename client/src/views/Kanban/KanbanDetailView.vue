@@ -10,6 +10,7 @@ import logger from '@/utils/logger.js';
 import LoaderComponent from '@/components/LoaderComponent.vue';
 import TaskFormModal from '@/components/Kanban/TaskFormModal.vue';
 import TaskViewModal from '@/components/Kanban/TaskViewModal.vue';
+import QRCodeModal from '@/components/Kanban/KanbanQRCodeModal.vue';
 
 const route = useRoute();
 const { isLoading, error, executeRequest } = hookApi();
@@ -25,6 +26,9 @@ const users = ref([]);
 const selectedTask = ref(null);
 const showTaskModal = ref(false);
 const showTaskFormModal = ref(false);
+const showQRCodeModal = ref(false);
+const qrCodeUrl = ref(null);
+const linkUrl = ref(null);
 
 // Fonctions utilitaires pour la gestion des tâches
 const countTasks = (columnId) => tasks.value.filter((task) => task.stageId === columnId).length;
@@ -88,7 +92,7 @@ const updateTaskStage = async (task) => {
 };
 
 const handleResponseFormSubmit = async (response) => {
-  if (selectedTask.value) {
+  if (selectedTask.value.id) {
     // Update existing task
     const index = tasks.value.findIndex(item => item.id === response.task.id);
     const enrichedTask = enrichTask(response.task);
@@ -107,12 +111,12 @@ const openTaskModal = (task) => {
 };
 
 const openTaskFormModal = (columnId = null) => {
-  selectedTask.value = null;
   selectedTask.value = {
     stageId: columnId,
     assignedToId: getCurrentUserId(),
     priorityId: priorities.value[0]?.id || null,
     sizeId: sizes.value[0]?.id || null,
+    loggedTime: 0,
   };
   showTaskFormModal.value = true;
 };
@@ -137,6 +141,18 @@ const deleteTask = async (id) => {
     closeTaskModal();
   } catch (err) {
     logger.error('Error deleting Tasks:', err?.response?.data?.message || err.message);
+  }
+};
+
+// Fonction pour partager la ToDoList
+const shareKanban = async () => {
+  try {
+    const data = await executeRequest(() => client.post(`/api/kanban/${route.params.id}/share`, {}));
+    qrCodeUrl.value = data.qrCodeUrl;
+    linkUrl.value = data.linkUrl;
+    showQRCodeModal.value = true;
+  } catch (err) {
+    logger.error('Error sharing ToDoList:', err?.response?.data?.message || err.message);
   }
 };
 
@@ -193,10 +209,25 @@ onMounted(async () => {
     <h1 class="text-4xl font-bold mb-8 text-center text-blue-800 dark:text-yellow-300 break-words">
       {{ kanban.title }}
     </h1>
-    <p class="text-lg text-gray-600 dark:text-gray-400 mb-8 break-words" v-html="kanban.description"></p>
+
 
     <!-- Loader -->
     <LoaderComponent v-if="isLoading"/>
+
+
+    <div class="flex justify-between align-center items-center px-4 mb-4">
+      <span class="text-lg text-gray-600 dark:text-gray-400 break-words" v-html="kanban.description"></span>
+
+      <div class="text-right">
+        <button class="flex w-14 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-full"
+                @click="shareKanban">
+              <span class="m-auto">
+                <v-icon name="md-share-outlined" scale="1.6"/>
+              </span>
+        </button>
+      </div>
+
+    </div>
 
     <div class="overflow-x-auto flex-grow">
       <!-- Grille avec colonnes dynamiques -->
@@ -342,6 +373,14 @@ onMounted(async () => {
         @close="closeTaskModal"
         @delete="deleteTask"
         @edit="editTask"
+    />
+
+    <!-- QRCodeModal -->
+    <QRCodeModal
+        v-if="showQRCodeModal"
+        :linkUrl="linkUrl"
+        :qrCodeUrl="qrCodeUrl"
+        @close="showQRCodeModal = false"
     />
 
     <TaskFormModal

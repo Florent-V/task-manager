@@ -20,7 +20,8 @@ import { MdClose,
   FaEdit,
   FaRegularTrashAlt,
   FaRegularCheckSquare,
-  BiThreeDotsVertical
+  BiThreeDotsVertical,
+  MdExittoappRound,
 } from "oh-vue-icons/icons";
 
 addIcons(MdClose,
@@ -37,7 +38,8 @@ addIcons(MdClose,
   FaEdit,
   FaRegularTrashAlt,
   FaRegularCheckSquare,
-  BiThreeDotsVertical
+  BiThreeDotsVertical,
+  MdExittoappRound,
 );
 
 const app = createApp(App)

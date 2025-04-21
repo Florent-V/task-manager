@@ -166,7 +166,6 @@ export const seedDatabase = async () => {
         description: 'Description of To Do List 6',
       }
     ]);
-    console.log('toDoLists', toDoLists.length);
 
     await toDoLists[0].addUsers([users[0], users[1]]);
     await toDoLists[1].addUser(users[1]);

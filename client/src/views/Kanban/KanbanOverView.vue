@@ -33,8 +33,8 @@ const openCreateForm = () => {
 const getTemplateKanban = () => {
   return kanbans.value.map(k => ({
     title: k.title,
-    stages: k.stages,
-  }));
+    stages: k.stages.sort((a, b) => a.id - b.id)
+  })).sort((a, b) => a.id - b.id);
 };
 
 const openEditForm = (list) => {
@@ -42,12 +42,12 @@ const openEditForm = (list) => {
   showForm.value = true;
 };
 
-const deleteKanban = async (kanban) => {
+const leaveKanban = async (kanban) => {
   try {
-    await executeRequest(() => client.delete(`/api/kanban/${kanban.id}`));
+    await executeRequest(() => client.post(`/api/kanban/${kanban.id}/leave`));
     kanbans.value = kanbans.value.filter(k => k.id !== kanban.id);
   } catch (err) {
-    logger.error("Error deleting to-do list", err?.response?.data?.message || err.message);
+    logger.error("Error leaving kanban", err?.response?.data?.message || err.message);
   }
 };
 
@@ -136,9 +136,9 @@ onMounted(fetchKanbans);
                             class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
                       <v-icon name="fa-edit" scale="1.3" />
                     </button>
-                    <button @click="deleteKanban(kanban)"
+                    <button @click="leaveKanban(kanban)"
                             class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
-                      <v-icon name="fa-regular-trash-alt" scale="1.3" />
+                      <v-icon name="md-exittoapp-round" scale="1.3" />
                     </button>
                   </div>
                 </td>

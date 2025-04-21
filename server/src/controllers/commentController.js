@@ -5,12 +5,8 @@ import NotFoundError from '../error/notFoundError.js';
 export const createComment = async (req, res, next) => {
   try {
     const { taskId } = req.params;
-    console.log("taskId: ", taskId);
     const authorId = req.user.id;
-    console.log("authorId: ", authorId);
     const { title, content } = req.body;
-    console.log("title: ", title);
-    console.log("content: ", content);
 
     const newComment = await Comment.create({
       title,
