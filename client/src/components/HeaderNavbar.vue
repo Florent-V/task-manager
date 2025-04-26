@@ -4,10 +4,12 @@ import { useRouter } from 'vue-router';
 import { initializeTheme } from '@/utils/initDarkMode';
 import { useAuthStore } from '@/stores/authStore';
 import logger from "@/utils/logger.js";
+import { apiBaseUrl } from "@/utils/requestMaker.js";
 
 const router = useRouter();
 const userStore = useAuthStore();
 const user = computed(() => userStore.user);
+const filesApiUrl = `${apiBaseUrl}/api/uploads`;
 
 const isMobileMenuOpen = ref(false)
 const isResourcesDropdownOpen = ref(false)
@@ -133,9 +135,12 @@ onMounted(() => {
 
         <template v-if="user">
           <div class="relative">
-            <img @click.stop="toggleUserDropdown" :src="user.photoUrl ?? 'https://i.pravatar.cc/150?img=3'"
-                 alt="User photo"
-                 class="h-10 w-10 rounded-full cursor-pointer">
+            <img
+                @click.stop="toggleUserDropdown"
+                :src="`${filesApiUrl}/${user.image ?? 'default-profile-picture.png'}`"
+                alt="User photo"
+                class="h-10 w-10 rounded-full cursor-pointer"
+            >
             <div v-show="isUserDropdownOpen"
                  class="absolute right-0 mt-2 w-64 bg-blue-100 dark:bg-gray-700 rounded-md shadow-lg">
               <div class="p-4">
