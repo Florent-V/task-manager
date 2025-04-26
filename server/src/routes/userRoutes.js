@@ -1,4 +1,4 @@
-import express from 'express';
+import { Router } from 'express';
 import {
   getAllUsers,
   getUserById,
@@ -6,30 +6,34 @@ import {
   deleteUser,
   addRoleUser,
   removeRoleUser,
-  getConnectedUser
+  getConnectedUser,
+  updateConnectedUser
 } from '../controllers/userController.js';
 import {
-  authenticateToken,
+  authenticateByCookieSession,
   isAdmin,
-  isModerator,
   isModeratorOrAdmin
 } from '../middleware/authMiddleware.js';
 import { setUpdateUserValidator } from '../middleware/userMiddleware.js';
 import { validate } from '../middleware/ressourceMiddleware.js';
+import upload from "../middleware/uploadMiddleware.js";
 
-const router = express.Router();
+/** @type {import('express').Router} */
+const router = Router();
 
-router.use(authenticateToken);
+router.use(authenticateByCookieSession);
 
 router.get('/', isModeratorOrAdmin, getAllUsers);
-router.get('/me', getConnectedUser);
-router.get('/:id', isModeratorOrAdmin, getUserById);
 
+router.get('/me', getConnectedUser);
+router.patch('/me', upload.single('image'), updateConnectedUser);
+
+router.get('/:id', isModeratorOrAdmin, getUserById);
 router.patch('/:id', isAdmin, setUpdateUserValidator, validate, updateUser);
 
 router.post('/:userId/role/:roleId', isAdmin, addRoleUser);
-
 router.delete('/:userId/role/:roleId', isAdmin, removeRoleUser);
+
 router.delete('/:id', isAdmin, deleteUser);
 
 export default router;

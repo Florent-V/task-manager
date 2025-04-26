@@ -2,6 +2,7 @@ import _ from 'lodash';
 import User from '../models/userModel.js';
 import Role from '../models/roleModel.js';
 import { getAuthorities } from '../services/authService.js';
+import NotFoundError from "../error/notFoundError.js";
 
 // Récupération de tous les Utilisateurs
 export const getAllUsers = async (req, res, next) => {
@@ -103,8 +104,30 @@ export const getConnectedUser = async (req, res, next) => {
     user = _.omit(user.get(), ['password']);
     user.autorities = autorities;
 
-    res.status(200).json(user);
+    res.status(200).json({ user });
   } catch (error) {
     return next(error);
   }
 };
+
+export const updateConnectedUser = async (req, res, next) => {
+  try {
+    console.log('body', req.body);
+    const { id } = req.user;
+    if (req.file) {
+      req.body.image = req.file.filename
+    }
+
+    const [updated] = await User.update(req.body, {
+      where: { id }
+    });
+
+    if (!updated) throw new NotFoundError('User Not Found');
+
+    let updatedUser = await User.findByPk(id);
+    updatedUser = _.omit(updatedUser.get(), ['password']);
+    res.status(200).json({ user: updatedUser });
+  } catch (error) {
+    return next(error);
+  }
+}
