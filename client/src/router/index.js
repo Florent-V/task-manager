@@ -11,6 +11,7 @@ import NotFound from '@/views/NotFound.vue';
 import Forbidden from "@/views/Forbidden.vue";
 import ToDoListOverView from "@/views/ToDoList/ToDoListOverView.vue";
 import AccessDeniedView from "@/views/AccessDeniedView.vue";
+import HomeView from "@/views/HomeView.vue";
 
 
 const router = createRouter({
@@ -18,21 +19,12 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'TodoSummary',
-      meta: {
-        title: 'Mes Todos',
-        description: 'Sommaire des ToDos'
-      },
-      component: ToDoListOverView
-    },
-    {
-      path: '/',
       name: 'home',
       meta: {
-        title: 'Mes Todos',
-        description: 'Sommaire des ToDos'
+        title: 'Task Manager - Home',
+        description: 'Welcome to the Task Manager'
       },
-      component: ToDoListOverView
+      component: HomeView
     },
     {
       path: '/about',
