@@ -28,10 +28,85 @@ export default defineConfig({
       },
 
       manifest: {
-        name: 'task-manager',
-        short_name: 'task-manager',
-        description: 'Application de gestion de liste de tâches',
-        theme_color: '#f0f0f0',
+        name: "Task Manager",
+        short_name: "Task",
+        description: "An application to handle tasks with To Do Lists and projects with Kanban",
+        start_url: "/",
+        display: "standalone",
+        theme_color: '#3E1B65',
+        background_color: "#3E1B65",
+        icons: [
+          {
+            src: "/icon-48x48.png",
+            sizes: "48x48",
+            type: "image/png"
+          },
+          {
+            src: "/icon-72x72.png",
+            sizes: "72x72",
+            type: "image/png"
+          },
+          {
+            src: "/icon-96x96.png",
+            sizes: "96x96",
+            type: "image/png"
+          },
+          {
+            src: "/icon-144x144.png",
+            sizes: "144x144",
+            type: "image/png"
+          },
+          {
+            src: "/icon-192x192.png",
+            sizes: "192x192",
+            type: "image/png"
+          },
+          {
+            src: "/icon-512x512.png",
+            sizes: "512x512",
+            type: "image/png"
+          },
+          {
+            src: "/icon-180x180.png",
+            sizes: "180x180",
+            type: "image/png"
+          },
+          {
+            src: "/icon-167x167.png",
+            sizes: "167x167",
+            type: "image/png"
+          },
+          {
+            src: "/icon-152x152.png",
+            sizes: "152x152",
+            type: "image/png"
+          },
+          {
+            src: "/icon-120x120.png",
+            sizes: "120x120",
+            type: "image/png"
+          },
+          {
+            src: "/icon-76x76.png",
+            sizes: "76x76",
+            type: "image/png"
+          },
+          {
+            src: "/icon-70x70.png",
+            sizes: "70x70",
+            type: "image/png"
+          },
+          {
+            src: "/icon-150x150.png",
+            sizes: "150x150",
+            type: "image/png"
+          },
+          {
+            src: "/icon-310x310.png",
+            sizes: "310x310",
+            type: "image/png"
+          }
+        ],
       },
 
       workbox: {
