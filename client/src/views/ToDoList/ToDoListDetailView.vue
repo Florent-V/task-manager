@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from '@/utils/requestHook.js';
+import { setTitle, setDescription } from "@/utils/documentInfos.js";
 import ToDoItemFormComponent from '@/components/ToDoList/ToDoItemFormComponent.vue';
 import ToDoItemImageModalComponent from '@/components/ToDoList/ToDoItemImageModalComponent.vue';
 import ToggleComponent from '@/components/ToggleComponent.vue';
@@ -44,8 +45,8 @@ const fetchToDoItems = async () => {
 // Filtrer les items en fonction du toggle
 const filteredToDoItems = computed(() => {
   return showOnlyPending.value
-         ? toDoItems.value.filter(item => !item.done)
-         : toDoItems.value;
+      ? toDoItems.value.filter(item => !item.done)
+      : toDoItems.value;
 });
 
 const handleResponseFormSubmit = async (response) => {
@@ -69,7 +70,6 @@ const openCreateForm = () => {
 
 // Ouvrir le formulaire d'édition
 const openEditForm = (item) => {
-  console.log('Ouverture du formulaire d\'édition');
   selectedToDoItem.value = { ...item };
   isCreating.value = false;
   isEditing.value = true;
@@ -77,7 +77,6 @@ const openEditForm = (item) => {
 
 // Ouvrir le formulaire d'édition complet
 const openCompleteEditForm = (item) => {
-  console.log('Ouverture du formulaire complet');
   openMenuId.value = null;
   selectedToDoItem.value = { ...item };
   isCreating.value = true;
@@ -200,8 +199,10 @@ const closeAllMenus = (event) => {
 };
 
 // Ajouter un écouteur d'événements global
-onMounted(() => {
-  fetchToDoItems();
+onMounted(async () => {
+  await fetchToDoItems();
+  setTitle(`Détails de la liste de tâches : ${toDoList.value.title}`);
+  setDescription(`Détails de la liste de tâches : ${toDoList.value.title}`);
   document.addEventListener('click', closeAllMenus);
 });
 // Supprimer l'écouteur quand le composant est démonté
@@ -258,8 +259,10 @@ onUnmounted(() => {
       <ToDoItemFormComponent
           v-if="isCreating"
           :initialData="selectedToDoItem"
+          :toDoItems="toDoItems"
           @cancel="closeForm"
           @handleResponse="handleResponseFormSubmit"
+          @useSuggest="selectedToDoItem = true"
       />
 
       <!-- Loader -->

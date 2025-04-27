@@ -5,11 +5,13 @@ import authRoutes from "@/router/authRoutes.js";
 import toDoListRoutes from "@/router/toDoListRoutes.js";
 import adminRoutes from "@/router/adminRoutes.js";
 import kanbanRoutes from "@/router/kanbanRoutes.js";
+import userRoutes from "@/router/userRoutes.js";
 import AboutView from '@/views/AboutView.vue';
 import NotFound from '@/views/NotFound.vue';
 import Forbidden from "@/views/Forbidden.vue";
 import ToDoListOverView from "@/views/ToDoList/ToDoListOverView.vue";
 import AccessDeniedView from "@/views/AccessDeniedView.vue";
+import HomeView from "@/views/HomeView.vue";
 
 
 const router = createRouter({
@@ -17,21 +19,12 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      name: 'TodoSummary',
-      meta: {
-        title: 'Mes Todos',
-        description: 'Sommaire des ToDos'
-      },
-      component: ToDoListOverView
-    },
-    {
-      path: '/',
       name: 'home',
       meta: {
-        title: 'Mes Todos',
-        description: 'Sommaire des ToDos'
+        title: 'Task Manager - Home',
+        description: 'Welcome to the Task Manager'
       },
-      component: ToDoListOverView
+      component: HomeView
     },
     {
       path: '/about',
@@ -46,6 +39,7 @@ const router = createRouter({
     ...toDoListRoutes,
     ...kanbanRoutes,
     ...adminRoutes,
+    ...userRoutes,
     {
       path: '/404',
       name: '404NotFound',
@@ -76,22 +70,15 @@ router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
 
   document.title = title || defaultTitle
-
   const descriptionElement = document.querySelector('meta[name="description"]')
-
   descriptionElement.setAttribute('content', description || defaultDescription)
 
-  console.log('to.meta.requiresAuth', to.meta.requiresAuth)
-
   if (to.meta.requiresAuth) {
-    console.log('authStore.isAuthenticated', authStore.isAuthenticated)
     if (!authStore.isAuthenticated) {
-      console.log('ici', to.name)
       // Si l'utilisateur n'est pas connecté
       return next({ name: 'signin' });
     }
     if (to.meta.role && !authStore.user.roles.includes(to.meta.role)) {
-      console.log('ici2', to.name)
       // Si l'utilisateur n'a pas le rôle requis
       return next({ name: 'accessDenied' }); // Redirigez vers une page appropriée
     }

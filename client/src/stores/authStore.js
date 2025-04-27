@@ -32,6 +32,7 @@ export const useAuthStore = defineStore('auth', {
         this.authenticated = true;
         return data;
       } catch (error) {
+        console.log('error', error);
         logger.error('Erreur lors de la connexion:');
         throw error;
       }
@@ -96,9 +97,3 @@ export const useAuthStore = defineStore('auth', {
   },
   persist: true,
 });
-
-
-// Fonction pour obtenir le jeton CSRF (à implémenter selon votre configuration serveur)
-function getCsrfToken() {
-  // Logique pour récupérer le jeton CSRF
-}

@@ -1,4 +1,4 @@
-import express from 'express';
+import { Router } from 'express';
 import stageRoutes from './stageRoutes.js';
 import taskRoutes from './taskRoutes.js';
 import {
@@ -6,7 +6,11 @@ import {
   getAllKanbans,
   getKanbanById,
   getKanbansByUser,
-  updateKanban
+  updateKanban,
+  shareKanban,
+  addMemberByMail,
+  joinKanban,
+  leaveKanban
 } from '../controllers/kanbanController.js';
 import {
   authorizeManyToManyRessourceAccess,
@@ -23,8 +27,8 @@ import {
 } from '../middleware/kanbanMiddleware.js';
 import { remove } from '../middleware/basicCrudMiddleware.js';
 
-
-const router = express.Router();
+/** @type {import('express').Router} */
+const router = Router();
 
 const getKanbanAndCheckAccess = [
   getKanbanById,
@@ -45,5 +49,14 @@ router.delete('/:id', getKanbanAndCheckAccess, remove);
 
 router.use('/:id/stage', getKanbanAndCheckAccess, stageRoutes);
 router.use('/:id/task', getKanbanAndCheckAccess, taskRoutes);
+
+// share kanban
+router.post('/:id/share', getKanbanAndCheckAccess, shareKanban);
+// Add member by mail
+router.post('/:id/add-member', getKanbanAndCheckAccess,addMemberByMail);
+// join kanban
+router.post('/:id/join', getKanbanById, joinKanban);
+// leave kanban
+router.post('/:id/leave', getKanbanAndCheckAccess, leaveKanban);
 
 export default router;

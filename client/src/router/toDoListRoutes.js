@@ -8,7 +8,7 @@ export default [
         name: 'localtodolist',
         meta: {
             title: 'Local ToDoList',
-            description: 'This is the Local ToDoList page'
+            description: 'This is the Local ToDoList page',
         },
         component: LegacyToDoListView
     },
@@ -17,7 +17,7 @@ export default [
         name: 'ToDoListOverView',
         meta: {
             title: 'ToDoList Over View',
-            description: 'This is the ToDoList page'
+            description: 'This is the ToDoList page',
         },
         component: ToDoListOverView
     },
@@ -26,7 +26,7 @@ export default [
         name: 'ToDoList',
         meta: {
             title: 'ToDoList',
-            description: 'This is the ToDoList page'
+            description: 'This is the ToDoList page',
         },
         component: ToDoListDetailView
     },
@@ -35,7 +35,7 @@ export default [
         name: 'ToDoListJoin',
         meta: {
             title: 'ToDoList',
-            description: 'This is the ToDoList page'
+            description: 'This is the ToDoList join page',
         },
         component: ToDoListJoin
     }

@@ -1,9 +1,11 @@
 <script setup>
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
 import useFormErrors from "@/utils/handleFormErrors.js";
 import logger from "@/utils/logger.js";
+import Quill from 'quill';
+import 'quill/dist/quill.snow.css';
 
 const { isLoading, error, executeRequest } = hookApi();
 
@@ -17,7 +19,26 @@ const props = defineProps({
       stages: [],
     }),
   },
+  templateKanban: {
+    type: Array,
+    default: () => [],
+  },
 });
+
+// Référence pour l'éditeur
+const editorContainer = ref(null);
+const selectedTemplate = ref(null);
+
+const applyTemplate = () => {
+  if (selectedTemplate.value) {
+    const template = props.templateKanban.find(t => t.title === selectedTemplate.value);
+    if (template) {
+      formData.value.stages = template.stages.map(stage => ({ ...stage }));
+      return;
+    }
+    formData.value.stages = [];
+  }
+};
 
 // Gestion du formulaire
 const formData = ref({ ...props.initialData });
@@ -43,13 +64,19 @@ const submitForm = async () => {
   const data = {
     title: formData.value.title,
     description: formData.value.description,
-    stages: formData.value.stages.map(({ id, name, description, maxRecord, kanbanId }) => ({
-      id,
-      name,
-      description,
-      maxRecord,
-      kanbanId,
-    })),
+    stages: isEditing.value
+        ? formData.value.stages.map(({ id, name, description, maxRecord, kanbanId }) => ({
+          id,
+          name,
+          description,
+          maxRecord,
+          kanbanId,
+        }))
+        : formData.value.stages.map(({ id, name, description, maxRecord, kanbanId }) => ({
+          name,
+          description,
+          maxRecord,
+        })),
   };
 
   try {
@@ -86,18 +113,58 @@ const resetForm = () => {
     stages: [],
   };
 };
+
+onMounted(async () => {
+  if (editorContainer.value) {
+    const quill = new Quill(editorContainer.value, {
+      theme: 'snow',
+      placeholder: 'Écris ici...',
+      modules: {
+        toolbar: [
+          [{ header: [1, 2, false] }],
+          ['bold', 'italic', 'underline'],
+          [{ list: 'ordered' }, { list: 'bullet' }],
+          ['link', 'image']
+        ]
+      }
+    });
+
+    // Synchroniser le contenu avec formData.description
+    quill.on('text-change', () => {
+      formData.value.description = quill.root.innerHTML;
+    });
+  }
+});
 </script>
 
 <template>
 
   <div>
-    <h1 class="text-4xl font-bold my-4 text-blue-800 dark:text-yellow-300">Créer un nouveau kanban</h1>
+    <h1 class="text-4xl font-bold px-4 my-4 text-blue-800 dark:text-yellow-300">
+      {{ isEditing ? 'Modification du kanban' : 'Créer un nouveau kanban' }}
+    </h1>
   </div>
 
   <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg dark:shadow-gray-700">
     <h2 class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 mb-2 px-4 py-2 rounded-t-lg text-xl font-semibold">
       {{ isEditing ? 'Kanban - Modification' : 'Kanban - Création' }}
     </h2>
+
+    <!-- Menu déroulant pour sélectionner un template -->
+    <div class="mb-4">
+      <label for="template" class="block text-gray-700 dark:text-gray-300">Sélectionner un template</label>
+      <select
+          id="template"
+          v-model="selectedTemplate"
+          @change="applyTemplate"
+          class="mt-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+      >
+        <option value=null selected>Aucun</option>
+        <option v-for="template in props.templateKanban" :key="template.title" :value="template.title">
+          {{ template.title }}
+        </option>
+      </select>
+    </div>
 
     <form @submit.prevent="submitForm">
       <!-- Titre du Kanban -->
@@ -116,15 +183,9 @@ const resetForm = () => {
       </div>
 
       <!-- Description du Kanban -->
-      <div class="mb-4">
+      <div id="quill-container" class="mb-4">
         <label for="description" class="block text-gray-700 dark:text-gray-300">Description</label>
-        <textarea
-            id="description"
-            maxlength="250"
-            v-model="formData.description"
-            class="mt-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-            placeholder="Description (facultatif)"
-        ></textarea>
+        <div ref="editorContainer" class="w-full bg-white dark:bg-gray-700"></div>
         <p v-if="errors.description" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.description }}</p>
       </div>
 
@@ -220,7 +281,39 @@ const resetForm = () => {
   </div>
 
 
-
 </template>
 
+<style scoped>
+</style>
 
+<style>
+.ql-toolbar {
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+.ql-container {
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.dark .ql-toolbar,
+.dark .ql-container {
+  border-color: none;
+  background-color: #374151;
+}
+
+.dark .ql-toolbar,
+.dark .ql-container {
+  border-color: rgb(75 85 99);
+  background-color: #374151;
+}
+
+.dark .ql-stroke {
+  stroke: #DDD;
+}
+
+.dark .ql-picker {
+  color: #DDD;
+}
+</style>

@@ -144,9 +144,6 @@ export const updateToDoList = async (req, res, next) => {
 // Share toDoList
 export const shareToDoList = async (req, res, next) => {
   try {
-    const userId = req.user.id;
-    if (!userId) throw new ForbiddenError('Access denied: You do not have permission to share ToDoList');
-
     // Récupérer ou générer le lien de partage
     const shareLink = `${process.env.CLIENT_ORIGIN}/todolist/${req.params.id}/join`;
 
@@ -163,6 +160,21 @@ export const shareToDoList = async (req, res, next) => {
     return next(error);
   }
 };
+
+export const addMemberByMail = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ where: { email } });
+    if (!user) throw new NotFoundError('User Not Found');
+
+    await res.data.toDoList.addUsers([user.id]);
+
+    next();
+  } catch (error) {
+    return next(error);
+  }
+}
 
 // join todolist
 export const joinToDoList = async (req, res, next) => {

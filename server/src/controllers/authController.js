@@ -71,8 +71,7 @@ export const signin = async (req, res, next) => {
       lastName: user.lastName,
       email: user.email,
       roles: authorities,
-      // token,
-      // refreshToken
+      image: user.image,
     });
   } catch (error) {
     return next(error);
