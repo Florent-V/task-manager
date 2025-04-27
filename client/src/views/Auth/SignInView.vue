@@ -19,7 +19,7 @@ const handleLogin = async () => {
   try {
     const response = await authStore.login(loginForm.value.email, loginForm.value.password);
     logger.debug('Login successful:', response);
-    router.push({ name: 'TodoSummary' });
+    router.push({ name: 'home' });
   } catch (err) {
     logger.error('Login failed:', err.response?.data || err.message);
     // Catch 401 error
