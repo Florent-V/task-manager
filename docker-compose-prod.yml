@@ -11,27 +11,27 @@ services:
       args:
         VITE_API_BASE_URL: ${API_BASE_URL}
         VITE_CLIENT_DOCKER_PORT: ${VITE_CLIENT_DOCKER_PORT}
-#    ports:
-#      - "${NGINX_CLIENT_PORT}:5050"
+    ports:
+      - "${NGINX_CLIENT_PORT}:5050"
     environment:
       - VITE_ENV=${NODE_ENV}
       - VITE_API_BASE_URL=${API_BASE_URL}
       - VITE_CLIENT_DOCKER_PORT=${VITE_CLIENT_DOCKER_PORT}
     networks:
-      - web
+#      - web
       - internal
     volumes:
       - ./client:/usr/src/app
       - client_node_modules:/usr/src/app/node_modules
     depends_on:
       - api
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=web"
-      - "traefik.http.routers.client.rule=Host(`${CLIENT_URL}`)"
-      - "traefik.http.services.client.loadbalancer.server.port=5050"
-      - "traefik.http.routers.client.entrypoints=websecure"
-      - "traefik.http.routers.client.tls.certresolver=${CERT_RESOLVER}"
+#    labels:
+#      - "traefik.enable=true"
+#      - "traefik.docker.network=web"
+#      - "traefik.http.routers.client.rule=Host(`${CLIENT_URL}`)"
+#      - "traefik.http.services.client.loadbalancer.server.port=5050"
+#      - "traefik.http.routers.client.entrypoints=websecure"
+#      - "traefik.http.routers.client.tls.certresolver=${CERT_RESOLVER}"
 
 #########################################
 #   Setup express server container
@@ -45,8 +45,8 @@ services:
       args:
         NODE_ENV: ${NODE_ENV}
         START_METHOD: ${START_METHOD}
-#    ports:
-#      - "${NODE_API_PORT}:${NODE_API_DOCKER_PORT}"
+    ports:
+      - "${NODE_API_PORT}:${NODE_API_DOCKER_PORT}"
     environment:
       - SERVICE_NAME=app
       - PROJECT_NAME=${PROJECT_NAME}
@@ -67,7 +67,7 @@ services:
       - NODE_API_DOCKER_PORT=${NODE_API_DOCKER_PORT}
       - ACCESS_TOKEN_COOKIE_LIFETIME=${ACCESS_TOKEN_COOKIE_LIFETIME}
     networks:
-      - web
+#      - web
       - internal
     depends_on:
       db:
@@ -76,20 +76,20 @@ services:
     volumes:
       - ./server:/usr/src/app
       -  api_node_modules:/usr/src/app/node_modules
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=web"
-      - "traefik.http.routers.api.rule=Host(`${API_BASE_URL}`) && PathPrefix(`/api`)"
-      - "traefik.http.services.api.loadbalancer.server.port=${NODE_API_DOCKER_PORT}"
-      - "traefik.http.routers.api.entrypoints=websecure"
-      - "traefik.http.routers.api.tls.certresolver=${CERT_RESOLVER}"
+#    labels:
+#      - "traefik.enable=true"
+#      - "traefik.docker.network=web"
+#      - "traefik.http.routers.api.rule=Host(`${API_BASE_URL}`) && PathPrefix(`/api`)"
+#      - "traefik.http.services.api.loadbalancer.server.port=${NODE_API_DOCKER_PORT}"
+#      - "traefik.http.routers.api.entrypoints=websecure"
+#      - "traefik.http.routers.api.tls.certresolver=${CERT_RESOLVER}"
 
 #########################################
 #   Setup MYSQL container
 #########################################
   db:
     container_name: ${DB_HOST}
-    image: mysql:8.0
+    image: mysql:8.0.33
     restart: unless-stopped
     ports:
       - '${DB_PORT}:3306'
@@ -98,6 +98,7 @@ services:
       - MYSQL_DATABASE=${DB_NAME}
       - MYSQL_USER=${DB_USER}
       - MYSQL_PASSWORD=${DB_PASSWORD}
+      - MYSQL_DEFAULT_AUTH=caching_sha2_password
     volumes:
       - mysql_data:/var/lib/mysql
       - db-config:/etc/mysql
@@ -114,8 +115,8 @@ services:
 networks:
   internal:
     driver: bridge
-  web:
-    external: true
+#  web:
+#    external: true
 
 volumes:
   mysql_data:
