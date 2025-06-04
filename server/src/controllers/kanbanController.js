@@ -15,6 +15,8 @@ const includeKanban = [
   {
     model: Task,
     as: 'tasks',
+    separate: true,
+    order: [['priorityId', 'DESC']],
   },
   {
     model: User,
