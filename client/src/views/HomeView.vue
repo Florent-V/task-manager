@@ -1,6 +1,5 @@
 <script setup>
 import { useRouter } from 'vue-router';
-console.log('coucou')
 
 const router = useRouter();
 

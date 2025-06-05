@@ -1,7 +1,7 @@
 // src/logger.js
 import log from 'loglevel';
 
-if (import.meta.VITE_ENV === 'production') {
+if (import.meta.env.VITE_ENV === 'production') {
     log.setLevel('warn');
 } else {
     log.setLevel('debug');
