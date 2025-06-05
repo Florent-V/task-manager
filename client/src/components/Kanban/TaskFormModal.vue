@@ -1,10 +1,12 @@
 <script setup>
-import { ref, watch, computed } from "vue";
+import { ref, watch, computed, onMounted } from "vue";
 import { useRoute } from 'vue-router';
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
 import logger from "@/utils/logger.js";
 import useFormErrors from "@/utils/handleFormErrors.js";
+import Quill from 'quill';
+import 'quill/dist/quill.snow.css';
 
 const route = useRoute();
 const { isLoading, error, executeRequest } = hookApi();
@@ -31,6 +33,9 @@ const props = defineProps({
     required: true,
   },
 });
+
+// Référence pour l'éditeur
+const editorContainer = ref(null);
 
 const newTask = {
   title: null,
@@ -104,11 +109,37 @@ const resetForm = () => {
   formData.value = { ...newTask };
 };
 
+onMounted(async () => {
+  if (editorContainer.value) {
+    const quill = new Quill(editorContainer.value, {
+      theme: 'snow',
+      placeholder: 'Écris ici...',
+      modules: {
+        toolbar: [
+          [{ header: [1, 2, false] }],
+          ['bold', 'italic', 'underline'],
+          [{ list: 'ordered' }, { list: 'bullet' }],
+          ['link', 'image']
+        ]
+      }
+    });
+
+    // Initialiser avec la description reçue (HTML)
+    if (props.initialData.description) {
+      quill.root.innerHTML = props.initialData.description;
+    }
+
+    // Synchroniser le contenu avec formData.description
+    quill.on('text-change', () => {
+      formData.value.description = quill.root.innerHTML;
+    });
+  }
+});
 </script>
 
 <template>
   <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div class="bg-white dark:bg-gray-800 w-full max-w-3xl rounded-lg shadow-lg p-6">
+    <div class="w-full max-w-6xl max-h-[90vh] p-4 bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-auto">
       <!-- Header -->
       <div class="flex justify-between items-center border-b pb-4 dark:border-gray-600">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-yellow-300">
@@ -136,14 +167,12 @@ const resetForm = () => {
           <p v-if="errors.title" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.title }}</p>
 
           <!-- Description -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
-            <textarea
-                v-model="formData.description"
-                rows="3"
-                class="w-full mt-1 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
-                placeholder="Description de la tâche"
-            ></textarea>
+          <div class="flex flex-col flex-1">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
+            <div
+                ref="editorContainer"
+                class="flex-1 min-h-[100px] max-h-[40vh] overflow-y-auto rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 p-2"
+            ></div>
           </div>
           <p v-if="errors.description" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.description }}</p>
 

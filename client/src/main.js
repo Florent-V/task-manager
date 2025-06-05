@@ -1,4 +1,5 @@
 import './assets/index.css'
+import './assets/quilljs.css'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
