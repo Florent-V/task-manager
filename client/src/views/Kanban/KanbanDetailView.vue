@@ -210,13 +210,13 @@ onMounted(async () => {
       {{ kanban.title }}
     </h1>
 
-
     <!-- Loader -->
     <LoaderComponent v-if="isLoading"/>
 
-
     <div class="flex justify-between align-center items-center px-4 mb-4">
-      <span class="text-lg text-gray-600 dark:text-gray-400 break-words" v-html="kanban.description"></span>
+      <div class="prose dark:prose-invert text-gray-600 dark:text-gray-400 break-words">
+        <div v-html="kanban.description"></div>
+      </div>
 
       <div class="text-right">
         <button class="flex w-14 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-full"

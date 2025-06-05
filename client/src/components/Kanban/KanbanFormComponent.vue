@@ -114,6 +114,8 @@ const resetForm = () => {
   };
 };
 
+console.log('KanbanFormComponent mounted with initial data:', props.initialData);
+
 onMounted(async () => {
   if (editorContainer.value) {
     const quill = new Quill(editorContainer.value, {
@@ -128,6 +130,11 @@ onMounted(async () => {
         ]
       }
     });
+
+    // Initialiser avec la description reçue (HTML)
+    if (props.initialData.description) {
+      quill.root.innerHTML = props.initialData.description;
+    }
 
     // Synchroniser le contenu avec formData.description
     quill.on('text-change', () => {
@@ -185,7 +192,10 @@ onMounted(async () => {
       <!-- Description du Kanban -->
       <div id="quill-container" class="mb-4">
         <label for="description" class="block text-gray-700 dark:text-gray-300">Description</label>
-        <div ref="editorContainer" class="w-full bg-white dark:bg-gray-700"></div>
+        <div
+            ref="editorContainer"
+            class="w-full min-h-[100px] max-h-[40vh] overflow-y-auto bg-white dark:bg-gray-700"
+        ></div>
         <p v-if="errors.description" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.description }}</p>
       </div>
 
@@ -286,34 +296,3 @@ onMounted(async () => {
 <style scoped>
 </style>
 
-<style>
-.ql-toolbar {
-  border-top-left-radius: 5px;
-  border-top-right-radius: 5px;
-}
-
-.ql-container {
-  border-bottom-right-radius: 5px;
-  border-bottom-left-radius: 5px;
-}
-
-.dark .ql-toolbar,
-.dark .ql-container {
-  border-color: none;
-  background-color: #374151;
-}
-
-.dark .ql-toolbar,
-.dark .ql-container {
-  border-color: rgb(75 85 99);
-  background-color: #374151;
-}
-
-.dark .ql-stroke {
-  stroke: #DDD;
-}
-
-.dark .ql-picker {
-  color: #DDD;
-}
-</style>
