@@ -2,7 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import logger from '../config/logger.js';
+import logger from './config/logger.js';
 
 import initDB from './database/init.js';
 import {

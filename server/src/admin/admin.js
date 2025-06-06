@@ -4,7 +4,7 @@ import AdminJSExpress from '@adminjs/express';
 import AdminJSSequelize from '@adminjs/sequelize';
 import { componentLoader, Components } from './components.js';
 import sequelize from '../database/connect.js';
-import logger from '../../config/logger.js';
+import logger from '../config/logger.js';
 import models from '../models/index.js';
 
 const fetchStats = async () => {

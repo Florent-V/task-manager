@@ -1,5 +1,5 @@
 import NotFoundError from '../error/notFoundError.js';
-import logger from '../../config/logger.js';
+import logger from '../config/logger.js';
 
 export const errorHandler = (error, req, res, next) => {
   logger.error('Error handled by errorHandler:', {

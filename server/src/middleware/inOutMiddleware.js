@@ -1,6 +1,6 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
-import logger from '../../config/logger.js';
+import logger from '../config/logger.js';
 
 export const init = (req, res, next) => {
   // affichage de la route appellée

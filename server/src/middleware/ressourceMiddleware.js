@@ -2,7 +2,7 @@ import NotFoundError from '../error/notFoundError.js';
 import ForbiddenError from '../error/forbiddenError.js';
 import BadRequestError from '../error/badRequestError.js';
 import { lowercaseFirstLetter } from '../services/stringService.js';
-import logger from '../../config/logger.js';
+import logger from '../config/logger.js';
 
 export const getUserRessources = async (req, res, next) => {
   try {

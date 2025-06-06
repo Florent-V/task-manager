@@ -5,7 +5,7 @@ import { authToken } from '../services/tokenService.js';
 import InvalidTokenError from '../error/invalidTokenError.js';
 import ForbiddenError from '../error/forbiddenError.js';
 import ConflictError from '../error/conflictError.js';
-import logger from '../../config/logger.js';
+import logger from '../config/logger.js';
 
 export const authenticateToken = (req, res, next) => {
   try {
