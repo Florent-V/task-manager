@@ -9,7 +9,7 @@ import {
   notFound,
   logError
 } from './middleware/errorMiddleware.js';
-import { init, send, setRouteFound } from './middleware/inOutMiddleware.js';
+import { init, send, setRouteFound, start, end } from './middleware/inOutMiddleware.js';
 import { adminRouter } from './admin/admin.js';
 
 import testRoutes from './routes/testRoutes.js';
@@ -49,6 +49,7 @@ app.use('/api/uploads', express.static('public/uploads'));
 
 
 // Middlewares
+app.use(start);
 app.use(init);
 // Test Routes
 app.use('', testRoutes);
@@ -69,6 +70,8 @@ app.use('/api/kanban', setRouteFound, kanbanRoutes);
 app.use('/api/priority', setRouteFound, priorityRoutes);
 // Sizes Routes
 app.use('/api/size', setRouteFound, sizeRoutes);
+// End Middleware
+app.use(end);
 // Send middleware
 app.use(send);
 
