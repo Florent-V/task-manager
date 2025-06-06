@@ -1,4 +1,5 @@
 import './assets/index.css'
+import './assets/quilljs.css'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
@@ -20,7 +21,9 @@ import { MdClose,
   FaEdit,
   FaRegularTrashAlt,
   FaRegularCheckSquare,
-  BiThreeDotsVertical
+  BiThreeDotsVertical,
+  MdExittoappRound,
+  MdModeedit,
 } from "oh-vue-icons/icons";
 
 addIcons(MdClose,
@@ -37,7 +40,9 @@ addIcons(MdClose,
   FaEdit,
   FaRegularTrashAlt,
   FaRegularCheckSquare,
-  BiThreeDotsVertical
+  BiThreeDotsVertical,
+  MdExittoappRound,
+  MdModeedit,
 );
 
 const app = createApp(App)

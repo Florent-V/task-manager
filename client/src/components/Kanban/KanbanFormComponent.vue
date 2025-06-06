@@ -19,10 +19,26 @@ const props = defineProps({
       stages: [],
     }),
   },
+  templateKanban: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 // Référence pour l'éditeur
 const editorContainer = ref(null);
+const selectedTemplate = ref(null);
+
+const applyTemplate = () => {
+  if (selectedTemplate.value) {
+    const template = props.templateKanban.find(t => t.title === selectedTemplate.value);
+    if (template) {
+      formData.value.stages = template.stages.map(stage => ({ ...stage }));
+      return;
+    }
+    formData.value.stages = [];
+  }
+};
 
 // Gestion du formulaire
 const formData = ref({ ...props.initialData });
@@ -48,13 +64,19 @@ const submitForm = async () => {
   const data = {
     title: formData.value.title,
     description: formData.value.description,
-    stages: formData.value.stages.map(({ id, name, description, maxRecord, kanbanId }) => ({
-      id,
-      name,
-      description,
-      maxRecord,
-      kanbanId,
-    })),
+    stages: isEditing.value
+        ? formData.value.stages.map(({ id, name, description, maxRecord, kanbanId }) => ({
+          id,
+          name,
+          description,
+          maxRecord,
+          kanbanId,
+        }))
+        : formData.value.stages.map(({ id, name, description, maxRecord, kanbanId }) => ({
+          name,
+          description,
+          maxRecord,
+        })),
   };
 
   try {
@@ -92,6 +114,8 @@ const resetForm = () => {
   };
 };
 
+console.log('KanbanFormComponent mounted with initial data:', props.initialData);
+
 onMounted(async () => {
   if (editorContainer.value) {
     const quill = new Quill(editorContainer.value, {
@@ -107,6 +131,11 @@ onMounted(async () => {
       }
     });
 
+    // Initialiser avec la description reçue (HTML)
+    if (props.initialData.description) {
+      quill.root.innerHTML = props.initialData.description;
+    }
+
     // Synchroniser le contenu avec formData.description
     quill.on('text-change', () => {
       formData.value.description = quill.root.innerHTML;
@@ -118,13 +147,31 @@ onMounted(async () => {
 <template>
 
   <div>
-    <h1 class="text-4xl font-bold my-4 text-blue-800 dark:text-yellow-300">Créer un nouveau kanban</h1>
+    <h1 class="text-4xl font-bold px-4 my-4 text-blue-800 dark:text-yellow-300">
+      {{ isEditing ? 'Modification du kanban' : 'Créer un nouveau kanban' }}
+    </h1>
   </div>
 
   <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg dark:shadow-gray-700">
     <h2 class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 mb-2 px-4 py-2 rounded-t-lg text-xl font-semibold">
       {{ isEditing ? 'Kanban - Modification' : 'Kanban - Création' }}
     </h2>
+
+    <!-- Menu déroulant pour sélectionner un template -->
+    <div class="mb-4">
+      <label for="template" class="block text-gray-700 dark:text-gray-300">Sélectionner un template</label>
+      <select
+          id="template"
+          v-model="selectedTemplate"
+          @change="applyTemplate"
+          class="mt-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+      >
+        <option value=null selected>Aucun</option>
+        <option v-for="template in props.templateKanban" :key="template.title" :value="template.title">
+          {{ template.title }}
+        </option>
+      </select>
+    </div>
 
     <form @submit.prevent="submitForm">
       <!-- Titre du Kanban -->
@@ -145,7 +192,10 @@ onMounted(async () => {
       <!-- Description du Kanban -->
       <div id="quill-container" class="mb-4">
         <label for="description" class="block text-gray-700 dark:text-gray-300">Description</label>
-        <div ref="editorContainer" class="border-none w-full bg-white dark:bg-gray-700"></div>
+        <div
+            ref="editorContainer"
+            class="w-full min-h-[100px] max-h-[40vh] overflow-y-auto bg-white dark:bg-gray-700"
+        ></div>
         <p v-if="errors.description" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.description }}</p>
       </div>
 
@@ -241,9 +291,8 @@ onMounted(async () => {
   </div>
 
 
-
 </template>
-<style scoped>
 
+<style scoped>
 </style>
 

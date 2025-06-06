@@ -26,7 +26,6 @@ const props = defineProps({
 // State
 const comments = ref([]);
 const selectedComment = ref(null);
-const formData = ref({});
 const showDeleteConfirmationModal = ref(false);
 
 // Computed
@@ -91,7 +90,7 @@ onMounted(fetchComments);
 <template>
   <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
     <div
-        class="bg-white dark:bg-gray-800 w-full max-w-4xl rounded-lg shadow-lg p-6 max-h-[90vh] overflow-y-auto"
+        class="bg-white dark:bg-gray-800 w-full max-w-7xl rounded-lg shadow-lg p-6 max-h-[90vh] overflow-y-auto"
     >
       <!-- Header -->
       <div class="flex justify-between items-center border-b pb-4 dark:border-gray-600">
@@ -113,7 +112,8 @@ onMounted(fetchComments);
         <!-- Description -->
         <div>
           <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300">Description</h3>
-          <p class="mt-2 text-gray-600 dark:text-gray-400">{{ task.description }}</p>
+<!--          <p class="mt-2 text-gray-600 dark:text-gray-400">{{ task.description }}</p>-->
+          <div class="prose dark:prose-invert mt-2 text-gray-600 dark:text-gray-400" v-html="task.description"></div>
         </div>
 
         <!-- Additional Information -->
@@ -196,5 +196,4 @@ onMounted(fetchComments);
 </template>
 
 <style scoped>
-/* Ajoutez des styles personnalisés ici si nécessaire */
 </style>

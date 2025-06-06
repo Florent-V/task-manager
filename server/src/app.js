@@ -53,7 +53,7 @@ app.use(start);
 app.use(init);
 // Test Routes
 app.use('', testRoutes);
-app.use('/admin-panel', setRouteFound, authenticateByCookieSession, adminRouter);
+app.use('/api/admin-panel',setRouteFound, authenticateByCookieSession, adminRouter);
 // Auth Routes
 app.use('/api/auth', setRouteFound, authRoutes);
 // User Routes

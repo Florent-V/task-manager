@@ -1,4 +1,4 @@
-import express from 'express';
+import { Router } from 'express';
 import toDoItemRoutes from './toDoItemRoutes.js';
 import {
   createToDoList,
@@ -7,7 +7,8 @@ import {
   getToDoListById,
   updateToDoList,
   shareToDoList,
-  joinToDoList
+  joinToDoList,
+  addMemberByMail
 } from '../controllers/toDoListController.js';
 import {
   authenticateByCookieSession,
@@ -23,12 +24,9 @@ import {
   validate
 } from '../middleware/ressourceMiddleware.js';
 import { remove } from '../middleware/basicCrudMiddleware.js';
-import ToDoList from '../models/toDoListModel.js';
-import NotFoundError from '../error/notFoundError.js';
-import User from '../models/userModel.js';
-import upload from "../middleware/uploadMiddleware.js";
 
-const router = express.Router();
+/** @type {import('express').Router} */
+const router = Router();
 
 const getToDoListAndCheckAccess = [
   getToDoListById,
@@ -48,27 +46,9 @@ router.patch('/:id', getToDoListAndCheckAccess, setUpdateValidator, validate, up
 router.delete('/:id', getToDoListAndCheckAccess, remove);
 
 // share todolist
-// router.post('/:id/share', getToDoListAndCheckAccess, async (req, res, next) => {
-//   try {
-//         const { id } = req.params;
-//         const { email } = req.body;
-//
-//         const toDoList = await ToDoList.findByPk(id);
-//         if (!toDoList) throw new NotFoundError('ToDoList Not Found');
-//
-//         const user = await User.findOne({ where: { email } });
-//         if (!user) throw new NotFoundError('User Not Found');
-//
-//         await toDoList.addUsers([user.id]);
-//
-//         res.data.toDoList = toDoList;
-//     next();
-//   } catch (error) {
-//     return next(error);
-//   }
-// }
 router.post('/:id/share', getToDoListAndCheckAccess, shareToDoList);
-
+// Add member by mail
+router.post('/:id/add-member', getToDoListAndCheckAccess, addMemberByMail);
 // join todolist
 router.post('/:id/join', getToDoListById, joinToDoList);
 

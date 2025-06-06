@@ -46,12 +46,10 @@ watch(() => formData.value.title, (newTitle) => {
     suggestions.value = props.toDoItems.filter(item =>
         item.title.toLowerCase().includes(newTitle.toLowerCase())
     );
-    console.log('suggestions.value', suggestions.value);
   } else {
     suggestions.value = [];
   }
 });
-
 
 function handleFile(event) {
   imageError.value = null;
@@ -59,7 +57,7 @@ function handleFile(event) {
   if (!selectedFile) return;
 
   if (selectedFile.size > MAX_FILE_SIZE) {
-    error.value = 'Le fichier dépasse la taille maximale autorisée de 20 Mo.';
+    error.value = 'Le fichier dépasse la taille maximale autorisée de 10 Mo.';
     // On nettoie le champ file
     event.target.value = '';
     return;
