@@ -5,6 +5,7 @@ import { authToken } from '../services/tokenService.js';
 import InvalidTokenError from '../error/invalidTokenError.js';
 import ForbiddenError from '../error/forbiddenError.js';
 import ConflictError from '../error/conflictError.js';
+import logger from '../../config/logger.js';
 
 export const authenticateToken = (req, res, next) => {
   try {
@@ -21,9 +22,9 @@ export const authenticateToken = (req, res, next) => {
 
 export const authenticateByCookieSession = (req, res, next) => {
   // TODO Delete console.log in production
-  console.log('authenticateByCookieSession');
-  console.log('req.cookies:', req.cookies);
-  console.log('req.signedCookies:', req.signedCookies);
+  logger.debug('Authenticating by cookie session');
+  logger.debug('Request cookies:', { cookies: req.cookies });
+  logger.debug('Request signed cookies:', { signedCookies: req.signedCookies });
   try {
     // TODO Delete auth by header in production use only cookie
     // const token = req.header('Authorization')?.split(' ')[1];
@@ -32,7 +33,7 @@ export const authenticateByCookieSession = (req, res, next) => {
     if (!token) throw new InvalidTokenError('Access Denied: No token provided');
 
     const verified = authToken(token);
-    console.log('verified:', verified);
+    logger.debug('Verified token payload:', { verified });
     req.user = verified;
     next();
   } catch (error) {

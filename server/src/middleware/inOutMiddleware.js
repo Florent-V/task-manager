@@ -1,8 +1,10 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
+import logger from '../../config/logger.js';
+
 export const init = (req, res, next) => {
   // affichage de la route appellée
-  console.log(`Route: ${req.originalUrl}`);
+  logger.info(`Incoming request for route: ${req.method} ${req.originalUrl}`, { ip: req.ip });
   res.data = {};
   res.routeFound = false;
   next();

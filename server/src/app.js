@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import logger from '../config/logger.js';
 
 import initDB from './database/init.js';
 import {
@@ -78,14 +79,14 @@ app.use(notFound);
 app.use(errorHandler);
 
 app.listen(port, async () => {
-  console.log(`Serveur démarré sur le port ${port}`);
+  logger.info(`Serveur démarré sur le port ${port}`);
   try {
     // Replace true by false when sync isn't needed
     // Replace force by alter to keep data
     // await initDB(true, 'force');
     await initDB(false, 'alter');
-    console.log(`Server Groupe is running on port ${port}`);
+    logger.info('Database connection has been established successfully.');
   } catch (error) {
-    console.error('Unable to connect to the database:', error);
+    logger.error('Unable to connect to the database:', { message: error.message, stack: error.stack });
   }
 });
