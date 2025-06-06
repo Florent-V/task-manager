@@ -2,8 +2,9 @@
 import AdminJS from 'adminjs';
 import AdminJSExpress from '@adminjs/express';
 import AdminJSSequelize from '@adminjs/sequelize';
-import { componentLoader, Components } from './components.js'
+import { componentLoader, Components } from './components.js';
 import sequelize from '../database/connect.js';
+import logger from '../config/logger.js';
 import models from '../models/index.js';
 
 const fetchStats = async () => {
@@ -40,7 +41,7 @@ const adminJS = new AdminJS({
     component: Components.MyDashboard,
     handler: async () => {
       const stats = await fetchStats();
-      console.log('stats:', stats);
+      logger.info('Admin dashboard stats:', { stats });
       return stats;
     },
   },

@@ -3,6 +3,7 @@ import User from '../models/userModel.js';
 import Role from '../models/roleModel.js';
 import { getAuthorities } from '../services/authService.js';
 import NotFoundError from "../error/notFoundError.js";
+import logger from '../config/logger.js';
 
 // Récupération de tous les Utilisateurs
 export const getAllUsers = async (req, res, next) => {
@@ -112,7 +113,7 @@ export const getConnectedUser = async (req, res, next) => {
 
 export const updateConnectedUser = async (req, res, next) => {
   try {
-    console.log('body', req.body);
+    logger.debug('Update connected user request body:', { body: req.body });
     const { id } = req.user;
     if (req.file) {
       req.body.image = req.file.filename

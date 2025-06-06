@@ -2,11 +2,12 @@ import NotFoundError from '../error/notFoundError.js';
 import ForbiddenError from '../error/forbiddenError.js';
 import BadRequestError from '../error/badRequestError.js';
 import { lowercaseFirstLetter } from '../services/stringService.js';
+import logger from '../config/logger.js';
 
 export const getUserRessources = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    console.log('req.entity', req.entity);
+    logger.debug('Request entity for getUserRessources:', { entityName: req.entity.name });
 
     const resources = await req.entity.findAll({ where: { userId } });
 
