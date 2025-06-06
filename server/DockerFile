@@ -26,6 +26,4 @@ COPY wait-for-database.sh /usr/wait-for-database.sh
 RUN chmod +x /usr/wait-for-database.sh
 
 # Démarrer l'application en fonction de START_METHOD
-# CMD ["sh", "-c", "npm run dev"]
-# CMD ["/usr/wait-for-database.sh", "db:3306", "--", "npm run dev"]
 CMD ["sh", "-c", "/usr/wait-for-database.sh db:3306 -- npm run $START_METHOD"]

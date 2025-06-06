@@ -56,11 +56,15 @@ export const useAuthStore = defineStore('auth', {
         logger.debug('logout() - Tentative de déconnexion...');
         await client.post('/api/auth/logout', {});
         logger.debug('logout() - Déconnexion réussie');
+      } catch (error) {
+        logger.debug('logout() - Erreur lors de la déconnexion');
+      } finally {
+        logger.debug('logout() - Suppression du token');
         localStorage.removeItem('user');
         this.user = null;
         this.authenticated = false;
-      } catch (error) {
-        logger.debug('logout() - Erreur lors de la déconnexion');
+        logger.debug('logout() - Redirection vers la page de connexion');
+        await router.push('/signin');
       }
     },
     async refreshToken() {
