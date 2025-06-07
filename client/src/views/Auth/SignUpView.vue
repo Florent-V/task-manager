@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+
 import { useAuthStore } from '@/stores/authStore';
 import logger from "@/utils/logger.js";
 import useFormErrors from "@/utils/handleFormErrors.js";
@@ -54,7 +55,8 @@ const handleSignup = async () => {
               <label for="first-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">First
                 name</label>
               <div class="mt-1">
-                <input v-model="signupForm.firstName" id="first-name" type="text" required autocomplete="given-name"
+                <input
+id="first-name" v-model="signupForm.firstName" type="text" required autocomplete="given-name"
                        class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100 sm:text-sm">
               </div>
               <p v-if="errors.firstName" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.firstName }}</p>
@@ -64,7 +66,8 @@ const handleSignup = async () => {
               <label for="last-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Last
                 name</label>
               <div class="mt-1">
-                <input v-model="signupForm.lastName" id="last-name" type="text" required autocomplete="family-name"
+                <input
+id="last-name" v-model="signupForm.lastName" type="text" required autocomplete="family-name"
                        class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100 sm:text-sm">
               </div>
               <p v-if="errors.lastName" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.lastName }}</p>
@@ -73,7 +76,8 @@ const handleSignup = async () => {
             <div>
               <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Username</label>
               <div class="mt-1">
-                <input v-model="signupForm.username" id="username" type="text" required autocomplete="username"
+                <input
+id="username" v-model="signupForm.username" type="text" required autocomplete="username"
                        class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100 sm:text-sm">
               </div>
               <p v-if="errors.username" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.username }}</p>
@@ -83,7 +87,8 @@ const handleSignup = async () => {
           <div class="mt-6">
             <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email address</label>
             <div class="mt-1">
-              <input v-model="signupForm.email" id="email" type="email" required autocomplete="email"
+              <input
+id="email" v-model="signupForm.email" type="email" required autocomplete="email"
                      class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100 sm:text-sm">
             </div>
             <p v-if="errors.email" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.email }}</p>
@@ -92,7 +97,8 @@ const handleSignup = async () => {
           <div class="mt-6">
             <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
             <div class="mt-1">
-              <input v-model="signupForm.password" id="password" type="password" required autocomplete="new-password"
+              <input
+id="password" v-model="signupForm.password" type="password" required autocomplete="new-password"
                      class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100 sm:text-sm">
             </div>
             <p v-if="errors.password" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.password }}</p>
@@ -102,7 +108,8 @@ const handleSignup = async () => {
             <label for="confirm-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Confirm
               Password</label>
             <div class="mt-1">
-              <input v-model="signupForm.confirmPassword" id="confirm-password" type="password" required
+              <input
+id="confirm-password" v-model="signupForm.confirmPassword" type="password" required
                      class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100 sm:text-sm">
             </div>
             <p v-if="errors.confirmPassword" class="mt-2 text-sm text-red-600 dark:text-red-400">
@@ -112,7 +119,8 @@ const handleSignup = async () => {
           <p v-if="defaultError" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ defaultError }}</p>
 
           <div class="mt-6">
-            <button type="submit"
+            <button
+type="submit"
                     class="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
               Sign Up
             </button>

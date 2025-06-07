@@ -6,7 +6,7 @@ export const createToDoItem = async (req, res, next) => {
   try {
     req.body.toDoListId = req.params.id;
     if (req.file) {
-      req.body.image = req.file.filename
+      req.body.image = req.file.filename;
     }
 
     res.statusCode = 201;
@@ -23,8 +23,8 @@ export const getToDoItems = async (req, res, next) => {
   try {
     const toDoItems = await ToDoItem.findAll({
       where: {
-        toDoListId: id
-      }
+        toDoListId: id,
+      },
     });
     res.data = { toDoItems };
     next();
@@ -53,10 +53,10 @@ export const getToDoItemById = async (req, res, next) => {
 export const updateToDoItem = async (req, res, next) => {
   try {
     if (req.file) {
-      req.body.image = req.file.filename
+      req.body.image = req.file.filename;
     }
     const [updated] = await ToDoItem.update(req.body, {
-      where: { id: req.params.itemId }
+      where: { id: req.params.itemId },
     });
 
     if (!updated) throw new NotFoundError('ToDoItem Not Found');
@@ -73,7 +73,7 @@ export const updateToDoItem = async (req, res, next) => {
 export const deleteToDoItem = async (req, res, next) => {
   try {
     const deleted = await ToDoItem.destroy({
-      where: { id: req.params.itemId }
+      where: { id: req.params.itemId },
     });
 
     if (!deleted) throw new NotFoundError('ToDoItem Not Found');
@@ -83,7 +83,6 @@ export const deleteToDoItem = async (req, res, next) => {
     return next(error);
   }
 };
-
 
 // const todoItem = await ToDoItem.findOne({
 //   where: {
@@ -114,7 +113,6 @@ export const deleteToDoItem = async (req, res, next) => {
 //     toDoListId: listId // Filtrer par le champ toDoListId
 //   }
 // });
-
 
 // const newToDoList = await ToDoList.create({
 //   title: 'Ma nouvelle liste',

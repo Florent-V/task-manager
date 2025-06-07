@@ -10,7 +10,7 @@ const models = {};
 
 // Fonction pour charger dynamiquement les modèles
 const loadModels = async () => {
-  const files = fs.readdirSync(__dirname).filter(file => {
+  const files = fs.readdirSync(__dirname).filter((file) => {
     return file.endsWith('Model.js') && file !== 'index.js';
   });
 

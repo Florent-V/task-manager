@@ -1,26 +1,10 @@
-import {
-  create,
-  getAll,
-  getById,
-  remove,
-  update
-} from '../middleware/basicCrudMiddleware.js';
+import { create, getAll, getById, remove, update } from '../middleware/basicCrudMiddleware.js';
 import { validate } from '../middleware/ressourceMiddleware.js';
-import {
-  isAdmin,
-  authenticateByCookieSession
-} from '../middleware/authMiddleware.js';
+import { isAdmin, authenticateByCookieSession } from '../middleware/authMiddleware.js';
 
-const checkAdmin = [
-  authenticateByCookieSession,
-  isAdmin,
-];
+const checkAdmin = [authenticateByCookieSession, isAdmin];
 
-export const makeCrudRoutes = (router, {
-  setEntity,
-  setCreateValidator,
-  setUpdateValidator,
-}) => {
+export const makeCrudRoutes = (router, { setEntity, setCreateValidator, setUpdateValidator }) => {
   router.use(setEntity);
   router.get('/', getAll);
   router.get('/:id', getById);

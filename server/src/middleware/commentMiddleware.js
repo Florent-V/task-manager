@@ -1,6 +1,5 @@
 import Comment from '../models/commentModel.js';
 import { commentSchema, updateCommentSchema } from '../joiSchema/commentSchema.js';
-import Task from '../models/taskModel.js';
 import NotFoundError from '../error/notFoundError.js';
 
 export const setCommentEntity = (req, res, next) => {

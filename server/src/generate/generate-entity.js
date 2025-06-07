@@ -1,3 +1,4 @@
+/* eslint-disable */
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -6,7 +7,7 @@ import modelTemplate from './modelTemplate.js';
 import controllerTemplate from './controllerTemplate.js';
 import routeTemplate from './routeTemplate.js';
 import updatedAppJsContent from './updateApp.js';
-import updateDatabaseIndex from './updateDatabaseIndex.js';
+// import updateDatabaseIndex from './updateDatabaseIndex.js';
 import logger from '../config/logger.js';
 
 const encoding = 'utf-8';
@@ -66,10 +67,18 @@ fs.mkdirSync(path.dirname(middlewarePath), { recursive: true });
 // Écriture des fichiers
 
 // fs.writeFileSync(modelPath, modelTemplate(modelName, entityName), encoding);
-fs.writeFileSync(controllerPath, controllerTemplate(modelName, entityName, modelFileName), encoding);
+fs.writeFileSync(
+  controllerPath,
+  controllerTemplate(modelName, entityName, modelFileName),
+  encoding
+);
 fs.writeFileSync(routesPath, routeTemplate(modelName, controllerFileName), encoding);
 fs.writeFileSync(middlewarePath, middlewareTemplate, encoding);
-fs.writeFileSync(appJsPath, updatedAppJsContent(entityName, modelName, routesFileName, appJsPath), encoding);
+fs.writeFileSync(
+  appJsPath,
+  updatedAppJsContent(entityName, modelName, routesFileName, appJsPath),
+  encoding
+);
 // fs.writeFileSync(indexPath, updateDatabaseIndex(entityName, modelName, modelFileName, indexPath), encoding);
 
 logger.info('Les fichiers ont été générés avec succès et app.js a été mis à jour.');

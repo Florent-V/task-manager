@@ -1,5 +1,5 @@
 <script setup>
-const props = defineProps({
+defineProps({
   question: {
     type: String,
     required: true,
@@ -20,15 +20,15 @@ const cancel = () => emit('cancel');
       <div class="flex justify-end mt-6 space-x-4">
         <!-- Cancel Button -->
         <button
-            @click="cancel"
             class="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700"
+            @click="cancel"
         >
           Annuler
         </button>
         <!-- Confirm Button -->
         <button
-            @click="confirm"
             class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
+            @click="confirm"
         >
           Confirmer
         </button>

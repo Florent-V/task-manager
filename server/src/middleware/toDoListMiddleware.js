@@ -4,8 +4,10 @@ import ForbiddenError from '../error/forbiddenError.js';
 
 export const authorizeToDoListAccess = async (req, res, next) => {
   try {
-    if (!await res.data.toDoList.hasUser(req.user.id)) {
-      throw new ForbiddenError('Access denied: You do not have permission to access this ressource');
+    if (!(await res.data.toDoList.hasUser(req.user.id))) {
+      throw new ForbiddenError(
+        'Access denied: You do not have permission to access this ressource'
+      );
     }
 
     next();

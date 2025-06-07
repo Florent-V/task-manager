@@ -8,13 +8,13 @@ export default {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     name: process.env.DB_NAME,
-    dialect: "mysql",
+    dialect: 'mysql',
     pool: {
       max: 5,
       min: 0,
       acquire: 30000,
-      idle: 10000
-    }
+      idle: 10000,
+    },
   },
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
   jwtPrivateKey: process.env.PRIVATE_KEY.replace(/\\n/g, '\n'),

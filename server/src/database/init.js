@@ -1,4 +1,4 @@
-import models from '../models/index.js';
+// import models from '../models/index.js';
 import sequelize from '../database/connect.js';
 import { defineAssociations } from '../models/relation.js';
 import { seedDatabase } from './seed.js';

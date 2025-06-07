@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+
 import logger from "@/utils/logger.js";
 
 // Utiliser le localStorage pour persister les produits

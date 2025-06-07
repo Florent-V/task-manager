@@ -1,5 +1,6 @@
 // Hook pour gérer les appels API
 import { ref } from 'vue';
+
 import logger from "@/utils/logger.js";
 
 export function hookApi() {

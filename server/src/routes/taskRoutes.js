@@ -5,7 +5,7 @@ import {
   setTaskEntity,
   setTaskCreateValidator,
   setTaskUpdateValidator,
-  checkTaskRelationship
+  checkTaskRelationship,
 } from '../middleware/taskMiddleware.js';
 import { validate } from '../middleware/ressourceMiddleware.js';
 import {
@@ -13,11 +13,12 @@ import {
   getAllTasksByKanban,
   getTaskById,
   updateTask,
-  deleteTask
+  deleteTask,
 } from '../controllers/taskController.js';
 
 const router = express.Router({ mergeParams: true });
 
+router.use(setTaskEntity);
 router.post('/', setTaskCreateValidator, validate, checkTaskRelationship, createTask);
 
 router.get('/', getAllTasksByKanban);

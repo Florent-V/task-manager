@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
+
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from '@/utils/requestHook.js';
 import { setTitle, setDescription } from "@/utils/documentInfos.js";
@@ -186,9 +187,9 @@ const toggleMenu = (item) => {
   openMenuId.value = openMenuId.value === item.id ? null : item.id;
 };
 
-const closeMenu = (item) => {
-  item.showMenu = false;
-};
+// const closeMenu = (item) => {
+//   item.showMenu = false;
+// };
 
 // Fonction pour fermer tous les menus
 const closeAllMenus = (event) => {
@@ -237,7 +238,8 @@ onUnmounted(() => {
             </button>
           </div>
           <div class="text-right">
-            <button class="flex w-14 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-full"
+            <button
+class="flex w-14 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-full"
                     @click="shareToDoList">
               <span class="m-auto">
                 <v-icon name="md-share-outlined" scale="1.6"/>
@@ -250,25 +252,26 @@ onUnmounted(() => {
       <!-- QRCodeModal -->
       <QRCodeModal
           v-if="showQRCodeModal"
-          :linkUrl="linkUrl"
-          :qrCodeUrl="qrCodeUrl"
+          :link-url="linkUrl"
+          :qr-code-url="qrCodeUrl"
           @close="showQRCodeModal = false"
       />
 
       <!-- ToDoForm -->
       <ToDoItemFormComponent
           v-if="isCreating"
-          :initialData="selectedToDoItem"
-          :toDoItems="toDoItems"
+          :initial-data="selectedToDoItem"
+          :to-do-items="toDoItems"
           @cancel="closeForm"
-          @handleResponse="handleResponseFormSubmit"
-          @useSuggest="selectedToDoItem = true"
+          @handle-response="handleResponseFormSubmit"
+          @use-suggest="selectedToDoItem = true"
       />
 
       <!-- Loader -->
       <LoaderComponent v-if="isLoading"/>
 
-      <div v-else-if="toDoItems.length"
+      <div
+v-else-if="toDoItems.length"
            class="w-full dark:bg-gray-800 px-2 md:px-4 pb-4 mb-4 rounded-xl shadow-lg dark:shadow-gray-700"
       >
         <p class="py-3 text-center">{{ toDoList.description }}</p>
@@ -277,10 +280,12 @@ onUnmounted(() => {
           A faire</h2>
 
         <ul>
-          <li v-for="item in filteredToDoItems.filter(item => !item.done)" :key="item.id"
+          <li
+v-for="item in filteredToDoItems.filter(item => !item.done)" :key="item.id"
               class="flex gap-2 items-center bg-white dark:bg-gray-800 p-2 pl-4 rounded-lg mb-2 shadow-lg dark:shadow-gray-700 relative"
           >
-            <button class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500"
+            <button
+class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500"
                     @click="toggleToDoItemDone(item)"
             >
               <v-icon name='md-checkboxoutlineblank'/>
@@ -288,10 +293,10 @@ onUnmounted(() => {
 
             <div v-if="isEditing && selectedToDoItem.id === item.id" class="flex-grow">
               <ToDoItemFormComponent
-                  :initialData="selectedToDoItem"
+                  :initial-data="selectedToDoItem"
                   :inline-form="true"
                   @cancel="closeForm"
-                  @handleResponse="handleResponseFormSubmit"
+                  @handle-response="handleResponseFormSubmit"
               />
             </div>
 
@@ -319,8 +324,8 @@ onUnmounted(() => {
                     class="w-16 bg-transparent text-center border-none focus:outline-none"
                     type="number"
                     @blur="saveQuantity(item)"
-                    @keydown.alt="saveQuantity(item)"
-                    @keydown.esc="cancelEditQuantity(item)"
+                    @keydown.alt.exact="saveQuantity(item)"
+                    @keydown.esc.exact="cancelEditQuantity(item)"
                 />
                 <span v-else @click="editQuantity(item)">
                   {{ item.quantity }}
@@ -357,11 +362,13 @@ onUnmounted(() => {
                 v-if="openMenuId === item.id"
                 class="absolute right-4 top-10 bg-white dark:bg-gray-900 shadow-lg rounded-lg border border-gray-300 dark:border-gray-700 z-50 menu-container">
               <ul class="py-2 px-4">
-                <li class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded"
+                <li
+class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded"
                     @click="openCompleteEditForm(item)">
                   ✏️ Éditer
                 </li>
-                <li class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded text-red-600"
+                <li
+class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded text-red-600"
                     @click="deleteToDoItem(item)">
                   🗑️ Supprimer
                 </li>
@@ -430,7 +437,7 @@ onUnmounted(() => {
 
   <ToDoItemImageModalComponent
       v-if="showItemImageModal"
-      :imageUrl="selectedToDoItem.image"
+      :image-url="selectedToDoItem.image"
       @close="closeItemImageModal"
   />
 

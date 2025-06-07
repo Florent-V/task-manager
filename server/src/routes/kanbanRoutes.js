@@ -10,30 +10,21 @@ import {
   shareKanban,
   addMemberByMail,
   joinKanban,
-  leaveKanban
+  leaveKanban,
 } from '../controllers/kanbanController.js';
-import {
-  authorizeManyToManyRessourceAccess,
-  validate
-} from '../middleware/ressourceMiddleware.js';
-import {
-  authenticateByCookieSession,
-  isAdmin
-} from '../middleware/authMiddleware.js';
+import { authorizeManyToManyRessourceAccess, validate } from '../middleware/ressourceMiddleware.js';
+import { authenticateByCookieSession, isAdmin } from '../middleware/authMiddleware.js';
 import {
   setKanbanEntity,
   setKanbanCreateValidator,
-  setKanbanUpdateValidator
+  setKanbanUpdateValidator,
 } from '../middleware/kanbanMiddleware.js';
 import { remove } from '../middleware/basicCrudMiddleware.js';
 
 /** @type {import('express').Router} */
 const router = Router();
 
-const getKanbanAndCheckAccess = [
-  getKanbanById,
-  authorizeManyToManyRessourceAccess
-];
+const getKanbanAndCheckAccess = [getKanbanById, authorizeManyToManyRessourceAccess];
 
 router.use(authenticateByCookieSession);
 router.use(setKanbanEntity);
@@ -44,7 +35,14 @@ router.post('/', setKanbanCreateValidator, validate, createKanban);
 router.get('/all', isAdmin, getAllKanbans);
 router.get('/:id', getKanbanAndCheckAccess);
 
-router.patch('/:id', getKanbanAndCheckAccess, setKanbanUpdateValidator, validate, updateKanban, getKanbanById);
+router.patch(
+  '/:id',
+  getKanbanAndCheckAccess,
+  setKanbanUpdateValidator,
+  validate,
+  updateKanban,
+  getKanbanById
+);
 router.delete('/:id', getKanbanAndCheckAccess, remove);
 
 router.use('/:id/stage', getKanbanAndCheckAccess, stageRoutes);
@@ -53,7 +51,7 @@ router.use('/:id/task', getKanbanAndCheckAccess, taskRoutes);
 // share kanban
 router.post('/:id/share', getKanbanAndCheckAccess, shareKanban);
 // Add member by mail
-router.post('/:id/add-member', getKanbanAndCheckAccess,addMemberByMail);
+router.post('/:id/add-member', getKanbanAndCheckAccess, addMemberByMail);
 // join kanban
 router.post('/:id/join', getKanbanById, joinKanban);
 // leave kanban

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, watch, computed, onMounted } from 'vue';
+
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
 import logger from "@/utils/logger.js";
@@ -13,7 +14,7 @@ const props = defineProps({
   },
 });
 
-const { isLoading, error, executeRequest } = hookApi();
+const { error, executeRequest } = hookApi();
 const formData = ref({ ...props.initialData });
 const isEditing = computed(() => !!formData.value.id);
 const toDoListTypes = ref([]);
@@ -51,6 +52,7 @@ const submitForm = async () => {
     closeForm();
   } catch (err) {
     logger.error('Error in form submission', err?.response?.data?.message || err.message);
+    console.log("err",err);
     setErrors(err);
   }
 };
@@ -92,11 +94,11 @@ onMounted(fetchToDoListTypes);
             <!-- Name field -->
             <div class="relative">
               <input
-                  type="text"
                   id="title"
+                  v-model="formData.title"
+                  type="text"
                   placeholder=" "
                   class="peer border border-gray-300 dark:border-gray-600 pt-6 pb-2 p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 transition w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                  v-model="formData.title"
               />
               <label
                   for="title"
@@ -114,9 +116,9 @@ onMounted(fetchToDoListTypes);
             <div class="m-auto w-full">
               <label for="typeId" class="hidden block mb-2 text-base font-medium text-gray-900 dark:text-white">Type</label>
               <select
-                  style="padding:1.1rem"
-                  v-model="formData.typeId"
                   id="typeId"
+                  v-model="formData.typeId"
+                  style="padding:1.1rem"
                   class="peer border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 transition w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               >
                 <option selected disabled value="">Type</option>
@@ -132,10 +134,10 @@ onMounted(fetchToDoListTypes);
           <div class="relative md:col-span-2">
             <textarea
                 id="description"
+                v-model="formData.description"
                 rows="4"
                 placeholder=" "
                 class="peer border border-gray-300 dark:border-gray-600 pt-6 pb-2 p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 transition w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                v-model="formData.description"
             ></textarea>
             <label
                 for="description"
@@ -144,10 +146,9 @@ onMounted(fetchToDoListTypes);
               Description
             </label>
 
-            <p v-if="errors.description" class="mt-2 text-sm text-red-600 dark:text-red-400">A{{
-                errors.description
-              }}</p>
+            <p v-if="errors.description" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.description }}</p>
             <p v-if="defaultError" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ defaultError }}</p>
+            <p v-if="error" class="text-sm px-2 text-red-600 dark:text-red-400">{{ error }}</p>
 
           </div>
 
@@ -165,8 +166,8 @@ onMounted(fetchToDoListTypes);
           <!-- Cancel button -->
           <div class="text-center flex">
             <button
-                @click="closeForm"
                 class="w-full bg-gray-600 text-white px-6 py-3 rounded-lg"
+                @click="closeForm"
             >
               Cancel
             </button>

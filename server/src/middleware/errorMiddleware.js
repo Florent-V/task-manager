@@ -1,6 +1,7 @@
 import NotFoundError from '../error/notFoundError.js';
 import logger from '../config/logger.js';
 
+// eslint-disable-next-line no-unused-vars
 export const errorHandler = (error, req, res, next) => {
   logger.error('Error handled by errorHandler:', {
     name: error.name,
@@ -18,7 +19,7 @@ export const errorHandler = (error, req, res, next) => {
     name: error.name,
     message: error.message,
     status: error.status || 500,
-    errors: error.errors || [] // Ajoute le tableau d'erreurs si disponible
+    errors: error.errors || [], // Ajoute le tableau d'erreurs si disponible
   };
 
   if (process.env.NODE_ENV === 'development') {

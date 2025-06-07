@@ -1,7 +1,8 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../database/connect.js';
 
-const ToDoListType = sequelize.define('ToDoListType',
+const ToDoListType = sequelize.define(
+  'ToDoListType',
   {
     name: {
       type: DataTypes.STRING,

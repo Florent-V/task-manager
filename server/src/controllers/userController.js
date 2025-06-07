@@ -9,7 +9,7 @@ import logger from '../config/logger.js';
 export const getAllUsers = async (req, res, next) => {
   try {
     let users = await User.findAll();
-    users = _.map(users, obj => _.omit(obj.get(), ['password']));
+    users = _.map(users, (obj) => _.omit(obj.get(), ['password']));
     res.status(200).json(users);
   } catch (error) {
     return next(error);
@@ -33,7 +33,7 @@ export const getUserById = async (req, res, next) => {
 export const updateUser = async (req, res, next) => {
   try {
     const [updated] = await User.update(req.body, {
-      where: { id: req.params.id }
+      where: { id: req.params.id },
     });
 
     if (!updated) throw new NotFoundError('User Not Found');
@@ -50,7 +50,7 @@ export const updateUser = async (req, res, next) => {
 export const deleteUser = async (req, res, next) => {
   try {
     const deleted = await User.destroy({
-      where: { id: req.params.id }
+      where: { id: req.params.id },
     });
 
     if (!deleted) throw new NotFoundError('User Not Found');
@@ -116,11 +116,11 @@ export const updateConnectedUser = async (req, res, next) => {
     logger.debug('Update connected user request body:', { body: req.body });
     const { id } = req.user;
     if (req.file) {
-      req.body.image = req.file.filename
+      req.body.image = req.file.filename;
     }
 
     const [updated] = await User.update(req.body, {
-      where: { id }
+      where: { id },
     });
 
     if (!updated) throw new NotFoundError('User Not Found');
@@ -131,4 +131,4 @@ export const updateConnectedUser = async (req, res, next) => {
   } catch (error) {
     return next(error);
   }
-}
+};

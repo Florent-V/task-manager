@@ -6,7 +6,7 @@ import { comparePasswords } from './passwordService.js';
 export async function authenticateUser(email, password) {
   const user = await User.findOne({
     where: { email },
-    include: [Role]
+    include: [Role],
   });
 
   if (!user) throw new InvalidCredentialsError('Invalid credentials');
@@ -20,7 +20,7 @@ export async function authenticateUser(email, password) {
 }
 
 export const checkAccess = (roles, requiredRoles) => {
-  return roles.some(role => requiredRoles.includes(role.name));
+  return roles.some((role) => requiredRoles.includes(role.name));
 };
 
 export const getAuthorities = async (user) => {

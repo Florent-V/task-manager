@@ -14,18 +14,18 @@ const fetchStats = async () => {
 
   return [
     {
-      entity: "utilisateurs",
-      quantity: userCount
+      entity: 'utilisateurs',
+      quantity: userCount,
     },
     {
-      entity: "roles",
-      quantity: roleCount
+      entity: 'roles',
+      quantity: roleCount,
     },
     {
-      entity: "to do list",
-      quantity: toDoListCount
-    }
-  ]
+      entity: 'to do list',
+      quantity: toDoListCount,
+    },
+  ];
 };
 
 // Initialiser AdminJS avec Sequelize
@@ -62,7 +62,7 @@ const adminJS = new AdminJS({
   },
 });
 
-adminJS.watch()
+adminJS.watch();
 
 // Initialiser l'adaptateur Express pour AdminJS
 const adminRouter = AdminJSExpress.buildRouter(adminJS);

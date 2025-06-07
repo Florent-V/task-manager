@@ -1,5 +1,5 @@
 <script setup>
-
+defineEmits(['close']);
 </script>
 
 <template>
@@ -11,8 +11,8 @@
         class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 max-w-lg w-full relative"
     >
       <button
-          @click="$emit('close')"
           class="absolute top-3 right-3 text-gray-600 dark:text-gray-300 hover:text-red-600"
+          @click="$emit('close')"
       >
         ✖
       </button>

@@ -1,13 +1,14 @@
 <script setup>
-import { ref, watch, computed } from 'vue';
+import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
+
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from '@/utils/requestHook.js';
 import useFormErrors from '@/utils/handleFormErrors.js';
 import logger from '@/utils/logger.js';
 
 const route = useRoute();
-const { isLoading, error, executeRequest } = hookApi();
+const { error, executeRequest } = hookApi();
 
 const emit = defineEmits(['handleResponse', 'cancel']);
 const props = defineProps({
@@ -30,7 +31,7 @@ watch(() => props.initialData, (newValue) => {
     },
     { immediate: true }
 );
-const isEditing = computed(() => !!formData.value.id);
+// const isEditing = computed(() => !!formData.value.id);
 // Utilitaire de gestions des erreurs de formulaire
 const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...formData.value });
 
@@ -76,14 +77,25 @@ const resetForm = () => {
 </script>
 
 <template>
-  <form @submit.prevent="submitForm" class="mt-6 space-y-4">
-    <textarea
-      v-model="formData.content"
-      rows="3"
-      class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
-      placeholder="Ajouter un commentaire..."
-    ></textarea>
-    <p v-if="errors.content" class="text-red-500 dark:text-red-400">{{ errors.content }}</p>
+  <form class="mt-6 space-y-4" @submit.prevent="submitForm">
+    <div>
+      <textarea
+          v-model="formData.content"
+          rows="3"
+          class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
+          placeholder="Ajouter un commentaire..."
+      ></textarea>
+      <p v-if="errors.content" class="text-red-500 dark:text-red-400">{{ errors.content }}</p>
+    </div>
+
+    <div v-if="defaultError">
+      <p class="text-sm px-2 text-red-600 dark:text-red-400">{{ defaultError }}</p>
+    </div>
+
+    <div v-if="error">
+      <p class="text-sm px-2 text-red-600 dark:text-red-400">{{ error }}</p>
+    </div>
+
     <button
       type="submit"
       class="px-4 py-2 rounded-lg bg-blue-600 dark:bg-yellow-400 text-white hover:bg-blue-700 dark:hover:bg-yellow-500"

@@ -1,13 +1,14 @@
 <script setup>
 import { ref, watch, computed, onMounted } from 'vue';
+import Quill from 'quill';
+
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
 import useFormErrors from "@/utils/handleFormErrors.js";
 import logger from "@/utils/logger.js";
-import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
 
-const { isLoading, error, executeRequest } = hookApi();
+const { error, executeRequest } = hookApi();
 
 const emit = defineEmits(['handleResponse', 'cancel']);
 const props = defineProps({
@@ -72,7 +73,7 @@ const submitForm = async () => {
           maxRecord,
           kanbanId,
         }))
-        : formData.value.stages.map(({ id, name, description, maxRecord, kanbanId }) => ({
+        : formData.value.stages.map(({ name, description, maxRecord }) => ({
           name,
           description,
           maxRecord,
@@ -114,8 +115,6 @@ const resetForm = () => {
   };
 };
 
-console.log('KanbanFormComponent mounted with initial data:', props.initialData);
-
 onMounted(async () => {
   if (editorContainer.value) {
     const quill = new Quill(editorContainer.value, {
@@ -132,7 +131,7 @@ onMounted(async () => {
     });
 
     // Initialiser avec la description reçue (HTML)
-    if (props.initialData.description) {
+    if (formData.value.description) {
       quill.root.innerHTML = props.initialData.description;
     }
 
@@ -163,8 +162,8 @@ onMounted(async () => {
       <select
           id="template"
           v-model="selectedTemplate"
-          @change="applyTemplate"
           class="mt-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          @change="applyTemplate"
       >
         <option value=null selected>Aucun</option>
         <option v-for="template in props.templateKanban" :key="template.title" :value="template.title">
@@ -178,10 +177,10 @@ onMounted(async () => {
       <div class="mb-4">
         <label for="title" class="block text-gray-700 dark:text-gray-300">Titre</label>
         <input
-            type="text"
-            maxlength="50"
             id="title"
             v-model="formData.title"
+            type="text"
+            maxlength="50"
             class="mt-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             placeholder="Titre du Kanban"
             required
@@ -215,9 +214,9 @@ onMounted(async () => {
               <div class="flex-grow">
                 <label class="block text-gray-700 dark:text-gray-300">Nom de la colonne</label>
                 <input
+                    v-model="stage.name"
                     type="text"
                     maxlength="50"
-                    v-model="stage.name"
                     placeholder="Nom du statut"
                     class="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     required
@@ -226,8 +225,8 @@ onMounted(async () => {
               <div class="w-20">
                 <label class="block text-gray-700 dark:text-gray-300">Max</label>
                 <input
-                    type="text"
                     v-model="stage.maxRecord"
+                    type="text"
                     min="1"
                     max="99"
                     class="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-center"
@@ -241,8 +240,8 @@ onMounted(async () => {
               <label for="stageDescription" class="block text-gray-700 dark:text-gray-300">Description</label>
               <textarea
                   id="stageDescription"
-                  maxlength="150"
                   v-model="stage.description"
+                  maxlength="150"
                   placeholder="Description (facultatif)"
                   class="w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               ></textarea>
@@ -251,8 +250,8 @@ onMounted(async () => {
             <!-- Bouton Supprimer -->
             <button
                 type="button"
-                @click="removeStatus(index)"
                 class="text-red-600 font-bold mt-4"
+                @click="removeStatus(index)"
             >
               ✖ Supprimer
             </button>
@@ -263,8 +262,8 @@ onMounted(async () => {
         <!-- Ajouter un statut -->
         <button
             type="button"
-            @click="addStatus"
             class="text-blue-600 font-semibold mt-2"
+            @click="addStatus"
         >
           + Ajouter une colonne
         </button>
@@ -272,11 +271,15 @@ onMounted(async () => {
         <p v-if="defaultError" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ defaultError }}</p>
       </div>
 
+      <div v-if="error">
+        <p class="text-sm px-2 text-red-600 dark:text-red-400">{{ error }}</p>
+      </div>
+
       <!-- Boutons d'action -->
       <div class="flex justify-end gap-4">
         <button
-            @click="closeForm"
             class="w-full bg-gray-600 text-white px-6 py-3 rounded-lg"
+            @click="closeForm"
         >
           Annuler
         </button>

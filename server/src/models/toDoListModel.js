@@ -1,7 +1,8 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../database/connect.js';
 
-const ToDoList = sequelize.define('ToDoList',
+const ToDoList = sequelize.define(
+  'ToDoList',
   {
     id: {
       type: DataTypes.UUID,
@@ -22,8 +23,8 @@ const ToDoList = sequelize.define('ToDoList',
       defaultValue: 1,
       references: {
         model: 'to_do_list_type',
-        key: 'id'
-      }
+        key: 'id',
+      },
     },
   },
   {

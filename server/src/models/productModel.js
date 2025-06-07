@@ -1,7 +1,8 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../database/connect.js';
 
-const Product = sequelize.define('Product',
+const Product = sequelize.define(
+  'Product',
   {
     name: {
       type: DataTypes.STRING,

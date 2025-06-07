@@ -3,7 +3,7 @@ import {
   setStageEntity,
   setStageCreateValidator,
   setStageUpdateValidator,
-  isStageInKanban
+  isStageInKanban,
 } from '../middleware/stageMiddleware.js';
 import { validate } from '../middleware/ressourceMiddleware.js';
 import {
@@ -11,11 +11,12 @@ import {
   getAllStagesByKanban,
   getStageById,
   updateStage,
-  deleteStage
+  deleteStage,
 } from '../controllers/stageController.js';
 
 const router = express.Router({ mergeParams: true });
 
+router.use(setStageEntity);
 router.post('/', setStageCreateValidator, validate, createStage);
 
 router.get('/', getAllStagesByKanban);

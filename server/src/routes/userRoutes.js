@@ -7,16 +7,16 @@ import {
   addRoleUser,
   removeRoleUser,
   getConnectedUser,
-  updateConnectedUser
+  updateConnectedUser,
 } from '../controllers/userController.js';
 import {
   authenticateByCookieSession,
   isAdmin,
-  isModeratorOrAdmin
+  isModeratorOrAdmin,
 } from '../middleware/authMiddleware.js';
 import { setUpdateUserValidator } from '../middleware/userMiddleware.js';
 import { validate } from '../middleware/ressourceMiddleware.js';
-import upload from "../middleware/uploadMiddleware.js";
+import upload from '../middleware/uploadMiddleware.js';
 
 /** @type {import('express').Router} */
 const router = Router();

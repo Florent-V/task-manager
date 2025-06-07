@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+
 import { useAuthStore } from '@/stores/authStore';
 import NProgress from '@/plugins/nprogress';
 import authRoutes from "@/router/authRoutes.js";
@@ -9,7 +10,6 @@ import userRoutes from "@/router/userRoutes.js";
 import AboutView from '@/views/AboutView.vue';
 import NotFound from '@/views/NotFound.vue';
 import Forbidden from "@/views/Forbidden.vue";
-import ToDoListOverView from "@/views/ToDoList/ToDoListOverView.vue";
 import AccessDeniedView from "@/views/AccessDeniedView.vue";
 import HomeView from "@/views/HomeView.vue";
 

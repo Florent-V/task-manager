@@ -1,6 +1,7 @@
 <script setup>
-import { reactive, watch, onMounted } from 'vue';
+import { reactive, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+
 import { client } from '@/utils/requestMaker.js';
 import logger from "@/utils/logger.js";
 
@@ -42,7 +43,7 @@ watch(
   () => props.product,  // Surveille les changements de l'objet product
   (newProduct) => {
     for (const key in newProduct) {
-      if (newProduct.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(newProduct, key)) {
         localForm[key] = newProduct[key];  // Mets à jour les champs du formulaire
         if (key === 'releaseDate' && newProduct.releaseDate) {
           localForm.releaseDate = new Date(newProduct.releaseDate).toISOString().split('T')[0];
@@ -93,13 +94,13 @@ const submitForm = async () => {
     <div class="bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white p-6 rounded-lg shadow-md">
       <h1 class="text-2xl font-bold mb-6">{{ isEditMode ? 'Éditer le Produit' : 'Ajouter un Nouveau Produit' }}</h1>
       
-      <form @submit.prevent="submitForm" class="space-y-4" enctype="multipart/form-data">
+      <form class="space-y-4" enctype="multipart/form-data" @submit.prevent="submitForm">
         <div>
           <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nom du Produit</label>
           <input
+            id="name"
             v-model="localForm.name"
             type="text"
-            id="name"
             required
             class="bg-white dark:bg-gray-600 text-gray-900 dark:text-white p-2 rounded w-full"
           >
@@ -108,8 +109,8 @@ const submitForm = async () => {
         <div>
           <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
           <textarea
-            v-model="localForm.description"
             id="description"
+            v-model="localForm.description"
             required
             class="bg-white dark:bg-gray-600 text-gray-900 dark:text-white p-2 rounded w-full"
           ></textarea>
@@ -118,9 +119,9 @@ const submitForm = async () => {
         <div>
           <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Prix (€)</label>
           <input
+            id="price"
             v-model="localForm.price"
             type="number"
-            id="price"
             required
             step="0.01"
             class="bg-white dark:bg-gray-600 text-gray-900 dark:text-white p-2 rounded w-full"
@@ -130,9 +131,9 @@ const submitForm = async () => {
         <div>
           <label for="quantity" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Quantité</label>
           <input
+            id="quantity"
             v-model="localForm.quantity"
             type="number"
-            id="quantity"
             required
             class="bg-white dark:bg-gray-600 text-gray-900 dark:text-white p-2 rounded w-full"
           >
@@ -141,9 +142,9 @@ const submitForm = async () => {
         <div>
           <label for="releaseDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Date de Sortie</label>
           <input
+            id="releaseDate"
             v-model="localForm.releaseDate"
             type="date"
-            id="releaseDate"
             required
             class="bg-white dark:bg-gray-600 text-gray-900 dark:text-white p-2 rounded w-full"
           >
@@ -152,18 +153,18 @@ const submitForm = async () => {
         <div>
           <label for="image" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Image</label>
           <input
-            @change="handleFileUpload"
-            type="file"
             id="image"
+            type="file"
             class="bg-white dark:bg-gray-600 text-gray-900 dark:text-white p-2 rounded w-full"
+            @change="handleFileUpload"
           >
         </div>
 
         <div class="flex items-center">
           <input
+            id="available"
             v-model="localForm.available"
             type="checkbox"
-            id="available"
             class="mr-2 bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500 text-blue-600"
           >
           <label for="available" class="text-sm font-medium text-gray-700 dark:text-gray-300">Disponible</label>
