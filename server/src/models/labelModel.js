@@ -1,7 +1,8 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../database/connect.js';
 
-const Label = sequelize.define('Label',
+const Label = sequelize.define(
+  'Label',
   {
     name: {
       type: DataTypes.STRING,

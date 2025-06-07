@@ -43,7 +43,7 @@ export const authenticateByCookieSession = (req, res, next) => {
 export const checkAuth = (req, res, next) => {
   res.data = {
     username: req.user.username,
-    isAuthenticated: true
+    isAuthenticated: true,
   };
   next();
 };
@@ -59,7 +59,6 @@ export const isAdmin = async (req, res, next) => {
     if (access) return next();
 
     throw new ForbiddenError('Require Admin Role!');
-
   } catch (error) {
     return next(error);
   }
@@ -99,17 +98,16 @@ export const checkDuplicateUsernameOrEmail = async (req, res, next) => {
   try {
     const user = await User.findOne({
       where: {
-        [Op.or]: [
-          { username: req.body.username },
-          { email: req.body.email }
-        ]
-      }
+        [Op.or]: [{ username: req.body.username }, { email: req.body.email }],
+      },
     });
 
     if (user) {
-      throw new ConflictError(user.username === req.body.username
-                              ? 'Failed! Username is already in use!'
-                              : 'Failed! Email is already in use!');
+      throw new ConflictError(
+        user.username === req.body.username
+          ? 'Failed! Username is already in use!'
+          : 'Failed! Email is already in use!'
+      );
     }
 
     next();

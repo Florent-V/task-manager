@@ -9,22 +9,22 @@ export const defineAssociations = () => {
   models.user.belongsToMany(models.role, {
     through: 'user_role',
     foreignKey: 'userId',
-    otherKey: 'roleId'
+    otherKey: 'roleId',
   });
   models.role.belongsToMany(models.user, {
     through: 'user_role',
     foreignKey: 'roleId',
-    otherKey: 'userId'
+    otherKey: 'userId',
   });
   //
   // Relation user <-> product
   //
   models.product.belongsTo(models.user, {
     foreignKey: 'userId',
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   });
   models.user.hasMany(models.product, {
-    foreignKey: 'userId'
+    foreignKey: 'userId',
   });
   //
   // Relation user <-> refreshToken
@@ -34,7 +34,7 @@ export const defineAssociations = () => {
   });
   models.refreshToken.belongsTo(models.user, {
     foreignKey: 'userId',
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   });
   //
   // Relation user <-> toDoList
@@ -43,25 +43,25 @@ export const defineAssociations = () => {
     as: 'toDoLists',
     through: 'user_to_do_list',
     foreignKey: 'userId',
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   });
   models.toDoList.belongsToMany(models.user, {
     as: 'users',
     through: 'user_to_do_list',
     foreignKey: 'toDoListId',
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   });
   //
   // Relation toDoListType <-> toDoList
   //
   models.toDoListType.hasMany(models.toDoList, {
     foreignKey: 'typeId',
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   });
   models.toDoList.belongsTo(models.toDoListType, {
     as: 'type',
     foreignKey: 'typeId',
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   });
   //
   // Relation toDoList <-> toDoItem
@@ -69,23 +69,23 @@ export const defineAssociations = () => {
   models.toDoList.hasMany(models.toDoItem, {
     as: 'toDoItems',
     foreignKey: 'toDoListId',
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   });
   models.toDoItem.belongsTo(models.toDoList, {
     as: 'toDoList',
     foreignKey: 'toDoListId',
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   });
   //
   // Relation toDoItem <-> label
   //
   models.label.hasMany(models.toDoItem, {
     foreignKey: 'labelId',
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   });
   models.toDoItem.belongsTo(models.label, {
     foreignKey: 'labelId',
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   });
   //
   // Relation Many-to-Many Kanban et User
@@ -94,13 +94,13 @@ export const defineAssociations = () => {
     as: 'kanbans',
     through: 'user_kanban',
     foreignKey: 'userId',
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   });
   models.kanban.belongsToMany(models.user, {
     as: 'users',
     through: 'user_kanban',
     foreignKey: 'kanbanId',
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   });
   //
   // Relation Many-to-One Kanban et Stage
@@ -108,12 +108,12 @@ export const defineAssociations = () => {
   models.kanban.hasMany(models.stage, {
     as: 'stages',
     foreignKey: 'kanbanId',
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   });
   models.stage.belongsTo(models.kanban, {
     as: 'kanban',
     foreignKey: 'kanbanId',
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   });
   //
   // Relation Many-to-One Kanban et Task
@@ -121,12 +121,12 @@ export const defineAssociations = () => {
   models.kanban.hasMany(models.task, {
     as: 'tasks',
     foreignKey: 'kanbanId',
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   });
   models.task.belongsTo(models.kanban, {
     as: 'kanban',
     foreignKey: 'kanbanId',
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
   });
   //
   // Relation Many-to-One Stage et Task
@@ -134,12 +134,12 @@ export const defineAssociations = () => {
   models.stage.hasMany(models.task, {
     as: 'tasks',
     foreignKey: 'stageId',
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   });
   models.task.belongsTo(models.stage, {
     as: 'stage',
     foreignKey: 'stageId',
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   });
   //
   // Relation Many-to-One Priority et Task
@@ -147,12 +147,12 @@ export const defineAssociations = () => {
   models.priority.hasMany(models.task, {
     as: 'tasks',
     foreignKey: 'priorityId',
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   });
   models.task.belongsTo(models.priority, {
     as: 'priority',
     foreignKey: 'priorityId',
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   });
   //
   // Relation Many-to-One Size et Task
@@ -160,12 +160,12 @@ export const defineAssociations = () => {
   models.size.hasMany(models.task, {
     as: 'tasks',
     foreignKey: 'sizeId',
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   });
   models.task.belongsTo(models.size, {
     as: 'size',
     foreignKey: 'sizeId',
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   });
   //
   // Relation Many-to-One User et Task
@@ -173,11 +173,11 @@ export const defineAssociations = () => {
   models.user.hasMany(models.task, {
     as: 'tasks',
     foreignKey: 'assignedToId',
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   });
   models.task.belongsTo(models.user, {
     as: 'assignee',
     foreignKey: 'assignedToId',
-    onDelete: 'SET NULL'
+    onDelete: 'SET NULL',
   });
 };

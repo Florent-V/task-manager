@@ -4,11 +4,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
 import initDB from './database/init.js';
-import {
-  errorHandler,
-  notFound,
-  logError
-} from './middleware/errorMiddleware.js';
+import { errorHandler, notFound, logError } from './middleware/errorMiddleware.js';
 import { init, send, setRouteFound, start, end } from './middleware/inOutMiddleware.js';
 import { adminRouter } from './admin/admin.js';
 
@@ -21,7 +17,7 @@ import toDoListTypeRoutes from './routes/toDoListTypeRoute.js';
 import priorityRoutes from './routes/priorityRoutes.js';
 import sizeRoutes from './routes/sizeRoutes.js';
 import kanbanRoutes from './routes/kanbanRoutes.js';
-import { authenticateByCookieSession } from "./middleware/authMiddleware.js";
+import { authenticateByCookieSession } from './middleware/authMiddleware.js';
 
 dotenv.config();
 const app = express();
@@ -32,7 +28,7 @@ const corsOptions = {
   origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Origin', 'Content-Type', 'Accept'],
-  credentials: true // Autorise l'envoi de cookies et informations d'authentification
+  credentials: true, // Autorise l'envoi de cookies et informations d'authentification
 };
 
 // Enable CORS
@@ -47,13 +43,12 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use('/api/uploads', express.static('public/uploads'));
 // Utiliser le routeur AdminJS
 
-
 // Middlewares
 app.use(start);
 app.use(init);
 // Test Routes
 app.use('', testRoutes);
-app.use('/api/admin-panel',setRouteFound, authenticateByCookieSession, adminRouter);
+app.use('/api/admin-panel', setRouteFound, authenticateByCookieSession, adminRouter);
 // Auth Routes
 app.use('/api/auth', setRouteFound, authRoutes);
 // User Routes

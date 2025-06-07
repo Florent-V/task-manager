@@ -1,7 +1,23 @@
+/* eslint-disable */
+
 import sequelize from './connect.js';
 import models from '../models/index.js';
 
-const { role, user, product, toDoList, toDoListType, toDoItem, label, priority, size, kanban, task, stage, comment } = models;
+const {
+  role,
+  user,
+  product,
+  toDoList,
+  toDoListType,
+  toDoItem,
+  label,
+  priority,
+  size,
+  kanban,
+  task,
+  stage,
+  comment,
+} = models;
 
 export const seedDatabase = async () => {
   try {
@@ -110,7 +126,7 @@ export const seedDatabase = async () => {
         quantity: 125,
         releaseDate: new Date(),
         userId: users[2].id,
-      }
+      },
     ]);
 
     const labels = await label.bulkCreate([
@@ -122,7 +138,7 @@ export const seedDatabase = async () => {
       },
       {
         name: 'high',
-      }
+      },
     ]);
 
     const toDoListTypes = await toDoListType.bulkCreate([
@@ -134,9 +150,8 @@ export const seedDatabase = async () => {
       },
       {
         name: 'Shopping',
-      }
+      },
     ]);
-
 
     const toDoLists = await toDoList.bulkCreate([
       {
@@ -164,7 +179,7 @@ export const seedDatabase = async () => {
       {
         title: 'To Do List 6',
         description: 'Description of To Do List 6',
-      }
+      },
     ]);
 
     await toDoLists[0].addUsers([users[0], users[1]]);
@@ -234,7 +249,7 @@ export const seedDatabase = async () => {
         title: 'To Do Item 12',
         description: 'Description of To Do Item 12',
         toDoListId: toDoLists[5].id,
-      }
+      },
     ]);
 
     const priorities = await priority.bulkCreate([
@@ -267,11 +282,26 @@ export const seedDatabase = async () => {
     ]);
 
     const stages = await stage.bulkCreate([
-      { name: "Backlog", description: "Tâches à faire", maxRecord: 10, kanbanId: kanbans[0].id },
-      { name: "Ready", description: "Tâches prêtes à être réalisées", maxRecord: 5, kanbanId: kanbans[0].id },
-      { name: "In Progress", description: "Tâches en cours de réalisation", maxRecord: 3, kanbanId: kanbans[0].id },
-      { name: "In Review", description: "Tâches en cours de revue", maxRecord: 5, kanbanId: kanbans[0].id },
-      { name: "Done", description: "Tâches terminées", maxRecord: 5, kanbanId: kanbans[0].id },
+      { name: 'Backlog', description: 'Tâches à faire', maxRecord: 10, kanbanId: kanbans[0].id },
+      {
+        name: 'Ready',
+        description: 'Tâches prêtes à être réalisées',
+        maxRecord: 5,
+        kanbanId: kanbans[0].id,
+      },
+      {
+        name: 'In Progress',
+        description: 'Tâches en cours de réalisation',
+        maxRecord: 3,
+        kanbanId: kanbans[0].id,
+      },
+      {
+        name: 'In Review',
+        description: 'Tâches en cours de revue',
+        maxRecord: 5,
+        kanbanId: kanbans[0].id,
+      },
+      { name: 'Done', description: 'Tâches terminées', maxRecord: 5, kanbanId: kanbans[0].id },
     ]);
 
     const tasks = await task.bulkCreate([
@@ -287,8 +317,8 @@ export const seedDatabase = async () => {
         kanbanId: kanbans[0].id,
       },
       {
-        title: "Ajouter le drag and drop",
-        description: "Permettre le déplacement des tâches entre les colonnes",
+        title: 'Ajouter le drag and drop',
+        description: 'Permettre le déplacement des tâches entre les colonnes',
         priorityId: 2,
         sizeId: 2,
         stageId: 5,
@@ -298,8 +328,8 @@ export const seedDatabase = async () => {
         kanbanId: kanbans[0].id,
       },
       {
-        title: "Implémenter le backend",
-        description: "Créer les routes et les contrôleurs pour le backend",
+        title: 'Implémenter le backend',
+        description: 'Créer les routes et les contrôleurs pour le backend',
         priorityId: 3,
         sizeId: 3,
         stageId: 4,
@@ -310,7 +340,7 @@ export const seedDatabase = async () => {
       },
       {
         title: "Tester l'application",
-        description: "Effectuer des tests unitaires et fonctionnels",
+        description: 'Effectuer des tests unitaires et fonctionnels',
         priorityId: 1,
         sizeId: 2,
         stageId: 3,
@@ -331,7 +361,7 @@ export const seedDatabase = async () => {
         kanbanId: kanbans[0].id,
       },
       {
-        title: "Ajouter des fonctionnalités",
+        title: 'Ajouter des fonctionnalités',
         description: "Ajouter des fonctionnalités supplémentaires à l'application",
         priorityId: 1,
         sizeId: 5,

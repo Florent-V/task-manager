@@ -5,7 +5,16 @@ import NotFoundError from '../error/notFoundError.js';
 export const createTask = async (req, res, next) => {
   try {
     const { id: kanbanId } = req.params;
-    const { title, description, estimation, loggedTime, priorityId, sizeId, stageId, assignedToId } = req.body;
+    const {
+      title,
+      description,
+      estimation,
+      loggedTime,
+      priorityId,
+      sizeId,
+      stageId,
+      assignedToId,
+    } = req.body;
 
     const newTask = await Task.create({
       title,
@@ -16,7 +25,7 @@ export const createTask = async (req, res, next) => {
       sizeId,
       stageId,
       assignedToId,
-      kanbanId
+      kanbanId,
     });
     const createdTask = await Task.findByPk(newTask.id);
 
@@ -35,7 +44,7 @@ export const getAllTasksByKanban = async (req, res, next) => {
     const { id: kanbanId } = req.params;
 
     res.data = {
-      task: await Task.findAll({ where: { kanbanId } })
+      task: await Task.findAll({ where: { kanbanId } }),
     };
 
     next();
@@ -65,7 +74,16 @@ export const getTaskById = async (req, res, next) => {
 export const updateTask = async (req, res, next) => {
   try {
     const { taskId } = req.params;
-    const { title, description, estimation, loggedTime, priorityId, sizeId, stageId, assignedToId } = req.body;
+    const {
+      title,
+      description,
+      estimation,
+      loggedTime,
+      priorityId,
+      sizeId,
+      stageId,
+      assignedToId,
+    } = req.body;
 
     const [updated] = await Task.update(
       { title, description, estimation, loggedTime, priorityId, sizeId, stageId, assignedToId },

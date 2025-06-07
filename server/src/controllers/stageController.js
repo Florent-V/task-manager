@@ -23,7 +23,7 @@ export const getAllStagesByKanban = async (req, res, next) => {
     const { id: kanbanId } = req.params;
 
     res.data = {
-      stages: await Stage.findAll({ where: { kanbanId } })
+      stages: await Stage.findAll({ where: { kanbanId } }),
     };
     next();
   } catch (error) {
@@ -54,7 +54,10 @@ export const updateStage = async (req, res, next) => {
     const { stageId } = req.params;
     const { name, description, maxRecord } = req.body;
 
-    const [updated] = await Stage.update({ name, description, maxRecord }, { where: { id: stageId } });
+    const [updated] = await Stage.update(
+      { name, description, maxRecord },
+      { where: { id: stageId } }
+    );
 
     if (!updated) throw new NotFoundError('Stage not found');
 

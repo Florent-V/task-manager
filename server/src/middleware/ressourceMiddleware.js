@@ -26,7 +26,8 @@ export const getUserRessourceById = async (req, res, next) => {
 
     const resource = await req.entity.findOne({ where: { id, userId } });
 
-    if (!resource) throw new ForbiddenError('Access denied: You do not have permission to access this product');
+    if (!resource)
+      throw new ForbiddenError('Access denied: You do not have permission to access this product');
 
     res.data[lowercaseFirstLetter(req.entity.options.name.singular)] = resource;
     next();
@@ -39,8 +40,13 @@ export const authorizeManyToManyRessourceAccess = async (req, res, next) => {
   try {
     const userId = req.user.id;
 
-    if (!userId ||!await res.data[lowercaseFirstLetter(req.entity.options.name.singular)].hasUser(req.user.id)) {
-      throw new ForbiddenError('Access denied: You do not have permission to access this ressource');
+    if (
+      !userId ||
+      !(await res.data[lowercaseFirstLetter(req.entity.options.name.singular)].hasUser(req.user.id))
+    ) {
+      throw new ForbiddenError(
+        'Access denied: You do not have permission to access this ressource'
+      );
     }
 
     next();
@@ -52,7 +58,9 @@ export const authorizeManyToManyRessourceAccess = async (req, res, next) => {
 export const authorizeRessourceAccess = async (req, res, next) => {
   try {
     if (req.data.userId !== req.user.id) {
-      throw new ForbiddenError('Access denied: You do not have permission to access this ressource');
+      throw new ForbiddenError(
+        'Access denied: You do not have permission to access this ressource'
+      );
     }
     res.data[lowercaseFirstLetter(req.entity.options.name.singular)] = req.data;
     next();
@@ -65,9 +73,9 @@ export const validate = (req, res, next) => {
   try {
     const { error } = req.schema.validate(req.body, { abortEarly: false });
     if (error) {
-      const errors = error.details.map(err => ({
+      const errors = error.details.map((err) => ({
         field: err.path[0], // Nom du champ
-        message: err.message // Message d'erreur
+        message: err.message, // Message d'erreur
       }));
 
       throw new BadRequestError('Invalid input', errors);

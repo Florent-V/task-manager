@@ -27,7 +27,9 @@ export const getById = async (req, res, next) => {
 
 export const create = async (req, res, next) => {
   try {
-    res.data[lowercaseFirstLetter(req.entity.options.name.singular)] = await req.entity.create(req.body);
+    res.data[lowercaseFirstLetter(req.entity.options.name.singular)] = await req.entity.create(
+      req.body
+    );
     next();
   } catch (error) {
     return next(error);
@@ -55,7 +57,10 @@ export const remove = async (req, res, next) => {
     const { id } = req.params;
     const deleted = await req.entity.destroy({ where: { id } });
 
-    if (!deleted) throw new NotFoundError(`No record found in ${req.entity.options.name.singular} with id ${id}`);
+    if (!deleted)
+      throw new NotFoundError(
+        `No record found in ${req.entity.options.name.singular} with id ${id}`
+      );
 
     res.status(204).json();
   } catch (error) {

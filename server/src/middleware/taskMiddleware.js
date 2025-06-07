@@ -40,12 +40,12 @@ export const checkTaskRelationship = async (req, res, next) => {
 
     const kanban = res.data.kanban;
     // check if the user is in the kanban
-    if (assignedToId && !kanban.users.find(user => user.id === assignedToId)) {
+    if (assignedToId && !kanban.users.find((user) => user.id === assignedToId)) {
       throw new NotFoundError('User not found in kanban');
     }
 
     // check if the stage is in the kanban
-    if (stageId && !kanban.stages.find(stage => stage.id === stageId)) {
+    if (stageId && !kanban.stages.find((stage) => stage.id === stageId)) {
       throw new NotFoundError('Stage not found in kanban');
     }
 

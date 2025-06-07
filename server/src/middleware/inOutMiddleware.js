@@ -13,7 +13,6 @@ export const setRouteFound = (req, res, next) => {
   next();
 };
 
-
 export const send = (req, res) => {
   if (res.routeFound) {
     if (Object.keys(res.data).length > 0) {
@@ -29,17 +28,13 @@ export const send = (req, res) => {
 };
 
 export const start = (req, res, next) => {
-  console.log(
-    `Request started on ${req.method}$ - ${req.originalUrl}`,
-  );
+  console.log(`Request started on ${req.method}$ - ${req.originalUrl}`);
   req.perf = Date.now();
   next();
-}
+};
 
 export const end = (req, res, next) => {
   const delta = Date.now() - req.perf;
-  console.log(
-    `Request ended on ${req.method}${req.headers["x-forwarded-path"]} in ${delta}ms`,
-  );
+  console.log(`Request ended on ${req.method}${req.headers['x-forwarded-path']} in ${delta}ms`);
   next();
-}
+};

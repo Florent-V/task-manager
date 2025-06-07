@@ -15,5 +15,3 @@ export const setUpdateValidator = (req, res, next) => {
   req.schema = toDoListTypeSchema;
   next();
 };
-
-

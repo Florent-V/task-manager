@@ -9,20 +9,21 @@ import NotFoundError from '../error/notFoundError.js';
 const includeToDoList = [
   {
     model: ToDoItem,
-    as: 'toDoItems'
+    as: 'toDoItems',
   },
   {
     model: ToDoListType,
     as: 'type',
     attributes: ['id', 'name'],
-  }
+  },
 ];
 
 // Création d'un ToDoList
 export const createToDoList = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    if (!userId) throw new ForbiddenError('Access denied: You do not have permission to create ToDoList');
+    if (!userId)
+      throw new ForbiddenError('Access denied: You do not have permission to create ToDoList');
 
     // Crée une nouvelle todolist
     const newToDoList = await ToDoList.create(req.body);
@@ -30,7 +31,7 @@ export const createToDoList = async (req, res, next) => {
     await newToDoList.addUsers([userId]);
     // Récupère la todolist avec les items et le type
     const toDoList = await ToDoList.findByPk(newToDoList.id, {
-      include: includeToDoList
+      include: includeToDoList,
     });
 
     res.statusCode = 201;
@@ -45,9 +46,7 @@ export const createToDoList = async (req, res, next) => {
 // Récupération de tous les ToDoList
 export const getAllToDoLists = async (req, res, next) => {
   try {
-    res.data.toDoLists = await ToDoList.findAll(
-      { include: includeToDoList }
-    );
+    res.data.toDoLists = await ToDoList.findAll({ include: includeToDoList });
     next();
   } catch (error) {
     return next(error);
@@ -58,7 +57,8 @@ export const getAllToDoLists = async (req, res, next) => {
 export const getAllToDoListsByUser = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    if (!userId) throw new ForbiddenError('Access denied: You do not have permission to access ToDoList');
+    if (!userId)
+      throw new ForbiddenError('Access denied: You do not have permission to access ToDoList');
 
     res.data.toDoLists = await ToDoList.findAll({
       include: [
@@ -67,9 +67,9 @@ export const getAllToDoListsByUser = async (req, res, next) => {
           model: User,
           as: 'users',
           where: { id: userId },
-          attributes: []
-        }
-      ]
+          attributes: [],
+        },
+      ],
     });
     next();
   } catch (error) {
@@ -81,7 +81,7 @@ export const getAllToDoListsByUser = async (req, res, next) => {
 export const getToDoListById = async (req, res, next) => {
   try {
     const toDoList = await ToDoList.findByPk(req.params.id, {
-      include: includeToDoList
+      include: includeToDoList,
     });
     if (!toDoList) throw new NotFoundError('ToDoList Not Found');
 
@@ -95,24 +95,25 @@ export const getToDoListById = async (req, res, next) => {
 export const getUserToDoListById = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    if (!userId) throw new ForbiddenError('Access denied: You do not have permission to access ToDoList');
+    if (!userId)
+      throw new ForbiddenError('Access denied: You do not have permission to access ToDoList');
 
     const { id } = req.params;
     const todolist = await ToDoList.findOne({
-        include: [
-          ...includeToDoList,
-          {
-            model: User,
-            as: 'users',
-            where: { id: userId },
-            attributes: []
-          }
-        ],
-        where: { id }
-      }
-    );
+      include: [
+        ...includeToDoList,
+        {
+          model: User,
+          as: 'users',
+          where: { id: userId },
+          attributes: [],
+        },
+      ],
+      where: { id },
+    });
 
-    if (!todolist) throw new ForbiddenError('Access denied: You do not have permission to access this product');
+    if (!todolist)
+      throw new ForbiddenError('Access denied: You do not have permission to access this product');
 
     res.data = todolist;
 
@@ -127,13 +128,13 @@ export const updateToDoList = async (req, res, next) => {
   try {
     if (req.file) req.body.image = req.file.filename;
     const [updated] = await ToDoList.update(req.body, {
-      where: { id: req.params.id }
+      where: { id: req.params.id },
     });
 
     if (!updated) throw new NotFoundError('ToDoList Not Found');
 
     res.data.toDoList = await ToDoList.findByPk(req.params.id, {
-      include: includeToDoList
+      include: includeToDoList,
     });
     next();
   } catch (error) {
@@ -152,10 +153,9 @@ export const shareToDoList = async (req, res, next) => {
       if (err) return res.status(500).json({ error: 'Erreur QR Code' });
       res.json({
         qrCodeUrl: url,
-        linkUrl: shareLink
+        linkUrl: shareLink,
       });
     });
-
   } catch (error) {
     return next(error);
   }
@@ -174,13 +174,14 @@ export const addMemberByMail = async (req, res, next) => {
   } catch (error) {
     return next(error);
   }
-}
+};
 
 // join todolist
 export const joinToDoList = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    if (!userId) throw new ForbiddenError('Access denied: You do not have permission to join ToDoList');
+    if (!userId)
+      throw new ForbiddenError('Access denied: You do not have permission to join ToDoList');
 
     // vérifier si userId est déjà dans la liste
     const isUserInList = await res.data.toDoList.hasUser(userId);

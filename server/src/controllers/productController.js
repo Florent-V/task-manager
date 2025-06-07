@@ -43,7 +43,7 @@ export const updateProduct = async (req, res, next) => {
   try {
     if (req.file) req.body.image = req.file.filename;
     const [updated] = await Product.update(req.body, {
-      where: { id: req.params.id }
+      where: { id: req.params.id },
     });
 
     if (!updated) throw new NotFoundError('Product Not Found');
@@ -59,7 +59,7 @@ export const updateProduct = async (req, res, next) => {
 export const deleteProduct = async (req, res, next) => {
   try {
     const deleted = await Product.destroy({
-      where: { id: req.params.id }
+      where: { id: req.params.id },
     });
 
     if (!deleted) throw new NotFoundError('Product Not Found');

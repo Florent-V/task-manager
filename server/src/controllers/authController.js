@@ -9,7 +9,7 @@ import {
   storeRefreshToken,
   validateRefreshToken,
   rotateRefreshToken,
-  decodeToken
+  decodeToken,
 } from '../services/tokenService.js';
 
 // Options des cookies
@@ -19,16 +19,16 @@ const refreshTokensCookieOptions = {
   sameSite: 'Strict',
   maxAge: config.refreshTokenCookieLifetime,
   signed: true,
-  path: '/api/auth/refresh-token'
+  path: '/api/auth/refresh-token',
 };
 
 const accessTokensCookieOptions = {
   httpOnly: true,
   secure: true,
   sameSite: 'Strict',
-  maxAge: config.accessTokenCookieLifetime,  // 1 heure
+  maxAge: config.accessTokenCookieLifetime, // 1 heure
   signed: true,
-  path: '/'
+  path: '/',
 };
 
 export const signup = async (req, res, next) => {
@@ -37,7 +37,7 @@ export const signup = async (req, res, next) => {
 
     const user = await User.create({
       ...req.body,
-      password: hashedPassword
+      password: hashedPassword,
     });
     await user.setRoles([1]);
 
@@ -80,7 +80,9 @@ export const signin = async (req, res, next) => {
 
 export const handleRefreshToken = async (req, res, next) => {
   try {
-    const { userRefreshTokenEntity, userId } = await validateRefreshToken(req.signedCookies.refresh_token);
+    const { userRefreshTokenEntity, userId } = await validateRefreshToken(
+      req.signedCookies.refresh_token
+    );
 
     const user = await User.findByPk(userId);
     if (!user) {
@@ -88,10 +90,7 @@ export const handleRefreshToken = async (req, res, next) => {
     }
 
     // Génération new access token
-    const {
-      token: newAccessToken,
-      refreshToken: newRefreshTokenValue
-    } = createAuthTokens(user);
+    const { token: newAccessToken, refreshToken: newRefreshTokenValue } = createAuthTokens(user);
 
     // Mise à jour des tokens
     await rotateRefreshToken(userRefreshTokenEntity, newRefreshTokenValue);
@@ -116,14 +115,14 @@ export const logout = async (req, res) => {
       httpOnly: true,
       secure: true,
       sameSite: 'Strict',
-      path: '/api/auth/refresh-token'
+      path: '/api/auth/refresh-token',
     });
 
     res.clearCookie('access_token', {
       httpOnly: true,
       secure: true,
       sameSite: 'Strict',
-      path: '/'
+      path: '/',
     });
 
     const token = req.signedCookies.access_token;
@@ -134,7 +133,7 @@ export const logout = async (req, res) => {
     }
 
     return res.status(200).send({
-      message: 'You\'ve been signed out successfully!'
+      message: "You've been signed out successfully!",
     });
   } catch (error) {
     console.log('error', error);

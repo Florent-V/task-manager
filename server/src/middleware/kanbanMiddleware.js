@@ -1,6 +1,5 @@
 import Kanban from '../models/kanbanModel.js';
-import { newKanbanSchema, kanbanSchema, updateKanbanSchema } from '../joiSchema/kanbanSchema.js';
-
+import { kanbanSchema, updateKanbanSchema } from '../joiSchema/kanbanSchema.js';
 
 export const setKanbanEntity = (req, res, next) => {
   req.entity = Kanban;

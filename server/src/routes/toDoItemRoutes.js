@@ -2,7 +2,7 @@ import express from 'express';
 import {
   setCreateValidator,
   setUpdateValidator,
-  isToDoItemInToDoList
+  isToDoItemInToDoList,
 } from '../middleware/toDoItemMiddleware.js';
 import { validate } from '../middleware/ressourceMiddleware.js';
 import {
@@ -10,9 +10,9 @@ import {
   getToDoItems,
   getToDoItemById,
   updateToDoItem,
-  deleteToDoItem
+  deleteToDoItem,
 } from '../controllers/toDoItemController.js';
-import upload from "../middleware/uploadMiddleware.js";
+import upload from '../middleware/uploadMiddleware.js';
 
 const router = express.Router({ mergeParams: true });
 

@@ -1,6 +1,6 @@
 import NotFoundError from '../error/notFoundError.js';
 
-export const errorHandler = (error, req, res, next) => {
+export const errorHandler = (error, req, res) => {
   console.log('errorHandler()');
 
   // Vide le corps de la réponse
@@ -10,7 +10,7 @@ export const errorHandler = (error, req, res, next) => {
     name: error.name,
     message: error.message,
     status: error.status || 500,
-    errors: error.errors || [] // Ajoute le tableau d'erreurs si disponible
+    errors: error.errors || [], // Ajoute le tableau d'erreurs si disponible
   };
 
   if (process.env.NODE_ENV === 'development') {
