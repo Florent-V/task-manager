@@ -91,6 +91,22 @@ services:
     networks:
       - internal
 
+#########################################
+#   Setup Mailpit container
+#########################################
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: mailpit
+    ports:
+      - "1025:1025" # SMTP port
+      - "8025:8025" # Web UI port
+    restart: unless-stopped
+    networks:
+      - internal
+    # Optional: Define a volume for persistent data if needed
+    # volumes:
+    #   - mailpit-data:/data
+
 networks:
   internal:
     driver: bridge
@@ -100,3 +116,4 @@ volumes:
   db-config:
   api_node_modules:
   client_node_modules:
+  # mailpit-data: # Ensure this is defined if you uncomment the volume in the mailpit service

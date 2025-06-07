@@ -8,6 +8,7 @@ import {
   getKanbansByUser,
   updateKanban,
   shareKanban,
+  shareKanbanByEmail,
   addMemberByMail,
   joinKanban,
   leaveKanban,
@@ -50,6 +51,8 @@ router.use('/:id/task', getKanbanAndCheckAccess, taskRoutes);
 
 // share kanban
 router.post('/:id/share', getKanbanAndCheckAccess, shareKanban);
+// Share kanban by email
+router.post('/:id/share-email', getKanbanAndCheckAccess, shareKanbanByEmail);
 // Add member by mail
 router.post('/:id/add-member', getKanbanAndCheckAccess, addMemberByMail);
 // join kanban

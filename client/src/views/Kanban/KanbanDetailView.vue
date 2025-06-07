@@ -157,6 +157,21 @@ const shareKanban = async () => {
   }
 };
 
+const handleShareByEmail = async (payload) => {
+  try {
+    const requestBody = { email: payload.email, linkUrl: linkUrl.value };
+    await executeRequest(() => client.post(`/api/kanban/${route.params.id}/share-email`, requestBody));
+    logger.info(`Kanban shared successfully with ${payload.email}`);
+    // Optionally, display a success message to the user, e.g., using a toaster
+    alert(`Kanban partagé avec ${payload.email}`);
+    showQRCodeModal.value = false; // Close the modal
+  } catch (err) {
+    logger.error('Error sharing Kanban by email:', err?.response?.data?.message || err.message);
+    // Optionally, display an error message to the user
+    alert(`Erreur lors du partage du Kanban par email: ${err?.response?.data?.message || err.message}`);
+  }
+};
+
 const fetchKanban = async () => {
   try {
     const data = await executeRequest(() => client.get(`/api/kanban/${route.params.id}/`));
@@ -384,6 +399,7 @@ xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 2
         :link-url="linkUrl"
         :qr-code-url="qrCodeUrl"
         @close="showQRCodeModal = false"
+         @share-by-email="handleShareByEmail"
     />
 
     <TaskFormModal
