@@ -26,8 +26,8 @@ function closeModal() {
     >
       <!-- Bouton fermer -->
       <button
-          @click="closeModal"
           class="absolute top-3 right-3 text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white"
+          @click="closeModal"
       >
         <v-icon name="md-close" scale="1.2"/>
       </button>

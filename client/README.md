@@ -65,11 +65,11 @@ To integrate ESLint with WebStorm for real-time feedback and auto-fixing:
     *   Check the `Enable` box.
 
 2.  **Configuration**:
-    *   Select `Automatic ESLint configuration`. WebStorm should automatically detect the ESLint package (`eslint`) and configuration file (`.eslintrc.cjs`) in the `client` project.
+    *   Select `Automatic ESLint configuration`. WebStorm should automatically detect the ESLint package (`eslint`) and configuration file (`eslint.config.cjs`) in the `client` project.
     *   If not, you can manually specify:
         *   **Node interpreter**: Set this to your project's Node.js interpreter.
         *   **ESLint package**: Select the `eslint` package located in `node_modules/eslint` within the `client` directory.
-        *   **Configuration file**: Select the `.eslintrc.cjs` file in the `client` directory.
+        *   **Configuration file**: Select the `eslint.config.cjs` file in the `client` directory.
 
 3.  **Run ESLint on Save (Optional but Recommended)**:
     *   Still in the ESLint settings, you might find an option like `Run eslint --fix on save`. If available, enabling this will automatically format your code according to ESLint rules when you save a file. The existing `lint` script (`eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore`) already includes `--fix`.

@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
 import logger from "@/utils/logger.js";
@@ -70,10 +71,11 @@ onMounted(fetchSizes);
       <h1 class="text-4xl font-bold my-4 text-center text-blue-800 dark:text-yellow-300">Sizing</h1>
       <!-- Add button -->
       <div v-if="!showForm" class="text-right">
-        <button @click="openCreateForm" class="bg-blue-600 dark:bg-yellow-400 text-white px-3 py-3 rounded-full">
+        <button class="bg-blue-600 dark:bg-yellow-400 text-white px-3 py-3 rounded-full" @click="openCreateForm">
           <span class="flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd"
+            <path
+fill-rule="evenodd"
                   d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
                   clip-rule="evenodd"/>
           </svg>
@@ -103,7 +105,8 @@ onMounted(fetchSizes);
           </tr>
           </thead>
           <tbody>
-            <tr v-for="size in sizes" :key="size.id"
+            <tr
+v-for="size in sizes" :key="size.id"
                 class="hover:bg-gray-100 dark:hover:bg-gray-600 transition">
               <td
                   class="hidden md:table-cell border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300 cursor-pointer"
@@ -133,12 +136,14 @@ onMounted(fetchSizes);
               </td>
               <td class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-center">
                 <div class="flex justify-around">
-                  <button @click="openEditForm(size)"
-                          class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
+                  <button
+class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500"
+                          @click="openEditForm(size)">
                     <v-icon name="fa-edit" scale="1.3" />
                   </button>
-                  <button @click="deleteSize(size)"
-                          class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
+                  <button
+class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500"
+                          @click="deleteSize(size)">
                     <v-icon name="fa-regular-trash-alt" scale="1.3" />
                   </button>
                 </div>
@@ -158,8 +163,8 @@ onMounted(fetchSizes);
 
     <div class="text-right mt-6">
       <button
-          @click="openCreateForm()"
           class="mt-4 bg-blue-600 dark:bg-yellow-400 text-white dark:text-gray-900 px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 dark:hover:bg-yellow-500 transition"
+          @click="openCreateForm()"
       >
         Ajouter un Sizing
       </button>
@@ -168,8 +173,8 @@ onMounted(fetchSizes);
     <!-- Modale avec le formulaire -->
     <ModalComponent v-if="showForm" @close="closeForm">
       <SizeFormComponent
-          :initialData="selectedSize"
-          @handleResponse="handleResponseFormSubmit"
+          :initial-data="selectedSize"
+          @handle-response="handleResponseFormSubmit"
           @cancel="closeForm"
       />
     </ModalComponent>

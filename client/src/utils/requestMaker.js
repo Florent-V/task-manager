@@ -1,7 +1,9 @@
 import axios from "axios";
+
 import { useAuthStore } from "@/stores/authStore";
-import router from '../router';
 import logger from "@/utils/logger.js";
+
+import router from '../router';
 
 logger.debug('VITE_API_BASE_URL', import.meta.env.VITE_API_BASE_URL)
 export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL.includes('localhost')

@@ -1,7 +1,8 @@
 <script setup>
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '@/stores/authStore';
 import { ref } from 'vue';
+
+import { useAuthStore } from '@/stores/authStore';
 import logger from "@/utils/logger.js";
 import useFormErrors from "@/utils/handleFormErrors.js";
 
@@ -49,7 +50,8 @@ const handleLogin = async () => {
           <div class="mt-6">
             <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email address</label>
             <div class="mt-1">
-              <input v-model="loginForm.email" id="email" type="email" required autocomplete="email"
+              <input
+id="email" v-model="loginForm.email" type="email" required autocomplete="email"
                 class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100 sm:text-sm">
             </div>
             <p v-if="errors.email" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.email }}</p>
@@ -58,7 +60,8 @@ const handleLogin = async () => {
           <div class="mt-6">
             <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
             <div class="mt-1">
-              <input v-model="loginForm.password" id="password" type="password" required autocomplete="current-password"
+              <input
+id="password" v-model="loginForm.password" type="password" required autocomplete="current-password"
                 class="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-gray-100 sm:text-sm">
             </div>
             <p v-if="errors.password" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.password }}</p>

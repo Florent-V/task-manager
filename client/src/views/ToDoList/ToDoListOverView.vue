@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from '@/utils/requestHook.js';
 import logger from '@/utils/logger.js';
@@ -88,9 +89,9 @@ onMounted(fetchToDoLists);
     <!-- ToDoForm -->
     <ToDoListFormComponent
         v-if="showForm"
-        :initialData="selectedToDo"
+        :initial-data="selectedToDo"
         @cancel="closeForm"
-        @handleResponse="handleResponseFormSubmit"
+        @handle-response="handleResponseFormSubmit"
     />
 
     <!-- Loader -->
@@ -129,11 +130,13 @@ onMounted(fetchToDoLists);
             </td>
             <td class="border-t border-gray-300 dark:border-gray-600 px-4 py-4 text-center">
               <div class="flex justify-around">
-                <button class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500"
+                <button
+class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500"
                         @click="openEditForm(list)">
                   <v-icon name="fa-edit" scale="1.2"/>
                 </button>
-                <button class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500"
+                <button
+class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500"
                         @click="deleteList(list)">
                   <v-icon name="fa-regular-trash-alt" scale="1.2"/>
                 </button>

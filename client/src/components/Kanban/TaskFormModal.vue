@@ -1,11 +1,12 @@
 <script setup>
 import { ref, watch, computed, onMounted } from "vue";
 import { useRoute } from 'vue-router';
+import Quill from 'quill';
+
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
 import logger from "@/utils/logger.js";
 import useFormErrors from "@/utils/handleFormErrors.js";
-import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
 
 const route = useRoute();
@@ -146,7 +147,7 @@ onMounted(async () => {
           {{ isEditing ? "Modifier la tâche" : "Créer une tâche" }}
 
         </h2>
-        <button @click="closeForm" class="text-gray-500 dark:text-gray-300 hover:text-red-500">
+        <button class="text-gray-500 dark:text-gray-300 hover:text-red-500" @click="closeForm">
           <v-icon name="md-close" />
         </button>
       </div>
@@ -158,8 +159,8 @@ onMounted(async () => {
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Titre</label>
             <input
-                type="text"
                 v-model="formData.title"
+                type="text"
                 class="w-full mt-1 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
                 placeholder="Titre de la tâche"
             />
@@ -211,8 +212,8 @@ onMounted(async () => {
             <div class="flex-1">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Temps estimé (h)</label>
               <input
-                  type="text"
                   v-model="formData.estimation"
+                  type="text"
                   class="w-full mt-1 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
                   placeholder="Temps estimé"
               />
@@ -221,8 +222,8 @@ onMounted(async () => {
             <div class="flex-1">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Temps consigné (h)</label>
               <input
-                  type="text"
                   v-model="formData.loggedTime"
+                  type="text"
                   class="w-full mt-1 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
                   placeholder="Temps consigné"
               />
@@ -267,8 +268,8 @@ onMounted(async () => {
         <!-- Footer -->
         <div class="flex justify-end mt-6 space-x-4">
           <button
-              @click="closeForm"
               class="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700"
+              @click="closeForm"
           >
             Annuler
           </button>

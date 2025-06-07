@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
+
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
 import logger from "@/utils/logger.js";
@@ -141,7 +142,8 @@ onMounted( async () => {
 <template>
 
   <div v-if="!inlineForm" class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg dark:shadow-gray-700 mb-3">
-    <h2 v-if="!isEditing"
+    <h2
+v-if="!isEditing"
         class="mb-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-t-lg text-xl font-semibold">
       {{ isEditing ? 'Edition :' : 'Nouvelle tâche :' }}
     </h2>
@@ -151,12 +153,12 @@ onMounted( async () => {
           <!-- Name field -->
           <div class="relative col-span-2 md:col-span-3">
             <input
+                id="title"
+                v-model="formData.title"
                 type="text"
                 maxlength="50"
-                id="title"
                 placeholder=" "
                 class="peer border border-gray-300 dark:border-gray-600 pt-6 pb-2 p-4 rounded-lg md:rounded-r-none focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 transition w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                v-model="formData.title"
             />
             <label
                 for="title"
@@ -165,7 +167,8 @@ onMounted( async () => {
               Titre
             </label>
             <ul v-if="suggestions.length" class="absolute z-10 w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg mt-1">
-              <li v-for="suggestion in suggestions" :key="suggestion.id"
+              <li
+v-for="suggestion in suggestions" :key="suggestion.id"
                   class="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
                   @click="selectSuggestion(suggestion)">
                 {{ suggestion.title }}
@@ -177,8 +180,8 @@ onMounted( async () => {
           <div class="relative col-span-2 md:col-span-1">
             <!-- Hidden file input -->
             <input
-                type="file"
                 id="image"
+                type="file"
                 accept="image/*"
                 capture="environment"
                 class="hidden"
@@ -219,8 +222,8 @@ onMounted( async () => {
           <div class="text-center flex col-span-2 md:col-span-2 md:mr-1">
             <button
                 type="button"
-                @click="closeForm"
                 class="w-full m-0 bg-gray-600 text-white px-6 py-3 rounded-lg"
+                @click="closeForm"
             >
               Cancel
             </button>
@@ -274,11 +277,11 @@ onMounted( async () => {
   <div v-if="inlineForm">
     <form @submit.prevent="submitForm">
       <input
+          id="title"
+          v-model="formData.title"
           class="peer border border-gray-300 dark:border-gray-600 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 transition w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           type="text"
           maxlength="50"
-          id="title"
-          v-model="formData.title"
           @blur="submitForm"
       />
     </form>

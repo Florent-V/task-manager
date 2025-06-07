@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
+
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
 import logger from '@/utils/logger.js';
@@ -98,10 +99,10 @@ onMounted(fetchComments);
           {{ task.title }}
         </h2>
         <div class="flex space-x-4">
-          <button @click="editTask" class="text-gray-500 dark:text-gray-300 hover:text-blue-500">
+          <button class="text-gray-500 dark:text-gray-300 hover:text-blue-500" @click="editTask">
             <v-icon name="fa-edit" />
           </button>
-          <button @click="showDeleteConfirmationModal = true" class="text-gray-500 dark:text-gray-300 hover:text-red-500">
+          <button class="text-gray-500 dark:text-gray-300 hover:text-red-500" @click="showDeleteConfirmationModal = true">
             <v-icon name="md-delete" />
           </button>
         </div>
@@ -168,7 +169,7 @@ onMounted(fetchComments);
         <CommentFormComponent
           :comment="selectedComment"
           :task="props.task"
-          @handleResponse="handleResponseFormSubmit"
+          @handle-response="handleResponseFormSubmit"
         />
 
       </div>
@@ -176,8 +177,8 @@ onMounted(fetchComments);
       <!-- Footer -->
       <div class="flex justify-end mt-6">
         <button
-            @click="closeModal"
             class="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700"
+            @click="closeModal"
         >
           Fermer
         </button>

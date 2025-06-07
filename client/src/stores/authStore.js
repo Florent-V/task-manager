@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+
 import { client } from '@/utils/requestMaker.js';
 import logger from "@/utils/logger.js";
 

@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
+
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from '@/utils/requestHook.js';
 import useFormErrors from '@/utils/handleFormErrors.js';
@@ -76,7 +77,7 @@ const resetForm = () => {
 </script>
 
 <template>
-  <form @submit.prevent="submitForm" class="mt-6 space-y-4">
+  <form class="mt-6 space-y-4" @submit.prevent="submitForm">
     <textarea
       v-model="formData.content"
       rows="3"

@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+
 import { useCounterStore } from '@/stores/counter.js'
 
 const counterStore = useCounterStore()
@@ -15,7 +16,7 @@ const increment = counterStore.increment
       <h2 class="text-2xl font-semibold mb-4">Counter</h2>
       <p class="text-xl mb-2">Current Count: {{ count }}</p>
       <p class="text-xl mb-6">Double Count: {{ doubleCount }}</p>
-      <button @click="increment" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+      <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" @click="increment">
         Increment
       </button>
     </div>

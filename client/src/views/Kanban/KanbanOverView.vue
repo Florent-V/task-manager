@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
+
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
 import logger from "@/utils/logger.js";
@@ -80,9 +81,9 @@ onMounted(fetchKanbans);
     <!-- KanbanForm -->
     <KanbanFormComponent
         v-if="showForm"
-        :initialData="selectedKanban"
-        :templateKanban="getTemplateKanban()"
-        @handleResponse="handleResponseFormSubmit"
+        :initial-data="selectedKanban"
+        :template-kanban="getTemplateKanban()"
+        @handle-response="handleResponseFormSubmit"
         @cancel="closeForm"
     />
 
@@ -94,7 +95,7 @@ onMounted(fetchKanbans);
         </h1>
         <!-- Add button -->
         <div class="text-right">
-          <button @click="openCreateForm" class="bg-blue-600 dark:bg-yellow-400 text-white px-3 py-3 rounded-full">
+          <button class="bg-blue-600 dark:bg-yellow-400 text-white px-3 py-3 rounded-full" @click="openCreateForm">
           <span class="flex items-center">
             <v-icon name="md-add" scale="1.5"/>
         </span>
@@ -132,12 +133,14 @@ onMounted(fetchKanbans);
                 </td>
                 <td class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-center">
                   <div class="flex justify-around">
-                    <button @click="openEditForm(kanban)"
-                            class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
+                    <button
+class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500"
+                            @click="openEditForm(kanban)">
                       <v-icon name="fa-edit" scale="1.3" />
                     </button>
-                    <button @click="leaveKanban(kanban)"
-                            class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500">
+                    <button
+class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500"
+                            @click="leaveKanban(kanban)">
                       <v-icon name="md-exittoapp-round" scale="1.3" />
                     </button>
                   </div>

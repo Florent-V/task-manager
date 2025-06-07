@@ -1,6 +1,7 @@
 <script setup>
 import { reactive, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
+
 import ProductFormComponent from '@/components/Product/ProductFormComponent.vue';
 import { client } from '@/utils/requestMaker.js';
 import logger from "@/utils/logger.js";
@@ -39,6 +40,6 @@ const productComputed = computed(() => state.product);
 <template>
   <ProductFormComponent
     :product="productComputed"
-    :isEditMode="state.isEditMode"
+    :is-edit-mode="state.isEditMode"
   />
 </template>

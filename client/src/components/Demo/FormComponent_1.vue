@@ -49,38 +49,44 @@ watch(() => props.editProduct, (newValue) => {
       <form @submit.prevent="submitForm">
         <div class="mb-4">
           <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
-          <input type="text" id="name" v-model="form.name" required
+          <input
+id="name" v-model="form.name" type="text" required
                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white border py-3 px-4">
         </div>
         <div class="mb-4">
           <label for="price" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Price</label>
-          <input type="number" id="price" v-model="form.price" step="0.01" required
+          <input
+id="price" v-model="form.price" type="number" step="0.01" required
                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white border py-3 px-4">
         </div>
         <div class="mb-4">
           <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-          <textarea id="description" v-model="form.description" rows="3"
+          <textarea
+id="description" v-model="form.description" rows="3"
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white border py-3 px-4"></textarea>
         </div>
         <div class="mb-4">
           <label for="image" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Image URL</label>
-          <input type="url" id="image" v-model="form.image"
+          <input
+id="image" v-model="form.image" type="url"
                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white border py-3 px-4">
         </div>
         <div class="mb-4">
           <label class="flex items-center">
-            <input type="checkbox" id="available" v-model="form.available"
+            <input
+id="available" v-model="form.available" type="checkbox"
                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 h-5 w-5">
             <span class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">Available</span>
           </label>
         </div>
         <div class="mb-4">
           <label for="quantity" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantity</label>
-          <input type="number" id="quantity" v-model="form.quantity" required
+          <input
+id="quantity" v-model="form.quantity" type="number" required
                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white border py-3 px-4">
         </div>
         <div class="flex justify-end">
-          <button type="button" @click="closeForm" class="mr-2 px-6 py-3 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-700">
+          <button type="button" class="mr-2 px-6 py-3 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-700" @click="closeForm">
             Cancel
           </button>
           <button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">

@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+
 import router from '@/router/index.js'
 
 const name = ref()
@@ -27,8 +28,8 @@ function go() {
       >
       <button
         :disabled="!name"
-        @click="go"
         class="bg-blue-500 dark:bg-blue-700 text-white py-2 px-4 rounded disabled:opacity-50"
+        @click="go"
       >
         Go
       </button>

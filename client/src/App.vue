@@ -1,5 +1,6 @@
 <script setup>
 import { RouterView } from 'vue-router'
+
 import PWABadge from '@/components/PWABadge.vue'
 import HeaderNavbar from '@/components/HeaderNavbar.vue'
 import FooterComponent from '@/components/FooterComponent.vue'

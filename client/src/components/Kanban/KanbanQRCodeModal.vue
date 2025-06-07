@@ -1,5 +1,6 @@
 <script setup>
 import { ref, defineProps, defineEmits } from 'vue';
+
 import logger from "@/utils/logger.js";
 
 const props = defineProps({
@@ -46,7 +47,7 @@ async function copyLink() {
 
       <!-- Lien et Bouton Copier -->
       <div class="flex flex-col items-center mb-6">
-        <button @click="copyLink" class="bg-blue-600 dark:bg-yellow-400 text-white px-4 py-2 rounded-full hover:bg-blue-700 dark:hover:bg-yellow-500">
+        <button class="bg-blue-600 dark:bg-yellow-400 text-white px-4 py-2 rounded-full hover:bg-blue-700 dark:hover:bg-yellow-500" @click="copyLink">
           Copier le lien
         </button>
         <p v-if="copySuccess" class="text-green-600 dark:text-green-400 mt-2">Lien copié dans le presse-papier !</p>
@@ -54,7 +55,7 @@ async function copyLink() {
 
       <!-- Close Button -->
       <div class="text-center">
-        <button @click="closeModal" class="bg-blue-600 dark:bg-yellow-400 text-white px-4 py-2 rounded-full hover:bg-blue-700 dark:hover:bg-yellow-500">
+        <button class="bg-blue-600 dark:bg-yellow-400 text-white px-4 py-2 rounded-full hover:bg-blue-700 dark:hover:bg-yellow-500" @click="closeModal">
           Fermer
         </button>
       </div>

@@ -1,11 +1,12 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
+import { storeToRefs } from 'pinia';
+
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from '@/utils/requestHook.js';
 import { setTitle, setDescription } from "@/utils/documentInfos.js";
 import { useAuthStore } from '@/stores/authStore';
-import { storeToRefs } from 'pinia';
 import logger from '@/utils/logger.js';
 import LoaderComponent from '@/components/LoaderComponent.vue';
 import TaskFormModal from '@/components/Kanban/TaskFormModal.vue';
@@ -219,7 +220,8 @@ onMounted(async () => {
       </div>
 
       <div class="text-right">
-        <button class="flex w-14 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-full"
+        <button
+class="flex w-14 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-full"
                 @click="shareKanban">
               <span class="m-auto">
                 <v-icon name="md-share-outlined" scale="1.6"/>
@@ -274,8 +276,8 @@ onMounted(async () => {
                 v-for="task in getTasksByStatus(column.id)"
                 :key="task.id"
                 draggable="true"
-                @dragstart="handleDragStart(task)"
                 class="task bg-gray-100 dark:bg-gray-700 rounded-lg p-4 shadow hover:shadow-md dark:hover:shadow-gray-600 cursor-pointer"
+                @dragstart="handleDragStart(task)"
                 @click="openTaskModal(task)"
             >
               <h3 class="font-bold text-gray-900 dark:text-gray-300">
@@ -308,10 +310,11 @@ onMounted(async () => {
 
           <!-- Add Task Button -->
           <button
-              @click="openTaskFormModal(column.id)"
               class="mt-4 w-full bg-blue-600 dark:bg-yellow-400 text-white py-2 rounded-lg flex items-center justify-center space-x-2 hover:bg-blue-700 dark:hover:bg-yellow-500"
+              @click="openTaskFormModal(column.id)"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+            <svg
+xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                  stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
@@ -378,19 +381,19 @@ onMounted(async () => {
     <!-- QRCodeModal -->
     <QRCodeModal
         v-if="showQRCodeModal"
-        :linkUrl="linkUrl"
-        :qrCodeUrl="qrCodeUrl"
+        :link-url="linkUrl"
+        :qr-code-url="qrCodeUrl"
         @close="showQRCodeModal = false"
     />
 
     <TaskFormModal
         v-if="showTaskFormModal"
-        :initialData="selectedTask"
+        :initial-data="selectedTask"
         :users="users"
         :priorities="priorities"
         :sizes="sizes"
         :stages="stages"
-        @handleResponse="handleResponseFormSubmit"
+        @handle-response="handleResponseFormSubmit"
         @cancel="closeTaskFormModal"
     />
   </div>
