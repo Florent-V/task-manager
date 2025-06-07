@@ -52,6 +52,7 @@ const submitForm = async () => {
     closeForm();
   } catch (err) {
     logger.error('Error in form submission', err?.response?.data?.message || err.message);
+    console.log("err",err);
     setErrors(err);
   }
 };
@@ -145,9 +146,7 @@ onMounted(fetchToDoListTypes);
               Description
             </label>
 
-            <p v-if="errors.description" class="mt-2 text-sm text-red-600 dark:text-red-400">A{{
-                errors.description
-              }}</p>
+            <p v-if="errors.description" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.description }}</p>
             <p v-if="defaultError" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ defaultError }}</p>
             <p v-if="error" class="text-sm px-2 text-red-600 dark:text-red-400">{{ error }}</p>
 

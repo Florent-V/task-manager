@@ -1,6 +1,7 @@
 import NotFoundError from '../error/notFoundError.js';
 
-export const errorHandler = (error, req, res) => {
+// eslint-disable-next-line no-unused-vars
+export const errorHandler = (error, req, res, next) => {
   console.log('errorHandler()');
 
   // Vide le corps de la réponse

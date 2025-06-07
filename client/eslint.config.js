@@ -19,7 +19,6 @@ export default defineConfig([
     ],
   },
   ...pluginVue.configs['flat/recommended'],
-  prettierConfig,
   {
     files: ['**/*.{js,mjs,cjs,vue}'],
     languageOptions: {
@@ -60,4 +59,5 @@ export default defineConfig([
       },
     },
   },
+  prettierConfig,
 ]);

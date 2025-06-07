@@ -115,8 +115,6 @@ const resetForm = () => {
   };
 };
 
-console.log('KanbanFormComponent mounted with initial data:', props.initialData);
-
 onMounted(async () => {
   if (editorContainer.value) {
     const quill = new Quill(editorContainer.value, {
@@ -133,7 +131,7 @@ onMounted(async () => {
     });
 
     // Initialiser avec la description reçue (HTML)
-    if (props.initialData.description) {
+    if (formData.value.description) {
       quill.root.innerHTML = props.initialData.description;
     }
 

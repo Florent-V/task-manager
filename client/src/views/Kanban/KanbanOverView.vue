@@ -63,7 +63,7 @@ const fetchKanbans = async () => {
     logger.debug('kanbans', data);
     kanbans.value = data.kanbans;
   } catch (err) {
-    logger.error("Error fetching to-do lists", err?.response?.data?.message || err.message);
+    logger.error("Error fetching kanbans", err?.response?.data?.message || err.message);
   }
 };
 
@@ -107,7 +107,9 @@ onMounted(fetchKanbans);
       <LoaderComponent v-if="isLoading"/>
 
       <div v-else>
-        <div v-if="kanbans.length" class="w-full bg-white dark:bg-gray-800 p-3 rounded-xl shadow-lg dark:shadow-gray-700">
+        <div
+            v-if="kanbans.length"
+            class="w-full bg-white dark:bg-gray-800 p-3 rounded-xl shadow-lg dark:shadow-gray-700">
           <div class="overflow-x-auto">
             <table class="min-w-full table-auto">
               <thead>
@@ -118,7 +120,9 @@ onMounted(fetchKanbans);
               </tr>
               </thead>
               <tbody>
-              <tr v-for="kanban in kanbans" :key="kanban.id" class="hover:bg-gray-100 dark:hover:bg-gray-600 transition">
+              <tr
+                  v-for="kanban in kanbans" :key="kanban.id"
+                  class="hover:bg-gray-100 dark:hover:bg-gray-600 transition">
                 <td
                     class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-gray-900 dark:text-gray-300 cursor-pointer"
                     @click="redirectToItem(kanban.id)"
@@ -134,14 +138,14 @@ onMounted(fetchKanbans);
                 <td class="border-t border-gray-300 dark:border-gray-600 px-6 py-4 text-center">
                   <div class="flex justify-around">
                     <button
-class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500"
-                            @click="openEditForm(kanban)">
-                      <v-icon name="fa-edit" scale="1.3" />
+                        class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500"
+                        @click="openEditForm(kanban)">
+                      <v-icon name="fa-edit" scale="1.3"/>
                     </button>
                     <button
-class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500"
-                            @click="leaveKanban(kanban)">
-                      <v-icon name="md-exittoapp-round" scale="1.3" />
+                        class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500"
+                        @click="leaveKanban(kanban)">
+                      <v-icon name="md-exittoapp-round" scale="1.3"/>
                     </button>
                   </div>
                 </td>
