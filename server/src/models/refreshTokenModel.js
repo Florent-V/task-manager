@@ -37,13 +37,13 @@ const RefreshToken = sequelize.define(
 );
 
 RefreshToken.prototype.isValid = async function (token) {
-  console.log('Debug Validation Token:', {
-    token,
-    thisToken: this.token,
-    valid: this.valid,
-    expires: this.expires,
-    now: Date.now(),
-  });
+  // console.log('Debug Validation Token:', {
+  //   token,
+  //   thisToken: this.token,
+  //   valid: this.valid,
+  //   expires: this.expires,
+  //   now: Date.now(),
+  // });
   return (await bcrypt.compare(token, this.token)) && this.valid && this.expires > Date.now();
 };
 

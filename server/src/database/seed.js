@@ -2,6 +2,7 @@
 
 import sequelize from './connect.js';
 import models from '../models/index.js';
+import logger from '../config/logger.js';
 
 const {
   role,
@@ -416,9 +417,9 @@ export const seedDatabase = async () => {
       },
     ]);
 
-    console.log('Données de test créées avec succès !');
+    logger.info('Test data created successfully!');
   } catch (error) {
-    console.error('Erreur lors de la création des données de test :', error);
+    logger.error('Error creating test data:', { message: error.message, stack: error.stack });
     process.exit(1);
   }
 };

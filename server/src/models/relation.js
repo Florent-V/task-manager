@@ -1,6 +1,7 @@
 import models from './index.js';
+import logger from '../config/logger.js';
 
-console.log('Liste des modèles', models);
+logger.debug('List of loaded models for associations:', { modelNames: Object.keys(models) });
 
 export const defineAssociations = () => {
   //

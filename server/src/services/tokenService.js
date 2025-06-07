@@ -26,7 +26,6 @@ export async function storeRefreshToken(user, refreshToken) {
   // Update existing refresh token
   const existingToken = await user.getRefreshToken();
   if (existingToken) {
-    console.log('#### existingToken:', existingToken);
     existingToken.token = refreshToken;
     existingToken.valid = true;
     existingToken.expires = new Date().setDate(new Date().getDate() + 7);

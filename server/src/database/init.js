@@ -2,12 +2,13 @@
 import sequelize from '../database/connect.js';
 import { defineAssociations } from '../models/relation.js';
 import { seedDatabase } from './seed.js';
+import logger from '../config/logger.js';
 
 // Initialisation et synchronisation de la base de données
 const initDB = async (sync, option) => {
   try {
     await sequelize.authenticate();
-    console.log('Connection has been established successfully.');
+    logger.info('Connection has been established successfully.');
 
     // Setup relations
     defineAssociations();
@@ -15,16 +16,16 @@ const initDB = async (sync, option) => {
     // Synchronisation des modèles avec la base
     if (sync) {
       await sequelize.sync({ [option]: true });
-      console.log(`Database synced with ${option} option.`);
+      logger.info(`Database synced with ${option} option.`);
     }
 
     // Seed the database with test data
     if (option === 'force') {
       await seedDatabase();
-      console.log('Database seeded with test data.');
+      logger.info('Database seeded with test data.');
     }
   } catch (error) {
-    console.error('Something went wrong with the database:', error);
+    logger.error('Something went wrong with the database:', { message: error.message, stack: error.stack });
   }
 };
 

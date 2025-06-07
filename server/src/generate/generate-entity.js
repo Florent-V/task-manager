@@ -8,6 +8,7 @@ import controllerTemplate from './controllerTemplate.js';
 import routeTemplate from './routeTemplate.js';
 import updatedAppJsContent from './updateApp.js';
 // import updateDatabaseIndex from './updateDatabaseIndex.js';
+import logger from '../config/logger.js';
 
 const encoding = 'utf-8';
 
@@ -18,7 +19,7 @@ const __dirname = path.join(path.dirname(__filename), '..');
 // Get entity name from command line arguments
 const entityName = process.argv[2];
 if (!entityName) {
-  console.error("Vous devez spécifier un nom d'entité.");
+  logger.error('Vous devez spécifier un nom d\'entité.');
   process.exit(1);
 }
 
@@ -37,23 +38,23 @@ const middlewarePath = path.join(__dirname, 'middleware', middlewareFileName);
 const indexPath = path.join(__dirname, 'models', 'index.js');
 const appJsPath = path.join(__dirname, 'app.js');
 
-console.log('modelName :', modelName);
-console.log('entityName :', entityName);
-console.log('modelFileName', modelFileName);
-console.log('controllerFileName :', controllerFileName);
-console.log('routesFileName :', routesFileName);
-console.log('middlewareFileName :', middlewareFileName);
-console.log('modelPath', modelPath);
-console.log('controllerPath :', controllerPath);
-console.log('routesPath :', routesPath);
-console.log('middlewarePath :', middlewarePath);
-console.log('appJsPath :', appJsPath);
-console.log('indexPath :', indexPath);
-console.log('modelTemplate :', modelTemplate(modelName, entityName));
-// console.log('controllerTemplate :', controllerTemplate(modelName, entityName, modelFileName));
-// console.log('routeTemplate :', routeTemplate(modelName, controllerFileName));
-// console.log('updatedAppJsContent :', updatedAppJsContent(entityName, modelName, routesFileName, appJsPath));
-// console.log('updateDatabaseIndex :', updateDatabaseIndex(entityName, modelName, modelFileName, indexPath));
+logger.info('modelName :', { modelName });
+logger.info('entityName :', { entityName });
+logger.info('modelFileName', { modelFileName });
+logger.info('controllerFileName :', { controllerFileName });
+logger.info('routesFileName :', { routesFileName });
+logger.info('middlewareFileName :', { middlewareFileName });
+logger.info('modelPath', { modelPath });
+logger.info('controllerPath :', { controllerPath });
+logger.info('routesPath :', { routesPath });
+logger.info('middlewarePath :', { middlewarePath });
+logger.info('appJsPath :', { appJsPath });
+logger.info('indexPath :', { indexPath });
+logger.info('modelTemplate :', { template: modelTemplate(modelName, entityName) });
+// logger.info('controllerTemplate :', controllerTemplate(modelName, entityName, modelFileName));
+// logger.info('routeTemplate :', routeTemplate(modelName, controllerFileName));
+// logger.info('updatedAppJsContent :', updatedAppJsContent(entityName, modelName, routesFileName, appJsPath));
+// logger.info('updateDatabaseIndex :', updateDatabaseIndex(entityName, modelName, modelFileName, indexPath));
 
 // Middleware Express
 const middlewareTemplate = `// ${middlewareFileName}`;
@@ -80,4 +81,4 @@ fs.writeFileSync(
 );
 // fs.writeFileSync(indexPath, updateDatabaseIndex(entityName, modelName, modelFileName, indexPath), encoding);
 
-console.log('Les fichiers ont été générés avec succès et app.js a été mis à jour.');
+logger.info('Les fichiers ont été générés avec succès et app.js a été mis à jour.');

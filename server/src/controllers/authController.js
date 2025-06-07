@@ -11,6 +11,7 @@ import {
   rotateRefreshToken,
   decodeToken,
 } from '../services/tokenService.js';
+import logger from '../config/logger.js';
 
 // Options des cookies
 const refreshTokensCookieOptions = {
@@ -128,7 +129,7 @@ export const logout = async (req, res) => {
     const token = req.signedCookies.access_token;
     if (token) {
       const decoded = decodeToken(token);
-      console.log('decoded:', decoded);
+      logger.info('User token decoded during logout:', { decoded });
       await RefreshToken.update({ valid: 0 }, { where: { userId: decoded.id } });
     }
 
@@ -136,6 +137,10 @@ export const logout = async (req, res) => {
       message: "You've been signed out successfully!",
     });
   } catch (error) {
-    console.log('error', error);
+    // TODO: It's generally better to pass the error to the next error handler or send a response.
+    logger.error('Error during logout:', { message: error.message, stack: error.stack });
+    return res.status(500).send({
+      message: 'An error occurred while logging out. Please try again later.'
+    });
   }
 };
