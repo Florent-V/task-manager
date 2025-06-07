@@ -1,6 +1,5 @@
 import ToDoListTypeView from "@/views/Admin/ToDoListTypeView.vue";
 import PriorityView from "@/views/Admin/PriorityView.vue";
-import StatusView from "@/views/Admin/StatusView.vue";
 import SizeView from "@/views/Admin/SizeView.vue";
 
 export default [
@@ -25,17 +24,6 @@ export default [
       role: 'ROLE_ADMIN',
     },
     component: PriorityView,
-  },
-  {
-    path: '/admin/status',
-    name: 'status',
-    meta: {
-      title: 'Status',
-      description: 'This is the Status page',
-      requiresAuth: true,
-      role: 'ROLE_ADMIN',
-    },
-    component: StatusView,
   },
   {
     path: '/admin/size',

@@ -31,8 +31,9 @@ const showDeleteConfirmationModal = ref(false);
 
 // Computed
 const sortedComments = computed(() => {
-  return comments.value.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  return [...comments.value].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 });
+
 
 // Fonction pour enrichir les commentaires avec le nom de l'utilisateur
 const enrichComment = (comment) => {

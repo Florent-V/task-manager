@@ -14,7 +14,7 @@ const props = defineProps({
   },
 });
 
-const { isLoading, error, executeRequest } = hookApi();
+const { error, executeRequest } = hookApi();
 const formData = ref({ ...props.initialData });
 const isEditing = computed(() => !!formData.value.id);
 const toDoListTypes = ref([]);
@@ -149,6 +149,7 @@ onMounted(fetchToDoListTypes);
                 errors.description
               }}</p>
             <p v-if="defaultError" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ defaultError }}</p>
+            <p v-if="error" class="text-sm px-2 text-red-600 dark:text-red-400">{{ error }}</p>
 
           </div>
 

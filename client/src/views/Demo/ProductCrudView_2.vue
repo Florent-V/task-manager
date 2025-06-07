@@ -1,11 +1,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
 
 import FormComponentBis from '@/components/Demo/FormComponent_2.vue'
 import logger from "@/utils/logger.js";
 
-const router = useRouter()
 const isFormVisible = ref(false)
 const currentProduct = ref({})
 const products = ref([{
@@ -48,7 +46,7 @@ const fetchProducts = async () => {
   logger.debug('fetchProducts')
 }
 
-const deleteProduct = async (id) => {
+const deleteProduct = async (_) => {
   // if (confirm('Are you sure you want to delete this product?')) {
   //   try {
   //     await axios.delete(`${import.meta.env.VITE_BASE_URL}/api/product/${id}`)
@@ -60,9 +58,9 @@ const deleteProduct = async (id) => {
   logger.debug('deleteProduct')
 }
 
-const truncateText = (text, length) => {
-  return text.length > length ? text.substring(0, length) + '...' : text
-}
+// const truncateText = (text, length) => {
+//   return text.length > length ? text.substring(0, length) + '...' : text
+// }
 
 const showForm = (mode, product = {}) => {
   currentProduct.value = mode === 'edit' ? { ...product } : {}

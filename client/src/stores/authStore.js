@@ -3,6 +3,8 @@ import { defineStore } from 'pinia';
 import { client } from '@/utils/requestMaker.js';
 import logger from "@/utils/logger.js";
 
+import router from '../router';
+
 const getLocalStorageUser = () => {
   const storedUser = localStorage.getItem('user');
   logger.debug('getLocalStorageUser() - storedUser:', storedUser);
@@ -58,6 +60,7 @@ export const useAuthStore = defineStore('auth', {
         await client.post('/api/auth/logout', {});
         logger.debug('logout() - Déconnexion réussie');
       } catch (error) {
+        logger.error('logout() - Erreur lors de la déconnexion:', error);
         logger.debug('logout() - Erreur lors de la déconnexion');
       } finally {
         logger.debug('logout() - Suppression du token');

@@ -10,12 +10,22 @@ import useFormErrors from "@/utils/handleFormErrors.js";
 import 'quill/dist/quill.snow.css';
 
 const route = useRoute();
-const { isLoading, error, executeRequest } = hookApi();
+const { error, executeRequest } = hookApi();
 
 const emit = defineEmits(['handleResponse', 'cancel']);
 const props = defineProps({
   initialData: {
     type: Object,
+    default: () => ({
+      title: null,
+      description: null,
+      estimation: 0,
+      loggedTime: 0,
+      priorityId: null,
+      sizeId: null,
+      stageId: null,
+      assignedToId: null,
+    }),
   },
   users: {
     type: Array,
@@ -74,7 +84,7 @@ const submitForm = async () => {
   };
   // Filtrer les clés ayant des valeurs non vides
   const filteredData = Object.fromEntries(
-      Object.entries(data).filter(([key, value]) => value !== null)
+      Object.entries(data).filter(([_, value]) => value !== null)
   );
 
   try {
@@ -264,6 +274,10 @@ onMounted(async () => {
 
         </div>
         <p v-if="defaultError" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ defaultError }}</p>
+
+        <div v-if="error">
+          <p class="text-sm px-2 text-red-600 dark:text-red-400">{{ error }}</p>
+        </div>
 
         <!-- Footer -->
         <div class="flex justify-end mt-6 space-x-4">

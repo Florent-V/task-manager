@@ -32,11 +32,11 @@ const toggleMobileMenu = () => {
   manageOutsideClickListener();
 }
 
-const toggleResourcesDropdown = () => {
-  isResourcesDropdownOpen.value = !isResourcesDropdownOpen.value
-  isUserDropdownOpen.value = false
-  manageOutsideClickListener();
-}
+// const toggleResourcesDropdown = () => {
+//   isResourcesDropdownOpen.value = !isResourcesDropdownOpen.value
+//   isUserDropdownOpen.value = false
+//   manageOutsideClickListener();
+// }
 
 const toggleUserDropdown = () => {
   isUserDropdownOpen.value = !isUserDropdownOpen.value
@@ -44,10 +44,10 @@ const toggleUserDropdown = () => {
   manageOutsideClickListener();
 }
 
-const toggleMobileResourcesDropdown = () => {
-  isMobileResourcesDropdownOpen.value = !isMobileResourcesDropdownOpen.value
-  manageOutsideClickListener();
-}
+// const toggleMobileResourcesDropdown = () => {
+//   isMobileResourcesDropdownOpen.value = !isMobileResourcesDropdownOpen.value
+//   manageOutsideClickListener();
+// }
 
 const closeDropdowns = () => {
   isResourcesDropdownOpen.value = false

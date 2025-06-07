@@ -1,6 +1,5 @@
 <script setup>
-import { ref, watch, computed, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, watch } from 'vue';
 
 import { client } from '@/utils/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
@@ -20,8 +19,7 @@ const props = defineProps({
   },
 });
 
-const route = useRoute();
-const { isLoading, error, executeRequest } = hookApi();
+const { error, executeRequest } = hookApi();
 const formData = ref({ ...props.initialData });
 const imageError = ref(null);
 const MAX_FILE_SIZE = 10 * 1024 * 1024;

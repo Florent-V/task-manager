@@ -187,9 +187,9 @@ const toggleMenu = (item) => {
   openMenuId.value = openMenuId.value === item.id ? null : item.id;
 };
 
-const closeMenu = (item) => {
-  item.showMenu = false;
-};
+// const closeMenu = (item) => {
+//   item.showMenu = false;
+// };
 
 // Fonction pour fermer tous les menus
 const closeAllMenus = (event) => {
@@ -324,8 +324,8 @@ class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-ye
                     class="w-16 bg-transparent text-center border-none focus:outline-none"
                     type="number"
                     @blur="saveQuantity(item)"
-                    @keydown.alt="saveQuantity(item)"
-                    @keydown.esc="cancelEditQuantity(item)"
+                    @keydown.alt.exact="saveQuantity(item)"
+                    @keydown.esc.exact="cancelEditQuantity(item)"
                 />
                 <span v-else @click="editQuantity(item)">
                   {{ item.quantity }}

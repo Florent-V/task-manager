@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, watch, onMounted } from 'vue';
+import { reactive, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
 import { client } from '@/utils/requestMaker.js';
@@ -43,7 +43,7 @@ watch(
   () => props.product,  // Surveille les changements de l'objet product
   (newProduct) => {
     for (const key in newProduct) {
-      if (newProduct.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(newProduct, key)) {
         localForm[key] = newProduct[key];  // Mets à jour les champs du formulaire
         if (key === 'releaseDate' && newProduct.releaseDate) {
           localForm.releaseDate = new Date(newProduct.releaseDate).toISOString().split('T')[0];

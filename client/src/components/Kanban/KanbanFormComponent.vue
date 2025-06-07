@@ -8,7 +8,7 @@ import useFormErrors from "@/utils/handleFormErrors.js";
 import logger from "@/utils/logger.js";
 import 'quill/dist/quill.snow.css';
 
-const { isLoading, error, executeRequest } = hookApi();
+const { error, executeRequest } = hookApi();
 
 const emit = defineEmits(['handleResponse', 'cancel']);
 const props = defineProps({
@@ -73,7 +73,7 @@ const submitForm = async () => {
           maxRecord,
           kanbanId,
         }))
-        : formData.value.stages.map(({ id, name, description, maxRecord, kanbanId }) => ({
+        : formData.value.stages.map(({ name, description, maxRecord }) => ({
           name,
           description,
           maxRecord,
@@ -271,6 +271,10 @@ onMounted(async () => {
         </button>
 
         <p v-if="defaultError" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ defaultError }}</p>
+      </div>
+
+      <div v-if="error">
+        <p class="text-sm px-2 text-red-600 dark:text-red-400">{{ error }}</p>
       </div>
 
       <!-- Boutons d'action -->

@@ -52,6 +52,7 @@ apiClient.interceptors.response.use(
         return apiClient(originalConfig); // Retry the original request
       } catch (_error) {
         logger.error('Interceptor - Error in try/catch');
+        logger.error('Interceptor - Erreur lors du rafraîchissement du token:', _error);
         router.push('/signin');
         // return Promise.reject(_error);
       }

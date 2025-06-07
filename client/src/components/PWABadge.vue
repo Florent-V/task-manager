@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue'
+// eslint-disable-next-line import/no-unresolved
 import { useRegisterSW } from 'virtual:pwa-register/vue'
 
 // check for updates every hour

@@ -24,7 +24,7 @@ const props = defineProps({
 });
 
 const route = useRoute();
-const { isLoading, error, executeRequest } = hookApi();
+const { error, executeRequest } = hookApi();
 const formData = ref({ ...props.initialData });
 const isEditing = computed(() => !!formData.value.id);
 const isSubmitted = ref(false);

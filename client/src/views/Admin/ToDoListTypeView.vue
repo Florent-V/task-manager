@@ -84,14 +84,6 @@ fill-rule="evenodd"
       </div>
     </div>
 
-    <!-- ToDoForm -->
-<!--    <ToDoListFormComponent-->
-<!--        v-if="showForm"-->
-<!--        :initialData="selectedToDo"-->
-<!--        @handleResponse="handleResponseFormSubmit"-->
-<!--        @cancel="closeForm"-->
-<!--    />-->
-
     <!--    spacing div -->
     <div class="h-6"></div>
 

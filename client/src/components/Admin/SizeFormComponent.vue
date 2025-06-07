@@ -14,7 +14,7 @@ const props = defineProps({
   },
 });
 
-const { isLoading, error, executeRequest } = hookApi();
+const { error, executeRequest } = hookApi();
 const formData = ref({ ...props.initialData });
 const isEditing = computed(() => !!formData.value.id);
 
@@ -117,10 +117,13 @@ const resetForm = () => {
         <p v-if="errors.color" class="text-red-600 dark:text-red-400 mt-1">{{ errors.color }}</p>
       </div>
 
-      <div>
-        <p v-if="defaultError" class="text-sm px-2 text-red-600 dark:text-red-400">{{ defaultError }}</p>
+      <div v-if="defaultError">
+        <p class="text-sm px-2 text-red-600 dark:text-red-400">{{ defaultError }}</p>
       </div>
 
+      <div v-if="error">
+        <p class="text-sm px-2 text-red-600 dark:text-red-400">{{ error }}</p>
+      </div>
 
       <div class="flex justify-end gap-4 mt-6">
         <button

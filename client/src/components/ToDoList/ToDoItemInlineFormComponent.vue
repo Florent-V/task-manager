@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted, onBeforeUnmount, nextTick  } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 
 import logger from "@/utils/logger.js";
 

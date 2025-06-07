@@ -17,6 +17,7 @@ export default function useFormErrors(fields) {
         console.log('errorDetails', errorDetails);
         // Remplit les erreurs pour chaque champ ou le message général
         errorDetails.forEach((err) => {
+          // eslint-disable-next-line no-prototype-builtins
           if (fields.hasOwnProperty(err.field)) {
             errors.value[err.field] = (errors.value[err.field] || '') + ` ${err.message}`;
           } else {

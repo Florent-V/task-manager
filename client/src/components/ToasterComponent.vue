@@ -4,15 +4,14 @@ import { ref } from 'vue';
 const visible = ref(false);
 const message = ref('');
 
-const showToaster = (msg) => {
-  message.value = msg;
-  visible.value = true;
-  setTimeout(() => {
-    visible.value = false;
-  }, 3000);
-};
+// const showToaster = (msg) => {
+//   message.value = msg;
+//   visible.value = true;
+//   setTimeout(() => {
+//     visible.value = false;
+//   }, 3000);
+// };
 
-export { showToaster };
 </script>
 
 <template>
