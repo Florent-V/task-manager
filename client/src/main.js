@@ -20,6 +20,7 @@ import { MdClose,
   BiThreeDotsVertical,
   MdExittoappRound,
   MdModeedit,
+  RiMailSendLine,
 } from "oh-vue-icons/icons";
 
 import { cropText } from '@/utils/crop.js';
@@ -45,6 +46,7 @@ addIcons(MdClose,
   BiThreeDotsVertical,
   MdExittoappRound,
   MdModeedit,
+  RiMailSendLine,
 );
 
 const app = createApp(App)

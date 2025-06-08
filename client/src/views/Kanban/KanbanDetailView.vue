@@ -157,6 +157,19 @@ const shareKanban = async () => {
   }
 };
 
+const handleShareByEmail = async (payload) => {
+  try {
+    const requestBody = { email: payload.email, linkUrl: linkUrl.value };
+    await executeRequest(() => client.post(`/api/kanban/${route.params.id}/share-email`, requestBody));
+    logger.info(`Kanban shared successfully with ${payload.email}`);
+    // Optionally, display a success message to the user, e.g., using a toaster
+    alert(`Kanban partagé avec ${payload.email}`);
+    showQRCodeModal.value = false; // Close the modal
+  } catch (err) {
+    logger.error('Error sharing Kanban by email:', err?.response?.data?.message || err.message);
+  }
+};
+
 const fetchKanban = async () => {
   try {
     const data = await executeRequest(() => client.get(`/api/kanban/${route.params.id}/`));
@@ -221,15 +234,17 @@ onMounted(async () => {
 
       <div class="text-right">
         <button
-class="flex w-14 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-full"
-                @click="shareKanban">
+            class="flex w-14 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-full"
+            @click="shareKanban"
+        >
               <span class="m-auto">
                 <v-icon name="md-share-outlined" scale="1.6"/>
               </span>
         </button>
       </div>
-
     </div>
+
+    <p v-if="error" class="my-2 text-center text-red-500 dark:text-red-400">{{ error }}</p>
 
     <div class="overflow-x-auto flex-grow">
       <!-- Grille avec colonnes dynamiques -->
@@ -314,16 +329,14 @@ class="flex w-14 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-full"
               @click="openTaskFormModal(column.id)"
           >
             <svg
-xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                 stroke="currentColor">
+                xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
             <span>Ajouter une tâche</span>
           </button>
         </div>
       </div>
-
-      <p v-if="error" class="text-center text-red-500 dark:text-red-400">{{ error }}</p>
 
       <!-- Unassigned Tasks Section -->
       <div v-if="unassignedTasks.length" class="mb-8">

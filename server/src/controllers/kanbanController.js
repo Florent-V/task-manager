@@ -6,6 +6,8 @@ import Task from '../models/taskModel.js';
 import User from '../models/userModel.js';
 import ForbiddenError from '../error/forbiddenError.js';
 import NotFoundError from '../error/notFoundError.js';
+import transporter from '../config/mailer.js';
+import logger from '../config/logger.js';
 
 const includeKanban = [
   {
@@ -225,6 +227,38 @@ export const leaveKanban = async (req, res, next) => {
     }
     res.status(204).json();
   } catch (error) {
+    return next(error);
+  }
+};
+
+// Share Kanban by Email
+export const shareKanbanByEmail = async (req, res, next) => {
+  const { email, linkUrl } = req.body;
+  try {
+    const kanbanTitle = res.data.kanban?.title || 'Unnamed Kanban'; // Fallback title
+    // Construct the mail options
+    const mailOptions = {
+      from: process.env.MAIL_FROM || '"Kanban App" <noreply@example.com>',
+      to: email,
+      subject: `Invitation to join Kanban: ${kanbanTitle}`,
+      text: `Hello,\n\nYou have been invited to join the Kanban board "${kanbanTitle}".\nClick here to join: ${linkUrl}`,
+      html: `<p>Hello,</p><p>You have been invited to join the Kanban board "<strong>${kanbanTitle}</strong>".</p><p><a href="${linkUrl}">Click here to join</a>.</p>`,
+    };
+
+    // Send the email
+    await transporter.sendMail(mailOptions);
+
+    logger.info(
+      `Invitation email sent to ${email} for Kanban "${kanbanTitle}" with link: ${linkUrl}`
+    );
+    res.status(200).json({ message: 'Invitation email sent successfully to ' + email });
+  } catch (error) {
+    logger.error('Error sending email:', {
+      message: error.message,
+      stack: error.stack,
+      email,
+      kanbanId: res.data.kanban?.id,
+    });
     return next(error);
   }
 };

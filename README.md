@@ -161,6 +161,52 @@ openssl rand -base64 64
 node -e "console.log(require('crypto').randomBytes(64).toString('hex'));"
 ```
 
+## Email Configuration
+
+Configuring email sending is crucial for features like sharing by email. The setup differs for development and production environments.
+
+### Development
+
+For local development, this project uses **Mailpit** to capture and display emails. This means you don't need a real email server or an internet connection to test email functionalities.
+
+*   **Automatic Setup**: Mailpit is included in the `docker-compose.yml` file. When you start the application using `docker compose up`, Mailpit will also start.
+*   **Backend Configuration**: The backend server (Node.js/Express) is pre-configured to send emails via Mailpit when running within the Docker Compose environment. The default connection details are set in `server/.env.template` and used by the application:
+    *   `MAILER_HOST=mailpit`
+    *   `MAILER_PORT=1025`
+    *   `MAILER_SECURE=false` (Mailpit does not use TLS by default)
+    *   `MAILER_USER=` (No username needed for Mailpit)
+    *   `MAILER_PASS=` (No password needed for Mailpit)
+*   **Viewing Emails**: You can access the Mailpit web interface by navigating to [http://localhost:8025](http://localhost:8025) in your web browser. Any email sent by the application during development will appear here.
+
+### Production
+
+For a production environment, you must configure the application to use a real SMTP server. This is done by setting the following environment variables on your server:
+
+*   `MAILER_HOST`: The hostname of your SMTP server (e.g., `smtp.example.com`, `smtp.gmail.com`).
+*   `MAILER_PORT`: The port of your SMTP server. Common ports are:
+    *   `587` (for TLS/STARTTLS - often recommended)
+    *   `465` (for SSL)
+    *   `25` (for unencrypted connections - not recommended)
+*   `MAILER_SECURE`: Set to `true` if your SMTP provider uses SSL directly (typically on port 465). Set to `false` if using STARTTLS (typically on port 587). Nodemailer will automatically upgrade the connection to TLS when `secure: false` and the server supports STARTTLS.
+*   `MAILER_USER`: The username for authenticating with your SMTP server.
+*   `MAILER_PASS`: The password for authenticating with your SMTP server.
+*   `MAIL_FROM`: The email address that will appear as the sender in the "From" field of the emails (e.g., `"Your App Name" <noreply@yourdomain.com>`, `"My Kanban App" <notifications@mykanban.app>`).
+
+**Example Production Configuration:**
+```env
+MAILER_HOST=smtp.example.com
+MAILER_PORT=587
+MAILER_SECURE=false # For STARTTLS; true if using direct SSL on port 465
+MAILER_USER=your_smtp_username
+MAILER_PASS=your_smtp_password_here
+MAIL_FROM="My Awesome Kanban App" <noreply@myawesomekanban.com>
+```
+
+**Important Security Note:**
+*   **Never commit your production SMTP credentials** (username, password) to your version control system (Git).
+*   Always use environment variables provided by your hosting platform or a secure secrets management system to store and inject these sensitive details into your production application.
+*   Ensure your `server/.env` file (if used in production, though not recommended for credentials) is listed in your `.gitignore` file.
+
 ## Checklist
 
 When you use this template, try follow the checklist to update your info properly
