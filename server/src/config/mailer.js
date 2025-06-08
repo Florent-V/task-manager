@@ -2,9 +2,8 @@ import nodemailer from 'nodemailer';
 import config from './config.js'; // Assuming your existing config.js handles environment variables
 
 // Configure transporter based on environment
-// For now, we'll hardcode Mailpit settings, but ideally, this would use environment variables
 const mailerConfig = {
-  host: process.env.MAILER_HOST || 'mailpit', // Use 'mailpit' as it's the service name in docker-compose
+  host: process.env.MAILER_HOST, // Use 'mailpit' as it's the service name in docker-compose
   port: parseInt(process.env.MAILER_PORT || '1025', 10),
   secure: process.env.MAILER_SECURE === 'true', // false for Mailpit by default
   auth: {

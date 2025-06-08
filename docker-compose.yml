@@ -54,6 +54,12 @@ services:
       - CLIENT_ORIGIN=${CLIENT_URL}
       - NODE_API_DOCKER_PORT=${NODE_API_DOCKER_PORT}
       - ACCESS_TOKEN_COOKIE_LIFETIME=${ACCESS_TOKEN_COOKIE_LIFETIME}
+      - MAILER_HOST=${MAILER_HOST}
+      - MAILER_PORT=${MAILER_PORT}
+      - MAILER_SECURE=${MAILER_SECURE}
+      - MAILER_USER=${MAILER_USER}
+      - MAILER_PASS=${MAILER_PASS}
+      - MAIL_FROM=${MAIL_FROM}
     networks:
       - internal
     depends_on:
@@ -95,8 +101,8 @@ services:
 #   Setup Mailpit container
 #########################################
   mailpit:
+    container_name: ${PROJECT_NAME}-mailpit-${ENV_NAME}
     image: axllent/mailpit:latest
-    container_name: mailpit
     ports:
       - "1025:1025" # SMTP port
       - "8025:8025" # Web UI port
