@@ -1,7 +1,7 @@
 import Task from '../models/taskModel.js';
 import Size from '../models/sizeModel.js';
 import Priority from '../models/priorityModel.js';
-import { taskSchema, updateTaskSchema } from '../joiSchema/taskSchema.js';
+import { taskSchema, updateStageTaskSchema, updateTaskSchema } from '../joiSchema/taskSchema.js';
 import NotFoundError from '../error/notFoundError.js';
 
 export const setTaskEntity = (req, res, next) => {
@@ -16,6 +16,11 @@ export const setTaskCreateValidator = (req, res, next) => {
 
 export const setTaskUpdateValidator = (req, res, next) => {
   req.schema = updateTaskSchema;
+  next();
+};
+
+export const setStageTaskUpdateValidator = (req, res, next) => {
+  req.schema = updateStageTaskSchema;
   next();
 };
 

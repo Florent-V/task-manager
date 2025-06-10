@@ -72,6 +72,7 @@ const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...form
 
 const submitForm = async () => {
   logger.debug("submitForm");
+  console.log("formData.value",formData.value);
   const data = {
     title: formData.value.title,
     description: formData.value.description,
@@ -82,22 +83,19 @@ const submitForm = async () => {
     stageId: formData.value.stageId,
     assignedToId: formData.value.assignedToId,
   };
-  // Filtrer les clés ayant des valeurs non vides
-  const filteredData = Object.fromEntries(
-      Object.entries(data).filter(([_, value]) => value !== null)
-  );
+  console.log("data",data);
 
   try {
     let response;
     if (formData.value.id) {
       // Update existing task
       response = await executeRequest(
-          () => client.patch(`/api/kanban/${route.params.id}/task/${formData.value.id}`, filteredData)
+          () => client.patch(`/api/kanban/${route.params.id}/task/${formData.value.id}`, data)
       );
     } else {
       // Create new task
       response = await executeRequest(
-          () => client.post(`/api/kanban/${route.params.id}/task`, filteredData)
+          () => client.post(`/api/kanban/${route.params.id}/task`, data)
       );
     }
     emit('handleResponse', response);
@@ -175,7 +173,7 @@ onMounted(async () => {
                 placeholder="Titre de la tâche"
             />
           </div>
-          <p v-if="errors.title" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.title }}</p>
+          <div v-if="errors.title" class="mt-0 text-sm text-red-600 dark:text-red-400">{{ errors.title }}</div>
 
           <!-- Description -->
           <div class="flex flex-col flex-1">
@@ -250,7 +248,7 @@ onMounted(async () => {
                   v-model="formData.assignedToId"
                   class="w-full mt-1 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
               >
-                <option selected value=null>Choisir une option</option>
+                <option selected :value="null">Choisir une option</option>
                 <option v-for="member in users" :key="member.id" :value="member.id">
                   {{ member.firstName }} {{ member.lastName }}
                 </option>
@@ -263,7 +261,7 @@ onMounted(async () => {
                   v-model="formData.stageId"
                   class="w-full mt-1 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
               >
-                <option selected value=null>Choisir une option</option>
+                <option selected :value="null">Choisir une option</option>
                 <option v-for="stage in stages" :key="stage.id" :value="stage.id">
                   {{ stage.name }}
                 </option>
@@ -276,7 +274,7 @@ onMounted(async () => {
         <p v-if="defaultError" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ defaultError }}</p>
 
         <div v-if="error">
-          <p class="text-sm px-2 text-red-600 dark:text-red-400">{{ error }}</p>
+          <p class="text-sm text-red-600 dark:text-red-400">{{ error }}</p>
         </div>
 
         <!-- Footer -->

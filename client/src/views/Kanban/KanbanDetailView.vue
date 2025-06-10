@@ -31,16 +31,41 @@ const showQRCodeModal = ref(false);
 const qrCodeUrl = ref(null);
 const linkUrl = ref(null);
 
+// État pour suivre l'état de dépliement de chaque groupe de tâches
+const foldedGroups = ref({});
+
+const toggleExpand = (assignedToId) => {
+  console.log("foldedGroups", foldedGroups);
+  foldedGroups.value[assignedToId] = !foldedGroups.value[assignedToId];
+};
+
 // Fonctions utilitaires pour la gestion des tâches
 const countTasks = (columnId) => tasks.value.filter((task) => task.stageId === columnId).length;
 
 const unassignedTasks = computed(() => {
-  return tasks.value.filter((task) => task.stageId === null);
+  return tasks.value.filter((task) => task.stageId === null || task.assignedToId === null);
 });
 
-const getTasksByStatus = (status) => {
-  return tasks.value
-      .filter((task) => task.stageId === status);
+const tasksGroupedByAssigned = computed(() => {
+  const test = tasks.value.reduce((acc, task) => {
+    if (task.assignedToId === null || task.assignedToId === undefined) {
+      return acc; // Ignorer les tâches non assignées
+    }
+
+    const id = task.assignedToId;
+    if (!acc[id]) {
+      acc[id] = [];
+    }
+
+    acc[id].push(task);
+    return acc;
+  }, {});
+  console.log("tasksGroupedByAssigned", test);
+  return test;
+});
+
+const getTasksByStatus = (tasks, status) => {
+  return tasks.filter((task) => task.stageId === status);
 };
 
 const enrichTask = (task) => {
@@ -68,13 +93,15 @@ let draggedTask = null;
 const handleDragStart = (task) => {
   draggedTask = task;
 };
-const handleDrop = async (event, columnId) => {
+const handleDrop = async (event, columnId, assignedToId) => {
   if (!draggedTask) return;
   const sourceColumn = draggedTask.stageId;
   const targetColumn = stages.value.find((col) => col.id === columnId);
 
   if (sourceColumn && targetColumn) {
     draggedTask.stageId = columnId;
+    draggedTask.assignedToId = assignedToId;
+    console.log("draggedTask", draggedTask);
   }
   await updateTaskStage(draggedTask);
   draggedTask = null;
@@ -84,8 +111,8 @@ const handleDrop = async (event, columnId) => {
 const updateTaskStage = async (task) => {
   try {
     await executeRequest(() => client.patch(
-        `/api/kanban/${task.kanbanId}/task/${task.id}/`,
-        { stageId: task.stageId })
+        `/api/kanban/${task.kanbanId}/task/${task.id}/stage`,
+        { stageId: task.stageId, assignedToId: task.assignedToId },)
     );
   } catch (err) {
     logger.error('Error in update stage:', err);
@@ -113,6 +140,9 @@ const openTaskModal = (task) => {
 
 const openTaskFormModal = (columnId = null) => {
   selectedTask.value = {
+    title: '',
+    description: '',
+    estimation: 0,
     stageId: columnId,
     assignedToId: getCurrentUserId(),
     priorityId: priorities.value[0]?.id || null,
@@ -157,19 +187,6 @@ const shareKanban = async () => {
   }
 };
 
-const handleShareByEmail = async (payload) => {
-  try {
-    const requestBody = { email: payload.email, linkUrl: linkUrl.value };
-    await executeRequest(() => client.post(`/api/kanban/${route.params.id}/share-email`, requestBody));
-    logger.info(`Kanban shared successfully with ${payload.email}`);
-    // Optionally, display a success message to the user, e.g., using a toaster
-    alert(`Kanban partagé avec ${payload.email}`);
-    showQRCodeModal.value = false; // Close the modal
-  } catch (err) {
-    logger.error('Error sharing Kanban by email:', err?.response?.data?.message || err.message);
-  }
-};
-
 const fetchKanban = async () => {
   try {
     const data = await executeRequest(() => client.get(`/api/kanban/${route.params.id}/`));
@@ -177,6 +194,7 @@ const fetchKanban = async () => {
     stages.value = data.kanban.stages;
     users.value = data.kanban.users;
     tasks.value = enrichTasks(data.kanban.tasks);
+    console.log('tasks', tasks.value);
   } catch (err) {
     logger.error('Error in fetching kanban data', err);
   }
@@ -246,139 +264,168 @@ onMounted(async () => {
 
     <p v-if="error" class="my-2 text-center text-red-500 dark:text-red-400">{{ error }}</p>
 
-    <div class="overflow-x-auto flex-grow">
-      <!-- Grille avec colonnes dynamiques -->
+    <div v-for="(taskGroup, assignedToId) in tasksGroupedByAssigned" :key="assignedToId" class="mb-6">
+      <!-- En-tête avec le nom de la personne et un bouton pour replier/déplier -->
       <div
-          class="grid gap-4 auto-cols-[minmax(300px,1fr)] grid-flow-col"
-          :style="{ gridTemplateColumns: stages.length <= 5 ? `repeat(${stages.length}, minmax(0, 1fr))` : '' }"
+          class="flex gap-2 items-center p-4 rounded-lg"
+          :class="foldedGroups[assignedToId] ? 'bg-gray-200 dark:bg-gray-700' : ''"
       >
+        <button @click="toggleExpand(assignedToId)" class="text-blue-500">
+          <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+          >
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                :d="foldedGroups[assignedToId] ? 'M9 5l7 7-7 7' : 'M19 9l-7 7-7-7'"
+            />
+          </svg>
+        </button>
+        <h2 class="text-xl font-semibold">
+          {{ taskGroup[0].assignedTo }} (Total: {{ taskGroup.length }})
+        </h2>
+
+      </div>
+
+      <!-- Contenu des tâches, conditionné par l'état de dépliement -->
+      <div v-if="!foldedGroups[assignedToId]" class="overflow-x-auto flex-grow">
+        <!-- Grille avec colonnes dynamiques -->
         <div
-            v-for="column in stages"
-            :key="column.id"
-            class="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-700 p-4 flex flex-col"
+            class="grid gap-4 auto-cols-[minmax(300px,1fr)] grid-flow-col"
+            :style="{ gridTemplateColumns: stages.length <= 5 ? `repeat(${stages.length}, minmax(0, 1fr))` : '' }"
         >
-          <!-- Column Header -->
-          <div class="mb-2">
-            <div class="flex justify-between items-center mb">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-gray-300">
-                {{ $cropText(column.name, 40) }}
-              </h2>
-              <span
-                  class="bg-blue-100 dark:bg-gray-700 text-blue-600 dark:text-yellow-300 rounded-full px-3 py-1 text-sm min-w-14">
+          <div
+              v-for="column in stages"
+              :key="column.id"
+              class="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-700 p-4 flex flex-col"
+          >
+            <!-- Column Header -->
+            <div class="mb-2">
+              <div class="flex justify-between items-center mb">
+                <h2 class="text-lg font-bold text-gray-900 dark:text-gray-300">
+                  {{ $cropText(column.name, 40) }}
+                </h2>
+                <span
+                    class="bg-blue-100 dark:bg-gray-700 text-blue-600 dark:text-yellow-300 rounded-full px-3 py-1 text-sm min-w-14">
                   {{ countTasks(column.id) }} / {{ column.maxRecord }}
               </span>
-            </div>
-            <p class="text-sm text-gray-600 dark:text-gray-400">
-              {{ $cropText(column.description, 80) }}
-            </p>
-          </div>
-
-          <!-- Task List -->
-          <div
-              class="flex-1 space-y-4"
-              @drop="handleDrop($event, column.id)"
-              @dragover.prevent
-          >
-            <!-- Placeholder pour permettre le drop dans une colonne vide -->
-            <div
-                v-if="!getTasksByStatus(column.id).length"
-                class="border-2 border-dashed border-gray-400 dark:border-gray-600 h-16 flex items-center justify-center"
-            >
-              <p class="text-sm text-gray-500 dark:text-gray-400">Déposez une tâche ici</p>
-            </div>
-
-            <div
-                v-for="task in getTasksByStatus(column.id)"
-                :key="task.id"
-                draggable="true"
-                class="task bg-gray-100 dark:bg-gray-700 rounded-lg p-4 shadow hover:shadow-md dark:hover:shadow-gray-600 cursor-pointer"
-                @dragstart="handleDragStart(task)"
-                @click="openTaskModal(task)"
-            >
-              <h3 class="font-bold text-gray-900 dark:text-gray-300">
-                {{ $cropText(task.title, 40) }}
-              </h3>
-              <p class="text-gray-600 dark:text-gray-400">
-                {{ $cropText(task.description, 100) }}
+              </div>
+              <p class="text-sm text-gray-600 dark:text-gray-400">
+                {{ $cropText(column.description, 80) }}
               </p>
-              <div class="flex justify-between items-center mt-2 text-sm">
+            </div>
+
+            <!-- Task List -->
+            <div
+                class="flex-1 space-y-4"
+                @drop="handleDrop($event, column.id, Number(assignedToId))"
+                @dragover.prevent
+            >
+              <!-- Placeholder pour permettre le drop dans une colonne vide -->
+              <div
+                  v-if="!getTasksByStatus(taskGroup, column.id).length"
+                  class="border-2 border-dashed border-gray-400 dark:border-gray-600 h-16 flex items-center justify-center"
+              >
+                <p class="text-sm text-gray-500 dark:text-gray-400">Déposez une tâche ici</p>
+              </div>
+
+              <div
+                  v-for="task in getTasksByStatus(taskGroup, column.id)"
+                  :key="task.id"
+                  draggable="true"
+                  class="task bg-gray-100 dark:bg-gray-700 rounded-lg p-4 shadow hover:shadow-md dark:hover:shadow-gray-600 cursor-pointer"
+                  @dragstart="handleDragStart(task)"
+                  @click="openTaskModal(task)"
+              >
+                <h3 class="font-bold text-gray-900 dark:text-gray-300">
+                  {{ $cropText(task.title, 40) }}
+                </h3>
+                <p class="text-gray-600 dark:text-gray-400">
+                  {{ $cropText(task.description, 100) }}
+                </p>
+                <div class="flex justify-between items-center mt-2 text-sm">
                 <span
                     class="inline-block text-sm font-medium px-2 py-1 rounded-full"
                     :style="{ backgroundColor: task.priorityColor }"
                 >
                   {{ task.priorityLabel }}
                 </span>
-                <span
-                    class="inline-block text-sm font-medium px-2 py-1 rounded-full"
-                    :style="{ backgroundColor: task.sizeColor }"
-                >
+                  <span
+                      class="inline-block text-sm font-medium px-2 py-1 rounded-full"
+                      :style="{ backgroundColor: task.sizeColor }"
+                  >
                   {{ task.sizeLabel }}
                 </span>
-              </div>
-              <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Assignee: {{ task.assignedTo }}</p>
-              <div class="flex justify-between items-center text-sm">
-                <p class="text-sm text-gray-500 dark:text-gray-400">Estimation: {{ task.estimation }}</p>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Consigné: {{ task.loggedTime }}</p>
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Assignee: {{ task.assignedTo }}</p>
+                <div class="flex justify-between items-center text-sm">
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Estimation: {{ task.estimation }}</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Consigné: {{ task.loggedTime }}</p>
+                </div>
               </div>
             </div>
-          </div>
 
-          <!-- Add Task Button -->
-          <button
-              class="mt-4 w-full bg-blue-600 dark:bg-yellow-400 text-white py-2 rounded-lg flex items-center justify-center space-x-2 hover:bg-blue-700 dark:hover:bg-yellow-500"
-              @click="openTaskFormModal(column.id)"
-          >
-            <svg
-                xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            <span>Ajouter une tâche</span>
-          </button>
+            <!-- Add Task Button -->
+            <button
+                class="mt-4 w-full bg-blue-600 dark:bg-yellow-400 text-white py-2 rounded-lg flex items-center justify-center space-x-2 hover:bg-blue-700 dark:hover:bg-yellow-500"
+                @click="openTaskFormModal(column.id)"
+            >
+              <svg
+                  xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+              </svg>
+              <span>Ajouter une tâche</span>
+            </button>
+          </div>
         </div>
       </div>
+    </div>
 
-      <!-- Unassigned Tasks Section -->
-      <div v-if="unassignedTasks.length" class="mb-8">
-        <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4 text-center">Tâches sans colonne</h2>
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-700 p-4">
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div
-                v-for="task in unassignedTasks"
-                :key="task.id"
-                class="task bg-gray-100 dark:bg-gray-700 rounded-lg p-4 shadow hover:shadow-md dark:hover:shadow-gray-600 cursor-pointer"
-                @click="openTaskModal(task)"
-            >
-              <h3 class="font-bold text-gray-900 dark:text-gray-300">
-                {{ $cropText(task.title, 40) }}
-              </h3>
-              <p class="text-gray-600 dark:text-gray-400">
-                {{ $cropText(task.description, 100) }}
-              </p>
-              <div class="flex justify-between items-center mt-2 text-sm">
+    <!-- Unassigned Tasks Section -->
+    <div v-if="unassignedTasks.length" class="mb-8">
+      <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-200 my-3 text-center">Tâches en attente</h2>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-700 p-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div
+              v-for="task in unassignedTasks"
+              :key="task.id"
+              class="task bg-gray-100 dark:bg-gray-700 rounded-lg p-4 shadow hover:shadow-md dark:hover:shadow-gray-600 cursor-pointer"
+              @click="openTaskModal(task)"
+          >
+            <h3 class="font-bold text-gray-900 dark:text-gray-300">
+              {{ $cropText(task.title, 40) }}
+            </h3>
+            <p class="text-gray-600 dark:text-gray-400">
+              {{ $cropText(task.description, 100) }}
+            </p>
+            <div class="flex justify-between items-center mt-2 text-sm">
               <span
                   class="inline-block text-sm font-medium px-2 py-1 rounded-full"
                   :style="{ backgroundColor: task.priorityColor }"
               >
                 {{ task.priorityLabel }}
               </span>
-                <span
-                    class="inline-block text-sm font-medium px-2 py-1 rounded-full"
-                    :style="{ backgroundColor: task.sizeColor }"
-                >
+              <span
+                  class="inline-block text-sm font-medium px-2 py-1 rounded-full"
+                  :style="{ backgroundColor: task.sizeColor }"
+              >
                 {{ task.sizeLabel }}
               </span>
-              </div>
-              <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Assignee: {{ task.assignedTo }}</p>
-              <div class="flex justify-between items-center text-sm">
-                <p class="text-sm text-gray-500 dark:text-gray-400">Estimation: {{ task.estimation }}</p>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Consigné: {{ task.loggedTime }}</p>
-              </div>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Assignee: {{ task.assignedTo }}</p>
+            <div class="flex justify-between items-center text-sm">
+              <p class="text-sm text-gray-500 dark:text-gray-400">Estimation: {{ task.estimation }}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Consigné: {{ task.loggedTime }}</p>
             </div>
           </div>
         </div>
       </div>
-
     </div>
 
     <!--     Task Modal -->

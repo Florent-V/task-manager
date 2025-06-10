@@ -101,6 +101,24 @@ export const updateTask = async (req, res, next) => {
   }
 };
 
+export const updateStageTask = async (req, res, next) => {
+  try {
+    const { taskId } = req.params;
+    const { stageId, assignedToId } = req.body;
+
+    const [updated] = await Task.update({ stageId, assignedToId }, { where: { id: taskId } });
+
+    if (!updated) throw new NotFoundError('Task not found.');
+
+    const updatedTask = await Task.findByPk(taskId);
+
+    res.data = { task: updatedTask };
+    next();
+  } catch (error) {
+    return next(error);
+  }
+};
+
 // Suppression d'une tâche
 export const deleteTask = async (req, res, next) => {
   try {
