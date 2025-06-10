@@ -48,6 +48,7 @@ const props = defineProps({
 // Référence pour l'éditeur
 const editorContainer = ref(null);
 
+// Gestion du formulaire
 const newTask = {
   title: null,
   description: null,
@@ -59,7 +60,6 @@ const newTask = {
   assignedToId: null,
 };
 
-// Gestion du formulaire
 const formData = ref({ ...props.initialData });
 watch(() => props.initialData, (newValue) => {
       formData.value = newValue ? { ...newValue } : { ...newTask };
@@ -72,7 +72,6 @@ const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...form
 
 const submitForm = async () => {
   logger.debug("submitForm");
-  console.log("formData.value",formData.value);
   const data = {
     title: formData.value.title,
     description: formData.value.description,
@@ -83,7 +82,6 @@ const submitForm = async () => {
     stageId: formData.value.stageId,
     assignedToId: formData.value.assignedToId,
   };
-  console.log("data",data);
 
   try {
     let response;

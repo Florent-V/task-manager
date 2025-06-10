@@ -5,7 +5,7 @@ import { useRoute } from 'vue-router';
 import logger from "@/utils/logger.js";
 import { client } from "@/utils/requestMaker.js";
 import { hookApi } from "@/utils/requestHook.js";
-const { isLoading, error, executeRequest } = hookApi();
+const { error, executeRequest } = hookApi();
 
 const props = defineProps({
   qrCodeUrl: {
@@ -111,6 +111,8 @@ async function shareByEmail() {
         </button>
         <p v-if="copySuccess" class="text-green-600 dark:text-green-400 mt-2">Lien copié dans le presse-papier !</p>
       </div>
+
+      <p v-if="error" class="my-2 text-center text-red-500 dark:text-red-400">{{ error }}</p>
 
       <!-- Footer close button -->
       <div class="flex justify-end mt-6">

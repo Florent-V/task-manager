@@ -30,16 +30,13 @@ const showTaskFormModal = ref(false);
 const showQRCodeModal = ref(false);
 const qrCodeUrl = ref(null);
 const linkUrl = ref(null);
-
-// État pour suivre l'état de dépliement de chaque groupe de tâches
 const foldedGroups = ref({});
 
+// Fonctions utilitaires pour la gestion des tâches
 const toggleExpand = (assignedToId) => {
-  console.log("foldedGroups", foldedGroups);
   foldedGroups.value[assignedToId] = !foldedGroups.value[assignedToId];
 };
 
-// Fonctions utilitaires pour la gestion des tâches
 const countTasks = (columnId) => tasks.value.filter((task) => task.stageId === columnId).length;
 
 const unassignedTasks = computed(() => {
@@ -47,7 +44,7 @@ const unassignedTasks = computed(() => {
 });
 
 const tasksGroupedByAssigned = computed(() => {
-  const test = tasks.value.reduce((acc, task) => {
+  return tasks.value.reduce((acc, task) => {
     if (task.assignedToId === null || task.assignedToId === undefined) {
       return acc; // Ignorer les tâches non assignées
     }
@@ -60,8 +57,6 @@ const tasksGroupedByAssigned = computed(() => {
     acc[id].push(task);
     return acc;
   }, {});
-  console.log("tasksGroupedByAssigned", test);
-  return test;
 });
 
 const getTasksByStatus = (tasks, status) => {
@@ -101,13 +96,12 @@ const handleDrop = async (event, columnId, assignedToId) => {
   if (sourceColumn && targetColumn) {
     draggedTask.stageId = columnId;
     draggedTask.assignedToId = assignedToId;
-    console.log("draggedTask", draggedTask);
   }
   await updateTaskStage(draggedTask);
   draggedTask = null;
 };
 
-// Fonction pour mettre à jour la colonne d'une tâche
+// Fonction pour mettre à jour la colonne et le responsable d'une tâche
 const updateTaskStage = async (task) => {
   try {
     await executeRequest(() => client.patch(
@@ -194,7 +188,6 @@ const fetchKanban = async () => {
     stages.value = data.kanban.stages;
     users.value = data.kanban.users;
     tasks.value = enrichTasks(data.kanban.tasks);
-    console.log('tasks', tasks.value);
   } catch (err) {
     logger.error('Error in fetching kanban data', err);
   }
@@ -268,9 +261,9 @@ onMounted(async () => {
       <!-- En-tête avec le nom de la personne et un bouton pour replier/déplier -->
       <div
           class="flex gap-2 items-center p-4 rounded-lg"
-          :class="foldedGroups[assignedToId] ? 'bg-gray-200 dark:bg-gray-700' : ''"
+          :class="foldedGroups[assignedToId] ? 'bg-white dark:bg-gray-800' : ''"
       >
-        <button @click="toggleExpand(assignedToId)" class="text-blue-500">
+        <button class="text-blue-500" @click="toggleExpand(assignedToId)">
           <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-6 w-6"
