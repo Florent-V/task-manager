@@ -5,7 +5,7 @@ import {
   setTaskEntity,
   setTaskCreateValidator,
   setTaskUpdateValidator,
-  checkTaskRelationship,
+  checkTaskRelationship, setStageTaskUpdateValidator,
 } from '../middleware/taskMiddleware.js';
 import { validate } from '../middleware/ressourceMiddleware.js';
 import {
@@ -14,6 +14,7 @@ import {
   getTaskById,
   updateTask,
   deleteTask,
+  updateStageTask,
 } from '../controllers/taskController.js';
 
 const router = express.Router({ mergeParams: true });
@@ -26,6 +27,13 @@ router.get('/', getAllTasksByKanban);
 router.use('/:taskId', isTaskInKanban);
 router.get('/:taskId', getTaskById);
 router.patch('/:taskId', setTaskUpdateValidator, validate, checkTaskRelationship, updateTask);
+router.patch(
+  '/:taskId/stage',
+  setStageTaskUpdateValidator,
+  validate,
+  checkTaskRelationship,
+  updateStageTask
+);
 router.delete('/:taskId', deleteTask);
 
 router.use('/:taskId/comment', commentRoutes);
