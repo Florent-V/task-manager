@@ -181,4 +181,56 @@ export const defineAssociations = () => {
     foreignKey: 'assignedToId',
     onDelete: 'SET NULL',
   });
+
+  //
+  // Relation Comment <-> Task
+  //
+  models.comment.belongsTo(models.task, {
+    foreignKey: 'taskId',
+    as: 'task',
+    onDelete: 'CASCADE',
+  });
+  models.task.hasMany(models.comment, {
+    foreignKey: 'taskId',
+    as: 'comments'
+  });
+
+  //
+  // Relation Comment <-> User
+  //
+  models.comment.belongsTo(models.user, {
+    foreignKey: 'authorId',
+    as: 'author',
+    onDelete: 'SET NULL',
+  });
+  models.user.hasMany(models.comment, {
+    foreignKey: 'authorId',
+    as: 'comments'
+  });
+
+  //
+  // Relation Task <-> Imputation
+  //
+  models.task.hasMany(models.imputation, {
+    foreignKey: 'taskId',
+    as: 'imputations',
+    onDelete: 'CASCADE',
+  });
+  models.imputation.belongsTo(models.task, {
+    foreignKey: 'taskId',
+    as: 'task',
+  });
+
+  //
+  // Relation User <-> Imputation
+  //
+  models.user.hasMany(models.imputation, {
+    foreignKey: 'userId',
+    as: 'imputations',
+    onDelete: 'SET NULL',
+  });
+  models.imputation.belongsTo(models.user, {
+    foreignKey: 'userId',
+    as: 'user',
+  });
 };
