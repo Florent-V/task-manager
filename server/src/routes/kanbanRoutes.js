@@ -14,7 +14,7 @@ import {
   leaveKanban,
 } from '../controllers/kanbanController.js';
 import { authorizeManyToManyRessourceAccess, validate } from '../middleware/ressourceMiddleware.js';
-import { authenticateByCookieSession, isAdmin } from '../middleware/authMiddleware.js';
+import { authenticateByCookieSession, authenticateToken, isAdmin } from '../middleware/authMiddleware.js';
 import {
   setKanbanEntity,
   setKanbanCreateValidator,
@@ -28,36 +28,40 @@ const router = Router();
 const getKanbanAndCheckAccess = [getKanbanById, authorizeManyToManyRessourceAccess];
 
 router.use(authenticateByCookieSession);
+// router.use(authenticateToken);
 router.use(setKanbanEntity);
 
 router.get('/', getKanbansByUser);
 router.post('/', setKanbanCreateValidator, validate, createKanban);
 
 router.get('/all', isAdmin, getAllKanbans);
-router.get('/:id', getKanbanAndCheckAccess);
+
+// join kanban
+router.post('/:id/join', getKanbanById, joinKanban);
+
+router.use('/:id', getKanbanAndCheckAccess);
+router.get('/:id/');
 
 router.patch(
   '/:id',
-  getKanbanAndCheckAccess,
   setKanbanUpdateValidator,
   validate,
   updateKanban,
   getKanbanById
 );
-router.delete('/:id', getKanbanAndCheckAccess, remove);
-
-router.use('/:id/stage', getKanbanAndCheckAccess, stageRoutes);
-router.use('/:id/task', getKanbanAndCheckAccess, taskRoutes);
-
+router.delete('/:id', remove);
+// stage routes
+router.post('/:id/stage', stageRoutes);
 // share kanban
-router.post('/:id/share', getKanbanAndCheckAccess, shareKanban);
+router.post('/:id/share', shareKanban);
 // Share kanban by email
-router.post('/:id/share-email', getKanbanAndCheckAccess, shareKanbanByEmail);
+router.post('/:id/share-email', shareKanbanByEmail);
 // Add member by mail
-router.post('/:id/add-member', getKanbanAndCheckAccess, addMemberByMail);
-// join kanban
-router.post('/:id/join', getKanbanById, joinKanban);
+router.post('/:id/add-member', addMemberByMail);
 // leave kanban
-router.post('/:id/leave', getKanbanAndCheckAccess, leaveKanban);
+router.post('/:id/leave', leaveKanban);
+// task routes
+router.use('/:id/task', taskRoutes);
 
 export default router;
+
