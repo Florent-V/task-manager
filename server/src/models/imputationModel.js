@@ -5,6 +5,19 @@ import sequelize from '../database/connect.js';
 const Imputation = sequelize.define(
   'Imputation',
   {
+    timeSpent: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    comment: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    date: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    // Champ relationnel
     taskId: {
       type: DataTypes.UUID,
       allowNull: false,
@@ -23,19 +36,8 @@ const Imputation = sequelize.define(
       },
       onDelete: 'SET NULL', // Set to null if user is deleted
     },
-    timeSpent: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
-    comment: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-    },
-    date: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW,
-    },
-  }, {
+  },
+  {
     tableName: 'imputation',
     timestamps: true, // Sequelize will add createdAt and updatedAt timestamps
   });
