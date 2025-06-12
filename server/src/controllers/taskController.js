@@ -1,5 +1,6 @@
 import Task from '../models/taskModel.js';
 import NotFoundError from '../error/notFoundError.js';
+import { parseTimeInput } from '../services/imputationTimeService.js';
 
 // Création d'une nouvelle tâche
 export const createTask = async (req, res, next) => {
@@ -16,10 +17,16 @@ export const createTask = async (req, res, next) => {
       assignedToId,
     } = req.body;
 
+    // Parse estimationString if provided
+    let estimationInMinutes = 0; // Default to 0
+    if (estimation) {
+      estimationInMinutes = parseTimeInput(req.body.estimation);
+    }
+
     const newTask = await Task.create({
       title,
       description,
-      estimation,
+      estimation: estimationInMinutes,
       loggedTime,
       priorityId,
       sizeId,
@@ -27,10 +34,9 @@ export const createTask = async (req, res, next) => {
       assignedToId,
       kanbanId,
     });
-    const createdTask = await Task.findByPk(newTask.id);
 
     res.statusCode = 201;
-    res.data = { task: createdTask };
+    res.data = { task: newTask };
 
     next();
   } catch (error) {
@@ -85,8 +91,14 @@ export const updateTask = async (req, res, next) => {
       assignedToId,
     } = req.body;
 
+    // Parse estimationString if provided
+    let estimationInMinutes = 0; // Default to 0
+    if (estimation) {
+      estimationInMinutes = parseTimeInput(req.body.estimation);
+    }
+
     const [updated] = await Task.update(
-      { title, description, estimation, loggedTime, priorityId, sizeId, stageId, assignedToId },
+      { title, description, estimation: estimationInMinutes, loggedTime, priorityId, sizeId, stageId, assignedToId },
       { where: { id: taskId } }
     );
 

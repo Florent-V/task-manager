@@ -1,5 +1,6 @@
 import express from 'express';
 import commentRoutes from './commentRoutes.js';
+import imputationRoutes from './imputationRoutes.js';
 import {
   isTaskInKanban,
   setTaskEntity,
@@ -37,5 +38,6 @@ router.patch(
 router.delete('/:taskId', deleteTask);
 
 router.use('/:taskId/comment', commentRoutes);
+router.use('/:taskId/imputations', imputationRoutes);
 
 export default router;
