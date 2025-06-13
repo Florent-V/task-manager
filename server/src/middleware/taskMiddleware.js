@@ -1,6 +1,7 @@
 import Task from '../models/taskModel.js';
 import Size from '../models/sizeModel.js';
 import Priority from '../models/priorityModel.js';
+import { includeTask } from "../controllers/taskController.js";
 import { taskSchema, updateStageTaskSchema, updateTaskSchema } from '../joiSchema/taskSchema.js';
 import NotFoundError from '../error/notFoundError.js';
 
@@ -28,7 +29,7 @@ export const isTaskInKanban = async (req, res, next) => {
   try {
     const { taskId, id: kanbanId } = req.params;
 
-    const task = await Task.findOne({ where: { id: taskId, kanbanId: kanbanId } });
+    const task = await Task.findOne({ where: { id: taskId, kanbanId: kanbanId }, include: includeTask });
 
     if (!task) throw new NotFoundError('Task not found in this Kanban.');
 

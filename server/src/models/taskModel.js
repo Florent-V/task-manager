@@ -21,6 +21,7 @@ const Task = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    // Estimation en minutes
     estimation: {
       type: DataTypes.INTEGER,
       allowNull: false,

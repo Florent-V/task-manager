@@ -1,6 +1,26 @@
 import Task from '../models/taskModel.js';
+import Comment from "../models/commentModel.js";
+import User from "../models/userModel.js";
+import Imputation from "../models/imputationModel.js";
 import NotFoundError from '../error/notFoundError.js';
 import { parseTimeInput } from '../services/imputationTimeService.js';
+
+export const includeTask = [
+  {
+    model: Comment,
+    as: 'comments',
+  },
+  {
+    model: Imputation,
+    as: 'imputations',
+    include: [{
+      model: User,
+      as: 'user', // Must match the alias defined in relations
+      attributes: ['id', 'firstName', 'lastName', 'email'], // Specify user attributes to return
+    }],
+    order: [['date', 'DESC'], ['createdAt', 'DESC']],
+  }
+];
 
 // Création d'une nouvelle tâche
 export const createTask = async (req, res, next) => {
@@ -50,7 +70,7 @@ export const getAllTasksByKanban = async (req, res, next) => {
     const { id: kanbanId } = req.params;
 
     res.data = {
-      task: await Task.findAll({ where: { kanbanId } }),
+      task: await Task.findAll({ where: { kanbanId }, include: includeTask }),
     };
 
     next();
@@ -65,7 +85,8 @@ export const getTaskById = async (req, res, next) => {
     let task = req.task;
     if (!task) {
       const { id: taskId } = req.params;
-      task = await Task.findByPk(taskId);
+      task = await Task.findByPk(taskId, { include: includeTask });
+
       if (!task) throw new NotFoundError('Task not found.');
     }
 
@@ -104,7 +125,7 @@ export const updateTask = async (req, res, next) => {
 
     if (!updated) throw new NotFoundError('Task not found.');
 
-    const updatedTask = await Task.findByPk(taskId);
+    const updatedTask = await Task.findByPk(taskId, { include: includeTask });
 
     res.data = { task: updatedTask };
     next();
@@ -122,7 +143,7 @@ export const updateStageTask = async (req, res, next) => {
 
     if (!updated) throw new NotFoundError('Task not found.');
 
-    const updatedTask = await Task.findByPk(taskId);
+    const updatedTask = await Task.findByPk(taskId, { include: includeTask });
 
     res.data = { task: updatedTask };
     next();
