@@ -3,7 +3,9 @@ import './assets/quilljs.css'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { OhVueIcon, addIcons } from "oh-vue-icons";
-import { MdClose,
+import {
+  MdClose,
+  MdCloseRound,
   MdDelete,
   MdAdd,
   MdPhotocamera,
@@ -29,7 +31,9 @@ import App from './App.vue'
 import router from './router'
 
 
-addIcons(MdClose,
+addIcons(
+  MdClose,
+  MdCloseRound,
   MdDelete,
   MdAdd,
   MdPhotocamera,

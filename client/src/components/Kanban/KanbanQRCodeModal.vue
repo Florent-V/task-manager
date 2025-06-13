@@ -3,9 +3,8 @@ import { ref, defineProps, defineEmits } from 'vue';
 import { useRoute } from 'vue-router';
 
 import logger from "@/utils/logger.js";
-import { client } from "@/utils/requestMaker.js";
+import { client } from "@/services/requestMaker.js";
 import { hookApi } from "@/utils/requestHook.js";
-const { error, executeRequest } = hookApi();
 
 const props = defineProps({
   qrCodeUrl: {
@@ -19,6 +18,7 @@ const props = defineProps({
 });
 const emit = defineEmits(['close']);
 
+const { error, executeRequest } = hookApi();
 const route = useRoute();
 const copySuccess = ref(false);
 const shareEmailError = ref(null);
@@ -76,7 +76,7 @@ async function shareByEmail() {
         </h2>
         <div class="flex space-x-4">
           <button class="text-gray-500 dark:text-gray-300 hover:text-red-500" @click="closeModal">
-            <v-icon name="md-delete" />
+            <v-icon name="md-close-round" scale="1.2"/>
           </button>
         </div>
       </div>
@@ -90,8 +90,8 @@ async function shareByEmail() {
       <div class="mb-6 mt-4">
         <div class="flex">
           <input
-              v-model="emailToShare" type="email" placeholder="Entrez l'email pour le partage"
-              class="flex-1 border border-gray-300 dark:border-gray-600 p-2 rounded-l w-full max-w-xs mb-0 text-gray-800 dark:bg-gray-700 dark:text-gray-200 focus:ring-yellow-400 focus:border-yellow-400">
+              v-model="emailToShare" class="flex-1 border border-gray-300 dark:border-gray-600 p-2 rounded-l w-full max-w-xs mb-0 text-gray-800 dark:bg-gray-700 dark:text-gray-200 focus:ring-yellow-400 focus:border-yellow-400" placeholder="Entrez l'email pour le partage"
+              type="email">
           <button
               class="bg-blue-600 dark:bg-yellow-400 text-white px-8 py-2 rounded-r hover:bg-blue-700 dark:hover:bg-yellow-500"
               @click="shareByEmail">
