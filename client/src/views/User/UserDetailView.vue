@@ -17,7 +17,6 @@ const showForm = ref(false);
 const openEditForm = () => {
   // Emit an event to open the edit form
   showForm.value = true;
-  console.log('Open edit form');
 };
 
 const closeForm = () => {

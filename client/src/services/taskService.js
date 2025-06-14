@@ -70,7 +70,6 @@ export class TaskService {
 
   async updateTaskStage(kanbanId, taskId, stageId, assignedToId) {
     try {
-      console.log("url", `/api/kanban/${kanbanId}/task/${taskId}/stage`)
       return await this.executeRequest(
         () => client.patch(
           `/api/kanban/${kanbanId}/task/${taskId}/stage`,

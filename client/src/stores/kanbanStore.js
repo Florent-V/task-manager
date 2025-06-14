@@ -28,11 +28,8 @@ export const useKanbanStore = defineStore('kanbanStore', {
         this.reset();
         this.currentKanbanId = kanbanId;
         await this.fetchPriority();
-        console.log("this.priorities", this.priorities);
         await this.fetchSize();
-        console.log("this.sizes", this.sizes);
         await this.fetchKanbanData(kanbanId);
-        console.log("this.kanban", this.kanban);
       } catch (err) {
         logger.error('Error initializing kanban store:', err);
         throw err;
@@ -40,6 +37,7 @@ export const useKanbanStore = defineStore('kanbanStore', {
     },
 
     reset() {
+      logger.debug('Resetting kanban store state');
       this.currentKanbanId = null;
       this.tasks = [];
       this.users = [];
@@ -48,6 +46,7 @@ export const useKanbanStore = defineStore('kanbanStore', {
       this.sizes = [];
     },
     async fetchPriority() {
+      logger.debug('Fetching priorities');
       try {
         const data = await this.taskService.getPriorities();
         this.priorities = data.priorities;
@@ -58,6 +57,7 @@ export const useKanbanStore = defineStore('kanbanStore', {
     },
 
     async fetchSize() {
+      logger.debug('Fetching sizes');
       try {
         const data = await this.taskService.getSizes();
         this.sizes = data.sizes;
@@ -68,9 +68,9 @@ export const useKanbanStore = defineStore('kanbanStore', {
     },
 
     async fetchKanbanData(kanbanId) {
+      logger.debug('Fetching kanban data for ID:', kanbanId);
       try {
         const data = await this.kanbanService.getKanban(kanbanId);
-        console.log("data", data);
         this.kanban = data.kanban;
         this.tasks = this.enrichTasks(data.kanban.tasks);
         this.users = data.kanban.users;
@@ -82,10 +82,12 @@ export const useKanbanStore = defineStore('kanbanStore', {
     },
 
     getTaskById(taskId) {
+      logger.debug('Fetching task by ID:', taskId);
       return this.tasks.find(task => task.id === taskId);
     },
 
     addTask(taskData) {
+      logger.debug('Adding new task:', taskData);
       try {
         this.tasks.push(this.enrichTask(taskData));
       } catch (err) {
@@ -94,19 +96,8 @@ export const useKanbanStore = defineStore('kanbanStore', {
       }
     },
 
-    // async addTask(taskData) {
-    //   try {
-    //     const response = await taskService.addTask(this.currentKanbanId, taskData);
-    //     const newTask = response.task;
-    //     this.tasks.push(newTask);
-    //     this.enrichAndAddTask(newTask);
-    //   } catch (err) {
-    //     logger.error('Error adding task:', err);
-    //     throw err;
-    //   }
-    // },
-
     editTask(updatedTaskData) {
+      logger.debug('Editing task:', updatedTaskData);
       try {
         const index = this.tasks.findIndex(task => task.id === updatedTaskData.id);
         if (index !== -1) {
@@ -118,21 +109,8 @@ export const useKanbanStore = defineStore('kanbanStore', {
       }
     },
 
-    // async editTask(taskId, updatedTaskData) {
-    //   try {
-    //     const response = await taskService.editTask(this.currentKanbanId, taskId, updatedTaskData);
-    //     const updatedTask = response.task;
-    //     const index = this.tasks.findIndex(task => task.id === taskId);
-    //     if (index !== -1) {
-    //       this.tasks[index] = updatedTask;
-    //       this.enrichAndUpdateTask(updatedTask);
-    //     }
-    //   } catch (err) {
-    //     logger.error('Error editing task:', err);
-    //     throw err;
-    //   }
-    // },
     deleteTask(taskId) {
+      logger.debug('Deleting task with ID:', taskId);
       try {
         this.tasks = this.tasks.filter(task => task.id !== taskId);
       } catch (err) {
@@ -141,18 +119,9 @@ export const useKanbanStore = defineStore('kanbanStore', {
       }
     },
 
-    // async deleteTask(taskId) {
-    //   try {
-    //     await taskService.deleteTask(this.currentKanbanId, taskId);
-    //     this.tasks = this.tasks.filter(task => task.id !== taskId);
-    //     this.enrichedTasks = this.enrichedTasks.filter(task => task.id !== taskId);
-    //   } catch (err) {
-    //     logger.error('Error deleting task:', err);
-    //     throw err;
-    //   }
-    // },
-
+    // Function to enrich a single task with additional properties
     enrichTask(task) {
+      logger.debug('Enriching task:', task);
       return {
         ...task,
         priorityLabel: this.priorities.find((p) => p.id === task.priorityId)?.label || 'Unknown',
@@ -168,19 +137,25 @@ export const useKanbanStore = defineStore('kanbanStore', {
     },
 
     enrichTasks(tasks) {
+      logger.debug('Enriching tasks:', tasks);
       return tasks.map(task => this.enrichTask(task));
     },
 
-    // enrichAndAddTask(task) {
-    //   const enrichedTask = this.enrichTask(task);
-    //   this.enrichedTasks.push(enrichedTask);
-    // },
+    // Function to enrich a single comment with author name
+    enrichComment(comment) {
+      logger.debug('Enriching comment:', comment);
+      return {
+        ...comment,
+        authorName: (() => {
+          const user = this.users.find((u) => u.id === comment.authorId);
+          return user ? `${user.firstName} ${user.lastName}` : 'Unknown User';
+        })(),
+      };
+    },
 
-    // enrichAndUpdateTask(updatedTask) {
-    //   const index = this.enrichedTasks.findIndex(task => task.id === updatedTask.id);
-    //   if (index !== -1) {
-    //     this.enrichedTasks[index] = this.enrichTask(updatedTask);
-    //   }
-    // },
+    enrichComments(comments) {
+      logger.debug('Enriching comments:', comments);
+      return comments.map((comment) => this.enrichComment(comment));
+    }
   },
 });

@@ -92,7 +92,6 @@ const handleDrop = async (event, columnId, assignedToId) => {
 // Fonction pour mettre à jour la colonne et le responsable d'une tâche
 const updateTaskStage = async (task) => {
   try {
-    console.log("task", task);
     await taskService.updateTaskStage(
         task.kanbanId,
         task.id,
@@ -162,7 +161,6 @@ const deleteTask = async (id) => {
 const shareKanban = async () => {
   try {
     const data = await kanbanService.shareKanban(route.params.id);
-    console.log("sharedata", data);
     qrCodeUrl.value = data.qrCodeUrl;
     linkUrl.value = data.linkUrl;
     showQRCodeModal.value = true;
@@ -177,12 +175,9 @@ const getCurrentUserId = () => {
 };
 
 onMounted(async () => {
-  console.log("coucou")
   await kanbanStore.initStore(route.params.id);
   setTitle(`Kanban - ${kanban.value.title}`);
   setDescription(`Kanban - ${kanban.value.description}`);
-  console.log("kanban", kanban.value.title);
-  console.log("tasks", tasks.value);
 });
 </script>
 

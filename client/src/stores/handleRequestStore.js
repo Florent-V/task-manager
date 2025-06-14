@@ -8,7 +8,6 @@ export const useHandleRequestStore = defineStore('loadingStore', {
   }),
   actions: {
     setLoading(isLoading) {
-      console.log('isLoading', isLoading);
       this.isLoading = isLoading;
     },
     setError(error) {

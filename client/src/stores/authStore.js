@@ -35,8 +35,8 @@ export const useAuthStore = defineStore('auth', {
         this.authenticated = true;
         return data;
       } catch (error) {
-        console.log('error', error);
         logger.error('Erreur lors de la connexion:');
+        logger.error('error', error);
         throw error;
       }
     },

@@ -52,7 +52,6 @@ const submitForm = async () => {
     closeForm();
   } catch (err) {
     logger.error('Error in form submission', err?.response?.data?.message || err.message);
-    console.log("err",err);
     setErrors(err);
   }
 };

@@ -76,8 +76,6 @@ const submitForm = async () => {
     data.image = formData.value.image;
   }
 
-  console.log('Form data:', data);
-
   try {
     const response = await executeRequest(
         () => client.patchWithFile(`/api/user/me`, data)
