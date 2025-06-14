@@ -10,7 +10,7 @@ export class TaskService {
 
   async getPriorities() {
     try {
-      return  await this.executeRequest(
+      return await this.executeRequest(
         () => client.get('/api/priority')
       );
     } catch (err) {
@@ -68,16 +68,6 @@ export class TaskService {
     }
   }
 
-  async shareKanban(kanbanId) {
-    try {
-      return await this.executeRequest(
-        () => client.post(`/api/kanban/${kanbanId}/share`, {}),
-      );
-    } catch (err) {
-      throw err;
-    }
-  }
-
   async updateTaskStage(kanbanId, taskId, stageId, assignedToId) {
     try {
       console.log("url", `/api/kanban/${kanbanId}/task/${taskId}/stage`)
@@ -91,33 +81,47 @@ export class TaskService {
       throw err;
     }
   }
+
+  async getComments(kanbanId, taskId) {
+    try {
+      return await this.executeRequest(
+        () => client.get(`/api/kanban/${kanbanId}/task/${taskId}/comment`)
+      );
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async createComment(kanbanId, taskId, commentData) {
+    try {
+      return await this.executeRequest(
+        () => client.post(`/api/kanban/${kanbanId}/task/${taskId}/comment`, commentData)
+      );
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async editComment(kanbanId, taskId, commentId, updatedCommentData) {
+    try {
+      return await this.executeRequest(
+        () => client.patch(
+          `/api/kanban/${kanbanId}/task/${taskId}/comment/${commentId}`,
+          updatedCommentData
+        )
+      );
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async deleteComment(kanbanId, taskId, commentId) {
+    try {
+      return await this.executeRequest(
+        () => client.delete(`/api/kanban/${kanbanId}/task/${taskId}/comment/${commentId}`)
+      );
+    } catch (err) {
+      throw err;
+    }
+  }
 }
-
-
-// export const taskService = {
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//   async updateTaskStage({ kanbanId, taskId, stageId, assignedToId }) {
-//     try {
-//       return await executeRequest(
-//         () => client.patch(
-//           `/api/kanban/${kanbanId}/task/${taskId}/stage`,
-//           { stageId, assignedToId }
-//         )
-//       );
-//     } catch (err) {
-//       throw err;
-//     }
-//   }
-// };

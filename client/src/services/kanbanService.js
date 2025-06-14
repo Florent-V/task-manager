@@ -18,7 +18,7 @@ export class KanbanService {
     }
   }
 
-  async addKanban(kanbanId, kanbanData) {
+  async createKanban(kanbanId, kanbanData) {
     try {
       return await this.executeRequest(
         () => client.post(`/api/kanban/${kanbanId}`, kanbanData)
@@ -42,6 +42,16 @@ export class KanbanService {
     try {
       return await this.executeRequest(
         () => client.delete(`/api/kanban/${kanbanId}`)
+      );
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async shareKanban(kanbanId) {
+    try {
+      return await this.executeRequest(
+        () => client.post(`/api/kanban/${kanbanId}/share`, {}),
       );
     } catch (err) {
       throw err;
