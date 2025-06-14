@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 
-import { client } from '@/utils/requestMaker.js';
+import { client } from '@/services/requestMaker.js';
 
 const products = ref([]);
 const newProduct = ref({

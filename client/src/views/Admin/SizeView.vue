@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 
-import { client } from '@/utils/requestMaker.js';
+import { client } from '@/services/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
 import logger from "@/utils/logger.js";
 import LoaderComponent from "@/components/LoaderComponent.vue";

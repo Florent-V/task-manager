@@ -1,5 +1,5 @@
 <script setup>
-import { apiBaseUrl } from "@/utils/requestMaker.js";
+import { apiBaseUrl } from "@/services/requestMaker.js";
 const filesApiUrl = `${apiBaseUrl}/api/uploads`;
 
 defineProps({

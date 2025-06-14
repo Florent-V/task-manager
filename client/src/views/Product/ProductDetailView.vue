@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import { client , apiBaseUrl } from '@/utils/requestMaker.js';
+import { client , apiBaseUrl } from '@/services/requestMaker.js';
 import ProductFormComponent from '@/components/Product/ProductFormComponent.vue';
 
 const filesApiUrl = `${apiBaseUrl}/api/uploads`;
