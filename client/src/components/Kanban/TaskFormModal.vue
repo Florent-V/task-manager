@@ -2,15 +2,12 @@
 import { ref, watch, computed, onMounted } from "vue";
 import { useRoute } from 'vue-router';
 import Quill from 'quill';
-
-import { client } from '@/utils/requestMaker.js';
-import { hookApi } from "@/utils/requestHook.js";
-import logger from "@/utils/logger.js";
-import useFormErrors from "@/utils/handleFormErrors.js";
 import 'quill/dist/quill.snow.css';
 
-const route = useRoute();
-const { error, executeRequest } = hookApi();
+import { useHandleRequestStore } from "@/stores/handleRequestStore.js";
+import logger from "@/utils/logger.js";
+import useFormErrors from "@/utils/handleFormErrors.js";
+import { TaskService } from '@/services/taskService.js';
 
 const emit = defineEmits(['handleResponse', 'cancel']);
 const props = defineProps({
@@ -19,7 +16,7 @@ const props = defineProps({
     default: () => ({
       title: null,
       description: null,
-      estimation: 0,
+      estimation: null,
       loggedTime: 0,
       priorityId: null,
       sizeId: null,
@@ -45,14 +42,14 @@ const props = defineProps({
   },
 });
 
-// Référence pour l'éditeur
-const editorContainer = ref(null);
-
+const handleRequestStore = useHandleRequestStore();
+const route = useRoute();
+const taskService = new TaskService();
 // Gestion du formulaire
 const newTask = {
   title: null,
   description: null,
-  estimation: 0,
+  estimation: null,
   loggedTime: 0,
   priorityId: null,
   sizeId: null,
@@ -60,15 +57,19 @@ const newTask = {
   assignedToId: null,
 };
 
+// Référence pour l'éditeur
+const editorContainer = ref(null);
 const formData = ref({ ...props.initialData });
+const isEditing = computed(() => !!formData.value.id);
+// Utilitaire de gestions des erreurs de formulaire
+const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...formData.value });
 watch(() => props.initialData, (newValue) => {
       formData.value = newValue ? { ...newValue } : { ...newTask };
     },
     { immediate: true }
 );
-const isEditing = computed(() => !!formData.value.id);
-// Utilitaire de gestions des erreurs de formulaire
-const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...formData.value });
+
+const requestError = computed(() => handleRequestStore.error);
 
 const submitForm = async () => {
   logger.debug("submitForm");
@@ -87,14 +88,12 @@ const submitForm = async () => {
     let response;
     if (formData.value.id) {
       // Update existing task
-      response = await executeRequest(
-          () => client.patch(`/api/kanban/${route.params.id}/task/${formData.value.id}`, data)
-      );
+      logger.debug("Updating task with ID:", formData.value.id);
+      response = await taskService.editTask(route.params.id, formData.value.id, data);
     } else {
       // Create new task
-      response = await executeRequest(
-          () => client.post(`/api/kanban/${route.params.id}/task`, data)
-      );
+      logger.debug("Creating new task");
+      response = await taskService.createTask(route.params.id, data);
     }
     emit('handleResponse', response);
     closeForm();
@@ -154,7 +153,7 @@ onMounted(async () => {
 
         </h2>
         <button class="text-gray-500 dark:text-gray-300 hover:text-red-500" @click="closeForm">
-          <v-icon name="md-close" />
+          <v-icon name="md-close"/>
         </button>
       </div>
 
@@ -166,12 +165,12 @@ onMounted(async () => {
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Titre</label>
             <input
                 v-model="formData.title"
-                type="text"
                 class="w-full mt-1 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
                 placeholder="Titre de la tâche"
+                type="text"
             />
+            <div v-if="errors.title" class="mt-0 text-sm text-red-600 dark:text-red-400">{{ errors.title }}</div>
           </div>
-          <div v-if="errors.title" class="mt-0 text-sm text-red-600 dark:text-red-400">{{ errors.title }}</div>
 
           <!-- Description -->
           <div class="flex flex-col flex-1">
@@ -180,8 +179,10 @@ onMounted(async () => {
                 ref="editorContainer"
                 class="flex-1 min-h-[100px] max-h-[40vh] overflow-y-auto rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 p-2"
             ></div>
+            <p v-if="errors.description" class="mt-2 text-sm text-red-600 dark:text-red-400">
+              {{ errors.description }}
+            </p>
           </div>
-          <p v-if="errors.description" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.description }}</p>
 
           <!-- Priority & Size -->
           <div class="flex space-x-4">
@@ -196,7 +197,9 @@ onMounted(async () => {
                   {{ priority.label }}
                 </option>
               </select>
-              <p v-if="errors.priorityId" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.priorityId }}</p>
+              <p v-if="errors.priorityId" class="mt-2 text-sm text-red-600 dark:text-red-400">
+                {{ errors.priorityId }}
+              </p>
             </div>
             <div class="flex-1">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Taille</label>
@@ -219,23 +222,26 @@ onMounted(async () => {
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Temps estimé (h)</label>
               <input
                   v-model="formData.estimation"
-                  type="text"
                   class="w-full mt-1 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
                   placeholder="Temps estimé"
+                  type="text"
               />
-              <p v-if="errors.estimation" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.estimation }}</p>
+              <p v-if="errors.estimation" class="mt-2 text-sm text-red-600 dark:text-red-400">
+                {{ errors.estimation }}
+              </p>
             </div>
             <div class="flex-1">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Temps consigné (h)</label>
               <input
                   v-model="formData.loggedTime"
-                  type="text"
                   class="w-full mt-1 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
                   placeholder="Temps consigné"
+                  type="text"
               />
-              <p v-if="errors.loggedTime" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.loggedTime }}</p>
+              <p v-if="errors.loggedTime" class="mt-2 text-sm text-red-600 dark:text-red-400">
+                {{ errors.loggedTime }}
+              </p>
             </div>
-
           </div>
 
           <!-- Assigned User & Stage -->
@@ -246,12 +252,14 @@ onMounted(async () => {
                   v-model="formData.assignedToId"
                   class="w-full mt-1 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
               >
-                <option selected :value="null">Choisir une option</option>
+                <option :value="null" selected>Choisir une option</option>
                 <option v-for="member in users" :key="member.id" :value="member.id">
                   {{ member.firstName }} {{ member.lastName }}
                 </option>
               </select>
-              <p v-if="errors.assignedToId" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.assignedToId }}</p>
+              <p v-if="errors.assignedToId" class="mt-2 text-sm text-red-600 dark:text-red-400">
+                {{ errors.assignedToId }}
+              </p>
             </div>
             <div class="flex-1">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Colonne :</label>
@@ -259,21 +267,21 @@ onMounted(async () => {
                   v-model="formData.stageId"
                   class="w-full mt-1 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
               >
-                <option selected :value="null">Choisir une option</option>
+                <option :value="null" selected>Choisir une option</option>
                 <option v-for="stage in stages" :key="stage.id" :value="stage.id">
                   {{ stage.name }}
                 </option>
               </select>
-              <p v-if="errors.stageId" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.stageId }}</p>
+              <p v-if="errors.stageId" class="mt-2 text-sm text-red-600 dark:text-red-400">
+                {{ errors.stageId }}
+              </p>
             </div>
           </div>
-
         </div>
+
+        <!-- Global Error Messages -->
         <p v-if="defaultError" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ defaultError }}</p>
-
-        <div v-if="error">
-          <p class="text-sm text-red-600 dark:text-red-400">{{ error }}</p>
-        </div>
+        <p v-if="requestError" class="text-sm text-red-600 dark:text-red-400">{{ requestError }}</p>
 
         <!-- Footer -->
         <div class="flex justify-end mt-6 space-x-4">
@@ -284,14 +292,13 @@ onMounted(async () => {
             Annuler
           </button>
           <button
-              type="submit"
               class="px-4 py-2 rounded-lg bg-blue-600 dark:bg-yellow-400 text-white hover:bg-blue-700 dark:hover:bg-yellow-500"
+              type="submit"
           >
             Sauvegarder
           </button>
         </div>
       </form>
-
     </div>
   </div>
 </template>
