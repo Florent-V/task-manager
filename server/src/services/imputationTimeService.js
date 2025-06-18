@@ -41,7 +41,7 @@ export function parseTimeInput(timeString) {
  */
 export function formatTimeOutput(totalMinutes) {
   if (totalMinutes <= 0) {
-    return "0m";
+    return '0m';
   }
 
   const MINUTES_PER_HOUR = 60;
@@ -76,7 +76,7 @@ export function formatTimeOutput(totalMinutes) {
   // The problem is if minutes is the only part and it's < 1, it could be an issue.
   // However, `minutes` here is `remainingMinutes`, which is an integer.
 
-  return parts.length > 0 ? parts.join(" ") : "0m"; // Ensure "0m" if parts is empty for some reason (e.g. negative input already handled)
+  return parts.length > 0 ? parts.join(' ') : '0m'; // Ensure "0m" if parts is empty for some reason (e.g. negative input already handled)
 }
 
 // Basic Test Cases for parseTimeInput:

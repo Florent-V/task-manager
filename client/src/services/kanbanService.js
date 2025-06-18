@@ -9,52 +9,32 @@ export class KanbanService {
   }
 
   async getKanban(kanbanId) {
-    try {
-      return await this.executeRequest(
-        () => client.get(`/api/kanban/${kanbanId}`)
-      );
-    } catch (err) {
-      throw err;
-    }
+    return await this.executeRequest(
+      () => client.get(`/api/kanban/${kanbanId}`)
+    );
   }
 
   async createKanban(kanbanId, kanbanData) {
-    try {
-      return await this.executeRequest(
-        () => client.post(`/api/kanban/${kanbanId}`, kanbanData)
-      );
-    } catch (err) {
-      throw err;
-    }
+    return await this.executeRequest(
+      () => client.post(`/api/kanban/${kanbanId}`, kanbanData)
+    );
   }
 
   async editKanban(kanbanId, updatedKanbanData) {
-    try {
-      return await this.executeRequest(
-        () => client.patch(`/api/kanban/${kanbanId}}`, updatedKanbanData)
-      );
-    } catch (err) {
-      throw err;
-    }
+    return await this.executeRequest(
+      () => client.patch(`/api/kanban/${kanbanId}}`, updatedKanbanData)
+    );
   }
 
   async deleteKanban(kanbanId) {
-    try {
-      return await this.executeRequest(
-        () => client.delete(`/api/kanban/${kanbanId}`)
-      );
-    } catch (err) {
-      throw err;
-    }
+    return await this.executeRequest(
+      () => client.delete(`/api/kanban/${kanbanId}`)
+    );
   }
 
   async shareKanban(kanbanId) {
-    try {
-      return await this.executeRequest(
-        () => client.post(`/api/kanban/${kanbanId}/share`, {}),
-      );
-    } catch (err) {
-      throw err;
-    }
+    return await this.executeRequest(
+      () => client.post(`/api/kanban/${kanbanId}/share`, {}),
+    );
   }
 }

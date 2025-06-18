@@ -9,161 +9,101 @@ export class TaskService {
   }
 
   async getPriorities() {
-    try {
-      return await this.executeRequest(
-        () => client.get('/api/priority')
-      );
-    } catch (err) {
-      throw err;
-    }
+    return await this.executeRequest(
+      () => client.get('/api/priority')
+    );
   }
 
   async getSizes() {
-    try {
-      return await this.executeRequest(
-        () => client.get('/api/size')
-      );
-    } catch (err) {
-      throw err;
-    }
+    return await this.executeRequest(
+      () => client.get('/api/size')
+    );
   }
 
   async getTasks(kanbanId) {
-    try {
-      return await this.executeRequest(
-        () => client.get(`/api/kanban/${kanbanId}/task`)
-      );
-    } catch (err) {
-      throw err;
-    }
+    return await this.executeRequest(
+      () => client.get(`/api/kanban/${kanbanId}/task`)
+    );
   }
 
   async createTask(kanbanId, taskData) {
-    try {
-      return await this.executeRequest(
-        () => client.post(`/api/kanban/${kanbanId}/task`, taskData)
-      );
-    } catch (err) {
-      throw err;
-    }
+    return await this.executeRequest(
+      () => client.post(`/api/kanban/${kanbanId}/task`, taskData)
+    );
   }
 
   async editTask(kanbanId, taskId, updatedTaskData) {
-    try {
-      return await this.executeRequest(
-        () => client.patch(`/api/kanban/${kanbanId}/task/${taskId}`, updatedTaskData)
-      );
-    } catch (err) {
-      throw err;
-    }
+    return await this.executeRequest(
+      () => client.patch(`/api/kanban/${kanbanId}/task/${taskId}`, updatedTaskData)
+    );
   }
 
   async deleteTask(kanbanId, taskId) {
-    try {
-      return await this.executeRequest(
-        () => client.delete(`/api/kanban/${kanbanId}/task/${taskId}`)
-      );
-    } catch (err) {
-      throw err;
-    }
+    return await this.executeRequest(
+      () => client.delete(`/api/kanban/${kanbanId}/task/${taskId}`)
+    );
   }
 
   async updateTaskStage(kanbanId, taskId, stageId, assignedToId) {
-    try {
-      return await this.executeRequest(
-        () => client.patch(
-          `/api/kanban/${kanbanId}/task/${taskId}/stage`,
-          { stageId, assignedToId }
-        )
-      );
-    } catch (err) {
-      throw err;
-    }
+    return await this.executeRequest(
+      () => client.patch(
+        `/api/kanban/${kanbanId}/task/${taskId}/stage`,
+        { stageId, assignedToId }
+      )
+    );
   }
 
   async getComments(kanbanId, taskId) {
-    try {
-      return await this.executeRequest(
-        () => client.get(`/api/kanban/${kanbanId}/task/${taskId}/comment`)
-      );
-    } catch (err) {
-      throw err;
-    }
+    return await this.executeRequest(
+      () => client.get(`/api/kanban/${kanbanId}/task/${taskId}/comment`)
+    );
   }
 
   async createComment(kanbanId, taskId, commentData) {
-    try {
-      return await this.executeRequest(
-        () => client.post(`/api/kanban/${kanbanId}/task/${taskId}/comment`, commentData)
-      );
-    } catch (err) {
-      throw err;
-    }
+    return await this.executeRequest(
+      () => client.post(`/api/kanban/${kanbanId}/task/${taskId}/comment`, commentData)
+    );
   }
 
   async editComment(kanbanId, taskId, commentId, updatedCommentData) {
-    try {
-      return await this.executeRequest(
-        () => client.patch(
-          `/api/kanban/${kanbanId}/task/${taskId}/comment/${commentId}`,
-          updatedCommentData
-        )
-      );
-    } catch (err) {
-      throw err;
-    }
+    return await this.executeRequest(
+      () => client.patch(
+        `/api/kanban/${kanbanId}/task/${taskId}/comment/${commentId}`,
+        updatedCommentData
+      )
+    );
   }
 
   async deleteComment(kanbanId, taskId, commentId) {
-    try {
-      return await this.executeRequest(
-        () => client.delete(`/api/kanban/${kanbanId}/task/${taskId}/comment/${commentId}`)
-      );
-    } catch (err) {
-      throw err;
-    }
+    return await this.executeRequest(
+      () => client.delete(`/api/kanban/${kanbanId}/task/${taskId}/comment/${commentId}`)
+    );
   }
 
   async getImputations(kanbanId, taskId) {
-    try {
-      return await this.executeRequest(
-        () => client.get(`/api/kanban/${kanbanId}/task/${taskId}/imputation`)
-      );
-    } catch (err) {
-      throw err;
-    }
+    return await this.executeRequest(
+      () => client.get(`/api/kanban/${kanbanId}/task/${taskId}/imputation`)
+    );
   }
 
   async createImputation(kanbanId, taskId, imputationData) {
-    try {
-      return await this.executeRequest(
-        () => client.post(`/api/kanban/${kanbanId}/task/${taskId}/imputation`, imputationData)
-      );
-    } catch (err) {
-      throw err;
-    }
+    return await this.executeRequest(
+      () => client.post(`/api/kanban/${kanbanId}/task/${taskId}/imputation`, imputationData)
+    );
   }
 
   async editImputation(kanbanId, taskId, imputationId, updatedImputationData) {
-    try {
-      return await this.executeRequest(
-        () => client.patch(
-          `/api/kanban/${kanbanId}/task/${taskId}/imputation/${imputationId}`,
-          updatedImputationData
-        )
-      );
-    } catch (err) {
-      throw err;
-    }
+    return await this.executeRequest(
+      () => client.patch(
+        `/api/kanban/${kanbanId}/task/${taskId}/imputation/${imputationId}`,
+        updatedImputationData
+      )
+    );
   }
 
   async deleteImputation(kanbanId, taskId, imputationId) {
-    try {
-      return await this.executeRequest(
-        () => client.delete(`/api/kanban/${kanbanId}/task/${taskId}/imputation/${imputationId}`)
-      );
-    } catch (err) {
-      throw err;
-    }
+    return await this.executeRequest(
+      () => client.delete(`/api/kanban/${kanbanId}/task/${taskId}/imputation/${imputationId}`)
+    );
   }
 }

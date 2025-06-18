@@ -26,6 +26,9 @@ export const updateImputationSchema = Joi.object({
   date: Joi.date().allow(null).optional().messages({
     'date.base': `"date" should be a valid date`,
   }),
-}).or('timeSpent', 'comment').messages({
-  'object.missing': 'At least one of the fields "timeSpentString" or "comment" must be provided for an update.',
-});
+})
+  .or('timeSpent', 'comment')
+  .messages({
+    'object.missing':
+      'At least one of the fields "timeSpentString" or "comment" must be provided for an update.',
+  });

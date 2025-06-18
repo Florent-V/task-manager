@@ -140,7 +140,7 @@ export const logout = async (req, res) => {
     // TODO: It's generally better to pass the error to the next error handler or send a response.
     logger.error('Error during logout:', { message: error.message, stack: error.stack });
     return res.status(500).send({
-      message: 'An error occurred while logging out. Please try again later.'
+      message: 'An error occurred while logging out. Please try again later.',
     });
   }
 };

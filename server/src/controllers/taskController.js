@@ -1,7 +1,7 @@
 import Task from '../models/taskModel.js';
-import Comment from "../models/commentModel.js";
-import User from "../models/userModel.js";
-import Imputation from "../models/imputationModel.js";
+import Comment from '../models/commentModel.js';
+import User from '../models/userModel.js';
+import Imputation from '../models/imputationModel.js';
 import NotFoundError from '../error/notFoundError.js';
 import { parseTimeInput } from '../services/imputationTimeService.js';
 
@@ -13,13 +13,18 @@ export const includeTask = [
   {
     model: Imputation,
     as: 'imputations',
-    include: [{
-      model: User,
-      as: 'user', // Must match the alias defined in relations
-      attributes: ['id', 'firstName', 'lastName', 'email'], // Specify user attributes to return
-    }],
-    order: [['date', 'DESC'], ['createdAt', 'DESC']],
-  }
+    include: [
+      {
+        model: User,
+        as: 'user', // Must match the alias defined in relations
+        attributes: ['id', 'firstName', 'lastName', 'email'], // Specify user attributes to return
+      },
+    ],
+    order: [
+      ['date', 'DESC'],
+      ['createdAt', 'DESC'],
+    ],
+  },
 ];
 
 // Création d'une nouvelle tâche
@@ -119,7 +124,16 @@ export const updateTask = async (req, res, next) => {
     }
 
     const [updated] = await Task.update(
-      { title, description, estimation: estimationInMinutes, loggedTime, priorityId, sizeId, stageId, assignedToId },
+      {
+        title,
+        description,
+        estimation: estimationInMinutes,
+        loggedTime,
+        priorityId,
+        sizeId,
+        stageId,
+        assignedToId,
+      },
       { where: { id: taskId } }
     );
 

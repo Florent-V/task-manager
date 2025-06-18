@@ -14,7 +14,7 @@ import {
   leaveKanban,
 } from '../controllers/kanbanController.js';
 import { authorizeManyToManyRessourceAccess, validate } from '../middleware/ressourceMiddleware.js';
-import { authenticateByCookieSession, authenticateToken, isAdmin } from '../middleware/authMiddleware.js';
+import { authenticateByCookieSession, isAdmin } from '../middleware/authMiddleware.js';
 import {
   setKanbanEntity,
   setKanbanCreateValidator,
@@ -28,7 +28,6 @@ const router = Router();
 const getKanbanAndCheckAccess = [getKanbanById, authorizeManyToManyRessourceAccess];
 
 router.use(authenticateByCookieSession);
-// router.use(authenticateToken);
 router.use(setKanbanEntity);
 
 router.get('/', getKanbansByUser);
@@ -42,13 +41,7 @@ router.post('/:id/join', getKanbanById, joinKanban);
 router.use('/:id', getKanbanAndCheckAccess);
 router.get('/:id/');
 
-router.patch(
-  '/:id',
-  setKanbanUpdateValidator,
-  validate,
-  updateKanban,
-  getKanbanById
-);
+router.patch('/:id', setKanbanUpdateValidator, validate, updateKanban, getKanbanById);
 router.delete('/:id', remove);
 // stage routes
 router.post('/:id/stage', stageRoutes);
@@ -64,4 +57,3 @@ router.post('/:id/leave', leaveKanban);
 router.use('/:id/task', taskRoutes);
 
 export default router;
-

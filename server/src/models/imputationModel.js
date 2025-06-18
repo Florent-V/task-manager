@@ -40,6 +40,7 @@ const Imputation = sequelize.define(
   {
     tableName: 'imputation',
     timestamps: true, // Sequelize will add createdAt and updatedAt timestamps
-  });
+  }
+);
 
 export default Imputation;

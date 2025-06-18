@@ -15,10 +15,13 @@ export const taskSchema = Joi.object({
   // estimation: Joi.string().allow(null, '').messages({
   //   'string.base': 'Le temps estimé doit être une chaîne de caractères (ex: "2h 30m").',
   // }),
-  estimation: Joi.string().pattern(/^(?:\d+d)?(?:\d+h)?(?:\d+m)?$/).allow(null, '').messages({
-    'string.base': 'Le temps estimé doit être une chaîne de caractères (ex: "2h 30m").',
-    'string.pattern.base': 'Le temps estimé doit être au format valide (ex: "2d 4h 30m").'
-  }),
+  estimation: Joi.string()
+    .pattern(/^(?:\d+d)?(?:\d+h)?(?:\d+m)?$/)
+    .allow(null, '')
+    .messages({
+      'string.base': 'Le temps estimé doit être une chaîne de caractères (ex: "2h 30m").',
+      'string.pattern.base': 'Le temps estimé doit être au format valide (ex: "2d 4h 30m").',
+    }),
   loggedTime: Joi.number().integer().min(0).required().messages({
     'number.base': 'Le temps consigné doit être un nombre.',
     'number.integer': 'Le temps consigné doit être un nombre entier.',
@@ -49,10 +52,13 @@ export const updateTaskSchema = Joi.object({
   description: Joi.string().allow(null, '').messages({
     'string.base': 'La description doit être une chaîne de caractères.',
   }),
-  estimation: Joi.string().pattern(/^(?:\d+d)?(?:\d+h)?(?:\d+m)?$/).allow(null, '').messages({
-    'string.base': 'Le temps estimé doit être une chaîne de caractères (ex: "2h 30m").',
-    'string.pattern.base': 'Le temps estimé doit être au format valide (ex: "2d 4h 30m").'
-  }),
+  estimation: Joi.string()
+    .pattern(/^(?:\d+d)?(?:\d+h)?(?:\d+m)?$/)
+    .allow(null, '')
+    .messages({
+      'string.base': 'Le temps estimé doit être une chaîne de caractères (ex: "2h 30m").',
+      'string.pattern.base': 'Le temps estimé doit être au format valide (ex: "2d 4h 30m").',
+    }),
   loggedTime: Joi.number().integer().min(0).required().messages({
     'number.base': 'Le temps consigné doit être un nombre.',
     'number.integer': 'Le temps consigné doit être un nombre entier.',

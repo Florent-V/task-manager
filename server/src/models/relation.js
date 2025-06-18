@@ -192,7 +192,7 @@ export const defineAssociations = () => {
   });
   models.task.hasMany(models.comment, {
     foreignKey: 'taskId',
-    as: 'comments'
+    as: 'comments',
   });
 
   //
@@ -205,7 +205,7 @@ export const defineAssociations = () => {
   });
   models.user.hasMany(models.comment, {
     foreignKey: 'authorId',
-    as: 'comments'
+    as: 'comments',
   });
 
   //

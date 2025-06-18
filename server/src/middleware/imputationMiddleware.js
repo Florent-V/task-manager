@@ -1,8 +1,8 @@
 import { createImputationSchema, updateImputationSchema } from '../joiSchema/imputationSchema.js';
 import UnauthorizedError from '../error/unauthorizedError.js';
 import logger from '../config/logger.js';
-import Imputation from "../models/imputationModel.js";
-import NotFoundError from "../error/notFoundError.js";
+import Imputation from '../models/imputationModel.js';
+import NotFoundError from '../error/notFoundError.js';
 
 export const setImputationEntity = (req, res, next) => {
   req.entity = Imputation;
@@ -26,24 +26,30 @@ export const checkImputationAccess = async (req, res, next) => {
       logger.warn('User not authenticated for imputation access.');
       throw new UnauthorizedError('You must be logged in to access this resource.');
     }
-    const { taskId, imputationId  } = req.params;
+    const { taskId, imputationId } = req.params;
     const userId = req.user.id;
 
     req.imputation = await Imputation.findOne({ where: { id: imputationId, taskId } });
     if (!req.imputation) {
-      logger.warn(`User ${userId} attempted to access non-existent imputation ${imputationId} for task ${taskId}.`);
+      logger.warn(
+        `User ${userId} attempted to access non-existent imputation ${imputationId} for task ${taskId}.`
+      );
       // throw new UnauthorizedError('You do not have permission to access this imputation.');
       throw new NotFoundError(`Imputation with ID ${imputationId} not found for task ${taskId}.`);
     }
-    console.log("req.imputation", req.imputation);
-    console.log("req.imputation.userId", req.imputation.userId);
+    console.log('req.imputation', req.imputation);
+    console.log('req.imputation.userId', req.imputation.userId);
 
     if (req.imputation.userId !== userId) {
-      logger.warn(`User ${userId} attempted to access imputation ${imputationId} not owned by them.`);
+      logger.warn(
+        `User ${userId} attempted to access imputation ${imputationId} not owned by them.`
+      );
       throw new UnauthorizedError('You do not have permission to access this imputation.');
     }
 
-    logger.info(`User ${req.user.id} attempting to access/modify imputation. Basic auth check passed.`);
+    logger.info(
+      `User ${req.user.id} attempting to access/modify imputation. Basic auth check passed.`
+    );
     next();
   } catch (error) {
     return next(error);

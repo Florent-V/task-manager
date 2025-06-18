@@ -1,5 +1,6 @@
 // stores/kanbanStore.js
 import { defineStore } from 'pinia';
+
 import { TaskService } from '@/services/taskService.js';
 import { KanbanService } from '@/services/kanbanService.js';
 import logger from '@/utils/logger.js';
