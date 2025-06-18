@@ -2,7 +2,7 @@ import _ from 'lodash';
 import User from '../models/userModel.js';
 import Role from '../models/roleModel.js';
 import { getAuthorities } from '../services/authService.js';
-import NotFoundError from "../error/notFoundError.js";
+import NotFoundError from '../error/notFoundError.js';
 import logger from '../config/logger.js';
 
 // Récupération de tous les Utilisateurs

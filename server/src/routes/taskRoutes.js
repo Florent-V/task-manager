@@ -6,7 +6,8 @@ import {
   setTaskEntity,
   setTaskCreateValidator,
   setTaskUpdateValidator,
-  checkTaskRelationship, setStageTaskUpdateValidator,
+  checkTaskRelationship,
+  setStageTaskUpdateValidator,
 } from '../middleware/taskMiddleware.js';
 import { validate } from '../middleware/ressourceMiddleware.js';
 import {

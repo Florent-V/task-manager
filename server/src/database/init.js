@@ -25,7 +25,10 @@ const initDB = async (sync, option) => {
       logger.info('Database seeded with test data.');
     }
   } catch (error) {
-    logger.error('Something went wrong with the database:', { message: error.message, stack: error.stack });
+    logger.error('Something went wrong with the database:', {
+      message: error.message,
+      stack: error.stack,
+    });
   }
 };
 

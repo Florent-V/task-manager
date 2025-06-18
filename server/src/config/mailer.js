@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import config from './config.js'; // Assuming your existing config.js handles environment variables
+// import config from './config.js'; // Assuming your existing config.js handles environment variables
 
 // Configure transporter based on environment
 const mailerConfig = {
@@ -18,7 +18,7 @@ const mailerConfig = {
 
 const transporter = nodemailer.createTransport(mailerConfig);
 
-transporter.verify((error, success) => {
+transporter.verify((error, _) => {
   if (error) {
     console.error('Mailer configuration error:', error);
   } else {

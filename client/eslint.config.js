@@ -11,8 +11,10 @@ export default defineConfig([
     name: 'app/files-to-ignore',
     ignores: [
       '**/dist/**',
+      '**/dev-dist/**',
       '**/dist-ssr/**',
       '**/coverage/**',
+      'tests/',
       'vendor/',
       'public/',
       'assets/vendor/',

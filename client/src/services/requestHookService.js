@@ -1,6 +1,5 @@
 // Hook pour gérer les appels API
 import { useHandleRequestStore } from "@/stores/handleRequestStore.js";
-
 import logger from "@/utils/logger.js";
 
 export function hookApi() {

@@ -1,15 +1,15 @@
-import User from "../models/userModel.js";
-import Imputation from "../models/imputationModel.js";
+import User from '../models/userModel.js';
+import Imputation from '../models/imputationModel.js';
 import NotFoundError from '../error/notFoundError.js';
 import logger from '../config/logger.js';
 
 export async function createImputation(req, res, next) {
+  logger.debug('createImputation');
   const { taskId } = req.params;
   const { timeSpent, comment, date } = req.body;
   const userId = req.user.id;
 
   try {
-
     const newImputation = await Imputation.create({
       taskId,
       userId,
@@ -28,16 +28,22 @@ export async function createImputation(req, res, next) {
 }
 
 export async function getImputationsForTask(req, res, next) {
+  logger.debug('getImputationsForTask');
   const { taskId } = req.params;
   try {
     const imputations = await Imputation.findAll({
       where: { taskId },
-      include: [{
-        model: User,
-        as: 'user',
-        attributes: ['id', 'firstName', 'lastName', 'email'],
-      }],
-      order: [['date', 'DESC'], ['createdAt', 'DESC']],
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'firstName', 'lastName', 'email'],
+        },
+      ],
+      order: [
+        ['date', 'DESC'],
+        ['createdAt', 'DESC'],
+      ],
     });
 
     res.data = { imputations };
@@ -49,15 +55,15 @@ export async function getImputationsForTask(req, res, next) {
 }
 
 export async function updateImputation(req, res, next) {
+  logger.debug('updateImputation');
   const { taskId, imputationId } = req.params;
   const { timeSpent, comment, date } = req.body;
 
   try {
-
     const [updated] = await Imputation.update(
       { timeSpent, comment, date },
       { where: { id: imputationId, taskId } }
-    )
+    );
 
     if (!updated) {
       throw new NotFoundError(`Imputation with ID ${imputationId} not found for task ${taskId}.`);
@@ -65,27 +71,29 @@ export async function updateImputation(req, res, next) {
 
     const updatedImputation = await Imputation.findOne({
       where: { id: imputationId, taskId },
-      include: [{
-        model: User,
-        as: 'user',
-        attributes: ['id', 'firstName', 'lastName', 'email'],
-      }],
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'firstName', 'lastName', 'email'],
+        },
+      ],
     });
 
     res.data = { imputation: updatedImputation };
     next();
-
   } catch (error) {
     next(error);
   }
 }
 
 export async function deleteImputation(req, res, next) {
+  logger.debug('deleteImputation');
   const { taskId, imputationId } = req.params;
 
   try {
     const deleted = await Imputation.destroy({
-      where: { id: imputationId, taskId }
+      where: { id: imputationId, taskId },
     });
 
     if (!deleted) {

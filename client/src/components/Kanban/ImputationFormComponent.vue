@@ -1,6 +1,5 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
 
 import { useHandleRequestStore } from "@/stores/handleRequestStore.js";
 import logger from '@/utils/logger.js';
@@ -29,7 +28,6 @@ const props = defineProps({
 });
 
 const handleRequestStore = useHandleRequestStore();
-const route = useRoute();
 const taskService = new TaskService();
 const timeParser = new TimeParser();
 

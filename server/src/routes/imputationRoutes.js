@@ -3,7 +3,7 @@ import {
   createImputation,
   getImputationsForTask,
   updateImputation,
-  deleteImputation
+  deleteImputation,
 } from '../controllers/imputationController.js';
 import {
   setImputationEntity,
@@ -23,7 +23,13 @@ router.post('/', setImputationCreateValidator, validate, createImputation);
 router.get('/', getImputationsForTask);
 
 // PUT /tasks/:taskId/imputations/:imputationId - Update a specific imputation
-router.patch('/:imputationId', checkImputationAccess, setImputationUpdateValidator, validate, updateImputation);
+router.patch(
+  '/:imputationId',
+  checkImputationAccess,
+  setImputationUpdateValidator,
+  validate,
+  updateImputation
+);
 
 // DELETE /tasks/:taskId/imputations/:imputationId - Delete a specific imputation
 router.delete('/:imputationId', checkImputationAccess, deleteImputation);

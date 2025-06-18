@@ -215,7 +215,8 @@ onMounted(async () => {
             </div>
           </div>
 
-          <div v-if="totalImputedMinutes > taskEstimationMinutes && taskEstimationMinutes > 0"
+          <div
+v-if="totalImputedMinutes > taskEstimationMinutes && taskEstimationMinutes > 0"
                class="text-sm text-red-700 dark:text-red-500">
             Attention: Le temps imputé dépasse le temps estimé.
           </div>
@@ -242,7 +243,8 @@ onMounted(async () => {
             Aucune imputation pour cette tâche.
           </div>
           <ul v-else class="space-y-4">
-            <li v-for="imputation in sortedImputations" :key="imputation.id"
+            <li
+v-for="imputation in sortedImputations" :key="imputation.id"
                 class="p-3 bg-gray-50 dark:bg-gray-700 rounded-md shadow-sm">
               <div class="flex justify-between items-start">
                 <div>
@@ -254,12 +256,14 @@ onMounted(async () => {
                   </p>
                 </div>
                 <div class="flex space-x-2">
-                  <button class="text-sm text-yellow-600 hover:text-yellow-800 dark:hover:text-yellow-400"
+                  <button
+class="text-sm text-yellow-600 hover:text-yellow-800 dark:hover:text-yellow-400"
                           title="Modifier"
                           @click="openEditImputationForm(imputation)">
                     <v-icon name="fa-edit" scale="0.9"/>
                   </button>
-                  <button class="text-sm text-red-600 hover:text-red-800 dark:hover:text-red-400"
+                  <button
+class="text-sm text-red-600 hover:text-red-800 dark:hover:text-red-400"
                           title="Supprimer" @click="confirmDeleteImputation(imputation.id)">
                     <v-icon name="md-delete" scale="0.9"/>
                   </button>
@@ -280,15 +284,16 @@ onMounted(async () => {
     <div v-else class="text-center text-gray-500 dark:text-gray-400 mt-10">
       <p v-if="!requestLoading">Tâche non trouvée ou impossible à charger.</p>
     </div>
-    <div v-if="requestError"
+    <div
+v-if="requestError"
          class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800" role="alert">
       <span class="font-medium">Error loading task!</span> {{ requestError }}
     </div>
     <!-- Modal Confirmation for Deleting Imputation -->
     <ModalConfirmation
         v-if="showDeleteImputationConfirmation"
-        cancelButtonText="Annuler"
-        confirmButtonText="Supprimer"
+        cancel-button-text="Annuler"
+        confirm-button-text="Supprimer"
         question="Êtes-vous sûr de vouloir supprimer cette imputation ?"
         @cancel="showDeleteImputationConfirmation = false"
         @confirm="executeDeleteImputation"

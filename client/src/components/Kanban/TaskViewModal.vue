@@ -99,7 +99,8 @@ onMounted(fetchComments);
           <button class="text-gray-500 dark:text-gray-300 hover:text-blue-500" @click="editTask">
             <v-icon name="fa-edit"/>
           </button>
-          <button class="text-gray-500 dark:text-gray-300 hover:text-red-500"
+          <button
+class="text-gray-500 dark:text-gray-300 hover:text-red-500"
                   @click="showDeleteConfirmationModal = true">
             <v-icon name="md-delete"/>
           </button>

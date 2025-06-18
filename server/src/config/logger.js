@@ -10,13 +10,10 @@ const logLevel = nodeEnv === 'development' ? 'debug' : 'info';
 const developmentFormat = winston.format.combine(
   winston.format.colorize(),
   winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-  winston.format.printf(info => `${info.timestamp} ${info.level}: ${info.message}`)
+  winston.format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)
 );
 
-const productionFormat = winston.format.combine(
-  winston.format.timestamp(),
-  winston.format.json()
-);
+const productionFormat = winston.format.combine(winston.format.timestamp(), winston.format.json());
 
 // Choose format based on environment
 const chosenFormat = nodeEnv === 'development' ? developmentFormat : productionFormat;
@@ -30,19 +27,21 @@ const logger = winston.createLogger({
     new winston.transports.Console(), // Console transport will use the logger's level and format by default
     // Log to a file
     new winston.transports.File({
-      filename: 'logs/server.log' // File transport will also use the logger's level and format
-    })
+      filename: 'logs/server.log', // File transport will also use the logger's level and format
+    }),
   ],
-  exitOnError: false // Do not exit on handled exceptions
+  exitOnError: false, // Do not exit on handled exceptions
 });
 
 // In development, also log to a debug file for more detailed logs
 if (nodeEnv === 'development') {
-  logger.add(new winston.transports.File({
-    filename: 'logs/server-debug.log',
-    level: 'debug', // Explicitly set debug level for this file
-    format: developmentFormat // Use development format for readability
-  }));
+  logger.add(
+    new winston.transports.File({
+      filename: 'logs/server-debug.log',
+      level: 'debug', // Explicitly set debug level for this file
+      format: developmentFormat, // Use development format for readability
+    })
+  );
 }
 
 export default logger;

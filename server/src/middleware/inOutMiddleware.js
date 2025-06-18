@@ -16,7 +16,6 @@ export const end = (req, res, next) => {
   next();
 };
 
-
 export const setRouteFound = (req, res, next) => {
   res.routeFound = true;
   next();

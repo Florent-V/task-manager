@@ -85,6 +85,9 @@ app.listen(port, async () => {
     await initDB(false, 'alter');
     logger.info('Database connection has been established successfully.');
   } catch (error) {
-    logger.error('Unable to connect to the database:', { message: error.message, stack: error.stack });
+    logger.error('Unable to connect to the database:', {
+      message: error.message,
+      stack: error.stack,
+    });
   }
 });

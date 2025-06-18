@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { fileURLToPath, URL } from 'node:url'
 import { VitePWA } from 'vite-plugin-pwa';
 import { defineConfig } from 'vite'
