@@ -23,6 +23,7 @@ import {
   MdExittoappRound,
   MdModeedit,
   RiMailSendLine,
+  PrWindowMaximize,
 } from "oh-vue-icons/icons";
 
 import { cropText } from '@/utils/crop.js';
@@ -51,6 +52,7 @@ addIcons(
   MdExittoappRound,
   MdModeedit,
   RiMailSendLine,
+  PrWindowMaximize,
 );
 
 const app = createApp(App)

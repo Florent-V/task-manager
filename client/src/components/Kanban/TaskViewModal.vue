@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 import LoaderComponent from '@/components/LoaderComponent.vue';
 import ModalConfirmation from '@/components/ModalConfirmation.vue';
@@ -23,6 +23,7 @@ const props = defineProps({
 });
 
 const route = useRoute();
+const router = useRouter();
 const kanbanStore = useKanbanStore();
 const handleRequestStore = useHandleRequestStore();
 const taskService = new TaskService();
@@ -52,6 +53,10 @@ const deleteTask = () => {
   emit('delete', props.task.id);
 };
 
+const openTaskView = () => {
+  router.push(`/kanban/${route.params.id}/task/${props.task.id}`);
+};
+
 const handleResponseFormSubmit = async (response) => {
   if (selectedComment.value) {
     // Update existing comment
@@ -66,6 +71,7 @@ const handleResponseFormSubmit = async (response) => {
 
 const fetchComments = async () => {
   try {
+    console.log("props.task", props.task);
     const data = await taskService.getComments(route.params.id, props.task.id);
     comments.value = kanbanStore.enrichComments(data.comments);
   } catch (err) {
@@ -87,6 +93,9 @@ onMounted(fetchComments);
           {{ task.title }}
         </h2>
         <div class="flex space-x-4">
+          <button class="text-gray-500 dark:text-gray-300 hover:text-blue-500" @click="openTaskView">
+            <v-icon name="pr-window-maximize"/>
+          </button>
           <button class="text-gray-500 dark:text-gray-300 hover:text-blue-500" @click="editTask">
             <v-icon name="fa-edit"/>
           </button>
@@ -126,7 +135,7 @@ onMounted(fetchComments);
           </div>
           <div>
             <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300">Temps estimé</h3>
-            <p class="mt-1 text-gray-600 dark:text-gray-400">{{ task.estimation }} heures</p>
+            <p class="mt-1 text-gray-600 dark:text-gray-400">{{ task.estimationString }}</p>
           </div>
           <div>
             <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300">Temps consigné</h3>
@@ -157,7 +166,7 @@ onMounted(fetchComments);
 
         <CommentFormComponent
             :comment="selectedComment"
-            :task="props.task"
+            :task-id="props.task.id"
             @handle-response="handleResponseFormSubmit"
         />
 

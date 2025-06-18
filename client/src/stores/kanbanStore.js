@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import { TaskService } from '@/services/taskService.js';
 import { KanbanService } from '@/services/kanbanService.js';
 import logger from '@/utils/logger.js';
+import { TimeParser } from '@/utils/timeParser.js';
 
 export const useKanbanStore = defineStore('kanbanStore', {
   state: () => ({
@@ -45,6 +46,7 @@ export const useKanbanStore = defineStore('kanbanStore', {
       this.priorities = [];
       this.sizes = [];
     },
+
     async fetchPriority() {
       logger.debug('Fetching priorities');
       try {
@@ -72,9 +74,10 @@ export const useKanbanStore = defineStore('kanbanStore', {
       try {
         const data = await this.kanbanService.getKanban(kanbanId);
         this.kanban = data.kanban;
-        this.tasks = this.enrichTasks(data.kanban.tasks);
         this.users = data.kanban.users;
         this.stages = data.kanban.stages;
+        this.tasks = this.enrichTasks(data.kanban.tasks);
+        logger.debug("Enriched task :", this.tasks);
       } catch (err) {
         logger.error('Error in fetching kanban data', err);
         throw err;
@@ -121,7 +124,7 @@ export const useKanbanStore = defineStore('kanbanStore', {
 
     // Function to enrich a single task with additional properties
     enrichTask(task) {
-      logger.debug('Enriching task:', task);
+      const timeParser = new TimeParser();
       return {
         ...task,
         priorityLabel: this.priorities.find((p) => p.id === task.priorityId)?.label || 'Unknown',
@@ -129,6 +132,7 @@ export const useKanbanStore = defineStore('kanbanStore', {
         sizeLabel: this.sizes.find((s) => s.id === task.sizeId)?.label || 'Unknown',
         sizeColor: this.sizes.find((s) => s.id === task.sizeId)?.color || 'gray',
         stageLabel: this.stages.find((s) => s.id === task.stageId)?.name || 'Unknown',
+        estimationString: timeParser.formatMinutesToTimeString(task.estimation),
         assignedTo: (() => {
           const user = this.users.find((u) => u.id === task.assignedToId);
           return user ? `${user.firstName} ${user.lastName}` : 'Unassigned';
@@ -137,7 +141,7 @@ export const useKanbanStore = defineStore('kanbanStore', {
     },
 
     enrichTasks(tasks) {
-      logger.debug('Enriching tasks:', tasks);
+      logger.debug('Enriching tasks');
       return tasks.map(task => this.enrichTask(task));
     },
 
@@ -154,8 +158,17 @@ export const useKanbanStore = defineStore('kanbanStore', {
     },
 
     enrichComments(comments) {
-      logger.debug('Enriching comments:', comments);
+      logger.debug('Enriching comments');
       return comments.map((comment) => this.enrichComment(comment));
+    },
+
+    enrichImputation(imputation) {
+      logger.debug('Enriching imputation:', imputation);
+      const user = this.users.find((u) => u.id === imputation.userId);
+      return {
+        ...imputation,
+        user,
+      };
     }
   },
 });

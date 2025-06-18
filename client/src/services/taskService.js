@@ -123,4 +123,47 @@ export class TaskService {
       throw err;
     }
   }
+
+  async getImputations(kanbanId, taskId) {
+    try {
+      return await this.executeRequest(
+        () => client.get(`/api/kanban/${kanbanId}/task/${taskId}/imputation`)
+      );
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async createImputation(kanbanId, taskId, imputationData) {
+    try {
+      return await this.executeRequest(
+        () => client.post(`/api/kanban/${kanbanId}/task/${taskId}/imputation`, imputationData)
+      );
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async editImputation(kanbanId, taskId, imputationId, updatedImputationData) {
+    try {
+      return await this.executeRequest(
+        () => client.patch(
+          `/api/kanban/${kanbanId}/task/${taskId}/imputation/${imputationId}`,
+          updatedImputationData
+        )
+      );
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  async deleteImputation(kanbanId, taskId, imputationId) {
+    try {
+      return await this.executeRequest(
+        () => client.delete(`/api/kanban/${kanbanId}/task/${taskId}/imputation/${imputationId}`)
+      );
+    } catch (err) {
+      throw err;
+    }
+  }
 }

@@ -38,6 +38,6 @@ router.patch(
 router.delete('/:taskId', deleteTask);
 
 router.use('/:taskId/comment', commentRoutes);
-router.use('/:taskId/imputations', imputationRoutes);
+router.use('/:taskId/imputation', imputationRoutes);
 
 export default router;
