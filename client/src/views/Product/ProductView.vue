@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { client , apiBaseUrl } from '@/utils/requestMaker.js';
+import { client , apiBaseUrl } from '@/services/requestMaker.js';
 
 const router = useRouter();
 const products = ref([]);

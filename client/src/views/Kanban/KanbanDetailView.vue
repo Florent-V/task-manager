@@ -3,27 +3,34 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
 
-import { client } from '@/utils/requestMaker.js';
-import { hookApi } from '@/utils/requestHook.js';
-import { setTitle, setDescription } from "@/utils/documentInfos.js";
-import { useAuthStore } from '@/stores/authStore';
-import logger from '@/utils/logger.js';
 import LoaderComponent from '@/components/LoaderComponent.vue';
 import TaskFormModal from '@/components/Kanban/TaskFormModal.vue';
 import TaskViewModal from '@/components/Kanban/TaskViewModal.vue';
 import QRCodeModal from '@/components/Kanban/KanbanQRCodeModal.vue';
+import { useKanbanStore } from '@/stores/kanbanStore.js';
+import { useHandleRequestStore } from "@/stores/handleRequestStore.js";
+import { useAuthStore } from '@/stores/authStore';
+import { setTitle, setDescription } from "@/utils/documentInfos.js";
+import logger from '@/utils/logger.js';
+import { TaskService } from '@/services/taskService.js';
+import { KanbanService} from "@/services/kanbanService.js";
 
 const route = useRoute();
-const { isLoading, error, executeRequest } = hookApi();
+const kanbanStore = useKanbanStore();
+const handleRequestStore = useHandleRequestStore();
 const authStore = useAuthStore();
 const { user } = storeToRefs(authStore);
+const taskService = new TaskService();
+const kanbanService = new KanbanService();
 
-const kanban = ref([]);
-const stages = ref([]);
-const tasks = ref([]);
-const sizes = ref([]);
-const priorities = ref([]);
-const users = ref([]);
+const kanban = computed(() => kanbanStore.kanban);
+const stages = computed(() => kanbanStore.stages);
+const tasks = computed(() => kanbanStore.tasks);
+const priorities = computed(() => kanbanStore.priorities);
+const sizes = computed(() => kanbanStore.sizes);
+const users = computed(() => kanbanStore.users);
+const requestLoading = computed(() => handleRequestStore.isLoading);
+const requestError = computed(() => handleRequestStore.error);
 const selectedTask = ref(null);
 const showTaskModal = ref(false);
 const showTaskFormModal = ref(false);
@@ -37,7 +44,7 @@ const toggleExpand = (assignedToId) => {
   foldedGroups.value[assignedToId] = !foldedGroups.value[assignedToId];
 };
 
-const countTasks = (columnId) => tasks.value.filter((task) => task.stageId === columnId).length;
+const countTasks = (tasks, columnId) => tasks.filter((task) => task.stageId === columnId).length;
 
 const unassignedTasks = computed(() => {
   return tasks.value.filter((task) => task.stageId === null || task.assignedToId === null);
@@ -63,25 +70,6 @@ const getTasksByStatus = (tasks, status) => {
   return tasks.filter((task) => task.stageId === status);
 };
 
-const enrichTask = (task) => {
-  return {
-    ...task,
-    priorityLabel: priorities.value.find((p) => p.id === task.priorityId)?.label || 'Unknown',
-    priorityColor: priorities.value.find((p) => p.id === task.priorityId)?.color || 'gray',
-    sizeLabel: sizes.value.find((s) => s.id === task.sizeId)?.label || 'Unknown',
-    sizeColor: sizes.value.find((s) => s.id === task.sizeId)?.color || 'gray',
-    stageLabel: stages.value.find((s) => s.id === task.stageId)?.name || 'Unknown',
-    assignedTo: (() => {
-      const user = users.value.find((u) => u.id === task.assignedToId);
-      return user ? `${user.firstName} ${user.lastName}` : 'Unassigned';
-    })(),
-  };
-};
-
-const enrichTasks = (tasks) => {
-  return tasks.map((task) => enrichTask(task));
-};
-
 // Gestion drag and drop
 let draggedTask = null;
 
@@ -104,9 +92,11 @@ const handleDrop = async (event, columnId, assignedToId) => {
 // Fonction pour mettre à jour la colonne et le responsable d'une tâche
 const updateTaskStage = async (task) => {
   try {
-    await executeRequest(() => client.patch(
-        `/api/kanban/${task.kanbanId}/task/${task.id}/stage`,
-        { stageId: task.stageId, assignedToId: task.assignedToId },)
+    await taskService.updateTaskStage(
+        task.kanbanId,
+        task.id,
+        task.stageId,
+        task.assignedToId
     );
   } catch (err) {
     logger.error('Error in update stage:', err);
@@ -116,13 +106,11 @@ const updateTaskStage = async (task) => {
 const handleResponseFormSubmit = async (response) => {
   if (selectedTask.value.id) {
     // Update existing task
-    const index = tasks.value.findIndex(item => item.id === response.task.id);
-    const enrichedTask = enrichTask(response.task);
-    tasks.value[index] = enrichedTask;
-    selectedTask.value = enrichedTask;
+    kanbanStore.editTask(response.task)
+    selectedTask.value = kanbanStore.getTaskById(response.task.id);
   } else {
     // Create new task
-    tasks.value.push(enrichTask(response.task));
+    kanbanStore.addTask(response.task);
   }
   closeTaskFormModal();
 };
@@ -161,8 +149,8 @@ const closeTaskFormModal = () => {
 // Delete ToDoItem
 const deleteTask = async (id) => {
   try {
-    await executeRequest(() => client.delete(`/api/kanban/${route.params.id}/task/${id}`));
-    tasks.value = tasks.value.filter(i => i.id !== id);
+    await taskService.deleteTask(route.params.id, id);
+    kanbanStore.deleteTask(id);
     closeTaskModal();
   } catch (err) {
     logger.error('Error deleting Tasks:', err?.response?.data?.message || err.message);
@@ -172,7 +160,7 @@ const deleteTask = async (id) => {
 // Fonction pour partager la ToDoList
 const shareKanban = async () => {
   try {
-    const data = await executeRequest(() => client.post(`/api/kanban/${route.params.id}/share`, {}));
+    const data = await kanbanService.shareKanban(route.params.id);
     qrCodeUrl.value = data.qrCodeUrl;
     linkUrl.value = data.linkUrl;
     showQRCodeModal.value = true;
@@ -181,62 +169,26 @@ const shareKanban = async () => {
   }
 };
 
-const fetchKanban = async () => {
-  try {
-    const data = await executeRequest(() => client.get(`/api/kanban/${route.params.id}/`));
-    kanban.value = data.kanban;
-    stages.value = data.kanban.stages;
-    users.value = data.kanban.users;
-    tasks.value = enrichTasks(data.kanban.tasks);
-  } catch (err) {
-    logger.error('Error in fetching kanban data', err);
-  }
-};
-
-const fetchPriority = async () => {
-  try {
-    const data = await executeRequest(() => client.get('/api/priority/'));
-    priorities.value = data.priorities;
-  } catch (err) {
-    logger.error('Error in fetching priority data', err);
-  }
-};
-
-const fetchSize = async () => {
-  try {
-    const data = await executeRequest(() => client.get('/api/size/'));
-    sizes.value = data.sizes;
-  } catch (err) {
-    logger.error('Error in fetching size data', err);
-  }
-};
-
-const fetchData = async () => {
-  await fetchPriority();
-  await fetchSize();
-  await fetchKanban();
-};
-
 const getCurrentUserId = () => {
   const connectedUser = users.value.find(u => u.id === user.value.id);
   return connectedUser ? connectedUser.id : null;
 };
 
 onMounted(async () => {
-  await fetchData();
+  await kanbanStore.initStore(route.params.id);
   setTitle(`Kanban - ${kanban.value.title}`);
   setDescription(`Kanban - ${kanban.value.description}`);
 });
 </script>
 
 <template>
+  <!-- Loader -->
+  <LoaderComponent v-if="requestLoading && !kanban"/>
+
   <div class="container mx-auto mb-8 px-1 pt-6 flex-grow flex flex-col">
     <h1 class="text-4xl font-bold mb-8 text-center text-blue-800 dark:text-yellow-300 break-words">
       {{ kanban.title }}
     </h1>
-
-    <!-- Loader -->
-    <LoaderComponent v-if="isLoading"/>
 
     <div class="flex justify-between align-center items-center px-4 mb-4">
       <div class="prose dark:prose-invert text-gray-600 dark:text-gray-400 break-words">
@@ -255,7 +207,7 @@ onMounted(async () => {
       </div>
     </div>
 
-    <p v-if="error" class="my-2 text-center text-red-500 dark:text-red-400">{{ error }}</p>
+    <p v-if="requestError" class="my-2 text-center text-red-500 dark:text-red-400">{{ requestError }}</p>
 
     <div v-for="(taskGroup, assignedToId) in tasksGroupedByAssigned" :key="assignedToId" class="mb-6">
       <!-- En-tête avec le nom de la personne et un bouton pour replier/déplier -->
@@ -305,7 +257,7 @@ onMounted(async () => {
                 </h2>
                 <span
                     class="bg-blue-100 dark:bg-gray-700 text-blue-600 dark:text-yellow-300 rounded-full px-3 py-1 text-sm min-w-14">
-                  {{ countTasks(column.id) }} / {{ column.maxRecord }}
+                  {{ countTasks(taskGroup, column.id) }} / {{ column.maxRecord }}
               </span>
               </div>
               <p class="text-sm text-gray-600 dark:text-gray-400">

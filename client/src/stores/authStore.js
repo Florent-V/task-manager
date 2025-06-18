@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 
-import { client } from '@/utils/requestMaker.js';
+import { client } from '@/services/requestMaker.js';
 import logger from "@/utils/logger.js";
 
 import router from '../router';
@@ -35,8 +35,8 @@ export const useAuthStore = defineStore('auth', {
         this.authenticated = true;
         return data;
       } catch (error) {
-        console.log('error', error);
         logger.error('Erreur lors de la connexion:');
+        logger.error('error', error);
         throw error;
       }
     },

@@ -3,7 +3,7 @@ import { reactive, onMounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 import ProductFormComponent from '@/components/Product/ProductFormComponent.vue';
-import { client } from '@/utils/requestMaker.js';
+import { client } from '@/services/requestMaker.js';
 import logger from "@/utils/logger.js";
 
 const route = useRoute();

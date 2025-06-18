@@ -10,6 +10,13 @@ export const init = (req, res, next) => {
   next();
 };
 
+export const end = (req, res, next) => {
+  const delta = Date.now() - req.perf;
+  console.log(`Request ended on ${req.method} ${req.originalUrl} in ${delta}ms`);
+  next();
+};
+
+
 export const setRouteFound = (req, res, next) => {
   res.routeFound = true;
   next();
@@ -32,11 +39,5 @@ export const send = (req, res) => {
 export const start = (req, res, next) => {
   console.log(`Request started on ${req.method}$ - ${req.originalUrl}`);
   req.perf = Date.now();
-  next();
-};
-
-export const end = (req, res, next) => {
-  const delta = Date.now() - req.perf;
-  console.log(`Request ended on ${req.method}${req.headers['x-forwarded-path']} in ${delta}ms`);
   next();
 };

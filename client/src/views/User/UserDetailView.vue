@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 
-import { apiBaseUrl, client } from '@/utils/requestMaker.js';
+import { apiBaseUrl, client } from '@/services/requestMaker.js';
 import { hookApi } from '@/utils/requestHook.js';
 import { setTitle, setDescription } from "@/utils/documentInfos.js";
 import logger from '@/utils/logger.js';
@@ -17,7 +17,6 @@ const showForm = ref(false);
 const openEditForm = () => {
   // Emit an event to open the edit form
   showForm.value = true;
-  console.log('Open edit form');
 };
 
 const closeForm = () => {

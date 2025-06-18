@@ -2,7 +2,7 @@
 import { reactive, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
-import { client } from '@/utils/requestMaker.js';
+import { client } from '@/services/requestMaker.js';
 import logger from "@/utils/logger.js";
 
 // Router instance

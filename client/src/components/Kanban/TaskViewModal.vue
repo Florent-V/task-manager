@@ -1,16 +1,14 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
-import { client } from '@/utils/requestMaker.js';
-import { hookApi } from "@/utils/requestHook.js";
-import logger from '@/utils/logger.js';
 import LoaderComponent from '@/components/LoaderComponent.vue';
 import ModalConfirmation from '@/components/ModalConfirmation.vue';
 import CommentFormComponent from '@/components/Kanban/CommentFormComponent.vue';
-
-const route = useRoute();
-const { isLoading, error, executeRequest } = hookApi();
+import logger from '@/utils/logger.js';
+import { useKanbanStore } from '@/stores/kanbanStore.js';
+import { useHandleRequestStore } from "@/stores/handleRequestStore.js";
+import { TaskService } from '@/services/taskService.js';
 
 const emit = defineEmits(['close', 'edit', 'delete', 'add-comment']);
 const props = defineProps({
@@ -24,7 +22,14 @@ const props = defineProps({
   },
 });
 
-// State
+const route = useRoute();
+const router = useRouter();
+const kanbanStore = useKanbanStore();
+const handleRequestStore = useHandleRequestStore();
+const taskService = new TaskService();
+
+const requestLoading = computed(() => handleRequestStore.isLoading);
+const requestError = computed(() => handleRequestStore.error);
 const comments = ref([]);
 const selectedComment = ref(null);
 const showDeleteConfirmationModal = ref(false);
@@ -34,20 +39,10 @@ const sortedComments = computed(() => {
   return [...comments.value].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 });
 
-
-// Fonction pour enrichir les commentaires avec le nom de l'utilisateur
-const enrichComment = (comment) => {
-  return {
-    ...comment,
-    authorName: (() => {
-      const user = props.users.find((u) => u.id === comment.authorId);
-      return user ? `${user.firstName} ${user.lastName}` : 'Unknown User';
-    })(),
-  };
-};
-
-const enrichComments = (comments) => {
-  return comments.map((comment) => enrichComment(comment));
+// Utilities
+const formatDate = (dateString) => {
+  const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+  return new Date(dateString).toLocaleDateString('fr-FR', options);
 };
 
 // Methods
@@ -58,6 +53,10 @@ const deleteTask = () => {
   emit('delete', props.task.id);
 };
 
+const openTaskView = () => {
+  router.push(`/kanban/${route.params.id}/task/${props.task.id}`);
+};
+
 const handleResponseFormSubmit = async (response) => {
   if (selectedComment.value) {
     // Update existing comment
@@ -66,21 +65,15 @@ const handleResponseFormSubmit = async (response) => {
     selectedComment.value = null;
   } else {
     // Create new comment
-    comments.value.push(enrichComment(response.comment));
+    comments.value.push(kanbanStore.enrichComment(response.comment));
   }
-};
-
-// Utilities
-const formatDate = (dateString) => {
-  const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-  return new Date(dateString).toLocaleDateString('fr-FR', options);
 };
 
 const fetchComments = async () => {
   try {
-    const data = await executeRequest(() => client.get(`/api/kanban/${route.params.id}/task/${props.task.id}/comment`));
-    logger.debug('comments', data);
-    comments.value = enrichComments(data.comments);
+    console.log("props.task", props.task);
+    const data = await taskService.getComments(route.params.id, props.task.id);
+    comments.value = kanbanStore.enrichComments(data.comments);
   } catch (err) {
     logger.error('Error fetching comments', err);
   }
@@ -100,11 +93,15 @@ onMounted(fetchComments);
           {{ task.title }}
         </h2>
         <div class="flex space-x-4">
-          <button class="text-gray-500 dark:text-gray-300 hover:text-blue-500" @click="editTask">
-            <v-icon name="fa-edit" />
+          <button class="text-gray-500 dark:text-gray-300 hover:text-blue-500" @click="openTaskView">
+            <v-icon name="pr-window-maximize"/>
           </button>
-          <button class="text-gray-500 dark:text-gray-300 hover:text-red-500" @click="showDeleteConfirmationModal = true">
-            <v-icon name="md-delete" />
+          <button class="text-gray-500 dark:text-gray-300 hover:text-blue-500" @click="editTask">
+            <v-icon name="fa-edit"/>
+          </button>
+          <button class="text-gray-500 dark:text-gray-300 hover:text-red-500"
+                  @click="showDeleteConfirmationModal = true">
+            <v-icon name="md-delete"/>
           </button>
         </div>
       </div>
@@ -114,7 +111,7 @@ onMounted(fetchComments);
         <!-- Description -->
         <div>
           <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300">Description</h3>
-<!--          <p class="mt-2 text-gray-600 dark:text-gray-400">{{ task.description }}</p>-->
+          <!--          <p class="mt-2 text-gray-600 dark:text-gray-400">{{ task.description }}</p>-->
           <div class="prose dark:prose-invert mt-2 text-gray-600 dark:text-gray-400" v-html="task.description"></div>
         </div>
 
@@ -138,7 +135,7 @@ onMounted(fetchComments);
           </div>
           <div>
             <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300">Temps estimé</h3>
-            <p class="mt-1 text-gray-600 dark:text-gray-400">{{ task.estimation }} heures</p>
+            <p class="mt-1 text-gray-600 dark:text-gray-400">{{ task.estimationString }}</p>
           </div>
           <div>
             <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300">Temps consigné</h3>
@@ -148,7 +145,7 @@ onMounted(fetchComments);
       </div>
 
       <!-- Loader -->
-      <LoaderComponent v-if="isLoading"/>
+      <LoaderComponent v-if="requestLoading && !comments"/>
 
       <!-- Comments Section -->
       <div v-else class="mt-8">
@@ -165,12 +162,12 @@ onMounted(fetchComments);
           </div>
         </div>
 
-        <p v-if="error" class="mt-4 text-red-600 dark:text-red-400">{{ error }}</p>
+        <p v-if="requestError" class="mt-4 text-red-600 dark:text-red-400">{{ requestError }}</p>
 
         <CommentFormComponent
-          :comment="selectedComment"
-          :task="props.task"
-          @handle-response="handleResponseFormSubmit"
+            :comment="selectedComment"
+            :task-id="props.task.id"
+            @handle-response="handleResponseFormSubmit"
         />
 
       </div>
@@ -190,10 +187,9 @@ onMounted(fetchComments);
     <ModalConfirmation
         v-if="showDeleteConfirmationModal"
         question="Êtes-vous sûr de vouloir supprimer cette tâche ?"
-        @confirm="deleteTask"
         @cancel="showDeleteConfirmationModal = false"
+        @confirm="deleteTask"
     />
-
   </div>
 </template>
 

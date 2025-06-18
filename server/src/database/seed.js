@@ -1,5 +1,4 @@
 /* eslint-disable */
-
 import sequelize from './connect.js';
 import models from '../models/index.js';
 import logger from '../config/logger.js';
@@ -18,6 +17,7 @@ const {
   task,
   stage,
   comment,
+  imputation,
 } = models;
 
 export const seedDatabase = async () => {
@@ -312,7 +312,7 @@ export const seedDatabase = async () => {
         priorityId: 1,
         sizeId: 2,
         stageId: 3,
-        estimation: 4,
+        estimation: 400,
         loggedTime: 2,
         assignedToId: users[0].id,
         kanbanId: kanbans[0].id,
@@ -323,7 +323,7 @@ export const seedDatabase = async () => {
         priorityId: 2,
         sizeId: 2,
         stageId: 5,
-        estimation: 2,
+        estimation: 600,
         loggedTime: 0,
         assignedToId: users[0].id,
         kanbanId: kanbans[0].id,
@@ -334,7 +334,7 @@ export const seedDatabase = async () => {
         priorityId: 3,
         sizeId: 3,
         stageId: 4,
-        estimation: 8,
+        estimation: 800,
         loggedTime: 4,
         assignedToId: users[0].id,
         kanbanId: kanbans[0].id,
@@ -345,7 +345,7 @@ export const seedDatabase = async () => {
         priorityId: 1,
         sizeId: 2,
         stageId: 3,
-        estimation: 6,
+        estimation: 600,
         loggedTime: 1,
         assignedToId: users[1].id,
         kanbanId: kanbans[0].id,
@@ -356,7 +356,7 @@ export const seedDatabase = async () => {
         priorityId: 3,
         sizeId: 4,
         stageId: 2,
-        estimation: 4,
+        estimation: 400,
         loggedTime: 0,
         assignedToId: users[0].id,
         kanbanId: kanbans[0].id,
@@ -367,7 +367,7 @@ export const seedDatabase = async () => {
         priorityId: 1,
         sizeId: 5,
         stageId: 1,
-        estimation: 10,
+        estimation: 1000,
         loggedTime: 2,
         assignedToId: users[1].id,
         kanbanId: kanbans[0].id,
@@ -415,6 +415,15 @@ export const seedDatabase = async () => {
         taskId: tasks[0].id,
         authorId: users[1].id,
       },
+    ]);
+
+    const imputations = await imputation.bulkCreate([
+      { date: '2023-06-01', taskId: tasks[0].id, userId: users[0].id, comment: 'Comment 1', timeSpent: 150 },
+      { date: '2023-06-02', taskId: tasks[1].id, userId: users[1].id, comment: 'Comment 2', timeSpent: 120 },
+      { date: '2023-06-03', taskId: tasks[1].id, userId: users[0].id, comment: 'Comment 3', timeSpent: 180 },
+      { date: '2023-06-04', taskId: tasks[0].id, userId: users[1].id, comment: 'Comment 4', timeSpent: 240 },
+      { date: '2023-06-05', taskId: tasks[0].id, userId: users[0].id, comment: 'Comment 5', timeSpent: 300 },
+      { date: '2023-06-06', taskId: tasks[1].id, userId: users[1].id, comment: 'Comment 6', timeSpent: 360 },
     ]);
 
     logger.info('Test data created successfully!');

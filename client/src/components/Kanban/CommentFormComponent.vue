@@ -1,14 +1,11 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
-import { client } from '@/utils/requestMaker.js';
-import { hookApi } from '@/utils/requestHook.js';
-import useFormErrors from '@/utils/handleFormErrors.js';
+import { useHandleRequestStore } from "@/stores/handleRequestStore.js";
 import logger from '@/utils/logger.js';
-
-const route = useRoute();
-const { error, executeRequest } = hookApi();
+import useFormErrors from '@/utils/handleFormErrors.js';
+import { TaskService } from '@/services/taskService.js';
 
 const emit = defineEmits(['handleResponse', 'cancel']);
 const props = defineProps({
@@ -19,19 +16,24 @@ const props = defineProps({
       content: '',
     }),
   },
-  task: {
-    type: Object,
+  taskId: {
+    type: String,
     required: true,
   },
 });
 
+const handleRequestStore = useHandleRequestStore();
+const route = useRoute();
+const taskService = new TaskService();
+
 const formData = ref({ ...props.initialData });
+const requestError = computed(() => handleRequestStore.error);
+// const isEditing = computed(() => !!formData.value.id);
 watch(() => props.initialData, (newValue) => {
-      formData.value = newValue ? { ...newValue } : { title: '', description: '', stages: [] };
+      formData.value = newValue ? { ...newValue } : { title: '', content: '' };
     },
     { immediate: true }
 );
-// const isEditing = computed(() => !!formData.value.id);
 // Utilitaire de gestions des erreurs de formulaire
 const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...formData.value });
 
@@ -45,13 +47,18 @@ const submitForm = async () => {
     let response;
     if (formData.value.id) {
       // Update existing comment
-      response = await executeRequest(
-          () => client.patch(`/api/kanban/${route.params.id}/task/${formData.value.id}`, data)
+      response = await taskService.editComment(
+          route.params.id,
+          props.taskId,
+          formData.value.id,
+          data
       );
     } else {
       // Create new comment
-      response = await executeRequest(
-          () => client.post(`/api/kanban/${route.params.id}/task/${props.task.id}/comment`, data)
+      response = await taskService.createComment(
+          route.params.id,
+          props.taskId,
+          data
       );
     }
     emit('handleResponse', response);
@@ -81,24 +88,19 @@ const resetForm = () => {
     <div>
       <textarea
           v-model="formData.content"
-          rows="3"
           class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
           placeholder="Ajouter un commentaire..."
+          rows="3"
       ></textarea>
       <p v-if="errors.content" class="text-red-500 dark:text-red-400">{{ errors.content }}</p>
     </div>
 
-    <div v-if="defaultError">
-      <p class="text-sm px-2 text-red-600 dark:text-red-400">{{ defaultError }}</p>
-    </div>
-
-    <div v-if="error">
-      <p class="text-sm px-2 text-red-600 dark:text-red-400">{{ error }}</p>
-    </div>
+    <p v-if="defaultError" class="text-sm px-2 text-red-600 dark:text-red-400">{{ defaultError }}</p>
+    <p v-if="requestError" class="text-sm px-2 text-red-600 dark:text-red-400">{{ requestError }}</p>
 
     <button
-      type="submit"
-      class="px-4 py-2 rounded-lg bg-blue-600 dark:bg-yellow-400 text-white hover:bg-blue-700 dark:hover:bg-yellow-500"
+        class="px-4 py-2 rounded-lg bg-blue-600 dark:bg-yellow-400 text-white hover:bg-blue-700 dark:hover:bg-yellow-500"
+        type="submit"
     >
       Poster le commentaire
     </button>

@@ -1,7 +1,7 @@
 import KanbanOverView from "@/views/Kanban/KanbanOverView.vue";
 import KanbanDetailView from "@/views/Kanban/KanbanDetailView.vue";
 import KanbanJoin from "@/views/Kanban/KanbanJoin.vue";
-
+import TaskDetailView from "@/views/Kanban/TaskDetailView.vue";
 
 export default [
   {
@@ -30,5 +30,15 @@ export default [
       description: 'This is the Kanban join page',
     },
     component: KanbanJoin
+  },
+  {
+    path: '/kanban/:kanbanId/task/:taskId',
+    name: 'TaskDetailViewPage',
+    component: TaskDetailView,
+    meta: {
+      title: 'Task Details',
+      description: 'Detailed view of a specific task'
+    },
+    props: true // Allows route params (kanbanId, taskId) to be passed as props
   }
 ]

@@ -10,11 +10,14 @@ export const taskSchema = Joi.object({
   description: Joi.string().allow(null, '').messages({
     'string.base': 'La description doit être une chaîne de caractères.',
   }),
-  estimation: Joi.number().integer().min(0).required().messages({
-    'number.base': 'Le temps estimé doit être un nombre.',
-    'number.integer': 'Le temps estimé doit être un nombre entier.',
-    'number.min': 'Le temps estimé doit être au moins de 0.',
-    'any.required': 'Le temps estimé est obligatoire.',
+  // Estimation will be input as a string (e.g., "2d 4h") and parsed in the controller.
+  // It's optional; if not provided, controller will default to 0.
+  // estimation: Joi.string().allow(null, '').messages({
+  //   'string.base': 'Le temps estimé doit être une chaîne de caractères (ex: "2h 30m").',
+  // }),
+  estimation: Joi.string().pattern(/^(?:\d+d)?(?:\d+h)?(?:\d+m)?$/).allow(null, '').messages({
+    'string.base': 'Le temps estimé doit être une chaîne de caractères (ex: "2h 30m").',
+    'string.pattern.base': 'Le temps estimé doit être au format valide (ex: "2d 4h 30m").'
   }),
   loggedTime: Joi.number().integer().min(0).required().messages({
     'number.base': 'Le temps consigné doit être un nombre.',
@@ -46,11 +49,9 @@ export const updateTaskSchema = Joi.object({
   description: Joi.string().allow(null, '').messages({
     'string.base': 'La description doit être une chaîne de caractères.',
   }),
-  estimation: Joi.number().integer().min(0).required().messages({
-    'number.base': 'Le temps estimé doit être un nombre.',
-    'number.integer': 'Le temps estimé doit être un nombre entier.',
-    'number.min': 'Le temps estimé doit être au moins de 0.',
-    'any.required': 'Le temps estimé est obligatoire.',
+  estimation: Joi.string().pattern(/^(?:\d+d)?(?:\d+h)?(?:\d+m)?$/).allow(null, '').messages({
+    'string.base': 'Le temps estimé doit être une chaîne de caractères (ex: "2h 30m").',
+    'string.pattern.base': 'Le temps estimé doit être au format valide (ex: "2d 4h 30m").'
   }),
   loggedTime: Joi.number().integer().min(0).required().messages({
     'number.base': 'Le temps consigné doit être un nombre.',

@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router';
 import { initializeTheme } from '@/utils/initDarkMode';
 import { useAuthStore } from '@/stores/authStore';
 import logger from "@/utils/logger.js";
-import { apiBaseUrl } from "@/utils/requestMaker.js";
+import { apiBaseUrl } from "@/services/requestMaker.js";
 
 const router = useRouter();
 const userStore = useAuthStore();

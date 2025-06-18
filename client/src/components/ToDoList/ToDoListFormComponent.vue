@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch, computed, onMounted } from 'vue';
 
-import { client } from '@/utils/requestMaker.js';
+import { client } from '@/services/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
 import logger from "@/utils/logger.js";
 import useFormErrors from "@/utils/handleFormErrors.js";
@@ -52,7 +52,6 @@ const submitForm = async () => {
     closeForm();
   } catch (err) {
     logger.error('Error in form submission', err?.response?.data?.message || err.message);
-    console.log("err",err);
     setErrors(err);
   }
 };
