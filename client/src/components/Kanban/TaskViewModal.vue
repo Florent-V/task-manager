@@ -4,7 +4,6 @@ import { useRoute, useRouter } from 'vue-router';
 
 import LoaderComponent from '@/components/LoaderComponent.vue';
 import ModalConfirmation from '@/components/ModalConfirmation.vue';
-import CommentFormComponent from '@/components/Kanban/CommentFormComponent.vue';
 import logger from '@/utils/logger.js';
 import { useKanbanStore } from '@/stores/kanbanStore.js';
 import { useHandleRequestStore } from "@/stores/handleRequestStore.js";
@@ -31,7 +30,6 @@ const taskService = new TaskService();
 const requestLoading = computed(() => handleRequestStore.isLoading);
 const requestError = computed(() => handleRequestStore.error);
 const comments = ref([]);
-const selectedComment = ref(null);
 const showDeleteConfirmationModal = ref(false);
 
 // Computed
@@ -57,21 +55,8 @@ const openTaskView = () => {
   router.push(`/kanban/${route.params.id}/task/${props.task.id}`);
 };
 
-const handleResponseFormSubmit = async (response) => {
-  if (selectedComment.value) {
-    // Update existing comment
-    const index = comments.value.findIndex(item => item.id === response.comment.id);
-    comments.value[index] = response.comment;
-    selectedComment.value = null;
-  } else {
-    // Create new comment
-    comments.value.push(kanbanStore.enrichComment(response.comment));
-  }
-};
-
 const fetchComments = async () => {
   try {
-    console.log("props.task", props.task);
     const data = await taskService.getComments(route.params.id, props.task.id);
     comments.value = kanbanStore.enrichComments(data.comments);
   } catch (err) {
@@ -100,19 +85,18 @@ onMounted(fetchComments);
             <v-icon name="fa-edit"/>
           </button>
           <button
-class="text-gray-500 dark:text-gray-300 hover:text-red-500"
-                  @click="showDeleteConfirmationModal = true">
+              class="text-gray-500 dark:text-gray-300 hover:text-red-500"
+              @click="showDeleteConfirmationModal = true">
             <v-icon name="md-delete"/>
           </button>
         </div>
       </div>
 
       <!-- Task Details -->
-      <div class="mt-6 space-y-6">
+      <div class="my-6 space-y-6">
         <!-- Description -->
         <div>
           <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300">Description</h3>
-          <!--          <p class="mt-2 text-gray-600 dark:text-gray-400">{{ task.description }}</p>-->
           <div class="prose dark:prose-invert mt-2 text-gray-600 dark:text-gray-400" v-html="task.description"></div>
         </div>
 
@@ -145,31 +129,39 @@ class="text-gray-500 dark:text-gray-300 hover:text-red-500"
         </div>
       </div>
 
-      <!-- Loader -->
-      <LoaderComponent v-if="requestLoading && !comments"/>
+      <!-- Comments -->
+      <div class="mb-6 p-4 border rounded-lg dark:border-gray-700">
+        <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3">
+          Commentaires
+        </h3>
 
-      <!-- Comments Section -->
-      <div v-else class="mt-8">
-        <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300">Commentaires</h3>
-        <div class="mt-4 space-y-4">
-          <div v-for="comment in sortedComments" :key="comment.id" class="p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
-            <div class="flex justify-between">
-              <p class="text-sm font-medium text-gray-800 dark:text-gray-200">
-                {{ comment.authorName }}
-              </p>
-              <p class="text-sm text-gray-500 dark:text-gray-400">{{ formatDate(comment.createdAt) }}</p>
-            </div>
-            <p class="mt-2 text-gray-600 dark:text-gray-300">{{ comment.content }}</p>
-          </div>
+        <!-- Loader -->
+        <div v-if="requestLoading && comments.length === 0" class="text-center">
+          <LoaderComponent/>
+          <p>Chargement des commentaires...</p>
         </div>
 
-        <p v-if="requestError" class="mt-4 text-red-600 dark:text-red-400">{{ requestError }}</p>
+        <div v-else-if="comments.length === 0" class="text-gray-500 dark:text-gray-400">
+          Aucune imputation pour cette tâche.
+        </div>
 
-        <CommentFormComponent
-            :comment="selectedComment"
-            :task-id="props.task.id"
-            @handle-response="handleResponseFormSubmit"
-        />
+        <!-- Comments Section -->
+        <div v-else class="mt-8">
+          <div class="mt-4 space-y-4">
+            <div v-for="comment in sortedComments" :key="comment.id" class="p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
+              <div class="flex justify-between items-start">
+                <div>
+                  <p class="text-sm font-medium text-gray-800 dark:text-gray-200">
+                    {{ comment.authorName }}
+                  </p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">Le {{ formatDate(comment.createdAt) }}</p>
+                </div>
+              </div>
+              <p class="mt-2 text-gray-600 dark:text-gray-300">{{ comment.content }}</p>
+            </div>
+          </div>
+          <p v-if="requestError" class="mt-4 text-red-600 dark:text-red-400">{{ requestError }}</p>
+        </div>
 
       </div>
 
