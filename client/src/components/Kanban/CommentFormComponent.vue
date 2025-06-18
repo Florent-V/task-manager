@@ -16,8 +16,8 @@ const props = defineProps({
       content: '',
     }),
   },
-  task: {
-    type: Object,
+  taskId: {
+    type: String,
     required: true,
   },
 });
@@ -25,17 +25,17 @@ const props = defineProps({
 const handleRequestStore = useHandleRequestStore();
 const route = useRoute();
 const taskService = new TaskService();
+
 const formData = ref({ ...props.initialData });
+const requestError = computed(() => handleRequestStore.error);
 // const isEditing = computed(() => !!formData.value.id);
-// Utilitaire de gestions des erreurs de formulaire
-const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...formData.value });
 watch(() => props.initialData, (newValue) => {
-      formData.value = newValue ? { ...newValue } : { title: '', description: '', stages: [] };
+      formData.value = newValue ? { ...newValue } : { title: '', content: '' };
     },
     { immediate: true }
 );
-
-const requestError = computed(() => handleRequestStore.error);
+// Utilitaire de gestions des erreurs de formulaire
+const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...formData.value });
 
 const submitForm = async () => {
   const data = {
@@ -49,7 +49,7 @@ const submitForm = async () => {
       // Update existing comment
       response = await taskService.editComment(
           route.params.id,
-          props.task.id,
+          props.taskId,
           formData.value.id,
           data
       );
@@ -57,7 +57,7 @@ const submitForm = async () => {
       // Create new comment
       response = await taskService.createComment(
           route.params.id,
-          props.task.id,
+          props.taskId,
           data
       );
     }
