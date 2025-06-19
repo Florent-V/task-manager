@@ -1,95 +1,92 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed , nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { nextTick } from 'vue';
 
 import LoaderComponent from '@/components/LoaderComponent.vue';
 import TaskDisplayDetails from '@/components/Kanban/TaskDisplayDetailsComponent.vue';
 import ImputationFormComponent from "@/components/Kanban/ImputationFormComponent.vue";
+import CommentFormComponent from "@/components/Kanban/CommentFormComponent.vue";
+import ImputationDisplayComponent from "@/components/Kanban/ImputationDisplayComponent.vue";
+import CommentDisplayComponent from "@/components/Kanban/CommentDisplayComponent.vue";
 import ModalConfirmation from '@/components/ModalConfirmation.vue';
 import { useKanbanStore } from '@/stores/kanbanStore.js';
-import { useAuthStore } from '@/stores/authStore';
 import { useHandleRequestStore } from "@/stores/handleRequestStore.js";
 import { setTitle, setDescription } from "@/utils/documentInfos.js";
 import { TimeParser } from "@/utils/timeParser.js";
 import logger from '@/utils/logger.js';
-import { TaskService } from '@/services/taskService.js';
-import CommentFormComponent from "@/components/Kanban/CommentFormComponent.vue";
 
 const route = useRoute();
 const router = useRouter();
 const kanbanStore = useKanbanStore();
-const authStore = useAuthStore();
 const handleRequestStore = useHandleRequestStore();
-const taskService = new TaskService();
 const timeParser = new TimeParser();
 
 // Task related state
 const kanbanId = ref(route.params.kanbanId);
 const taskId = ref(route.params.taskId);
 const task = ref(null);
-// Imputation State
+// Form State
 const showImputationForm = ref(false);
 const showCommentForm = ref(false);
 const selectedImputation = ref(null);
 const selectedComment = ref(null);
-const imputations = ref([]);
-const comments = ref([]);
 const showDeleteImputationConfirmation = ref(false);
 const showDeleteCommentConfirmation = ref(false);
 const imputationToDeleteId = ref(null);
 const commentToDeleteId = ref(null);
 
+// Component refs
+const imputationDisplayRef = ref(null);
+const commentDisplayRef = ref(null);
+
+// Reactive data from child components
+const totalImputedMinutes = ref(0);
+
 // Computed Properties
 const requestLoading = computed(() => handleRequestStore.isLoading);
 const requestError = computed(() => handleRequestStore.error);
-const totalImputedMinutes = computed(() => imputations.value.reduce((sum, imp) => sum + imp.timeSpent, 0));
-const formattedTotalImputedTime = computed(() => timeParser.formatMinutesToTimeString(totalImputedMinutes.value));
+const taskEstimationMinutes = computed(() => task.value?.estimation || 0);
+
+// Progress bar calculations based on total from child component
+const formattedTotalImputedTime = computed(() => 
+  timeParser.formatMinutesToTimeString(totalImputedMinutes.value)
+);
+
 const maxValue = computed(() => {
   const estimation = Number(task.value?.estimation) || 0;
   const imputed = Number(totalImputedMinutes.value) || 0;
   return Math.max(imputed, estimation);
 });
+
 const estimatedBarWidth = computed(() => {
-  return (task.value.estimation / maxValue.value) * 100;
-});
-const imputedBarWidth = computed(() => {
-  return (totalImputedMinutes.value / maxValue.value) * 100;
-});
-const taskEstimationMinutes = computed(() => task.value?.estimation || 0);
-const sortedImputations = computed(() => {
-  return [...imputations.value].sort((a, b) => new Date(b.date) - new Date(a.date));
-});
-const sortedComments = computed(() => {
-  return [...comments.value].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  if (!maxValue.value) return 0;
+  return (taskEstimationMinutes.value / maxValue.value) * 100;
 });
 
-const formatDate = (dateString) => {
-  const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-  return new Date(dateString).toLocaleDateString('fr-FR', options);
-};
+const imputedBarWidth = computed(() => {
+  if (!maxValue.value) return 0;
+  return (totalImputedMinutes.value / maxValue.value) * 100;
+});
 
 const handleResponseImputationFormSubmit = async (response) => {
   if (selectedImputation.value) {
-    // Update existing comment
-    const index = imputations.value.findIndex(item => item.id === response.imputation.id);
-    imputations.value[index] = response.imputation;
+    // Update existing imputation
+    imputationDisplayRef.value?.updateImputation(response.imputation);
     selectedImputation.value = null;
   } else {
-    // Create new comment
-    imputations.value.push(kanbanStore.enrichImputation(response.imputation));
+    // Create new imputation
+    imputationDisplayRef.value?.addImputation(response.imputation);
   }
 };
 
 const handleResponseCommentFormSubmit = async (response) => {
   if (selectedComment.value) {
     // Update existing comment
-    const index = comments.value.findIndex(item => item.id === response.comment.id);
-    comments.value[index] = kanbanStore.enrichComment(response.comment);
+    commentDisplayRef.value?.updateComment(response.comment);
     selectedComment.value = null;
   } else {
     // Create new comment
-    comments.value.push(kanbanStore.enrichComment(response.comment));
+    commentDisplayRef.value?.addComment(response.comment);
   }
 };
 
@@ -155,8 +152,6 @@ async function fetchTask() {
       // TODO display a user-friendly message or redirect
       return;
     }
-    await fetchImputations(); // Fetch imputations after task is loaded
-    await fetchComments(); // Fetch comments after task is loaded
     logger.debug('Task details fetched successfully:', task.value);
   } catch (err) {
     requestError.value = `Erreur lors de la recherche de la tâche: ${err.message}`;
@@ -164,37 +159,11 @@ async function fetchTask() {
   }
 }
 
-// Fetch Task's Imputations
-async function fetchImputations() {
-  logger.debug(`Fetching imputations for task ${taskId.value}`);
-  try {
-    const data = await taskService.getImputations(kanbanId.value, taskId.value);
-    imputations.value = data.imputations || [];
-    logger.debug('Imputations fetched successfully:', imputations.value);
-  } catch (err) {
-    logger.error('Error fetching imputations:', err);
-  }
-}
-
-// Fetch Task's Comments
-async function fetchComments() {
-  logger.debug(`Fetching comments for task ${taskId.value}`);
-  try {
-    const data = await taskService.getComments(kanbanId.value, taskId.value);
-    comments.value = kanbanStore.enrichComments(data.comments);
-    logger.info('Comments fetched successfully:', comments.value);
-  } catch (err) {
-    logger.error('Error fetching comments:', err);
-  }
-}
-
 // Execute deletion of an imputation
 async function executeDeleteImputation() {
   if (!imputationToDeleteId.value) return;
   try {
-    await taskService.deleteImputation(kanbanId.value, taskId.value, imputationToDeleteId.value);
-    imputations.value = imputations.value.filter((imputation) => imputation.id !== imputationToDeleteId.value);
-    logger.info('Imputation deleted successfully');
+    await imputationDisplayRef.value?.deleteImputation(imputationToDeleteId.value);
   } catch (err) {
     logger.error('Error deleting imputation:', err);
   } finally {
@@ -206,9 +175,7 @@ async function executeDeleteImputation() {
 async function executeDeleteComment() {
   if (!commentToDeleteId.value) return;
   try {
-    await taskService.deleteComment(kanbanId.value, taskId.value, commentToDeleteId.value);
-    comments.value = comments.value.filter((comment) => comment.id !== commentToDeleteId.value);
-    logger.info('Comment deleted successfully');
+    await commentDisplayRef.value?.deleteComment(commentToDeleteId.value);
   } catch (err) {
     logger.error('Error deleting comment:', err);
   } finally {
@@ -216,6 +183,11 @@ async function executeDeleteComment() {
     commentToDeleteId.value = null;
   }
 }
+
+// Handler for total imputed minutes changes from child component
+const handleTotalImputedChanged = (newTotal) => {
+  totalImputedMinutes.value = newTotal;
+};
 
 onMounted(async () => {
   await fetchTask();
@@ -229,7 +201,14 @@ onMounted(async () => {
       <LoaderComponent/>
       <p>Loading task details...</p>
     </div>
+
     <div v-else-if="task">
+      <div
+          v-if="requestError"
+          class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800" role="alert">
+        <span class="font-medium">Error loading task!</span> {{ requestError }}
+      </div>
+
       <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
         <!-- Header: Title and Back Button -->
         <div class="flex justify-between items-center mb-6">
@@ -293,119 +272,27 @@ onMounted(async () => {
           </div>
         </div>
 
-        <!-- Imputations List Section -->
+        <!-- Imputations and Comments Display Section -->
         <div class="flex gap-3 mb-6">
-          <!-- Imputations List Section -->
-          <div class="w-1/2 p-4 border rounded-lg dark:border-gray-700">
-            <div class="flex justify-between items-center mb-4">
-              <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3">Historique des imputations</h3>
-              <!-- Add button -->
-              <div v-if="!showImputationForm" class="text-right">
-                <button
-                    class="bg-blue-600 dark:bg-yellow-400 text-white px-2 py-2 rounded"
-                    @click="openCreateImputationForm"
-                >
-                <span class="flex items-center">
-                  <v-icon name="md-add" scale="1.6"/>
-                </span>
-                </button>
-              </div>
-            </div>
-
-            <div v-if="requestLoading && imputations.length === 0" class="text-center">
-              <LoaderComponent/>
-              <p>Chargement des imputations...</p>
-            </div>
-            <div v-else-if="imputations.length === 0" class="text-gray-500 dark:text-gray-400">
-              Aucune imputation pour cette tâche.
-            </div>
-            <ul v-else class="space-y-4">
-              <li
-                  v-for="imputation in sortedImputations" :key="imputation.id"
-                  class="p-3 bg-gray-50 dark:bg-gray-700 rounded-md shadow-sm">
-                <div class="flex justify-between items-start">
-                  <div>
-                    <p class="font-semibold text-blue-600 dark:text-blue-400">
-                      {{ timeParser.formatMinutesToTimeString(imputation.timeSpent) }}</p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
-                      par {{ imputation.user?.firstName || 'Utilisateur' }} {{ imputation.user?.lastName || 'Inconnu' }}
-                      le {{ new Date(imputation.date || imputation.createdAt).toLocaleDateString() }}
-                    </p>
-                  </div>
-                  <div class="flex space-x-2">
-                    <button
-                        class="text-sm text-yellow-600 hover:text-yellow-800 dark:hover:text-yellow-400"
-                        title="Modifier"
-                        @click="openEditImputationForm(imputation)">
-                      <v-icon name="fa-edit" scale="0.9"/>
-                    </button>
-                    <button
-                        class="text-sm text-red-600 hover:text-red-800 dark:hover:text-red-400"
-                        title="Supprimer" @click="confirmDeleteImputation(imputation.id)">
-                      <v-icon name="md-delete" scale="0.9"/>
-                    </button>
-                  </div>
-                </div>
-                <p v-if="imputation.comment" class="mt-2 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                  {{ imputation.comment }}</p>
-              </li>
-            </ul>
-          </div>
-          <!-- Comments List Section -->
-          <div class="w-1/2 p-4 border rounded-lg dark:border-gray-700">
-            <div class="flex justify-between items-center mb-4">
-              <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3">Commentaires</h3>
-              <!-- Add button -->
-              <div v-if="!showCommentForm" class="text-right">
-                <button
-                    class="bg-blue-600 dark:bg-yellow-400 text-white px-2 py-2 rounded"
-                    @click="openCreateCommentForm"
-                >
-                <span class="flex items-center">
-                  <v-icon name="md-add" scale="1.6"/>
-                </span>
-                </button>
-              </div>
-            </div>
-            <div v-if="requestLoading && comments.length === 0" class="text-center">
-              <LoaderComponent/>
-              <p>Chargement des commentaires...</p>
-            </div>
-            <div v-else-if="comments.length === 0" class="text-gray-500 dark:text-gray-400">
-              Aucun commentaire pour cette tâche.
-            </div>
-            <ul v-else class="space-y-4">
-              <li
-                  v-for="comment in sortedComments" :key="comment.id"
-                  class="p-3 bg-gray-50 dark:bg-gray-700 rounded-md shadow-sm">
-                <div class="flex justify-between items-start">
-                  <div>
-                    <p class="font-semibold text-blue-600 dark:text-blue-400">
-                      {{ comment.authorName || 'Utilisateur Inconnu' }}
-                    </p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
-                      Le {{ formatDate(comment.createdAt) }}
-                    </p>
-                  </div>
-                  <div class="flex space-x-2">
-                    <button
-                        class="text-sm text-yellow-600 hover:text-yellow-800 dark:hover:text-yellow-400"
-                        title="Modifier"
-                        @click="openEditCommentForm(comment)">
-                      <v-icon name="fa-edit" scale="0.9"/>
-                    </button>
-                    <button
-                        class="text-sm text-red-600 hover:text-red-800 dark:hover:text-red-400"
-                        title="Supprimer" @click="confirmDeleteComment(comment.id)">
-                      <v-icon name="md-delete" scale="0.9"/>
-                    </button>
-                  </div>
-                </div>
-                <p v-if="comment.content" class="mt-2 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                  {{ comment.content }}</p>
-              </li>
-            </ul>
-          </div>
+          <ImputationDisplayComponent 
+            ref="imputationDisplayRef"
+            :kanban-id="kanbanId"
+            :task-id="taskId"
+            :show-form-button="!showImputationForm"
+            @create-imputation="openCreateImputationForm"
+            @edit-imputation="openEditImputationForm"
+            @delete-imputation="confirmDeleteImputation"
+            @total-changed="handleTotalImputedChanged"
+          />
+          <CommentDisplayComponent 
+            ref="commentDisplayRef"
+            :kanban-id="kanbanId"
+            :task-id="taskId"
+            :show-form-button="!showCommentForm"
+            @create-comment="openCreateCommentForm"
+            @edit-comment="openEditCommentForm"
+            @delete-comment="confirmDeleteComment"
+          />
         </div>
 
         <!-- Imputation Form Section -->
@@ -437,11 +324,7 @@ onMounted(async () => {
     <div v-else class="text-center text-gray-500 dark:text-gray-400 mt-10">
       <p v-if="!requestLoading">Tâche non trouvée ou impossible à charger.</p>
     </div>
-    <div
-        v-if="requestError"
-        class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800" role="alert">
-      <span class="font-medium">Error loading task!</span> {{ requestError }}
-    </div>
+
     <!-- Modal Confirmation for Deleting Imputation -->
     <ModalConfirmation
         v-if="showDeleteImputationConfirmation"

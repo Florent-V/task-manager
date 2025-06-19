@@ -50,6 +50,8 @@ watch(() => props.initialData, (newValue) => {
 );
 // Utilitaire de gestions des erreurs de formulaire
 const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...formData.value });
+
+// Computed Properties
 const requestError = computed(() => handleRequestStore.error);
 const isEditing = computed(() => !!formData.value.id);
 const isImputationFormInvalid = computed(() => {
@@ -57,6 +59,7 @@ const isImputationFormInvalid = computed(() => {
   return !timeParser.validateTimeInput(formData.value.timeSpentString); // Disabled if invalid format
 });
 
+// Methods
 const checkImputationValue = () => {
 
   if (isImputationFormInvalid.value) {

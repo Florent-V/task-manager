@@ -1,6 +1,5 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
 
 import { useHandleRequestStore } from "@/stores/handleRequestStore.js";
 import logger from '@/utils/logger.js';
@@ -27,7 +26,6 @@ const props = defineProps({
 });
 
 const handleRequestStore = useHandleRequestStore();
-const route = useRoute();
 const taskService = new TaskService();
 
 const formData = ref({ ...props.initialData });
@@ -40,10 +38,11 @@ watch(() => props.initialData, (newValue) => {
 // Utilitaire de gestions des erreurs de formulaire
 const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...formData.value });
 
+// Computed Properties
 const requestError = computed(() => handleRequestStore.error);
 const isEditing = computed(() => !!formData.value.id);
 
-
+// Methods
 const submitForm = async () => {
   const data = {
     content: formData.value.content.trim(),
