@@ -1,8 +1,8 @@
 import { createImputationSchema, updateImputationSchema } from '../joiSchema/imputationSchema.js';
-import UnauthorizedError from '../error/unauthorizedError.js';
 import logger from '../config/logger.js';
 import Imputation from '../models/imputationModel.js';
 import NotFoundError from '../error/notFoundError.js';
+import UnauthorizedError from '../error/unauthorizedError.js';
 
 export const setImputationEntity = (req, res, next) => {
   req.entity = Imputation;
@@ -34,11 +34,8 @@ export const checkImputationAccess = async (req, res, next) => {
       logger.warn(
         `User ${userId} attempted to access non-existent imputation ${imputationId} for task ${taskId}.`
       );
-      // throw new UnauthorizedError('You do not have permission to access this imputation.');
       throw new NotFoundError(`Imputation with ID ${imputationId} not found for task ${taskId}.`);
     }
-    console.log('req.imputation', req.imputation);
-    console.log('req.imputation.userId', req.imputation.userId);
 
     if (req.imputation.userId !== userId) {
       logger.warn(

@@ -1,77 +1,129 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed , nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import LoaderComponent from '@/components/LoaderComponent.vue';
 import TaskDisplayDetails from '@/components/Kanban/TaskDisplayDetailsComponent.vue';
 import ImputationFormComponent from "@/components/Kanban/ImputationFormComponent.vue";
+import CommentFormComponent from "@/components/Kanban/CommentFormComponent.vue";
+import ImputationDisplayComponent from "@/components/Kanban/ImputationDisplayComponent.vue";
+import CommentDisplayComponent from "@/components/Kanban/CommentDisplayComponent.vue";
 import ModalConfirmation from '@/components/ModalConfirmation.vue';
 import { useKanbanStore } from '@/stores/kanbanStore.js';
 import { useHandleRequestStore } from "@/stores/handleRequestStore.js";
 import { setTitle, setDescription } from "@/utils/documentInfos.js";
 import { TimeParser } from "@/utils/timeParser.js";
 import logger from '@/utils/logger.js';
-import { TaskService } from '@/services/taskService.js';
 
 const route = useRoute();
 const router = useRouter();
 const kanbanStore = useKanbanStore();
 const handleRequestStore = useHandleRequestStore();
-const taskService = new TaskService();
 const timeParser = new TimeParser();
 
 // Task related state
 const kanbanId = ref(route.params.kanbanId);
 const taskId = ref(route.params.taskId);
 const task = ref(null);
-// Imputation State
+// Form State
 const showImputationForm = ref(false);
+const showCommentForm = ref(false);
 const selectedImputation = ref(null);
-const imputations = ref([]);
+const selectedComment = ref(null);
 const showDeleteImputationConfirmation = ref(false);
+const showDeleteCommentConfirmation = ref(false);
 const imputationToDeleteId = ref(null);
+const commentToDeleteId = ref(null);
+
+// Component refs
+const imputationDisplayRef = ref(null);
+const commentDisplayRef = ref(null);
+
+// Reactive data from child components
+const totalImputedMinutes = ref(0);
 
 // Computed Properties
 const requestLoading = computed(() => handleRequestStore.isLoading);
 const requestError = computed(() => handleRequestStore.error);
-const totalImputedMinutes = computed(() => imputations.value.reduce((sum, imp) => sum + imp.timeSpent, 0));
-const formattedTotalImputedTime = computed(() => timeParser.formatMinutesToTimeString(totalImputedMinutes.value));
+const taskEstimationMinutes = computed(() => task.value?.estimation || 0);
+
+// Progress bar calculations based on total from child component
+const formattedTotalImputedTime = computed(() => 
+  timeParser.formatMinutesToTimeString(totalImputedMinutes.value)
+);
+
 const maxValue = computed(() => {
   const estimation = Number(task.value?.estimation) || 0;
   const imputed = Number(totalImputedMinutes.value) || 0;
   return Math.max(imputed, estimation);
 });
+
 const estimatedBarWidth = computed(() => {
-  return (task.value.estimation / maxValue.value) * 100;
-});
-const imputedBarWidth = computed(() => {
-  return (totalImputedMinutes.value / maxValue.value) * 100;
-});
-const taskEstimationMinutes = computed(() => task.value?.estimation || 0);
-const sortedImputations = computed(() => {
-  return [...imputations.value].sort((a, b) => new Date(b.date) - new Date(a.date));
+  if (!maxValue.value) return 0;
+  return (taskEstimationMinutes.value / maxValue.value) * 100;
 });
 
-const handleResponseFormSubmit = async (response) => {
+const imputedBarWidth = computed(() => {
+  if (!maxValue.value) return 0;
+  return (totalImputedMinutes.value / maxValue.value) * 100;
+});
+
+const handleResponseImputationFormSubmit = async (response) => {
   if (selectedImputation.value) {
-    // Update existing comment
-    const index = imputations.value.findIndex(item => item.id === response.imputation.id);
-    imputations.value[index] = response.imputation;
+    // Update existing imputation
+    imputationDisplayRef.value?.updateImputation(response.imputation);
     selectedImputation.value = null;
   } else {
-    // Create new comment
-    imputations.value.push(kanbanStore.enrichImputation(response.imputation));
+    // Create new imputation
+    imputationDisplayRef.value?.addImputation(response.imputation);
   }
 };
 
-const openCreateImputationForm = () => {
+const handleResponseCommentFormSubmit = async (response) => {
+  if (selectedComment.value) {
+    // Update existing comment
+    commentDisplayRef.value?.updateComment(response.comment);
+    selectedComment.value = null;
+  } else {
+    // Create new comment
+    commentDisplayRef.value?.addComment(response.comment);
+  }
+};
+
+const openCreateCommentForm = async () => {
+  selectedComment.value = null;
+  showCommentForm.value = true;
+  await nextTick(); // Attendre que le DOM soit mis à jour
+  window.scrollTo({ top: document.getElementById('comment-form-section')?.offsetTop || 0, behavior: 'smooth' });
+};
+const openEditCommentForm = async (comment) => {
+  selectedComment.value = { ...comment };
+  console.log("selectedComment.value", selectedComment.value);
+  showCommentForm.value = true;
+  await nextTick(); // Attendre que le DOM soit mis à jour
+  window.scrollTo({ top: document.getElementById('comment-form-section')?.offsetTop || 0, behavior: 'smooth' });
+};
+
+const closeCommentForm = () => {
+  showCommentForm.value = false;
+};
+
+function confirmDeleteComment(commentId) {
+  commentToDeleteId.value = commentId;
+  showDeleteCommentConfirmation.value = true;
+}
+
+const openCreateImputationForm = async () => {
   selectedImputation.value = null;
   showImputationForm.value = true;
+  await nextTick(); // Attendre que le DOM soit mis à jour
+  window.scrollTo({ top: document.getElementById('imputation-form-section')?.offsetTop || 0, behavior: 'smooth' });
 };
-const openEditImputationForm = (imputation) => {
+const openEditImputationForm = async (imputation) => {
   selectedImputation.value = { ...imputation };
   console.log("selectedImputation.value", selectedImputation.value);
   showImputationForm.value = true;
+  await nextTick(); // Attendre que le DOM soit mis à jour
   window.scrollTo({ top: document.getElementById('imputation-form-section')?.offsetTop || 0, behavior: 'smooth' });
 };
 
@@ -100,23 +152,10 @@ async function fetchTask() {
       // TODO display a user-friendly message or redirect
       return;
     }
-    await fetchImputations(); // Fetch imputations after task is loaded
-    logger.info('Task details fetched successfully:', task.value);
+    logger.debug('Task details fetched successfully:', task.value);
   } catch (err) {
     requestError.value = `Erreur lors de la recherche de la tâche: ${err.message}`;
     logger.error('Error fetching task details:', err);
-  }
-}
-
-// Fetch Task's Imputations
-async function fetchImputations() {
-  logger.debug(`Fetching imputations for task ${taskId.value}`);
-  try {
-    const data = await taskService.getImputations(kanbanId.value, taskId.value);
-    imputations.value = data.imputations || [];
-    logger.info('Imputations fetched successfully:', imputations.value);
-  } catch (err) {
-    logger.error('Error fetching imputations:', err);
   }
 }
 
@@ -124,10 +163,7 @@ async function fetchImputations() {
 async function executeDeleteImputation() {
   if (!imputationToDeleteId.value) return;
   try {
-    await taskService.deleteImputation(kanbanId.value, taskId.value, imputationToDeleteId.value);
-    logger.info('Imputation deleted successfully');
-    // Refresh list and task.value.loggedTime
-    await fetchImputations();
+    await imputationDisplayRef.value?.deleteImputation(imputationToDeleteId.value);
   } catch (err) {
     logger.error('Error deleting imputation:', err);
   } finally {
@@ -135,6 +171,23 @@ async function executeDeleteImputation() {
     imputationToDeleteId.value = null;
   }
 }
+
+async function executeDeleteComment() {
+  if (!commentToDeleteId.value) return;
+  try {
+    await commentDisplayRef.value?.deleteComment(commentToDeleteId.value);
+  } catch (err) {
+    logger.error('Error deleting comment:', err);
+  } finally {
+    showDeleteCommentConfirmation.value = false;
+    commentToDeleteId.value = null;
+  }
+}
+
+// Handler for total imputed minutes changes from child component
+const handleTotalImputedChanged = (newTotal) => {
+  totalImputedMinutes.value = newTotal;
+};
 
 onMounted(async () => {
   await fetchTask();
@@ -148,7 +201,14 @@ onMounted(async () => {
       <LoaderComponent/>
       <p>Loading task details...</p>
     </div>
+
     <div v-else-if="task">
+      <div
+          v-if="requestError"
+          class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800" role="alert">
+        <span class="font-medium">Error loading task!</span> {{ requestError }}
+      </div>
+
       <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
         <!-- Header: Title and Back Button -->
         <div class="flex justify-between items-center mb-6">
@@ -160,48 +220,38 @@ onMounted(async () => {
             Back to Kanban Board
           </button>
         </div>
+
         <!-- Task Display Details Component -->
         <TaskDisplayDetails :task="task" class="mb-6"/>
 
-        <div class="mb-8 p-4 border rounded-lg dark:border-gray-700">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3">
-              Suivi du Temps
-            </h3>
-            <!-- Add button -->
-            <div v-if="!showImputationForm" class="text-right">
-              <button
-                  class="bg-blue-600 dark:bg-yellow-400 text-white px-2 py-2 rounded"
-                  @click="openCreateImputationForm"
-              >
-                <span class="flex items-center">
-                  <v-icon name="md-add" scale="1.6"/>
-                </span>
-              </button>
-            </div>
-          </div>
+        <!-- Time Tracking -->
+        <div class="mb-6 p-4 border rounded-lg dark:border-gray-700">
+          <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3">
+            Suivi du Temps
+          </h3>
 
+          <!-- Estimated Time -->
           <div class="space-y-2 mb-2">
             <div>
               <span class="font-medium text-gray-700 dark:text-gray-300">Temps Estimé:</span>
               <span class="text-gray-600 dark:text-gray-400 ml-2">{{ task.estimationString }}</span>
             </div>
-
             <div class="w-full bg-gray-200 rounded-full h-6 dark:bg-gray-700 relative">
               <div
                   :style="{ width: estimatedBarWidth + '%' }"
-                  class="bg-blue-600 h-6 rounded-full text-xs font-medium text-white text-center p-0.5 leading-none">
+                  class="bg-blue-600 h-6 rounded-full text-xs font-medium text-white text-center p-0.5 leading-none"
+              >
                 {{ task.estimationString }}
               </div>
             </div>
           </div>
 
+          <!-- Total Imputed Time -->
           <div class="space-y-2 mb-2">
             <div>
               <span class="font-medium text-gray-700 dark:text-gray-300">Total Imputé:</span>
               <span class="text-gray-600 dark:text-gray-400 ml-2">{{ formattedTotalImputedTime }}</span>
             </div>
-
             <div class="w-full bg-gray-200 rounded-full h-6 dark:bg-gray-700 relative">
               <div
                   :class="{
@@ -209,17 +259,40 @@ onMounted(async () => {
                     'bg-red-500': totalImputedMinutes > taskEstimationMinutes
                   }"
                   :style="{ width: imputedBarWidth + '%' }"
-                  class="h-6 rounded-full text-xs font-medium text-white text-center p-0.5 leading-none">
+                  class="h-6 rounded-full text-xs font-medium text-white text-center p-0.5 leading-none"
+              >
                 {{ formattedTotalImputedTime }}
               </div>
             </div>
           </div>
-
           <div
-v-if="totalImputedMinutes > taskEstimationMinutes && taskEstimationMinutes > 0"
-               class="text-sm text-red-700 dark:text-red-500">
+              v-if="totalImputedMinutes > taskEstimationMinutes && taskEstimationMinutes > 0"
+              class="text-sm text-red-700 dark:text-red-500">
             Attention: Le temps imputé dépasse le temps estimé.
           </div>
+        </div>
+
+        <!-- Imputations and Comments Display Section -->
+        <div class="flex gap-3 mb-6">
+          <ImputationDisplayComponent 
+            ref="imputationDisplayRef"
+            :kanban-id="kanbanId"
+            :task-id="taskId"
+            :show-form-button="!showImputationForm"
+            @create-imputation="openCreateImputationForm"
+            @edit-imputation="openEditImputationForm"
+            @delete-imputation="confirmDeleteImputation"
+            @total-changed="handleTotalImputedChanged"
+          />
+          <CommentDisplayComponent 
+            ref="commentDisplayRef"
+            :kanban-id="kanbanId"
+            :task-id="taskId"
+            :show-form-button="!showCommentForm"
+            @create-comment="openCreateCommentForm"
+            @edit-comment="openEditCommentForm"
+            @delete-comment="confirmDeleteComment"
+          />
         </div>
 
         <!-- Imputation Form Section -->
@@ -229,51 +302,18 @@ v-if="totalImputedMinutes > taskEstimationMinutes && taskEstimationMinutes > 0"
             :kanban-id="kanbanId"
             :task-id="taskId"
             @cancel="closeImputationForm"
-            @handle-response="handleResponseFormSubmit"
+            @handle-response="handleResponseImputationFormSubmit"
         />
 
-        <!-- Imputations List Section -->
-        <div class="p-4 border rounded-lg dark:border-gray-700">
-          <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3">Historique des imputations</h3>
-          <div v-if="requestLoading && imputations.length === 0" class="text-center">
-            <LoaderComponent/>
-            <p>Chargement des imputations...</p>
-          </div>
-          <div v-else-if="imputations.length === 0" class="text-gray-500 dark:text-gray-400">
-            Aucune imputation pour cette tâche.
-          </div>
-          <ul v-else class="space-y-4">
-            <li
-v-for="imputation in sortedImputations" :key="imputation.id"
-                class="p-3 bg-gray-50 dark:bg-gray-700 rounded-md shadow-sm">
-              <div class="flex justify-between items-start">
-                <div>
-                  <p class="font-semibold text-blue-600 dark:text-blue-400">
-                    {{ timeParser.formatMinutesToTimeString(imputation.timeSpent) }}</p>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">
-                    par {{ imputation.user?.firstName || 'Utilisateur' }} {{ imputation.user?.lastName || 'Inconnu' }}
-                    le {{ new Date(imputation.date || imputation.createdAt).toLocaleDateString() }}
-                  </p>
-                </div>
-                <div class="flex space-x-2">
-                  <button
-class="text-sm text-yellow-600 hover:text-yellow-800 dark:hover:text-yellow-400"
-                          title="Modifier"
-                          @click="openEditImputationForm(imputation)">
-                    <v-icon name="fa-edit" scale="0.9"/>
-                  </button>
-                  <button
-class="text-sm text-red-600 hover:text-red-800 dark:hover:text-red-400"
-                          title="Supprimer" @click="confirmDeleteImputation(imputation.id)">
-                    <v-icon name="md-delete" scale="0.9"/>
-                  </button>
-                </div>
-              </div>
-              <p v-if="imputation.comment" class="mt-2 text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-                {{ imputation.comment }}</p>
-            </li>
-          </ul>
-        </div>
+        <CommentFormComponent
+            v-if="showCommentForm"
+            :initial-data="selectedComment"
+            :kanban-id="kanbanId"
+            :task-id="taskId"
+            @cancel="closeCommentForm"
+            @handle-response="handleResponseCommentFormSubmit"
+        />
+
         <!-- Kanban ID and Task ID - Kept for reference if needed -->
         <div class="mt-8 pt-6 border-t dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
           <p>Kanban ID: {{ kanbanId }}</p>
@@ -284,11 +324,7 @@ class="text-sm text-red-600 hover:text-red-800 dark:hover:text-red-400"
     <div v-else class="text-center text-gray-500 dark:text-gray-400 mt-10">
       <p v-if="!requestLoading">Tâche non trouvée ou impossible à charger.</p>
     </div>
-    <div
-v-if="requestError"
-         class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800" role="alert">
-      <span class="font-medium">Error loading task!</span> {{ requestError }}
-    </div>
+
     <!-- Modal Confirmation for Deleting Imputation -->
     <ModalConfirmation
         v-if="showDeleteImputationConfirmation"
@@ -297,6 +333,16 @@ v-if="requestError"
         question="Êtes-vous sûr de vouloir supprimer cette imputation ?"
         @cancel="showDeleteImputationConfirmation = false"
         @confirm="executeDeleteImputation"
+    />
+
+    <!-- Modal Confirmation for Deleting Comment -->
+    <ModalConfirmation
+        v-if="showDeleteCommentConfirmation"
+        cancel-button-text="Annuler"
+        confirm-button-text="Supprimer"
+        question="Êtes-vous sûr de vouloir supprimer ce commentaire ?"
+        @cancel="showDeleteCommentConfirmation = false"
+        @confirm="executeDeleteComment"
     />
   </div>
 </template>

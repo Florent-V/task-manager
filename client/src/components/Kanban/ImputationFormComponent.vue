@@ -50,6 +50,8 @@ watch(() => props.initialData, (newValue) => {
 );
 // Utilitaire de gestions des erreurs de formulaire
 const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...formData.value });
+
+// Computed Properties
 const requestError = computed(() => handleRequestStore.error);
 const isEditing = computed(() => !!formData.value.id);
 const isImputationFormInvalid = computed(() => {
@@ -57,6 +59,7 @@ const isImputationFormInvalid = computed(() => {
   return !timeParser.validateTimeInput(formData.value.timeSpentString); // Disabled if invalid format
 });
 
+// Methods
 const checkImputationValue = () => {
 
   if (isImputationFormInvalid.value) {
@@ -130,7 +133,7 @@ const resetForm = () => {
 <template>
   <div id="imputation-form-section" class="mb-8 p-4 border rounded-lg dark:border-gray-700">
     <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3">
-      {{ editingImputation ? "Modifier l'imputation" : "Ajouter une imputation" }}
+      {{ isEditing ? "Modifier l'imputation" : "Ajouter une imputation" }}
     </h3>
     <form class="space-y-4" @submit.prevent="submitForm">
       <div class="flex flex-col md:flex-row md:space-x-4">
@@ -200,7 +203,7 @@ const resetForm = () => {
       <div class="flex space-x-3">
         <button
             :disabled="isImputationFormInvalid"
-            class="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="px-4 py-2 rounded-md bg-green-600 text-white  hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             type="submit"
         >
           {{ isEditing ? 'Mettre à jour' : 'Enregistrer' }}
