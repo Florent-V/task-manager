@@ -20,13 +20,16 @@ export class ReportService {
   }
 
   /**
-   * Fetches the imputation report for a specific User.
-   * @param {string} userId - The ID of the User.
-   * @returns {Promise<any>} The promise from the API call.
+   * Fetches the imputation report for a specific User, optionally filtered by Kanban.
+   * @param {string} userId - The ID of the user.
+   * @param {string} [kanbanId=null] - Optional ID of the Kanban to filter by.
+   * @returns {Promise<any>} The report data.
    */
-  async getUserImputationReport(userId) {
-    return await this.executeRequest(
-      () => client.get(`/api/reports/users/${userId}/imputations-report`)
-    );
+  async getUserImputationReport(userId, kanbanId = null) {
+    let apiUrl = `/api/reports/users/${userId}/imputations-report`;
+    if (kanbanId) {
+      apiUrl += `?kanbanId=${kanbanId}`;
+    }
+    return await this.executeRequest(() => client.get(apiUrl));
   }
 }

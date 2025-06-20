@@ -75,38 +75,46 @@ export async function getImputationsForKanban(req, res, next) {
 
 export async function getImputationsForUser(req, res, next) {
   logger.debug('getImputationsForUser');
-  const { userId } = req.params; // Or req.user.id if only for self
+  const { userId } = req.params;
+  const { kanbanId } = req.query; // Get kanbanId from query parameters
 
   try {
+    const whereClause = { userId: userId }; // Main where for Imputation model
+
+    const includeTaskClause = {
+      model: Task,
+      as: 'task',
+      attributes: ['id', 'title', 'estimation', 'kanbanId'], // Ensure kanbanId is available if needed directly on task
+      include: [{
+        model: Kanban,
+        as: 'kanban',
+        attributes: ['id', 'title'],
+      }],
+    };
+
+    // If kanbanId is provided in the query, add a filter to the Task include
+    if (kanbanId) {
+      // The Task model itself must have a 'kanbanId' field for this to work directly.
+      // If the association is purely through the Kanban model, the where should be on the included Kanban model.
+      // Assuming Task has a direct kanbanId foreign key.
+      includeTaskClause.where = { kanbanId: kanbanId };
+      includeTaskClause.required = true; // Make this an INNER JOIN condition for the task's Kanban
+    }
+
     const imputations = await Imputation.findAll({
-      where: { userId },
+      where: whereClause,
       include: [
-        {
-          model: Task,
-          as: 'task',
-          attributes: ['id', 'title', 'estimation'],
-          include: [
-            {
-              model: Kanban,
-              as: 'kanban',
-              attributes: ['id', 'title'], // Include Kanban details
-            },
-          ],
-        },
+        includeTaskClause,
         {
           model: User,
-          as: 'user', // This will be the user specified in userId
+          as: 'user',
           attributes: ['id', 'firstName', 'lastName', 'email'],
         },
       ],
       order: [
-        // Order by Kanban title (indirectly through task), then task title, then imputation date
-        // This requires careful ordering if Kanban title is the primary sort key.
-        // For simplicity, let's order by task properties and then imputation date.
-        // Ordering by Kanban title would require a more complex setup or specific Sequelize features.
-        // Let's assume the order is: Task's Kanban ID, then Task ID, then Imputation Date.
-        // [{ model: Task, as: 'task' }, { model: Kanban, as: 'kanban' }, 'id', 'ASC'], // This syntax might be tricky
-        [{ model: Task, as: 'task' }, 'id', 'ASC'], // Order by task id
+        // Order by Task ID, then by imputation date
+        // Accessing nested model for ordering: [{ model: Task, as: 'task' }, 'id', 'ASC']
+        [{ model: Task, as: 'task' }, 'id', 'ASC'],
         ['date', 'DESC'],
         ['createdAt', 'DESC'],
       ],
