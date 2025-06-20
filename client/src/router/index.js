@@ -7,6 +7,7 @@ import toDoListRoutes from "@/router/toDoListRoutes.js";
 import adminRoutes from "@/router/adminRoutes.js";
 import kanbanRoutes from "@/router/kanbanRoutes.js";
 import userRoutes from "@/router/userRoutes.js";
+import reportRoutes from "@/router/reportRoutes.js"; // Import report routes
 import AboutView from '@/views/AboutView.vue';
 import NotFound from '@/views/NotFound.vue';
 import Forbidden from "@/views/Forbidden.vue";
@@ -40,6 +41,7 @@ const router = createRouter({
     ...kanbanRoutes,
     ...adminRoutes,
     ...userRoutes,
+    ...reportRoutes, // Add report routes here
     {
       path: '/404',
       name: '404NotFound',

@@ -1,5 +1,7 @@
 import User from '../models/userModel.js';
 import Imputation from '../models/imputationModel.js';
+import Task from '../models/taskModel.js';
+import Kanban from '../models/kanbanModel.js';
 import NotFoundError from '../error/notFoundError.js';
 import logger from '../config/logger.js';
 
@@ -21,6 +23,96 @@ export async function createImputation(req, res, next) {
     res.statusCode = 201;
     res.data = { imputation: newImputation };
 
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getImputationsForKanban(req, res, next) {
+  logger.debug('getImputationsForKanban');
+  const { kanbanId } = req.params;
+
+  try {
+    const imputations = await Imputation.findAll({
+      include: [
+        {
+          model: Task,
+          as: 'task',
+          attributes: ['id', 'title', 'estimation'],
+          include: [
+            {
+              model: Kanban,
+              as: 'kanban',
+              attributes: [], // Per requirement "only to filter", though main filter is now top-level
+              // No 'where' here as the main filtering is '$task.kanbanId$'
+            },
+          ],
+          required: true, // Ensures only imputations with tasks that could match the where clause are returned
+        },
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'firstName', 'lastName', 'email'],
+        },
+      ],
+      where: {
+        '$task.kanbanId$': kanbanId, // Main filter on Task.kanbanId as per requirement
+      },
+      order: [
+        [{ model: Task, as: 'task' }, 'id', 'ASC'], // Order by task id
+        ['date', 'DESC'], // Then by imputation date
+        ['createdAt', 'DESC'],
+      ],
+    });
+
+    res.data = { imputations };
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getImputationsForUser(req, res, next) {
+  logger.debug('getImputationsForUser');
+  const { userId } = req.params; // Or req.user.id if only for self
+
+  try {
+    const imputations = await Imputation.findAll({
+      where: { userId },
+      include: [
+        {
+          model: Task,
+          as: 'task',
+          attributes: ['id', 'title', 'estimation'],
+          include: [
+            {
+              model: Kanban,
+              as: 'kanban',
+              attributes: ['id', 'title'], // Include Kanban details
+            },
+          ],
+        },
+        {
+          model: User,
+          as: 'user', // This will be the user specified in userId
+          attributes: ['id', 'firstName', 'lastName', 'email'],
+        },
+      ],
+      order: [
+        // Order by Kanban title (indirectly through task), then task title, then imputation date
+        // This requires careful ordering if Kanban title is the primary sort key.
+        // For simplicity, let's order by task properties and then imputation date.
+        // Ordering by Kanban title would require a more complex setup or specific Sequelize features.
+        // Let's assume the order is: Task's Kanban ID, then Task ID, then Imputation Date.
+        // [{ model: Task, as: 'task' }, { model: Kanban, as: 'kanban' }, 'id', 'ASC'], // This syntax might be tricky
+        [{ model: Task, as: 'task' }, 'id', 'ASC'], // Order by task id
+        ['date', 'DESC'],
+        ['createdAt', 'DESC'],
+      ],
+    });
+
+    res.data = { imputations };
     next();
   } catch (error) {
     next(error);
@@ -53,6 +145,9 @@ export async function getImputationsForTask(req, res, next) {
     next(error);
   }
 }
+// Note: The original file did not have an explicit module.exports,
+// it relied on ES6 exports. The functions are already exported.
+// No changes needed to module.exports unless the file structure was different.
 
 export async function updateImputation(req, res, next) {
   logger.debug('updateImputation');

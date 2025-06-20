@@ -18,6 +18,7 @@ import toDoListTypeRoutes from './routes/toDoListTypeRoute.js';
 import priorityRoutes from './routes/priorityRoutes.js';
 import sizeRoutes from './routes/sizeRoutes.js';
 import kanbanRoutes from './routes/kanbanRoutes.js';
+import reportRoutes from './routes/reportRoutes.js'; // Import report routes
 import { authenticateByCookieSession } from './middleware/authMiddleware.js';
 
 dotenv.config();
@@ -66,6 +67,8 @@ app.use('/api/kanban', setRouteFound, kanbanRoutes);
 app.use('/api/priority', setRouteFound, priorityRoutes);
 // Sizes Routes
 app.use('/api/size', setRouteFound, sizeRoutes);
+// Report Routes
+app.use('/api/reports', setRouteFound, reportRoutes);
 // End Middleware
 app.use(end);
 // Send middleware

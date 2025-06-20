@@ -117,6 +117,16 @@ to="/kanban"
               Kanban
             </RouterLink>
           </li>
+          <li v-if="user">
+            <RouterLink :to="{ name: 'UserTimelogReport', params: { userId: user.id } }" class="hover:text-blue-600 dark:hover:text-yellow-300 transition duration-100">
+              My Time Report
+            </RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/reports/kanban/select" class="hover:text-blue-600 dark:hover:text-yellow-300 transition duration-100">
+              Kanban Reports
+            </RouterLink>
+          </li>
           <li>
             <RouterLink to="/about" class="hover:text-blue-600 dark:hover:text-yellow-300 transition duration-100">
               About
@@ -236,6 +246,16 @@ to="/kanban"
             Kanban
           </RouterLink>
         </li>
+          <li v-if="user">
+            <RouterLink :to="{ name: 'UserTimelogReport', params: { userId: user.id } }" class="block py-2 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-yellow-300 transition duration-300">
+              My Time Report
+            </RouterLink>
+          </li>
+          <li>
+            <RouterLink to="/reports/kanban/select" class="block py-2 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-yellow-300 transition duration-300">
+              Kanban Reports
+            </RouterLink>
+          </li>
         <li>
           <RouterLink
 to="/about"
