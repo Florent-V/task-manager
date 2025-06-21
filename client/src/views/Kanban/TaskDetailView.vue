@@ -74,7 +74,7 @@ const imputedBarWidth = computed(() => {
   return (totalImputedMinutes.value / maxValue.value) * 100;
 });
 
-const editTask = (task) => {
+const editTask = () => {
   showTaskFormModal.value = true;
 };
 

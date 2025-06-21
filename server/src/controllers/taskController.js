@@ -36,15 +36,7 @@ export const includeTask = [
 export const createTask = async (req, res, next) => {
   try {
     const { id: kanbanId } = req.params;
-    const {
-      title,
-      description,
-      estimation,
-      priorityId,
-      sizeId,
-      stageId,
-      assignedToId,
-    } = req.body;
+    const { title, description, estimation, priorityId, sizeId, stageId, assignedToId } = req.body;
 
     const newTask = await Task.create({
       title,
@@ -103,15 +95,7 @@ export const getTaskById = async (req, res, next) => {
 export const updateTask = async (req, res, next) => {
   try {
     const { taskId } = req.params;
-    const {
-      title,
-      description,
-      estimation,
-      priorityId,
-      sizeId,
-      stageId,
-      assignedToId,
-    } = req.body;
+    const { title, description, estimation, priorityId, sizeId, stageId, assignedToId } = req.body;
 
     const [updated] = await Task.update(
       {

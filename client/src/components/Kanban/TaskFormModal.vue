@@ -1,9 +1,8 @@
 <script setup>
 import { ref, watch, computed, onMounted } from "vue";
-import { useRoute } from 'vue-router';
 import Quill from 'quill';
-import 'quill/dist/quill.snow.css';
 
+import 'quill/dist/quill.snow.css';
 import { useHandleRequestStore } from "@/stores/handleRequestStore.js";
 import logger from "@/utils/logger.js";
 import useFormErrors from "@/utils/handleFormErrors.js";
@@ -47,7 +46,6 @@ const props = defineProps({
 });
 
 const handleRequestStore = useHandleRequestStore();
-const route = useRoute();
 const taskService = new TaskService();
 const timeParser = new TimeParser();
 
