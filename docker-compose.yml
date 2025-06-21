@@ -60,6 +60,7 @@ services:
       - MAILER_USER=${MAILER_USER}
       - MAILER_PASS=${MAILER_PASS}
       - MAIL_FROM=${MAIL_FROM}
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
     networks:
       - internal
     depends_on:

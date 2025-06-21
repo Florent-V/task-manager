@@ -25,6 +25,8 @@ import {
   RiMailSendLine,
   PrWindowMaximize,
   BiBarChartLineFill,
+  RiRobotLine,
+  IoSparklesOutline,
 } from "oh-vue-icons/icons";
 
 import { cropText } from '@/utils/crop.js';
@@ -55,6 +57,8 @@ addIcons(
   RiMailSendLine,
   PrWindowMaximize,
   BiBarChartLineFill,
+  RiRobotLine,
+  IoSparklesOutline,
 );
 
 const app = createApp(App)
