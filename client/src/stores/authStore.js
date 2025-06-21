@@ -32,6 +32,7 @@ export const useAuthStore = defineStore('auth', {
         logger.debug('Connexion réussie:', data);
         localStorage.setItem('user', JSON.stringify(data));
         this.user = data;
+        this.user.fullName = `${data.firstName} ${data.lastName}`;
         this.authenticated = true;
         return data;
       } catch (error) {

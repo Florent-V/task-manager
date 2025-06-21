@@ -91,7 +91,6 @@ const submitForm = async () => {
     let response;
     if (formData.value.id) {
       // Update existing comment
-      console.log('Editing payload:', data);
       response = await taskService.editImputation(
           props.kanbanId,
           props.taskId,
@@ -100,7 +99,6 @@ const submitForm = async () => {
       );
     } else {
       // Create new comment
-      console.log('Creation payload:', data);
       response = await taskService.createImputation(
           props.kanbanId,
           props.taskId,
@@ -112,7 +110,6 @@ const submitForm = async () => {
   } catch (err) {
     logger.error('Error in form submission', err?.response?.data?.message || err.message);
     setErrors(err);
-    console.log("errors", errors.value);
   }
 };
 

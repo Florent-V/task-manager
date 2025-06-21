@@ -98,7 +98,6 @@ const openCreateCommentForm = async () => {
 };
 const openEditCommentForm = async (comment) => {
   selectedComment.value = { ...comment };
-  console.log("selectedComment.value", selectedComment.value);
   showCommentForm.value = true;
   await nextTick(); // Attendre que le DOM soit mis à jour
   window.scrollTo({ top: document.getElementById('comment-form-section')?.offsetTop || 0, behavior: 'smooth' });
@@ -121,7 +120,6 @@ const openCreateImputationForm = async () => {
 };
 const openEditImputationForm = async (imputation) => {
   selectedImputation.value = { ...imputation };
-  console.log("selectedImputation.value", selectedImputation.value);
   showImputationForm.value = true;
   await nextTick(); // Attendre que le DOM soit mis à jour
   window.scrollTo({ top: document.getElementById('imputation-form-section')?.offsetTop || 0, behavior: 'smooth' });

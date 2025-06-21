@@ -92,8 +92,8 @@ onMounted(() => {
         <div class="flex items-center space-x-2">
           <img src="@/assets/logo-head.webp" alt="Logo" class="h-10 w-auto">
           <RouterLink
-to="/"
-                      class="text-xl font-bold hover:text-blue-600 dark:hover:text-yellow-300 transition duration-100">
+              to="/"
+              class="text-xl font-bold hover:text-blue-600 dark:hover:text-yellow-300 transition duration-100">
             Task Manager
           </RouterLink>
         </div>
@@ -105,20 +105,22 @@ to="/"
           </li>
           <li>
             <RouterLink
-to="/toDoList"
-                        class="hover:text-blue-600 dark:hover:text-yellow-300 transition duration-100">
+                to="/toDoList"
+                class="hover:text-blue-600 dark:hover:text-yellow-300 transition duration-100">
               ToDoList
             </RouterLink>
           </li>
           <li>
             <RouterLink
-to="/kanban"
-                        class="hover:text-blue-600 dark:hover:text-yellow-300 transition duration-100">
+                to="/kanban"
+                class="hover:text-blue-600 dark:hover:text-yellow-300 transition duration-100">
               Kanban
             </RouterLink>
           </li>
           <li v-if="user">
-            <RouterLink :to="{ name: 'UserTimelogReport', params: { userId: user.id } }" class="hover:text-blue-600 dark:hover:text-yellow-300 transition duration-100">
+            <RouterLink
+                :to="{ name: 'TimeTrackingOverview' }"
+                class="hover:text-blue-600 dark:hover:text-yellow-300 transition duration-100">
               Mes imputations
             </RouterLink>
           </li>
@@ -134,14 +136,14 @@ to="/kanban"
 
         <div>
           <button
-class="darkMode relative inline-flex items-center justify-center w-12 h-6 bg-gray-300 dark:bg-gray-600 rounded-full p-1 transition duration-300 focus:outline-none"
-                  @click="toggleDarkMode">
+              class="darkMode relative inline-flex items-center justify-center w-12 h-6 bg-gray-300 dark:bg-gray-600 rounded-full p-1 transition duration-300 focus:outline-none"
+              @click="toggleDarkMode">
             <span
-v-if="isDarkMode"
-                  class="w-4 h-4 bg-yellow-500 rounded-full shadow-md transform transition-transform duration-300 translate-x-6">🌜</span>
+                v-if="isDarkMode"
+                class="w-4 h-4 bg-yellow-500 rounded-full shadow-md transform transition-transform duration-300 translate-x-6">🌜</span>
             <span
-v-else
-                  class="w-4 h-4 bg-yellow-500 rounded-full shadow-md transform transition-transform duration-300 translate-x-0">🌞</span>
+                v-else
+                class="w-4 h-4 bg-yellow-500 rounded-full shadow-md transform transition-transform duration-300 translate-x-0">🌞</span>
           </button>
         </div>
 
@@ -154,8 +156,8 @@ v-else
                 @click.stop="toggleUserDropdown"
             >
             <div
-v-show="isUserDropdownOpen"
-                 class="absolute right-0 mt-2 w-64 bg-blue-100 dark:bg-gray-700 rounded-md shadow-lg">
+                v-show="isUserDropdownOpen"
+                class="absolute right-0 mt-2 w-64 bg-blue-100 dark:bg-gray-700 rounded-md shadow-lg">
               <div class="p-4">
                 <p class="font-semibold">{{ user.firstName }} {{ user.lastName }}</p>
                 <p class="text-sm text-gray-600 dark:text-gray-300">{{ user.email }}</p>
@@ -164,8 +166,8 @@ v-show="isUserDropdownOpen"
               <ul>
                 <li>
                   <a
-href="#"
-                     class="block px-4 py-2 text-sm hover:bg-blue-200 dark:hover:bg-gray-600">
+                      href="#"
+                      class="block px-4 py-2 text-sm hover:bg-blue-200 dark:hover:bg-gray-600">
                     Dashboard
                   </a>
                 </li>
@@ -176,16 +178,16 @@ href="#"
                 </li>
                 <li>
                   <button
-class="ml-4 flex items-center gap-1 py-2 text-sm text-red-600 hover:text-red-800"
-                          @click="logout">
+                      class="ml-4 flex items-center gap-1 py-2 text-sm text-red-600 hover:text-red-800"
+                      @click="logout">
                     <span>Sign Out</span>
                     <!-- Icône SVG de déconnexion -->
                     <svg
-xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
-                         stroke="currentColor" stroke-width="2">
+                        xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
                       <path
-stroke-linecap="round" stroke-linejoin="round"
-                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-10V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h6a2 2 0 002-2v-1"/>
+                          stroke-linecap="round" stroke-linejoin="round"
+                          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-10V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h6a2 2 0 002-2v-1"/>
                     </svg>
                   </button>
                 </li>
@@ -194,8 +196,8 @@ stroke-linecap="round" stroke-linejoin="round"
           </div>
         </template>
         <button
-v-else
-                class="bg-blue-500 dark:bg-yellow-400 hover:bg-blue-600 dark:hover:bg-yellow-500 text-white dark:text-gray-900 px-6 py-2 rounded-full font-semibold transition duration-300">
+            v-else
+            class="bg-blue-500 dark:bg-yellow-400 hover:bg-blue-600 dark:hover:bg-yellow-500 text-white dark:text-gray-900 px-6 py-2 rounded-full font-semibold transition duration-300">
           <RouterLink to="/signin" class="">
             Login
           </RouterLink>
@@ -206,8 +208,8 @@ v-else
         </button>
         <button class="md:hidden p-2" @click.stop="toggleMobileMenu">
           <svg
-xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-800 dark:text-white" fill="none"
-               viewBox="0 0 24 24" stroke="currentColor">
+              xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-800 dark:text-white" fill="none"
+              viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
           </svg>
         </button>
@@ -217,39 +219,41 @@ xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-800 dark:text-white"
 
     <!-- Mobile menu -->
     <div
-v-show="isMobileMenuOpen"
-         class="md:hidden bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300 dark:from-gray-900 dark:via-purple-900 dark:to-indigo-900 py-2">
+        v-show="isMobileMenuOpen"
+        class="md:hidden bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300 dark:from-gray-900 dark:via-purple-900 dark:to-indigo-900 py-2">
       <ul class="px-4 space-y-2">
         <li>
           <RouterLink
-to="/"
-                      class="block py-2 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-yellow-300 transition duration-300">
+              to="/"
+              class="block py-2 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-yellow-300 transition duration-300">
             Home
           </RouterLink>
         </li>
         <li>
           <RouterLink
-to="/toDoList"
-                      class="block py-2 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-yellow-300 transition duration-300">
+              to="/toDoList"
+              class="block py-2 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-yellow-300 transition duration-300">
             ToDoList
           </RouterLink>
         </li>
         <li>
           <RouterLink
-to="/kanban"
-                      class="block py-2 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-yellow-300 transition duration-300">
+              to="/kanban"
+              class="block py-2 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-yellow-300 transition duration-300">
             Kanban
           </RouterLink>
         </li>
-          <li v-if="user">
-            <RouterLink :to="{ name: 'UserTimelogReport', params: { userId: user.id } }" class="block py-2 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-yellow-300 transition duration-300">
-              Mes imputations
-            </RouterLink>
-          </li>
+        <li v-if="user">
+          <RouterLink
+              :to="{ name: 'TimeTrackingOverview' }"
+              class="block py-2 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-yellow-300 transition duration-300">
+            Mes imputations
+          </RouterLink>
+        </li>
         <li>
           <RouterLink
-to="/about"
-                      class="block py-2 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-yellow-300 transition duration-300">
+              to="/about"
+              class="block py-2 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-yellow-300 transition duration-300">
             About
           </RouterLink>
         </li>
