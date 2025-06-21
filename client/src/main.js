@@ -24,6 +24,7 @@ import {
   MdModeedit,
   RiMailSendLine,
   PrWindowMaximize,
+  BiBarChartLineFill,
 } from "oh-vue-icons/icons";
 
 import { cropText } from '@/utils/crop.js';
@@ -53,6 +54,7 @@ addIcons(
   MdModeedit,
   RiMailSendLine,
   PrWindowMaximize,
+  BiBarChartLineFill,
 );
 
 const app = createApp(App)

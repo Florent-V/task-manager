@@ -30,14 +30,6 @@ const Task = sequelize.define(
         min: 0,
       },
     },
-    loggedTime: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      validate: {
-        isInt: true,
-        min: 0,
-      },
-    },
     // Champs relationnels
     kanbanId: {
       type: DataTypes.UUID,

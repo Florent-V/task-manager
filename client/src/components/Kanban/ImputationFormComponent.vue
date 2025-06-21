@@ -40,11 +40,17 @@ const formatDate = (date) => {
 };
 
 watch(() => props.initialData, (newValue) => {
-      formData.value = newValue ? {
-        ...newValue,
-        timeSpentString: timeParser.formatMinutesToTimeString(newValue.timeSpent),
-        date: formatDate(newValue.date)
-      } : { timeSpentString: null, comment: null, date: null };
+      formData.value = newValue
+          ? {
+            ...newValue,
+            timeSpentString: timeParser.formatMinutesToTimeString(newValue.timeSpent),
+            date: formatDate(newValue.date)
+          }
+          : {
+            timeSpentString: null,
+            comment: null,
+            date: null
+          };
     },
     { immediate: true }
 );
@@ -150,8 +156,8 @@ const resetForm = () => {
               type="text"
               @blur="checkImputationValue"
           />
-          <p v-if="errors.timeSpentString" class="text-red-500 dark:text-red-400">
-            {{ errors.timeSpentString }}
+          <p v-if="errors.timeSpent" class="text-red-500 dark:text-red-400">
+            {{ errors.timeSpent }}
           </p>
           <p v-if="imputationFormError" class="text-red-500 dark:text-red-400">
             {{ imputationFormError }}

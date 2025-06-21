@@ -19,8 +19,7 @@ const assignedTo = computed(() => {
   return props.task?.assignedTo || 'Unassigned';
 });
 const stageLabel = computed(() => props.task?.stage?.title || props.task?.stageLabel || 'N/A');
-// estimation is now expected to be total minutes (number)
-// loggedTime is already total minutes (number)
+
 </script>
 <template>
   <div class="space-y-6">

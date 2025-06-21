@@ -14,6 +14,7 @@ import { useHandleRequestStore } from "@/stores/handleRequestStore.js";
 import { setTitle, setDescription } from "@/utils/documentInfos.js";
 import { TimeParser } from "@/utils/timeParser.js";
 import logger from '@/utils/logger.js';
+import TaskFormModal from "@/components/Kanban/TaskFormModal.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -34,6 +35,7 @@ const showDeleteImputationConfirmation = ref(false);
 const showDeleteCommentConfirmation = ref(false);
 const imputationToDeleteId = ref(null);
 const commentToDeleteId = ref(null);
+const showTaskFormModal = ref(false);
 
 // Component refs
 const imputationDisplayRef = ref(null);
@@ -43,6 +45,10 @@ const commentDisplayRef = ref(null);
 const totalImputedMinutes = ref(0);
 
 // Computed Properties
+const users = computed(() => kanbanStore.users);
+const stages = computed(() => kanbanStore.stages);
+const priorities = computed(() => kanbanStore.priorities);
+const sizes = computed(() => kanbanStore.sizes);
 const requestLoading = computed(() => handleRequestStore.isLoading);
 const requestError = computed(() => handleRequestStore.error);
 const taskEstimationMinutes = computed(() => task.value?.estimation || 0);
@@ -67,6 +73,20 @@ const imputedBarWidth = computed(() => {
   if (!maxValue.value) return 0;
   return (totalImputedMinutes.value / maxValue.value) * 100;
 });
+
+const editTask = (task) => {
+  showTaskFormModal.value = true;
+};
+
+const closeTaskFormModal = () => {
+  showTaskFormModal.value = false;
+};
+
+const handleResponseTaskFormSubmit = async (response) => {
+  kanbanStore.editTask(response.task);
+  task.value = kanbanStore.getTaskById(response.task.id);
+  closeTaskFormModal();
+};
 
 const handleResponseImputationFormSubmit = async (response) => {
   if (selectedImputation.value) {
@@ -145,6 +165,7 @@ async function fetchTask() {
   try {
     await kanbanStore.initStore(kanbanId.value);
     task.value = kanbanStore.getTaskById(taskId.value);
+    console.log('task.value', task.value);
     if (!task.value) {
       logger.warn(`Task with ID ${taskId.value} not found in Kanban ${kanbanId.value}`);
       // TODO display a user-friendly message or redirect
@@ -211,12 +232,20 @@ onMounted(async () => {
         <!-- Header: Title and Back Button -->
         <div class="flex justify-between items-center mb-6">
           <h1 class="text-3xl font-bold text-gray-900 dark:text-yellow-300">{{ task.title }}</h1>
-          <button
-              class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
-              @click="goBackToKanban"
-          >
-            Back to Kanban Board
-          </button>
+          <div class="flex space-x-2">
+            <button
+                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
+                @click="editTask"
+            >
+              Editer
+            </button>
+            <button
+                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
+                @click="goBackToKanban"
+            >
+              Back to Kanban Board
+            </button>
+          </div>
         </div>
 
         <!-- Task Display Details Component -->
@@ -322,6 +351,18 @@ onMounted(async () => {
     <div v-else class="text-center text-gray-500 dark:text-gray-400 mt-10">
       <p v-if="!requestLoading">Tâche non trouvée ou impossible à charger.</p>
     </div>
+
+    <TaskFormModal
+        v-if="showTaskFormModal"
+        :initial-data="task"
+        :users="users"
+        :kanban-id="kanbanId"
+        :priorities="priorities"
+        :sizes="sizes"
+        :stages="stages"
+        @handle-response="handleResponseTaskFormSubmit"
+        @cancel="closeTaskFormModal"
+    />
 
     <!-- Modal Confirmation for Deleting Imputation -->
     <ModalConfirmation

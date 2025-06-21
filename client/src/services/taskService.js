@@ -1,11 +1,13 @@
 // services/taskService.js
 import { client } from '@/services/requestMaker.js';
 import { hookApi } from '@/services/requestHookService.js';
+import { TimeParser } from '@/utils/timeParser.js';
 
 export class TaskService {
   constructor() {
     const { executeRequest } = hookApi();
     this.executeRequest = executeRequest;
+    this.timeParser = new TimeParser();
   }
 
   async getPriorities() {
@@ -104,6 +106,19 @@ export class TaskService {
   async deleteImputation(kanbanId, taskId, imputationId) {
     return await this.executeRequest(
       () => client.delete(`/api/kanban/${kanbanId}/task/${taskId}/imputation/${imputationId}`)
+    );
+  }
+
+  formatMinutesToTimeString(minutes) {
+    return this.timeParser.formatMinutesToTimeString(minutes);
+  }
+
+  calculateTimeSpent(task) {
+    if (!task.imputations || !task.imputations.length) {
+      return "0m";
+    }
+    return this.formatMinutesToTimeString(
+      task.imputations.reduce((sum, imp) => sum + imp.timeSpent, 0)
     );
   }
 }

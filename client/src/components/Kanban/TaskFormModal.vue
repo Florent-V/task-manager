@@ -7,6 +7,7 @@ import 'quill/dist/quill.snow.css';
 import { useHandleRequestStore } from "@/stores/handleRequestStore.js";
 import logger from "@/utils/logger.js";
 import useFormErrors from "@/utils/handleFormErrors.js";
+import { TimeParser } from "@/utils/timeParser.js";
 import { TaskService } from '@/services/taskService.js';
 
 const emit = defineEmits(['handleResponse', 'cancel']);
@@ -17,7 +18,6 @@ const props = defineProps({
       title: null,
       description: null,
       estimation: null,
-      loggedTime: 0,
       priorityId: null,
       sizeId: null,
       stageId: null,
@@ -40,44 +40,85 @@ const props = defineProps({
     type: Array,
     required: true,
   },
+  kanbanId: {
+    type: String,
+    required: true,
+  },
 });
 
 const handleRequestStore = useHandleRequestStore();
 const route = useRoute();
 const taskService = new TaskService();
+const timeParser = new TimeParser();
+
+// Ref
+const editorContainer = ref(null);
+const formData = ref({ ...props.initialData });
+const estimationFormError = ref(null);
+
 // Gestion du formulaire
 const newTask = {
   title: null,
   description: null,
   estimation: null,
-  loggedTime: 0,
+  estimationString: null,
   priorityId: null,
   sizeId: null,
   stageId: null,
   assignedToId: null,
 };
 
-// Référence pour l'éditeur
-const editorContainer = ref(null);
-const formData = ref({ ...props.initialData });
-const isEditing = computed(() => !!formData.value.id);
-// Utilitaire de gestions des erreurs de formulaire
-const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...formData.value });
 watch(() => props.initialData, (newValue) => {
-      formData.value = newValue ? { ...newValue } : { ...newTask };
+      formData.value = newValue
+          ? {
+            ...newValue,
+            estimationString: taskService.formatMinutesToTimeString(newValue.estimation)
+          }
+          : {
+            ...newTask,
+            estimationString: null
+          };
     },
     { immediate: true }
 );
+// Utilitaire de gestions des erreurs de formulaire
+const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...formData.value });
 
+const isEditing = computed(() => !!formData.value.id);
 const requestError = computed(() => handleRequestStore.error);
+const isEstimationFormInvalid = computed(() => {
+  console.log("isEstimationFormInvalid")
+  console.log("!formData.value.estimationString?.trim()", !formData.value.estimationString?.trim());
+  console.log("!timeParser.validateTimeInput(formData.value.estimationString)", !timeParser.validateTimeInput(formData.value.estimationString));
+  if (!formData.value.estimationString?.trim()) return true; // Disabled if empty or only spaces
+  return !timeParser.validateTimeInput(formData.value.estimationString); // Disabled if invalid format
+});
+
+
+const checkEstimationValue = () => {
+
+  if (isEstimationFormInvalid.value) {
+    estimationFormError.value = 'Format de temps invalide. Utilisez par ex. "1h 30m" ou "2d".';
+    return;
+  }
+  const timeSpentString = formData.value.estimationString.trim();
+  const timeSpentInMinutes = timeParser.parseTimeInputToMinutes(timeSpentString);
+  if (timeSpentInMinutes <= 0) {
+    estimationFormError.value = 'Le temps imputé doit être supérieur à zéro.';
+    return;
+  }
+  estimationFormError.value = null;
+  return timeSpentInMinutes;
+};
 
 const submitForm = async () => {
   logger.debug("submitForm");
+  const estimationTimeInMinutes = checkEstimationValue();
+
   const data = {
     title: formData.value.title,
     description: formData.value.description,
-    estimation: formData.value.estimation,
-    loggedTime: formData.value.loggedTime,
+    estimation: estimationTimeInMinutes,
     priorityId: formData.value.priorityId,
     sizeId: formData.value.sizeId,
     stageId: formData.value.stageId,
@@ -89,11 +130,12 @@ const submitForm = async () => {
     if (formData.value.id) {
       // Update existing task
       logger.debug("Updating task with ID:", formData.value.id);
-      response = await taskService.editTask(route.params.id, formData.value.id, data);
+      console.log("data", data);
+      response = await taskService.editTask(props.kanbanId, formData.value.id, data);
     } else {
       // Create new task
       logger.debug("Creating new task");
-      response = await taskService.createTask(route.params.id, data);
+      response = await taskService.createTask(props.kanbanId, data);
     }
     emit('handleResponse', response);
     closeForm();
@@ -177,14 +219,14 @@ onMounted(async () => {
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
             <div
                 ref="editorContainer"
-                class="flex-1 min-h-[100px] max-h-[40vh] overflow-y-auto rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 p-2"
+                class="flex-1 min-h-[100px] max-h-[40vh] overflow-y-auto border-b border-r border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 p-2 rounded-bl rounded-br"
             ></div>
             <p v-if="errors.description" class="mt-2 text-sm text-red-600 dark:text-red-400">
               {{ errors.description }}
             </p>
           </div>
 
-          <!-- Priority & Size -->
+          <!-- Priority & Assigned -->
           <div class="flex space-x-4">
             <div class="flex-1">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Priorité</label>
@@ -201,51 +243,7 @@ onMounted(async () => {
                 {{ errors.priorityId }}
               </p>
             </div>
-            <div class="flex-1">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Taille</label>
-              <select
-                  v-model="formData.sizeId"
-                  class="w-full mt-1 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
-              >
-                <option selected value=null>Choisir une option</option>
-                <option v-for="size in sizes" :key="size.id" :value="size.id">
-                  {{ size.label }}
-                </option>
-              </select>
-              <p v-if="errors.sizeId" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.sizeId }}</p>
-            </div>
-          </div>
 
-          <!-- Estimated Time & Logged Time -->
-          <div class="flex space-x-4">
-            <div class="flex-1">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Temps estimé (h)</label>
-              <input
-                  v-model="formData.estimation"
-                  class="w-full mt-1 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
-                  placeholder="Temps estimé"
-                  type="text"
-              />
-              <p v-if="errors.estimation" class="mt-2 text-sm text-red-600 dark:text-red-400">
-                {{ errors.estimation }}
-              </p>
-            </div>
-            <div class="flex-1">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Temps consigné (h)</label>
-              <input
-                  v-model="formData.loggedTime"
-                  class="w-full mt-1 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
-                  placeholder="Temps consigné"
-                  type="text"
-              />
-              <p v-if="errors.loggedTime" class="mt-2 text-sm text-red-600 dark:text-red-400">
-                {{ errors.loggedTime }}
-              </p>
-            </div>
-          </div>
-
-          <!-- Assigned User & Stage -->
-          <div class="flex space-x-4">
             <div class="flex-1">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Assignée à</label>
               <select
@@ -260,6 +258,24 @@ onMounted(async () => {
               <p v-if="errors.assignedToId" class="mt-2 text-sm text-red-600 dark:text-red-400">
                 {{ errors.assignedToId }}
               </p>
+            </div>
+
+          </div>
+
+          <!-- Size & stage -->
+          <div class="flex space-x-4">
+            <div class="flex-1">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Taille</label>
+              <select
+                  v-model="formData.sizeId"
+                  class="w-full mt-1 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
+              >
+                <option selected value=null>Choisir une option</option>
+                <option v-for="size in sizes" :key="size.id" :value="size.id">
+                  {{ size.label }}
+                </option>
+              </select>
+              <p v-if="errors.sizeId" class="mt-2 text-sm text-red-600 dark:text-red-400">{{ errors.sizeId }}</p>
             </div>
             <div class="flex-1">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Colonne :</label>
@@ -277,6 +293,33 @@ onMounted(async () => {
               </p>
             </div>
           </div>
+
+          <!-- Estimated Time  -->
+          <div class="flex space-x-4">
+            <div class="w-1/2">
+              <label
+                  class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                  for="estimationTimeString"
+              >
+                Temps estimé (h)
+              </label>
+              <input
+                  id="estimationTimeString"
+                  v-model="formData.estimationString"
+                  class="w-full mt-1 px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
+                  placeholder="Temps estimé"
+                  type="text"
+                  @blur="checkEstimationValue"
+              />
+              <p v-if="errors.estimation" class="mt-2 text-sm text-red-600 dark:text-red-400">
+                {{ errors.estimation }}
+              </p>
+              <p v-if="estimationFormError" class="text-red-500 dark:text-red-400">
+                {{ estimationFormError }}
+              </p>
+            </div>
+
+          </div>
         </div>
 
         <!-- Global Error Messages -->
@@ -292,7 +335,8 @@ onMounted(async () => {
             Annuler
           </button>
           <button
-              class="px-4 py-2 rounded-lg bg-blue-600 dark:bg-yellow-400 text-white hover:bg-blue-700 dark:hover:bg-yellow-500"
+              :disabled="isEstimationFormInvalid"
+              class="px-4 py-2 rounded-lg bg-blue-600 dark:bg-yellow-400 text-white hover:bg-blue-700 dark:hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed"
               type="submit"
           >
             Sauvegarder
