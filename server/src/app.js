@@ -19,6 +19,7 @@ import priorityRoutes from './routes/priorityRoutes.js';
 import sizeRoutes from './routes/sizeRoutes.js';
 import kanbanRoutes from './routes/kanbanRoutes.js';
 import timeTrackingRoutes from './routes/timeTrackingRoutes.js';
+import aiRoutes from './routes/aiRoutes.js';
 import { authenticateByCookieSession } from './middleware/authMiddleware.js';
 
 dotenv.config();
@@ -69,6 +70,8 @@ app.use('/api/priority', setRouteFound, priorityRoutes);
 app.use('/api/size', setRouteFound, sizeRoutes);
 // Time Tracking Routes
 app.use('/api/timetracking', setRouteFound, timeTrackingRoutes);
+// AI Routes
+app.use('/api/ai', setRouteFound, aiRoutes);
 // End Middleware
 app.use(end);
 // Send middleware
