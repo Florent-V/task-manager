@@ -49,10 +49,10 @@ function resetFilters() {
       </h3>
       <div class="flex flex-wrap gap-2 items-center">
         <label class="text-sm text-gray-600 dark:text-gray-300">Start:</label>
-        <input type="date" v-model="filters.startDate" class="border rounded px-2 py-1 text-sm" />
+        <input v-model="filters.startDate" type="date" class="border rounded px-2 py-1 text-sm" />
         <label class="text-sm text-gray-600 dark:text-gray-300">End:</label>
-        <input type="date" v-model="filters.endDate" class="border rounded px-2 py-1 text-sm" />
-        <button @click="resetFilters" class="text-xs text-blue-600 hover:underline">Reset</button>
+        <input v-model="filters.endDate" type="date" class="border rounded px-2 py-1 text-sm" />
+        <button class="text-xs text-blue-600 hover:underline" @click="resetFilters">Reset</button>
       </div>
     </div>
 

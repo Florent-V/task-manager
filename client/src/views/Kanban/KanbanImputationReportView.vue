@@ -247,8 +247,8 @@ onMounted(async () => {
         <ul class="space-y-2">
           <li v-for="user in usersOnThisKanban" :key="user.id" class="text-sm">
             <button
-                @click="selectUser(user.id)"
                 :class="['text-blue-600 hover:text-blue-800 hover:underline dark:text-yellow-400 dark:hover:text-yellow-200', selectedUserId===user.id ? 'font-semibold' : '']"
+                @click="selectUser(user.id)"
             >
               {{ user.fullName }}
             </button>
