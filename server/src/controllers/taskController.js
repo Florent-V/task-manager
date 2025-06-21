@@ -1,5 +1,6 @@
 import Task from '../models/taskModel.js';
 import Comment from '../models/commentModel.js';
+import Kanban from '../models/kanbanModel.js';
 import User from '../models/userModel.js';
 import Imputation from '../models/imputationModel.js';
 import NotFoundError from '../error/notFoundError.js';
@@ -24,6 +25,11 @@ export const includeTask = [
       ['date', 'DESC'],
       ['createdAt', 'DESC'],
     ],
+  },
+  {
+    model: Kanban,
+    as: 'kanban',
+    attributes: ['id', 'title'],
   },
 ];
 

@@ -190,24 +190,31 @@ onMounted(async () => {
       {{ kanban.title }}
     </h1>
 
-    <div class="flex justify-between align-center items-center px-4 mb-4">
-      <div class="prose dark:prose-invert text-gray-600 dark:text-gray-400 break-words">
+    <div class="flex justify-between items-center px-4 mb-4"> <!-- items-center added for vertical alignment -->
+      <div v-if="kanban" class="prose dark:prose-invert text-gray-600 dark:text-gray-400 break-words">
         <div v-html="kanban.description"></div>
       </div>
 
-      <div class="text-right">
+      <div v-if="kanban" class="text-right flex items-center space-x-2"> <!-- Added flex, items-center, space-x-2 and v-if -->
+        <router-link
+          :to="{ name: 'KanbanImputationReportView', params: { kanbanId: route.params.id } }"
+          class="flex items-center justify-center px-3 md:px-4 py-2 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-md hover:bg-blue-700 dark:hover:bg-yellow-600 transition duration-150"
+          title="Imputation Timelog Report"
+        >
+          <v-icon name="bi-bar-chart-line-fill" scale="1.2"/>
+          <span class="ml-1 md:ml-2 hidden sm:inline">Report</span> <!-- Text hidden on very small screens, then shown -->
+        </router-link>
         <button
-            class="flex w-14 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-full"
+            class="flex w-14 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-full items-center justify-center"
+            title="Share Kanban"
             @click="shareKanban"
         >
-              <span class="m-auto">
-                <v-icon name="md-share-outlined" scale="1.6"/>
-              </span>
+          <v-icon name="md-share-outlined" scale="1.6"/>
         </button>
       </div>
     </div>
 
-    <p v-if="requestError" class="my-2 text-center text-red-500 dark:text-red-400">{{ requestError }}</p>
+    <p v-if="requestError && !kanban" class="my-2 text-center text-red-500 dark:text-red-400">{{ requestError }}</p> <!-- Show error only if kanban hasn't loaded -->
 
     <div v-for="(taskGroup, assignedToId) in tasksGroupedByAssigned" :key="assignedToId" class="mb-6">
       <!-- En-tête avec le nom de la personne et un bouton pour replier/déplier -->

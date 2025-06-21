@@ -77,7 +77,6 @@ function handleFile(event) {
   //   event.target.value = '';
   // };
   // reader.onerror = (error) => {
-  //   console.log('Error: ', error);
   // };
 }
 

@@ -21,6 +21,7 @@ import {
   setKanbanUpdateValidator,
 } from '../middleware/kanbanMiddleware.js';
 import { remove } from '../middleware/basicCrudMiddleware.js';
+import { getImputationsForKanban } from '../controllers/imputationController.js';
 
 /** @type {import('express').Router} */
 const router = Router();
@@ -30,30 +31,48 @@ const getKanbanAndCheckAccess = [getKanbanById, authorizeManyToManyRessourceAcce
 router.use(authenticateByCookieSession);
 router.use(setKanbanEntity);
 
+// GET /kanban - Récupération de tous les Kanbans
 router.get('/', getKanbansByUser);
+
+// POST /kanban - Création d'un Kanban
 router.post('/', setKanbanCreateValidator, validate, createKanban);
 
+// GET /kanban/all - Récupération de tous les Kanbans
 router.get('/all', isAdmin, getAllKanbans);
 
-// join kanban
+// POST /kanban/:id/join - Join a kanban
 router.post('/:id/join', getKanbanById, joinKanban);
 
 router.use('/:id', getKanbanAndCheckAccess);
+
+// GET /kanban/:id - Récupération d'un Kanban
 router.get('/:id/');
 
+// PATCH /kanban/:id - Modification d'un Kanban
 router.patch('/:id', setKanbanUpdateValidator, validate, updateKanban, getKanbanById);
+
+// DELETE /kanban/:id - Suppression d'un Kanban
 router.delete('/:id', remove);
-// stage routes
-router.post('/:id/stage', stageRoutes);
-// share kanban
+
+// GET /kanban/:id/imputations - Récupération des imputations d'un Kanban
+router.get('/:id/imputations', getImputationsForKanban);
+
+// POST /kanban/:id/share - Share kanban
 router.post('/:id/share', shareKanban);
-// Share kanban by email
+
+// POST /kanban/:id/share-email - Share kanban by email
 router.post('/:id/share-email', shareKanbanByEmail);
-// Add member by mail
+
+// POST /kanban/:id/add-member - Add member by mail
 router.post('/:id/add-member', addMemberByMail);
-// leave kanban
+
+// POST /kanban/:id/leave - Leave kanban
 router.post('/:id/leave', leaveKanban);
-// task routes
+
+// USE /kanban/:id/task - Gestion des taches
 router.use('/:id/task', taskRoutes);
+
+// USE /kanban/:id/stage - Gestion des stages
+router.use('/:id/stage', stageRoutes);
 
 export default router;
