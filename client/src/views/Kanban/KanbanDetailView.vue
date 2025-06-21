@@ -13,7 +13,7 @@ import { useAuthStore } from '@/stores/authStore';
 import { setTitle, setDescription } from "@/utils/documentInfos.js";
 import logger from '@/utils/logger.js';
 import { TaskService } from '@/services/taskService.js';
-import { KanbanService} from "@/services/kanbanService.js";
+import { KanbanService } from "@/services/kanbanService.js";
 
 const route = useRoute();
 const kanbanStore = useKanbanStore();
@@ -129,7 +129,6 @@ const openTaskFormModal = (columnId = null) => {
     assignedToId: getCurrentUserId(),
     priorityId: priorities.value[0]?.id || null,
     sizeId: sizes.value[0]?.id || null,
-    loggedTime: 0,
   };
   showTaskFormModal.value = true;
 };
@@ -195,14 +194,16 @@ onMounted(async () => {
         <div v-html="kanban.description"></div>
       </div>
 
-      <div v-if="kanban" class="text-right flex items-center space-x-2"> <!-- Added flex, items-center, space-x-2 and v-if -->
+      <div v-if="kanban" class="text-right flex items-center space-x-2">
+        <!-- Added flex, items-center, space-x-2 and v-if -->
         <router-link
-          :to="{ name: 'KanbanImputationReportView', params: { kanbanId: route.params.id } }"
-          class="flex items-center justify-center px-3 md:px-4 py-2 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-md hover:bg-blue-700 dark:hover:bg-yellow-600 transition duration-150"
-          title="Imputation Timelog Report"
+            :to="{ name: 'KanbanImputationReportView', params: { kanbanId: route.params.id } }"
+            class="flex items-center justify-center px-3 md:px-4 py-2 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-md hover:bg-blue-700 dark:hover:bg-yellow-600 transition duration-150"
+            title="Imputation Timelog Report"
         >
           <v-icon name="bi-bar-chart-line-fill" scale="1.2"/>
-          <span class="ml-1 md:ml-2 hidden sm:inline">Report</span> <!-- Text hidden on very small screens, then shown -->
+          <span class="ml-1 md:ml-2 hidden sm:inline">Time Tracking</span>
+          <!-- Text hidden on very small screens, then shown -->
         </router-link>
         <button
             class="flex w-14 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-full items-center justify-center"
@@ -214,7 +215,8 @@ onMounted(async () => {
       </div>
     </div>
 
-    <p v-if="requestError && !kanban" class="my-2 text-center text-red-500 dark:text-red-400">{{ requestError }}</p> <!-- Show error only if kanban hasn't loaded -->
+    <p v-if="requestError && !kanban" class="my-2 text-center text-red-500 dark:text-red-400">{{ requestError }}</p>
+    <!-- Show error only if kanban hasn't loaded -->
 
     <div v-for="(taskGroup, assignedToId) in tasksGroupedByAssigned" :key="assignedToId" class="mb-6">
       <!-- En-tête avec le nom de la personne et un bouton pour replier/déplier -->
@@ -316,8 +318,14 @@ onMounted(async () => {
                 </div>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Assignee: {{ task.assignedTo }}</p>
                 <div class="flex justify-between items-center text-sm">
-                  <p class="text-sm text-gray-500 dark:text-gray-400">Estimation: {{ task.estimation }}</p>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">Consigné: {{ task.loggedTime }}</p>
+                  <p class="w-1/2 flex flex-col text-sm text-gray-500 dark:text-gray-400">
+                    <span>Estimation :</span>
+                    <span>{{ taskService.formatMinutesToTimeString(task.estimation) }}</span>
+                  </p>
+                  <p class="w-1/2 flex flex-col text-sm text-gray-500 dark:text-gray-400">
+                    <span>Consigné :</span>
+                    <span>{{ taskService.calculateTimeSpent(task) }}</span>
+                  </p>
                 </div>
               </div>
             </div>
@@ -372,8 +380,14 @@ onMounted(async () => {
             </div>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Assignee: {{ task.assignedTo }}</p>
             <div class="flex justify-between items-center text-sm">
-              <p class="text-sm text-gray-500 dark:text-gray-400">Estimation: {{ task.estimation }}</p>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Consigné: {{ task.loggedTime }}</p>
+              <p class="w-1/2 flex flex-col text-sm text-gray-500 dark:text-gray-400">
+                <span>Estimation :</span>
+                <span>{{ taskService.formatMinutesToTimeString(task.estimation) }}</span>
+              </p>
+              <p class="w-1/2 flex flex-col text-sm text-gray-500 dark:text-gray-400">
+                <span>Consigné :</span>
+                <span>{{ taskService.calculateTimeSpent(task) }}</span>
+              </p>
             </div>
           </div>
         </div>
@@ -401,6 +415,7 @@ onMounted(async () => {
     <TaskFormModal
         v-if="showTaskFormModal"
         :initial-data="selectedTask"
+        :kanban-id="kanban.id"
         :users="users"
         :priorities="priorities"
         :sizes="sizes"

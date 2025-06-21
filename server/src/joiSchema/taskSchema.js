@@ -10,23 +10,10 @@ export const taskSchema = Joi.object({
   description: Joi.string().allow(null, '').messages({
     'string.base': 'La description doit être une chaîne de caractères.',
   }),
-  // Estimation will be input as a string (e.g., "2d 4h") and parsed in the controller.
-  // It's optional; if not provided, controller will default to 0.
-  // estimation: Joi.string().allow(null, '').messages({
-  //   'string.base': 'Le temps estimé doit être une chaîne de caractères (ex: "2h 30m").',
-  // }),
-  estimation: Joi.string()
-    .pattern(/^(?:\d+d)?(?:\d+h)?(?:\d+m)?$/)
-    .allow(null, '')
-    .messages({
-      'string.base': 'Le temps estimé doit être une chaîne de caractères (ex: "2h 30m").',
-      'string.pattern.base': 'Le temps estimé doit être au format valide (ex: "2d 4h 30m").',
-    }),
-  loggedTime: Joi.number().integer().min(0).required().messages({
-    'number.base': 'Le temps consigné doit être un nombre.',
-    'number.integer': 'Le temps consigné doit être un nombre entier.',
-    'number.min': 'Le temps consigné doit être au moins de 0.',
-    'any.required': 'Le temps consigné est obligatoire.',
+  estimation: Joi.number().greater(0).required().messages({
+    'number.base': `"time" should be a type of 'number'`,
+    'number.greater': `"time" should be greater than 0`,
+    'any.required': `"time" is a required field`,
   }),
   priorityId: Joi.number().integer().messages({
     '*': 'La priorité n’est pas valide.',
@@ -52,18 +39,10 @@ export const updateTaskSchema = Joi.object({
   description: Joi.string().allow(null, '').messages({
     'string.base': 'La description doit être une chaîne de caractères.',
   }),
-  estimation: Joi.string()
-    .pattern(/^(?:\d+d)?(?:\d+h)?(?:\d+m)?$/)
-    .allow(null, '')
-    .messages({
-      'string.base': 'Le temps estimé doit être une chaîne de caractères (ex: "2h 30m").',
-      'string.pattern.base': 'Le temps estimé doit être au format valide (ex: "2d 4h 30m").',
-    }),
-  loggedTime: Joi.number().integer().min(0).required().messages({
-    'number.base': 'Le temps consigné doit être un nombre.',
-    'number.integer': 'Le temps consigné doit être un nombre entier.',
-    'number.min': 'Le temps consigné doit être au moins de 0.',
-    'any.required': 'Le temps consigné est obligatoire.',
+  estimation: Joi.number().greater(0).required().messages({
+    'number.base': `"time" should be a type of 'number'`,
+    'number.greater': `"time" should be greater than 0`,
+    'any.required': `"time" is a required field`,
   }),
   priorityId: Joi.number().integer().messages({
     '*': 'La priorité n’est pas valide.',

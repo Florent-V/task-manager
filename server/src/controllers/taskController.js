@@ -4,7 +4,6 @@ import Kanban from '../models/kanbanModel.js';
 import User from '../models/userModel.js';
 import Imputation from '../models/imputationModel.js';
 import NotFoundError from '../error/notFoundError.js';
-import { parseTimeInput } from '../services/imputationTimeService.js';
 
 export const includeTask = [
   {
@@ -37,28 +36,12 @@ export const includeTask = [
 export const createTask = async (req, res, next) => {
   try {
     const { id: kanbanId } = req.params;
-    const {
-      title,
-      description,
-      estimation,
-      loggedTime,
-      priorityId,
-      sizeId,
-      stageId,
-      assignedToId,
-    } = req.body;
-
-    // Parse estimationString if provided
-    let estimationInMinutes = 0; // Default to 0
-    if (estimation) {
-      estimationInMinutes = parseTimeInput(req.body.estimation);
-    }
+    const { title, description, estimation, priorityId, sizeId, stageId, assignedToId } = req.body;
 
     const newTask = await Task.create({
       title,
       description,
-      estimation: estimationInMinutes,
-      loggedTime,
+      estimation,
       priorityId,
       sizeId,
       stageId,
@@ -112,29 +95,13 @@ export const getTaskById = async (req, res, next) => {
 export const updateTask = async (req, res, next) => {
   try {
     const { taskId } = req.params;
-    const {
-      title,
-      description,
-      estimation,
-      loggedTime,
-      priorityId,
-      sizeId,
-      stageId,
-      assignedToId,
-    } = req.body;
-
-    // Parse estimationString if provided
-    let estimationInMinutes = 0; // Default to 0
-    if (estimation) {
-      estimationInMinutes = parseTimeInput(req.body.estimation);
-    }
+    const { title, description, estimation, priorityId, sizeId, stageId, assignedToId } = req.body;
 
     const [updated] = await Task.update(
       {
         title,
         description,
-        estimation: estimationInMinutes,
-        loggedTime,
+        estimation,
         priorityId,
         sizeId,
         stageId,

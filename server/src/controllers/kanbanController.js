@@ -4,6 +4,7 @@ import Kanban from '../models/kanbanModel.js';
 import Stage from '../models/stageModel.js';
 import Task from '../models/taskModel.js';
 import User from '../models/userModel.js';
+import Imputation from '../models/imputationModel.js';
 import ForbiddenError from '../error/forbiddenError.js';
 import NotFoundError from '../error/notFoundError.js';
 import transporter from '../config/mailer.js';
@@ -19,6 +20,13 @@ const includeKanban = [
     as: 'tasks',
     separate: true,
     order: [['priorityId', 'DESC']],
+    include: [
+      {
+        model: Imputation,
+        as: 'imputations',
+        attributes: ['id', 'timeSpent'],
+      },
+    ],
   },
   {
     model: User,

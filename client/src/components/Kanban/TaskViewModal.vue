@@ -124,7 +124,7 @@ onMounted(fetchComments);
           </div>
           <div>
             <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300">Temps consigné</h3>
-            <p class="mt-1 text-gray-600 dark:text-gray-400">{{ task.loggedTime }} heures</p>
+            <p class="mt-1 text-gray-600 dark:text-gray-400">{{ taskService.calculateTimeSpent(task) }}</p>
           </div>
         </div>
       </div>
