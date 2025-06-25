@@ -1,6 +1,9 @@
 import { defineStore } from 'pinia';
-import { client } from '@/utils/requestMaker.js';
+
+import { client } from '@/services/requestMaker.js';
 import logger from "@/utils/logger.js";
+
+import router from '../router';
 
 const getLocalStorageUser = () => {
   const storedUser = localStorage.getItem('user');
@@ -29,11 +32,12 @@ export const useAuthStore = defineStore('auth', {
         logger.debug('Connexion réussie:', data);
         localStorage.setItem('user', JSON.stringify(data));
         this.user = data;
+        this.user.fullName = `${data.firstName} ${data.lastName}`;
         this.authenticated = true;
         return data;
       } catch (error) {
-        console.log('error', error);
         logger.error('Erreur lors de la connexion:');
+        logger.error('error', error);
         throw error;
       }
     },
@@ -56,11 +60,16 @@ export const useAuthStore = defineStore('auth', {
         logger.debug('logout() - Tentative de déconnexion...');
         await client.post('/api/auth/logout', {});
         logger.debug('logout() - Déconnexion réussie');
+      } catch (error) {
+        logger.error('logout() - Erreur lors de la déconnexion:', error);
+        logger.debug('logout() - Erreur lors de la déconnexion');
+      } finally {
+        logger.debug('logout() - Suppression du token');
         localStorage.removeItem('user');
         this.user = null;
         this.authenticated = false;
-      } catch (error) {
-        logger.debug('logout() - Erreur lors de la déconnexion');
+        logger.debug('logout() - Redirection vers la page de connexion');
+        await router.push('/signin');
       }
     },
     async refreshToken() {

@@ -1,39 +1,48 @@
 <script setup>
-import { ref, watch, computed } from 'vue';
-import { useRoute } from 'vue-router';
-import { client } from '@/utils/requestMaker.js';
-import { hookApi } from '@/utils/requestHook.js';
-import useFormErrors from '@/utils/handleFormErrors.js';
-import logger from '@/utils/logger.js';
+import { computed, ref, watch } from 'vue';
 
-const route = useRoute();
-const { isLoading, error, executeRequest } = hookApi();
+import { useHandleRequestStore } from "@/stores/handleRequestStore.js";
+import logger from '@/utils/logger.js';
+import useFormErrors from '@/utils/handleFormErrors.js';
+import { TaskService } from '@/services/taskService.js';
 
 const emit = defineEmits(['handleResponse', 'cancel']);
 const props = defineProps({
   initialData: {
     type: Object,
     default: () => ({
-      title: '',
-      content: '',
+      title: null,
+      content: null,
     }),
   },
-  task: {
-    type: Object,
+  taskId: {
+    type: String,
+    required: true,
+  },
+  kanbanId: {
+    type: String,
     required: true,
   },
 });
 
+const handleRequestStore = useHandleRequestStore();
+const taskService = new TaskService();
+
 const formData = ref({ ...props.initialData });
+
 watch(() => props.initialData, (newValue) => {
-      formData.value = newValue ? { ...newValue } : { title: '', description: '', stages: [] };
+      formData.value = newValue ? { ...newValue } : { title: '', content: '' };
     },
     { immediate: true }
 );
-const isEditing = computed(() => !!formData.value.id);
 // Utilitaire de gestions des erreurs de formulaire
 const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...formData.value });
 
+// Computed Properties
+const requestError = computed(() => handleRequestStore.error);
+const isEditing = computed(() => !!formData.value.id);
+
+// Methods
 const submitForm = async () => {
   const data = {
     content: formData.value.content.trim(),
@@ -44,13 +53,18 @@ const submitForm = async () => {
     let response;
     if (formData.value.id) {
       // Update existing comment
-      response = await executeRequest(
-          () => client.patch(`/api/kanban/${route.params.id}/task/${formData.value.id}`, data)
+      response = await taskService.editComment(
+          props.kanbanId,
+          props.taskId,
+          formData.value.id,
+          data
       );
     } else {
       // Create new comment
-      response = await executeRequest(
-          () => client.post(`/api/kanban/${route.params.id}/task/${props.task.id}/comment`, data)
+      response = await taskService.createComment(
+          props.kanbanId,
+          props.taskId,
+          data
       );
     }
     emit('handleResponse', response);
@@ -76,21 +90,40 @@ const resetForm = () => {
 </script>
 
 <template>
-  <form @submit.prevent="submitForm" class="mt-6 space-y-4">
-    <textarea
-      v-model="formData.content"
-      rows="3"
-      class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
-      placeholder="Ajouter un commentaire..."
-    ></textarea>
-    <p v-if="errors.content" class="text-red-500 dark:text-red-400">{{ errors.content }}</p>
-    <button
-      type="submit"
-      class="px-4 py-2 rounded-lg bg-blue-600 dark:bg-yellow-400 text-white hover:bg-blue-700 dark:hover:bg-yellow-500"
-    >
-      Poster le commentaire
-    </button>
-  </form>
+  <div id="comment-form-section" class="mb-8 p-4 border rounded-lg dark:border-gray-700">
+    <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-3">
+      {{ isEditing ? "Modifier le commentaire" : "Ajouter un commentaire" }}
+    </h3>
+    <form class="mt-6 space-y-4" @submit.prevent="submitForm">
+      <div>
+      <textarea
+          v-model="formData.content"
+          class="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-300"
+          placeholder="Ajouter un commentaire..."
+          rows="3"
+      ></textarea>
+        <p v-if="errors.content" class="text-red-500 dark:text-red-400">{{ errors.content }}</p>
+      </div>
+
+      <p v-if="defaultError" class="text-sm px-2 text-red-600 dark:text-red-400">{{ defaultError }}</p>
+      <p v-if="requestError" class="text-sm px-2 text-red-600 dark:text-red-400">{{ requestError }}</p>
+
+      <div class="flex space-x-3">
+        <button
+            class="px-4 py-2 rounded-md bg-blue-600 dark:bg-yellow-400 text-white hover:bg-blue-700 dark:hover:bg-yellow-500"
+            type="submit"
+        >
+          {{ isEditing ? 'Mettre à jour' : 'Enregistrer' }}
+        </button>
+        <button
+            class="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-400 dark:hover:bg-gray-500 focus:outline-none"
+            @click="closeForm"
+        >
+          Annuler
+        </button>
+      </div>
+    </form>
+  </div>
 </template>
 
 

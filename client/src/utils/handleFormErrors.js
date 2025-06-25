@@ -8,15 +8,14 @@ export default function useFormErrors(fields) {
   const setErrors = (error) => {
     // Réinitialise les erreurs spécifiques et le message d'erreur général
     clearErrors();
-    console.log('fields', fields);
 
     if (error.response) {
       // Si l'erreur contient des erreurs de validation
       if (error.response.data.errors.length) {
         const errorDetails = error.response.data.errors;
-        console.log('errorDetails', errorDetails);
         // Remplit les erreurs pour chaque champ ou le message général
         errorDetails.forEach((err) => {
+          // eslint-disable-next-line no-prototype-builtins
           if (fields.hasOwnProperty(err.field)) {
             errors.value[err.field] = (errors.value[err.field] || '') + ` ${err.message}`;
           } else {

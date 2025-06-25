@@ -4,8 +4,11 @@ import Kanban from '../models/kanbanModel.js';
 import Stage from '../models/stageModel.js';
 import Task from '../models/taskModel.js';
 import User from '../models/userModel.js';
+import Imputation from '../models/imputationModel.js';
 import ForbiddenError from '../error/forbiddenError.js';
 import NotFoundError from '../error/notFoundError.js';
+import transporter from '../config/mailer.js';
+import logger from '../config/logger.js';
 
 const includeKanban = [
   {
@@ -15,6 +18,15 @@ const includeKanban = [
   {
     model: Task,
     as: 'tasks',
+    separate: true,
+    order: [['priorityId', 'DESC']],
+    include: [
+      {
+        model: Imputation,
+        as: 'imputations',
+        attributes: ['id', 'timeSpent'],
+      },
+    ],
   },
   {
     model: User,
@@ -25,10 +37,10 @@ const includeKanban = [
 
 // Créer un nouveau kanban
 export const createKanban = async (req, res, next) => {
-
   try {
     const userId = req.user.id;
-    if (!userId) throw new ForbiddenError('Access denied: You do not have permission to create Kanban');
+    if (!userId)
+      throw new ForbiddenError('Access denied: You do not have permission to create Kanban');
 
     const result = await sequelize.transaction(async (t) => {
       const { title, description, stages } = req.body;
@@ -37,10 +49,11 @@ export const createKanban = async (req, res, next) => {
       const newKanban = await Kanban.create(
         { title, description, stages },
         {
-          transaction: t, include: {
+          transaction: t,
+          include: {
             model: Stage,
             as: 'stages',
-          }
+          },
         }
       );
       // Associe la kanban à l'utilisateur courant
@@ -60,9 +73,7 @@ export const createKanban = async (req, res, next) => {
 // Récupérer tous les kanbans
 export const getAllKanbans = async (req, res, next) => {
   try {
-    res.data.kanbans = await Kanban.findAll(
-      { include: includeKanban }
-    );
+    res.data.kanbans = await Kanban.findAll({ include: includeKanban });
     next();
   } catch (error) {
     return next(error);
@@ -73,7 +84,8 @@ export const getAllKanbans = async (req, res, next) => {
 export const getKanbansByUser = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    if (!userId) throw new ForbiddenError('Access denied: You do not have permission to access Kanbans');
+    if (!userId)
+      throw new ForbiddenError('Access denied: You do not have permission to access Kanbans');
 
     res.data.kanbans = await Kanban.findAll({
       include: [
@@ -82,9 +94,9 @@ export const getKanbansByUser = async (req, res, next) => {
           model: User,
           as: 'users',
           where: { id: userId },
-          attributes: []
-        }
-      ]
+          attributes: [],
+        },
+      ],
     });
     next();
   } catch (error) {
@@ -96,7 +108,7 @@ export const getKanbansByUser = async (req, res, next) => {
 export const getKanbanById = async (req, res, next) => {
   try {
     const kanban = await Kanban.findByPk(req.params.id, {
-      include: includeKanban
+      include: includeKanban,
     });
     if (!kanban) throw new NotFoundError('Kanban Not Found');
 
@@ -106,7 +118,6 @@ export const getKanbanById = async (req, res, next) => {
     return next(error);
   }
 };
-
 
 // Mettre à jour un kanban
 export const updateKanban = async (req, res, next) => {
@@ -159,7 +170,6 @@ export const updateKanban = async (req, res, next) => {
   }
 };
 
-
 // Share Kanban
 export const shareKanban = async (req, res, next) => {
   try {
@@ -171,10 +181,9 @@ export const shareKanban = async (req, res, next) => {
       if (err) return res.status(500).json({ error: 'Erreur QR Code' });
       res.json({
         qrCodeUrl: url,
-        linkUrl: shareLink
+        linkUrl: shareLink,
       });
     });
-
   } catch (error) {
     return next(error);
   }
@@ -193,13 +202,14 @@ export const addMemberByMail = async (req, res, next) => {
   } catch (error) {
     return next(error);
   }
-}
+};
 
 // join kanban
 export const joinKanban = async (req, res, next) => {
   try {
     const userId = req.user.id;
-    if (!userId) throw new ForbiddenError('Access denied: You do not have permission to join Kanban');
+    if (!userId)
+      throw new ForbiddenError('Access denied: You do not have permission to join Kanban');
 
     // vérifier si userId est déjà dans le kanban
     const isUserInList = await res.data.kanban.hasUser(userId);
@@ -225,6 +235,38 @@ export const leaveKanban = async (req, res, next) => {
     }
     res.status(204).json();
   } catch (error) {
+    return next(error);
+  }
+};
+
+// Share Kanban by Email
+export const shareKanbanByEmail = async (req, res, next) => {
+  const { email, linkUrl } = req.body;
+  try {
+    const kanbanTitle = res.data.kanban?.title || 'Unnamed Kanban'; // Fallback title
+    // Construct the mail options
+    const mailOptions = {
+      from: process.env.MAIL_FROM || '"Kanban App" <noreply@example.com>',
+      to: email,
+      subject: `Invitation to join Kanban: ${kanbanTitle}`,
+      text: `Hello,\n\nYou have been invited to join the Kanban board "${kanbanTitle}".\nClick here to join: ${linkUrl}`,
+      html: `<p>Hello,</p><p>You have been invited to join the Kanban board "<strong>${kanbanTitle}</strong>".</p><p><a href="${linkUrl}">Click here to join</a>.</p>`,
+    };
+
+    // Send the email
+    await transporter.sendMail(mailOptions);
+
+    logger.info(
+      `Invitation email sent to ${email} for Kanban "${kanbanTitle}" with link: ${linkUrl}`
+    );
+    res.status(200).json({ message: 'Invitation email sent successfully to ' + email });
+  } catch (error) {
+    logger.error('Error sending email:', {
+      message: error.message,
+      stack: error.stack,
+      email,
+      kanbanId: res.data.kanban?.id,
+    });
     return next(error);
   }
 };

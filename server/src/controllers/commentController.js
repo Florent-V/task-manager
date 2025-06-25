@@ -12,7 +12,7 @@ export const createComment = async (req, res, next) => {
       title,
       content,
       taskId,
-      authorId
+      authorId,
     });
 
     const createdComment = await Comment.findByPk(newComment.id);
@@ -32,7 +32,7 @@ export const getAllCommentsByTask = async (req, res, next) => {
     const { taskId } = req.params;
 
     res.data = {
-      comments: await Comment.findAll({ where: { taskId } })
+      comments: await Comment.findAll({ where: { taskId } }),
     };
 
     next();

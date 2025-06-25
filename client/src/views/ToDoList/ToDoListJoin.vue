@@ -1,7 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { client } from '@/utils/requestMaker.js';
+
+import { client } from '@/services/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
 import LoaderComponent from "@/components/LoaderComponent.vue";
 import logger from "@/utils/logger.js";
@@ -45,8 +46,9 @@ onMounted(() => {
       <LoaderComponent v-if="isLoading" />
 
       <!-- Bouton Retour -->
-      <button @click="goToOverview"
-              class="bg-blue-600 dark:bg-yellow-400 text-white px-4 py-2 rounded-full hover:bg-blue-700 dark:hover:bg-yellow-500">
+      <button
+class="bg-blue-600 dark:bg-yellow-400 text-white px-4 py-2 rounded-full hover:bg-blue-700 dark:hover:bg-yellow-500"
+              @click="goToOverview">
         Retourner à la liste
       </button>
     </div>

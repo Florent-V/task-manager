@@ -46,14 +46,14 @@ const plans = reactive([
       <h1 class="text-4xl font-bold mb-8 text-blue-800 dark:text-yellow-300">{{ product.name }}</h1>
       <div class="flex flex-wrap justify-center gap-8">
         <div
-            class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-700 p-6 w-64 transition duration-300 transform hover:scale-105"
             v-for="(plan, index) in plans"
             :key="index"
+            class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg dark:shadow-gray-700 p-6 w-64 transition duration-300 transform hover:scale-105"
         >
           <h2 class="text-2xl font-semibold mb-4 text-gray-900 dark:text-white">{{ plan.name }}</h2>
           <p class="text-3xl font-bold text-blue-600 dark:text-yellow-400 mb-6">{{ plan.price }}</p>
           <ul class="list-none p-0">
-            <li class="flex items-center mb-3" v-for="(feature, index) in plan.features" :key="index">
+            <li v-for="(feature, featureIndex) in plan.features" :key="featureIndex" class="flex items-center mb-3">
             <span :class="{'text-green-500': feature.included, 'text-red-500': !feature.included}">
               {{ feature.included ? '✔️' : '❌' }}
             </span>

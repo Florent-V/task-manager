@@ -1,10 +1,18 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
+import logger from '../config/logger.js';
+
 export const init = (req, res, next) => {
   // affichage de la route appellée
-  console.log(`Route: ${req.originalUrl}`);
+  logger.info(`Incoming request for route: ${req.method} ${req.originalUrl}`, { ip: req.ip });
   res.data = {};
   res.routeFound = false;
+  next();
+};
+
+export const end = (req, res, next) => {
+  const delta = Date.now() - req.perf;
+  console.log(`Request ended on ${req.method} ${req.originalUrl} in ${delta}ms`);
   next();
 };
 
@@ -12,7 +20,6 @@ export const setRouteFound = (req, res, next) => {
   res.routeFound = true;
   next();
 };
-
 
 export const send = (req, res) => {
   if (res.routeFound) {
@@ -26,4 +33,10 @@ export const send = (req, res) => {
     const __dirname = path.dirname(__filename);
     res.status(404).sendFile(path.join(__dirname, '../page/404.html'));
   }
+};
+
+export const start = (req, res, next) => {
+  console.log(`Request started on ${req.method}$ - ${req.originalUrl}`);
+  req.perf = Date.now();
+  next();
 };

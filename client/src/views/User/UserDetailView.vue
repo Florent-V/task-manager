@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { apiBaseUrl, client } from '@/utils/requestMaker.js';
+
+import { apiBaseUrl, client } from '@/services/requestMaker.js';
 import { hookApi } from '@/utils/requestHook.js';
 import { setTitle, setDescription } from "@/utils/documentInfos.js";
 import logger from '@/utils/logger.js';
@@ -16,7 +17,6 @@ const showForm = ref(false);
 const openEditForm = () => {
   // Emit an event to open the edit form
   showForm.value = true;
-  console.log('Open edit form');
 };
 
 const closeForm = () => {
@@ -54,8 +54,8 @@ onMounted(async () => {
       <!-- UserForm -->
       <UserFormComponent
           v-if="showForm"
-          :initialData="user"
-          @handleResponse="handleResponseFormSubmit"
+          :initial-data="user"
+          @handle-response="handleResponseFormSubmit"
           @cancel="closeForm"
       />
 
@@ -119,8 +119,8 @@ onMounted(async () => {
 
           <div class="flex justify-end gap-4">
             <button
-                @click="openEditForm"
                 class="w-full m-auto bg-blue-600 dark:bg-yellow-400 text-white dark:text-gray-900 hover:bg-blue-700 dark:hover:bg-yellow-500 px-6 py-3 rounded-lg text-lg transition duration-300 font-semibold"
+                @click="openEditForm"
             >
               Modifier
             </button>

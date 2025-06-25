@@ -10,31 +10,22 @@ export function createAuthTokens(user) {
 }
 
 export const generateToken = (id, username) => {
-  return jwt.sign(
-    { id, username },
-    config.jwtPrivateKey,
-    { 
-      expiresIn: config.accessTokenLifetime,
-      algorithm: 'RS256'
-     }
-  );
+  return jwt.sign({ id, username }, config.jwtPrivateKey, {
+    expiresIn: config.accessTokenLifetime,
+    algorithm: 'RS256',
+  });
 };
 
 export const generateRefreshToken = (id, username) => {
-  return jwt.sign(
-    { id, username },
-    config.jwtRefreshSecret,
-    {
-      expiresIn: config.refreshTokenLifetime,
-    }
-  );
-}
+  return jwt.sign({ id, username }, config.jwtRefreshSecret, {
+    expiresIn: config.refreshTokenLifetime,
+  });
+};
 
 export async function storeRefreshToken(user, refreshToken) {
   // Update existing refresh token
   const existingToken = await user.getRefreshToken();
   if (existingToken) {
-    console.log('#### existingToken:', existingToken);
     existingToken.token = refreshToken;
     existingToken.valid = true;
     existingToken.expires = new Date().setDate(new Date().getDate() + 7);
@@ -61,6 +52,7 @@ export async function validateRefreshToken(refreshToken) {
   try {
     decodedRefreshToken = authRefreshToken(refreshToken);
   } catch (error) {
+    console.error('Error decoding refresh token:', error);
     throw new RefreshTokenError('Invalid refresh token');
   }
 
@@ -97,4 +89,4 @@ export const authRefreshToken = (token) => {
 
 export const decode = (token) => {
   return jwt.decode(token);
-}
+};

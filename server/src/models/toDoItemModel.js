@@ -1,7 +1,8 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../database/connect.js';
 
-const ToDoItem = sequelize.define('ToDoItem',
+const ToDoItem = sequelize.define(
+  'ToDoItem',
   {
     id: {
       type: DataTypes.UUID,
@@ -41,8 +42,8 @@ const ToDoItem = sequelize.define('ToDoItem',
       defaultValue: 1,
       references: {
         model: 'label',
-        key: 'id'
-      }
+        key: 'id',
+      },
     },
   },
   {

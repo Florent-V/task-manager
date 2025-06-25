@@ -63,25 +63,29 @@ const getClassName = task => {
 <!--             @keyup.enter="addTask"-->
 <!--             placeholder="New task"-->
 <!--      />-->
-      <input type="text"
+      <input
+v-model="newTask"
+             type="text"
              class="input-group-field flex-1 p-2 border rounded-l-lg border-gray-300 dark:border-gray-700 text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-700"
-             v-model="newTask"
              placeholder="New task"
       />
-      <button @click="addTask" 
-              class="button bg-blue-500 text-white px-4 rounded-r-lg hover:bg-blue-600"
+      <button
+class="button bg-blue-500 text-white px-4 rounded-r-lg hover:bg-blue-600" 
+              @click="addTask"
       >
         <v-icon name="md-add" scale="1.2" /> Add
       </button>
     </div>
 
     <div class="tasks__clear flex justify-end space-x-2 mt-4">
-      <button class="button warning small bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+      <button
+class="button warning small bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
               @click="clearCompleted"
       >
         <v-icon name="fa-regular-check-square" scale="1.2" /> Clear Completed
       </button>
-      <button class="button alert small bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+      <button
+class="button alert small bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
               @click="clearAll"
       >
         <v-icon name="fa-regular-trash-alt" scale="1.2" /> Clear All
@@ -90,17 +94,20 @@ const getClassName = task => {
 
     
     <transition-group name="fade" tag="ul" class="tasks__list mt-4 space-y-2">
-      <li v-for="(task, index) in tasks" 
+      <li
+v-for="(task, index) in tasks" 
           :key="index"
           class="tasks__item flex justify-between items-center p-4 bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm"
       >
-        <button :class="getClassName(task)"
-                @click.self="completeTask(task)"
+        <button
+:class="getClassName(task)"
                 class="tasks__item__toggle flex-1 text-left"
+                @click.self="completeTask(task)"
         >
           {{ task.title }}
         </button>
-        <button class="tasks__item__remove button alert bg-red-500 text-white rounded-lg p-2 hover:bg-red-600"
+        <button
+class="tasks__item__remove button alert bg-red-500 text-white rounded-lg p-2 hover:bg-red-600"
                 @click="removeTask(index)"
         >
           <v-icon name="fa-regular-trash-alt" scale="1.2" />

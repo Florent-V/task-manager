@@ -2,14 +2,11 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import logger from './config/logger.js';
 
 import initDB from './database/init.js';
-import {
-  errorHandler,
-  notFound,
-  logError
-} from './middleware/errorMiddleware.js';
-import { init, send, setRouteFound } from './middleware/inOutMiddleware.js';
+import { errorHandler, notFound, logError } from './middleware/errorMiddleware.js';
+import { init, send, setRouteFound, start, end } from './middleware/inOutMiddleware.js';
 import { adminRouter } from './admin/admin.js';
 
 import testRoutes from './routes/testRoutes.js';
@@ -21,7 +18,9 @@ import toDoListTypeRoutes from './routes/toDoListTypeRoute.js';
 import priorityRoutes from './routes/priorityRoutes.js';
 import sizeRoutes from './routes/sizeRoutes.js';
 import kanbanRoutes from './routes/kanbanRoutes.js';
-import { authenticateByCookieSession } from "./middleware/authMiddleware.js";
+import timeTrackingRoutes from './routes/timeTrackingRoutes.js';
+import aiRoutes from './routes/aiRoutes.js';
+import { authenticateByCookieSession } from './middleware/authMiddleware.js';
 
 dotenv.config();
 const app = express();
@@ -32,7 +31,7 @@ const corsOptions = {
   origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Origin', 'Content-Type', 'Accept'],
-  credentials: true // Autorise l'envoi de cookies et informations d'authentification
+  credentials: true, // Autorise l'envoi de cookies et informations d'authentification
 };
 
 // Enable CORS
@@ -47,12 +46,12 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use('/api/uploads', express.static('public/uploads'));
 // Utiliser le routeur AdminJS
 
-
 // Middlewares
+app.use(start);
 app.use(init);
 // Test Routes
 app.use('', testRoutes);
-app.use('/api/admin-panel',setRouteFound, authenticateByCookieSession, adminRouter);
+app.use('/api/admin-panel', setRouteFound, authenticateByCookieSession, adminRouter);
 // Auth Routes
 app.use('/api/auth', setRouteFound, authRoutes);
 // User Routes
@@ -69,6 +68,12 @@ app.use('/api/kanban', setRouteFound, kanbanRoutes);
 app.use('/api/priority', setRouteFound, priorityRoutes);
 // Sizes Routes
 app.use('/api/size', setRouteFound, sizeRoutes);
+// Time Tracking Routes
+app.use('/api/timetracking', setRouteFound, timeTrackingRoutes);
+// AI Routes
+app.use('/api/ai', setRouteFound, aiRoutes);
+// End Middleware
+app.use(end);
 // Send middleware
 app.use(send);
 
@@ -78,14 +83,17 @@ app.use(notFound);
 app.use(errorHandler);
 
 app.listen(port, async () => {
-  console.log(`Serveur démarré sur le port ${port}`);
+  logger.info(`Serveur démarré sur le port ${port}`);
   try {
     // Replace true by false when sync isn't needed
     // Replace force by alter to keep data
     // await initDB(true, 'force');
     await initDB(false, 'alter');
-    console.log(`Server Groupe is running on port ${port}`);
+    logger.info('Database connection has been established successfully.');
   } catch (error) {
-    console.error('Unable to connect to the database:', error);
+    logger.error('Unable to connect to the database:', {
+      message: error.message,
+      stack: error.stack,
+    });
   }
 });

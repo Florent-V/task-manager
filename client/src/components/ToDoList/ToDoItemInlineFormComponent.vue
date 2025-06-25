@@ -1,5 +1,6 @@
 <script setup>
-import { ref, watch, onMounted, onBeforeUnmount, nextTick  } from 'vue';
+import { ref, watch, onMounted } from 'vue';
+
 import logger from "@/utils/logger.js";
 
 const emit = defineEmits(['submit', 'cancel']);
@@ -52,10 +53,10 @@ watch(() => props.initialData, (newValue) => {
 <template>
   <form @submit.prevent="submitForm">
     <input
-      class="peer border border-gray-300 dark:border-gray-600 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 transition w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-      type="text"
       id="editToDoListTitleInput"
       v-model="formData.title"
+      class="peer border border-gray-300 dark:border-gray-600 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 transition w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+      type="text"
       @blur="submitForm"
     />
   </form>

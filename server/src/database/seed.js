@@ -1,7 +1,24 @@
+/* eslint-disable */
 import sequelize from './connect.js';
 import models from '../models/index.js';
+import logger from '../config/logger.js';
 
-const { role, user, product, toDoList, toDoListType, toDoItem, label, priority, size, kanban, task, stage, comment } = models;
+const {
+  role,
+  user,
+  product,
+  toDoList,
+  toDoListType,
+  toDoItem,
+  label,
+  priority,
+  size,
+  kanban,
+  task,
+  stage,
+  comment,
+  imputation,
+} = models;
 
 export const seedDatabase = async () => {
   try {
@@ -110,7 +127,7 @@ export const seedDatabase = async () => {
         quantity: 125,
         releaseDate: new Date(),
         userId: users[2].id,
-      }
+      },
     ]);
 
     const labels = await label.bulkCreate([
@@ -122,7 +139,7 @@ export const seedDatabase = async () => {
       },
       {
         name: 'high',
-      }
+      },
     ]);
 
     const toDoListTypes = await toDoListType.bulkCreate([
@@ -134,9 +151,8 @@ export const seedDatabase = async () => {
       },
       {
         name: 'Shopping',
-      }
+      },
     ]);
-
 
     const toDoLists = await toDoList.bulkCreate([
       {
@@ -164,7 +180,7 @@ export const seedDatabase = async () => {
       {
         title: 'To Do List 6',
         description: 'Description of To Do List 6',
-      }
+      },
     ]);
 
     await toDoLists[0].addUsers([users[0], users[1]]);
@@ -234,7 +250,7 @@ export const seedDatabase = async () => {
         title: 'To Do Item 12',
         description: 'Description of To Do Item 12',
         toDoListId: toDoLists[5].id,
-      }
+      },
     ]);
 
     const priorities = await priority.bulkCreate([
@@ -253,25 +269,40 @@ export const seedDatabase = async () => {
 
     const kanbans = await kanban.bulkCreate([
       {
-        title: 'Kanban 1',
-        description: 'Description of Kanban 1',
+        title: 'Sprint 1',
+        description: 'Réalisation du backlog de base',
       },
       {
-        title: 'Kanban 2',
-        description: 'Description of Kanban 2',
+        title: 'Sprint 2',
+        description: 'Amélioration de la gestion des utilisateurs',
       },
       {
-        title: 'Kanban 3',
-        description: 'Description of Kanban 3',
+        title: 'Sprint 3',
+        description: 'Refonte de l\'interface utilisateur',
       },
     ]);
 
     const stages = await stage.bulkCreate([
-      { name: "Backlog", description: "Tâches à faire", maxRecord: 10, kanbanId: kanbans[0].id },
-      { name: "Ready", description: "Tâches prêtes à être réalisées", maxRecord: 5, kanbanId: kanbans[0].id },
-      { name: "In Progress", description: "Tâches en cours de réalisation", maxRecord: 3, kanbanId: kanbans[0].id },
-      { name: "In Review", description: "Tâches en cours de revue", maxRecord: 5, kanbanId: kanbans[0].id },
-      { name: "Done", description: "Tâches terminées", maxRecord: 5, kanbanId: kanbans[0].id },
+      { name: 'Backlog', description: 'Tâches à faire', maxRecord: 10, kanbanId: kanbans[0].id },
+      {
+        name: 'Ready',
+        description: 'Tâches prêtes à être réalisées',
+        maxRecord: 5,
+        kanbanId: kanbans[0].id,
+      },
+      {
+        name: 'In Progress',
+        description: 'Tâches en cours de réalisation',
+        maxRecord: 3,
+        kanbanId: kanbans[0].id,
+      },
+      {
+        name: 'In Review',
+        description: 'Tâches en cours de revue',
+        maxRecord: 5,
+        kanbanId: kanbans[0].id,
+      },
+      { name: 'Done', description: 'Tâches terminées', maxRecord: 5, kanbanId: kanbans[0].id },
     ]);
 
     const tasks = await task.bulkCreate([
@@ -281,41 +312,37 @@ export const seedDatabase = async () => {
         priorityId: 1,
         sizeId: 2,
         stageId: 3,
-        estimation: 4,
-        loggedTime: 2,
+        estimation: 400,
         assignedToId: users[0].id,
         kanbanId: kanbans[0].id,
       },
       {
-        title: "Ajouter le drag and drop",
-        description: "Permettre le déplacement des tâches entre les colonnes",
+        title: 'Ajouter le drag and drop',
+        description: 'Permettre le déplacement des tâches entre les colonnes',
         priorityId: 2,
         sizeId: 2,
         stageId: 5,
-        estimation: 2,
-        loggedTime: 0,
+        estimation: 600,
         assignedToId: users[0].id,
         kanbanId: kanbans[0].id,
       },
       {
-        title: "Implémenter le backend",
-        description: "Créer les routes et les contrôleurs pour le backend",
+        title: 'Implémenter le backend',
+        description: 'Créer les routes et les contrôleurs pour le backend',
         priorityId: 3,
         sizeId: 3,
         stageId: 4,
-        estimation: 8,
-        loggedTime: 4,
+        estimation: 800,
         assignedToId: users[0].id,
         kanbanId: kanbans[0].id,
       },
       {
         title: "Tester l'application",
-        description: "Effectuer des tests unitaires et fonctionnels",
+        description: 'Effectuer des tests unitaires et fonctionnels',
         priorityId: 1,
         sizeId: 2,
         stageId: 3,
-        estimation: 6,
-        loggedTime: 1,
+        estimation: 600,
         assignedToId: users[1].id,
         kanbanId: kanbans[0].id,
       },
@@ -325,24 +352,81 @@ export const seedDatabase = async () => {
         priorityId: 3,
         sizeId: 4,
         stageId: 2,
-        estimation: 4,
-        loggedTime: 0,
+        estimation: 400,
         assignedToId: users[0].id,
         kanbanId: kanbans[0].id,
       },
       {
-        title: "Ajouter des fonctionnalités",
+        title: 'Ajouter des fonctionnalités',
         description: "Ajouter des fonctionnalités supplémentaires à l'application",
         priorityId: 1,
         sizeId: 5,
         stageId: 1,
-        estimation: 10,
-        loggedTime: 2,
+        estimation: 1000,
         assignedToId: users[1].id,
         kanbanId: kanbans[0].id,
       },
+      {
+        title: 'Créer la page de login',
+        description: "Créer la page de login pour l'application",
+        priorityId: 2,
+        sizeId: 2,
+        stageId: 3,
+        estimation: 400,
+        assignedToId: users[0].id,
+        kanbanId: kanbans[1].id,
+      },
+      {
+        title: 'Créer la page d\'accueil',
+        description: "Créer la page d'accueil pour l'application",
+        priorityId: 2,
+        sizeId: 2,
+        stageId: 3,
+        estimation: 400,
+        assignedToId: users[0].id,
+        kanbanId: kanbans[1].id,
+      },
+      {
+        title: 'Créer la page de gestion des utilisateurs',
+        description: "Créer la page de gestion des utilisateurs",
+        priorityId: 2,
+        sizeId: 2,
+        stageId: 3,
+        estimation: 600,
+        assignedToId: users[0].id,
+        kanbanId: kanbans[1].id,
+      },
+      {
+        title: 'Créer la page de gestion des rôles',
+        description: "Créer la page de gestion des rôles",
+        priorityId: 2,
+        sizeId: 2,
+        stageId: 3,
+        estimation: 600,
+        assignedToId: users[1].id,
+        kanbanId: kanbans[1].id,
+      },
+      {
+        title: 'Créer la page de gestion des kanbans',
+        description: "Créer la page de gestion des kanbans",
+        priorityId: 2,
+        sizeId: 2,
+        stageId: 3,
+        estimation: 600,
+        assignedToId: users[1].id,
+        kanbanId: kanbans[1].id,
+      },
+      {
+        title: 'Créer la page de gestion des tâches',
+        description: "Créer la page de gestion des tâches",
+        priorityId: 2,
+        sizeId: 2,
+        stageId: 3,
+        estimation: 600,
+        assignedToId: users[0].id,
+        kanbanId: kanbans[1].id,
+      },
     ]);
-
     await kanbans[0].addUsers([users[0], users[1]]);
     await kanbans[1].addUsers([users[0], users[1]]);
     await kanbans[2].addUsers([users[0]]);
@@ -386,9 +470,24 @@ export const seedDatabase = async () => {
       },
     ]);
 
-    console.log('Données de test créées avec succès !');
+    const imputations = await imputation.bulkCreate([
+      { date: '2023-06-01', taskId: tasks[0].id, userId: users[0].id, comment: 'Comment 1', timeSpent: 150 },
+      { date: '2023-06-02', taskId: tasks[1].id, userId: users[1].id, comment: 'Comment 2', timeSpent: 120 },
+      { date: '2023-06-03', taskId: tasks[1].id, userId: users[0].id, comment: 'Comment 3', timeSpent: 180 },
+      { date: '2023-06-04', taskId: tasks[0].id, userId: users[1].id, comment: 'Comment 4', timeSpent: 240 },
+      { date: '2023-06-05', taskId: tasks[0].id, userId: users[0].id, comment: 'Comment 5', timeSpent: 300 },
+      { date: '2023-06-06', taskId: tasks[1].id, userId: users[1].id, comment: 'Comment 6', timeSpent: 360 },
+      { date: '2023-06-07', taskId: tasks[6].id, userId: users[0].id, comment: 'Comment 7', timeSpent: 200 },
+      { date: '2023-06-08', taskId: tasks[7].id, userId: users[1].id, comment: 'Comment 8', timeSpent: 220 },
+      { date: '2023-06-09', taskId: tasks[6].id, userId: users[1].id, comment: 'Comment 9', timeSpent: 250 },
+      { date: '2023-06-10', taskId: tasks[7].id, userId: users[0].id, comment: 'Comment 10', timeSpent: 280 },
+      { date: '2023-06-11', taskId: tasks[6].id, userId: users[0].id, comment: 'Comment 11', timeSpent: 300 },
+      { date: '2023-06-12', taskId: tasks[7].id, userId: users[1].id, comment: 'Comment 12', timeSpent: 320 },
+    ]);
+
+    logger.info('Test data created successfully!');
   } catch (error) {
-    console.error('Erreur lors de la création des données de test :', error);
+    logger.error('Error creating test data:', { message: error.message, stack: error.stack });
     process.exit(1);
   }
 };

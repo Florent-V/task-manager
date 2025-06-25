@@ -1,7 +1,8 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../database/connect.js';
 
-const Comment = sequelize.define('Comment',
+const Comment = sequelize.define(
+  'Comment',
   {
     title: {
       type: DataTypes.STRING,
@@ -38,6 +39,7 @@ const Comment = sequelize.define('Comment',
   },
   {
     tableName: 'comment',
-  });
+  }
+);
 
 export default Comment;

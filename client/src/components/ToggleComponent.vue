@@ -1,5 +1,5 @@
 <script setup>
-import { ref, defineProps, defineEmits } from 'vue';
+import { defineProps, defineEmits } from 'vue';
 
 const props = defineProps({
   state: {
@@ -14,7 +14,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:state']);
 
-const isActive = ref(props.state);
+// const isActive = ref(props.state);
 
 const toggleButton = () => {
   emit('update:state', !props.state);

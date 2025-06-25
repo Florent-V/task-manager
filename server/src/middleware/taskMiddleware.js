@@ -1,7 +1,8 @@
 import Task from '../models/taskModel.js';
 import Size from '../models/sizeModel.js';
 import Priority from '../models/priorityModel.js';
-import { taskSchema, updateTaskSchema } from '../joiSchema/taskSchema.js';
+import { includeTask } from '../controllers/taskController.js';
+import { taskSchema, updateStageTaskSchema, updateTaskSchema } from '../joiSchema/taskSchema.js';
 import NotFoundError from '../error/notFoundError.js';
 
 export const setTaskEntity = (req, res, next) => {
@@ -19,11 +20,19 @@ export const setTaskUpdateValidator = (req, res, next) => {
   next();
 };
 
+export const setStageTaskUpdateValidator = (req, res, next) => {
+  req.schema = updateStageTaskSchema;
+  next();
+};
+
 export const isTaskInKanban = async (req, res, next) => {
   try {
     const { taskId, id: kanbanId } = req.params;
 
-    const task = await Task.findOne({ where: { id: taskId, kanbanId: kanbanId } });
+    const task = await Task.findOne({
+      where: { id: taskId, kanbanId: kanbanId },
+      include: includeTask,
+    });
 
     if (!task) throw new NotFoundError('Task not found in this Kanban.');
 
@@ -40,12 +49,12 @@ export const checkTaskRelationship = async (req, res, next) => {
 
     const kanban = res.data.kanban;
     // check if the user is in the kanban
-    if (assignedToId && !kanban.users.find(user => user.id === assignedToId)) {
+    if (assignedToId && !kanban.users.find((user) => user.id === assignedToId)) {
       throw new NotFoundError('User not found in kanban');
     }
 
     // check if the stage is in the kanban
-    if (stageId && !kanban.stages.find(stage => stage.id === stageId)) {
+    if (stageId && !kanban.stages.find((stage) => stage.id === stageId)) {
       throw new NotFoundError('Stage not found in kanban');
     }
 

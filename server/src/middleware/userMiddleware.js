@@ -2,7 +2,14 @@ import { signupSchema, signinSchema, updateUserSchema } from '../joiSchema/userJ
 import _ from 'lodash';
 
 export const setSignupValidator = (req, res, next) => {
-  req.body = _.pick(req.body, ['username', 'firstName', 'lastName', 'email', 'password', 'confirmPassword']);
+  req.body = _.pick(req.body, [
+    'username',
+    'firstName',
+    'lastName',
+    'email',
+    'password',
+    'confirmPassword',
+  ]);
   req.schema = signupSchema;
 
   next();
@@ -16,7 +23,14 @@ export const setSigninValidator = (req, res, next) => {
 };
 
 export const setUpdateUserValidator = (req, res, next) => {
-  req.body = _.pick(req.body, ['username', 'firstName', 'lastName', 'email', 'password', 'confirmPassword']);
+  req.body = _.pick(req.body, [
+    'username',
+    'firstName',
+    'lastName',
+    'email',
+    'password',
+    'confirmPassword',
+  ]);
   req.schema = updateUserSchema;
 
   next();

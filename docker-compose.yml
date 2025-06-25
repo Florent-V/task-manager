@@ -54,6 +54,13 @@ services:
       - CLIENT_ORIGIN=${CLIENT_URL}
       - NODE_API_DOCKER_PORT=${NODE_API_DOCKER_PORT}
       - ACCESS_TOKEN_COOKIE_LIFETIME=${ACCESS_TOKEN_COOKIE_LIFETIME}
+      - MAILER_HOST=${MAILER_HOST}
+      - MAILER_PORT=${MAILER_PORT}
+      - MAILER_SECURE=${MAILER_SECURE}
+      - MAILER_USER=${MAILER_USER}
+      - MAILER_PASS=${MAILER_PASS}
+      - MAIL_FROM=${MAIL_FROM}
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY}
     networks:
       - internal
     depends_on:
@@ -91,6 +98,22 @@ services:
     networks:
       - internal
 
+#########################################
+#   Setup Mailpit container
+#########################################
+  mailpit:
+    container_name: ${PROJECT_NAME}-mailpit-${ENV_NAME}
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025" # SMTP port
+      - "8025:8025" # Web UI port
+    restart: unless-stopped
+    networks:
+      - internal
+    # Optional: Define a volume for persistent data if needed
+    # volumes:
+    #   - mailpit-data:/data
+
 networks:
   internal:
     driver: bridge
@@ -100,3 +123,4 @@ volumes:
   db-config:
   api_node_modules:
   client_node_modules:
+  # mailpit-data: # Ensure this is defined if you uncomment the volume in the mailpit service

@@ -1,7 +1,8 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { client } from '@/utils/requestMaker.js';
+
+import { client } from '@/services/requestMaker.js';
 import { hookApi } from '@/utils/requestHook.js';
 import { setTitle, setDescription } from "@/utils/documentInfos.js";
 import ToDoItemFormComponent from '@/components/ToDoList/ToDoItemFormComponent.vue';
@@ -27,6 +28,11 @@ const qrCodeUrl = ref(null);
 const linkUrl = ref(null);
 const showItemImageModal = ref(false);
 const openMenuId = ref(null);
+
+// Pour l'IA
+const aiPrompt = ref('');
+const isGeneratingWithAI = ref(false);
+const aiError = ref(null);
 
 // Récupération des items de la ToDoList
 const fetchToDoItems = async () => {
@@ -186,9 +192,9 @@ const toggleMenu = (item) => {
   openMenuId.value = openMenuId.value === item.id ? null : item.id;
 };
 
-const closeMenu = (item) => {
-  item.showMenu = false;
-};
+// const closeMenu = (item) => {
+//   item.showMenu = false;
+// };
 
 // Fonction pour fermer tous les menus
 const closeAllMenus = (event) => {
@@ -210,6 +216,34 @@ onUnmounted(() => {
   document.removeEventListener('click', closeAllMenus);
 });
 
+// Fonction pour générer des tâches avec l'IA
+const generateWithAI = async () => {
+  if (!aiPrompt.value.trim() || isGeneratingWithAI.value) return;
+
+  isGeneratingWithAI.value = true;
+  aiError.value = null;
+  try {
+    const generatedTasks = await executeRequest(() => client.post('/api/ai/generate-todolist', { prompt: aiPrompt.value }));
+    if (generatedTasks && generatedTasks.length > 0) {
+      // Ajouter chaque tâche générée comme un nouvel item
+      for (const taskTitle of generatedTasks) {
+        const newItem = { title: taskTitle, done: false };
+        // Appel direct pour créer l'item (similaire à ce qui est fait dans ToDoItemFormComponent)
+        const response = await executeRequest(
+            () => client.postWithFile(`/api/todolist/${route.params.id}/todoitem`, newItem)
+        );
+        toDoItems.value.push(response.toDoItem);
+      }
+      aiPrompt.value = ''; // Vider le champ après la génération
+    }
+  } catch (err) {
+    logger.error('Error generating tasks with AI:', err?.response?.data?.message || err.message);
+    aiError.value = err?.response?.data?.message || 'Erreur lors de la génération des tâches.';
+  } finally {
+    isGeneratingWithAI.value = false;
+  }
+};
+
 </script>
 
 <template>
@@ -222,7 +256,7 @@ onUnmounted(() => {
       </h1>
 
       <!-- ToDoList Tool Bar -->
-      <div class="flex justify-between align-center px-4 mb-4">
+      <div class="flex flex-col sm:flex-row justify-between items-center px-4 mb-4 gap-4">
         <ToggleComponent
             v-model:state="showOnlyPending"
             label="Supprimer fait"
@@ -230,68 +264,98 @@ onUnmounted(() => {
 
         <div class="flex gap-2">
           <div v-if="!isCreating" class="text-right">
-            <button class="w-14 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-full" @click="openCreateForm">
-            <span class="items-center">
+            <button class="w-14 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-full flex items-center justify-center" @click="openCreateForm">
               <v-icon name="md-add" scale="1.6"/>
-            </span>
             </button>
           </div>
           <div class="text-right">
-            <button class="flex w-14 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-full"
-                    @click="shareToDoList">
-              <span class="m-auto">
-                <v-icon name="md-share-outlined" scale="1.6"/>
-              </span>
+            <button
+                class="flex w-14 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-full items-center justify-center"
+                @click="shareToDoList">
+              <v-icon name="md-share-outlined" scale="1.6"/>
             </button>
           </div>
         </div>
       </div>
 
+      <!-- Section IA -->
+      <div class="px-4 mb-6">
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg dark:shadow-gray-700">
+          <h3 class="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300 flex items-center">
+            <v-icon name="ri-robot-line" class="mr-2" scale="1.2" />
+            Générer des tâches avec l'IA
+          </h3>
+          <div class="flex items-center gap-2">
+            <input
+                v-model="aiPrompt"
+                type="text"
+                placeholder="Ex: Ingrédients pour une tarte aux pommes"
+                class="flex-grow border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                @keyup.enter="generateWithAI"
+            />
+            <button
+                class="bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-lg flex items-center justify-center transition duration-300"
+                :disabled="isGeneratingWithAI || !aiPrompt.trim()"
+                @click="generateWithAI"
+            >
+              <v-icon v-if="!isGeneratingWithAI" name="io-sparkles-outline" scale="1.2"/>
+              <LoaderComponent v-else :small="true" />
+              <span class="ml-2 hidden sm:inline">{{ isGeneratingWithAI ? 'Génération...' : 'Générer' }}</span>
+            </button>
+          </div>
+          <p v-if="aiError" class="text-sm mt-2 text-red-600 dark:text-red-400">{{ aiError }}</p>
+        </div>
+      </div>
+
+
       <!-- QRCodeModal -->
       <QRCodeModal
           v-if="showQRCodeModal"
-          :linkUrl="linkUrl"
-          :qrCodeUrl="qrCodeUrl"
+          :link-url="linkUrl"
+          :qr-code-url="qrCodeUrl"
           @close="showQRCodeModal = false"
       />
 
       <!-- ToDoForm -->
       <ToDoItemFormComponent
           v-if="isCreating"
-          :initialData="selectedToDoItem"
-          :toDoItems="toDoItems"
+          :initial-data="selectedToDoItem"
+          :to-do-items="toDoItems"
           @cancel="closeForm"
-          @handleResponse="handleResponseFormSubmit"
-          @useSuggest="selectedToDoItem = true"
+          @handle-response="handleResponseFormSubmit"
+          @use-suggest="selectedToDoItem = true"
       />
 
       <!-- Loader -->
       <LoaderComponent v-if="isLoading"/>
 
-      <div v-else-if="toDoItems.length"
-           class="w-full dark:bg-gray-800 px-2 md:px-4 pb-4 mb-4 rounded-xl shadow-lg dark:shadow-gray-700"
+      <div
+          v-else-if="toDoItems.length || isCreating"
+          class="w-full dark:bg-gray-800 px-2 md:px-4 pb-4 mb-4 rounded-xl shadow-lg dark:shadow-gray-700"
       >
         <p class="py-3 text-center">{{ toDoList.description }}</p>
         <!-- Title Table -->
         <h2 class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-t-lg text-xl font-semibold">
           A faire</h2>
 
-        <ul>
-          <li v-for="item in filteredToDoItems.filter(item => !item.done)" :key="item.id"
+        <ul v-if="filteredToDoItems.filter(item => !item.done).length > 0">
+          <li
+              v-for="item in filteredToDoItems.filter(item => !item.done)" :key="item.id"
               class="flex gap-2 items-center bg-white dark:bg-gray-800 p-2 pl-4 rounded-lg mb-2 shadow-lg dark:shadow-gray-700 relative"
           >
-            <button class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500"
-                    @click="toggleToDoItemDone(item)"
+            <button
+                class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500"
+                @click="toggleToDoItemDone(item)"
             >
               <v-icon name='md-checkboxoutlineblank'/>
             </button>
 
             <div v-if="isEditing && selectedToDoItem.id === item.id" class="flex-grow">
               <ToDoItemFormComponent
-                  :initialData="selectedToDoItem"
+                  :initial-data="selectedToDoItem"
                   :inline-form="true"
                   @cancel="closeForm"
-                  @handleResponse="handleResponseFormSubmit"
+                  @handle-response="handleResponseFormSubmit"
               />
             </div>
 
@@ -319,8 +383,8 @@ onUnmounted(() => {
                     class="w-16 bg-transparent text-center border-none focus:outline-none"
                     type="number"
                     @blur="saveQuantity(item)"
-                    @keydown.alt="saveQuantity(item)"
-                    @keydown.esc="cancelEditQuantity(item)"
+                    @keydown.alt.exact="saveQuantity(item)"
+                    @keydown.esc.exact="cancelEditQuantity(item)"
                 />
                 <span v-else @click="editQuantity(item)">
                   {{ item.quantity }}
@@ -357,11 +421,13 @@ onUnmounted(() => {
                 v-if="openMenuId === item.id"
                 class="absolute right-4 top-10 bg-white dark:bg-gray-900 shadow-lg rounded-lg border border-gray-300 dark:border-gray-700 z-50 menu-container">
               <ul class="py-2 px-4">
-                <li class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded"
+                <li
+                    class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded"
                     @click="openCompleteEditForm(item)">
                   ✏️ Éditer
                 </li>
-                <li class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded text-red-600"
+                <li
+                    class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded text-red-600"
                     @click="deleteToDoItem(item)">
                   🗑️ Supprimer
                 </li>
@@ -430,7 +496,7 @@ onUnmounted(() => {
 
   <ToDoItemImageModalComponent
       v-if="showItemImageModal"
-      :imageUrl="selectedToDoItem.image"
+      :image-url="selectedToDoItem.image"
       @close="closeItemImageModal"
   />
 

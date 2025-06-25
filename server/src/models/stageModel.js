@@ -1,7 +1,8 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../database/connect.js';
 
-const Stage = sequelize.define('Stage',
+const Stage = sequelize.define(
+  'Stage',
   {
     name: {
       type: DataTypes.STRING(50),
@@ -40,6 +41,7 @@ const Stage = sequelize.define('Stage',
   },
   {
     tableName: 'stage',
-  });
+  }
+);
 
 export default Stage;

@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
-import { client } from '@/utils/requestMaker.js';
+
+import { client } from '@/services/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
 import logger from "@/utils/logger.js";
 import useFormErrors from "@/utils/handleFormErrors.js";
@@ -13,7 +14,7 @@ const props = defineProps({
   },
 });
 
-const { isLoading, error, executeRequest } = hookApi();
+const { error, executeRequest } = hookApi();
 const formData = ref({ ...props.initialData });
 const isEditing = computed(() => !!formData.value.id);
 
@@ -78,9 +79,9 @@ const resetForm = () => {
       <div class="mt-4">
         <label for="name" class="block text-gray-700 dark:text-gray-300">Nom</label>
         <input
-            type="text"
             id="name"
             v-model="formData.name"
+            type="text"
             class="mt-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
         />
         <p v-if="errors.name" class="text-red-600 dark:text-red-400 mt-1">{{ errors.name }}</p>
@@ -89,9 +90,9 @@ const resetForm = () => {
       <div class="mt-4">
         <label for="label" class="block text-gray-700 dark:text-gray-300">Label</label>
         <input
-            type="text"
             id="label"
             v-model="formData.label"
+            type="text"
             class="mt-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
         />
         <p v-if="errors.label" class="text-red-600 dark:text-red-400 mt-1">{{ errors.name }}</p>
@@ -101,14 +102,14 @@ const resetForm = () => {
         <label for="color" class="block text-gray-700 dark:text-gray-300">Color</label>
         <div class="flex items-center mt-2">
           <input
-              type="color"
               id="color"
               v-model="formData.color"
+              type="color"
               class="w-12 h-12 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer"
           />
           <input
-              type="text"
               v-model="formData.color"
+              type="text"
               class="ml-4 w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               placeholder="#000000"
           />
@@ -116,16 +117,19 @@ const resetForm = () => {
         <p v-if="errors.color" class="text-red-600 dark:text-red-400 mt-1">{{ errors.color }}</p>
       </div>
 
-      <div>
-        <p v-if="defaultError" class="text-sm px-2 text-red-600 dark:text-red-400">{{ defaultError }}</p>
+      <div v-if="defaultError">
+        <p class="text-sm px-2 text-red-600 dark:text-red-400">{{ defaultError }}</p>
       </div>
 
+      <div v-if="error">
+        <p class="text-sm px-2 text-red-600 dark:text-red-400">{{ error }}</p>
+      </div>
 
       <div class="flex justify-end gap-4 mt-6">
         <button
             type="button"
-            @click="$emit('cancel')"
             class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition"
+            @click="$emit('cancel')"
         >
           Annuler
         </button>

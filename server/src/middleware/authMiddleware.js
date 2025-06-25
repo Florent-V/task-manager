@@ -5,6 +5,7 @@ import { authToken } from '../services/tokenService.js';
 import InvalidTokenError from '../error/invalidTokenError.js';
 import ForbiddenError from '../error/forbiddenError.js';
 import ConflictError from '../error/conflictError.js';
+import logger from '../config/logger.js';
 
 export const authenticateToken = (req, res, next) => {
   try {
@@ -21,9 +22,9 @@ export const authenticateToken = (req, res, next) => {
 
 export const authenticateByCookieSession = (req, res, next) => {
   // TODO Delete console.log in production
-  console.log('authenticateByCookieSession');
-  console.log('req.cookies:', req.cookies);
-  console.log('req.signedCookies:', req.signedCookies);
+  logger.debug('Authenticating by cookie session');
+  logger.debug('Request cookies:', { cookies: req.cookies });
+  logger.debug('Request signed cookies:', { signedCookies: req.signedCookies });
   try {
     // TODO Delete auth by header in production use only cookie
     // const token = req.header('Authorization')?.split(' ')[1];
@@ -32,7 +33,7 @@ export const authenticateByCookieSession = (req, res, next) => {
     if (!token) throw new InvalidTokenError('Access Denied: No token provided');
 
     const verified = authToken(token);
-    console.log('verified:', verified);
+    logger.debug('Verified token payload:', { verified });
     req.user = verified;
     next();
   } catch (error) {
@@ -43,7 +44,7 @@ export const authenticateByCookieSession = (req, res, next) => {
 export const checkAuth = (req, res, next) => {
   res.data = {
     username: req.user.username,
-    isAuthenticated: true
+    isAuthenticated: true,
   };
   next();
 };
@@ -59,7 +60,6 @@ export const isAdmin = async (req, res, next) => {
     if (access) return next();
 
     throw new ForbiddenError('Require Admin Role!');
-
   } catch (error) {
     return next(error);
   }
@@ -99,17 +99,16 @@ export const checkDuplicateUsernameOrEmail = async (req, res, next) => {
   try {
     const user = await User.findOne({
       where: {
-        [Op.or]: [
-          { username: req.body.username },
-          { email: req.body.email }
-        ]
-      }
+        [Op.or]: [{ username: req.body.username }, { email: req.body.email }],
+      },
     });
 
     if (user) {
-      throw new ConflictError(user.username === req.body.username
-                              ? 'Failed! Username is already in use!'
-                              : 'Failed! Email is already in use!');
+      throw new ConflictError(
+        user.username === req.body.username
+          ? 'Failed! Username is already in use!'
+          : 'Failed! Email is already in use!'
+      );
     }
 
     next();

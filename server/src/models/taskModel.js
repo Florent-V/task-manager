@@ -1,7 +1,8 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../database/connect.js';
 
-const Task = sequelize.define('Task',
+const Task = sequelize.define(
+  'Task',
   {
     id: {
       type: DataTypes.UUID,
@@ -20,15 +21,8 @@ const Task = sequelize.define('Task',
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    // Estimation en minutes
     estimation: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      validate: {
-        isInt: true,
-        min: 0,
-      },
-    },
-    loggedTime: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
@@ -81,6 +75,7 @@ const Task = sequelize.define('Task',
   },
   {
     tableName: 'task',
-  });
+  }
+);
 
 export default Task;

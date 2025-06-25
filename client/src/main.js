@@ -1,12 +1,11 @@
 import './assets/index.css'
+import './assets/quilljs.css'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import App from './App.vue'
-import router from './router'
-import { cropText } from '@/utils/crop.js';
-
 import { OhVueIcon, addIcons } from "oh-vue-icons";
-import { MdClose,
+import {
+  MdClose,
+  MdCloseRound,
   MdDelete,
   MdAdd,
   MdPhotocamera,
@@ -23,9 +22,22 @@ import { MdClose,
   BiThreeDotsVertical,
   MdExittoappRound,
   MdModeedit,
+  RiMailSendLine,
+  PrWindowMaximize,
+  BiBarChartLineFill,
+  RiRobotLine,
+  IoSparklesOutline,
 } from "oh-vue-icons/icons";
 
-addIcons(MdClose,
+import { cropText } from '@/utils/crop.js';
+
+import App from './App.vue'
+import router from './router'
+
+
+addIcons(
+  MdClose,
+  MdCloseRound,
   MdDelete,
   MdAdd,
   MdPhotocamera,
@@ -42,12 +54,17 @@ addIcons(MdClose,
   BiThreeDotsVertical,
   MdExittoappRound,
   MdModeedit,
+  RiMailSendLine,
+  PrWindowMaximize,
+  BiBarChartLineFill,
+  RiRobotLine,
+  IoSparklesOutline,
 );
 
 const app = createApp(App)
 
 app.config.globalProperties.$cropText = cropText;
-app.component("v-icon", OhVueIcon);
+app.component("VIcon", OhVueIcon);
 app.use(createPinia())
 app.use(router)
 app.mount('#app')

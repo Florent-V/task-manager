@@ -1,7 +1,7 @@
 <script setup>
-import { ref, watch, computed, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import { client } from '@/utils/requestMaker.js';
+import { ref, watch } from 'vue';
+
+import { client } from '@/services/requestMaker.js';
 import { hookApi } from "@/utils/requestHook.js";
 import useFormErrors from "@/utils/handleFormErrors.js";
 import logger from "@/utils/logger.js";
@@ -19,8 +19,7 @@ const props = defineProps({
   },
 });
 
-const route = useRoute();
-const { isLoading, error, executeRequest } = hookApi();
+const { error, executeRequest } = hookApi();
 const formData = ref({ ...props.initialData });
 const imageError = ref(null);
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
@@ -77,8 +76,6 @@ const submitForm = async () => {
     data.image = formData.value.image;
   }
 
-  console.log('Form data:', data);
-
   try {
     const response = await executeRequest(
         () => client.patchWithFile(`/api/user/me`, data)
@@ -128,20 +125,20 @@ const resetForm = () => {
           <label for="username" class="block text-gray-700 dark:text-gray-300 col-span-2 md:col-span-3">Pseudo</label>
           <div class="relative col-span-2 md:col-span-3">
             <input
+                id="username"
+                v-model="formData.username"
                 type="text"
                 maxlength="50"
-                id="username"
                 placeholder="Mon pseudo"
                 class="peer border border-gray-300 dark:border-gray-600 p-3 rounded-lg md:rounded-r-none focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 transition w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                v-model="formData.username"
             />
           </div>
           <!-- File upload field -->
           <div class="relative col-span-2 md:col-span-1">
             <!-- Hidden file input -->
             <input
-                type="file"
                 id="image"
+                type="file"
                 accept="image/*"
                 capture="environment"
                 class="hidden"
@@ -196,9 +193,9 @@ const resetForm = () => {
       <div class="mb-4 -mt-2">
         <label for="firstName" class="block text-gray-700 dark:text-gray-300">Prénom</label>
         <input
-            type="text"
             id="firstName"
             v-model="formData.firstName"
+            type="text"
             class="mt-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             placeholder="Prénom"
             required
@@ -209,9 +206,9 @@ const resetForm = () => {
       <div class="mb-4">
         <label for="lastName" class="block text-gray-700 dark:text-gray-300">Nom</label>
         <input
-            type="text"
             id="lastName"
             v-model="formData.lastName"
+            type="text"
             class="mt-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             placeholder="Nom"
             required
@@ -222,9 +219,9 @@ const resetForm = () => {
       <div class="mb-4">
         <label for="email" class="block text-gray-700 dark:text-gray-300">Email</label>
         <input
-            type="email"
             id="email"
             v-model="formData.email"
+            type="email"
             class="mt-2 w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             placeholder="Email"
             required
@@ -252,8 +249,8 @@ const resetForm = () => {
 
       <div class="flex justify-end gap-4">
         <button
-            @click="closeForm"
             class="w-full bg-gray-600 text-white px-6 py-3 rounded-lg"
+            @click="closeForm"
         >
           Annuler
         </button>

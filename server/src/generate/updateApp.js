@@ -11,12 +11,18 @@ const updatedAppJsContent = (entityName, modelName, routesFileName, appJsPath) =
     // Ajouter l'import à la fin des imports
     const lastImportIndex = appJsContent.lastIndexOf('import');
     const insertionPoint = appJsContent.indexOf('\n', lastImportIndex);
-    appJsContent = appJsContent.slice(0, insertionPoint + 1) + appImportStatement + appJsContent.slice(insertionPoint + 1);
+    appJsContent =
+      appJsContent.slice(0, insertionPoint + 1) +
+      appImportStatement +
+      appJsContent.slice(insertionPoint + 1);
   }
   if (!appJsContent.includes(useStatement)) {
     const lastUseIndex = appJsContent.lastIndexOf('app.use(');
     const insertionPoint = appJsContent.indexOf('\n', lastUseIndex);
-    appJsContent = appJsContent.slice(0, insertionPoint + 1) + useStatement + appJsContent.slice(insertionPoint + 1);
+    appJsContent =
+      appJsContent.slice(0, insertionPoint + 1) +
+      useStatement +
+      appJsContent.slice(insertionPoint + 1);
   }
 
   return appJsContent;
