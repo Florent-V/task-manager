@@ -50,24 +50,34 @@ const unassignedTasks = computed(() => {
   return tasks.value.filter((task) => task.stageId === null || task.assignedToId === null);
 });
 
-const tasksGroupedByAssigned = computed(() => {
-  return tasks.value.reduce((acc, task) => {
-    if (task.assignedToId === null || task.assignedToId === undefined) {
-      return acc; // Ignorer les tâches non assignées
-    }
+const allUsersWithGroupedTasks = computed(() => {
+  const grouped = {};
+  // Initialize with all users to ensure their sections are always displayed
+  users.value.forEach(user => {
+    grouped[user.id] = { user: user, tasks: [] };
+  });
 
-    const id = task.assignedToId;
-    if (!acc[id]) {
-      acc[id] = [];
+  // Group tasks by assigned user
+  tasks.value.forEach(task => {
+    if (task.assignedToId !== null && task.assignedToId !== undefined) {
+      if (grouped[task.assignedToId]) {
+        grouped[task.assignedToId].tasks.push(task);
+      } else {
+        // Handle cases where a task might be assigned to a user not in the current 'users' list (e.g., deleted user)
+        // For now, we'll just ignore these tasks for display in user-grouped sections
+        // Or you could add a 'placeholder' user for them if needed
+      }
     }
-
-    acc[id].push(task);
-    return acc;
-  }, {});
+  });
+  return grouped;
 });
 
 const getTasksByStatus = (tasks, status) => {
   return tasks.filter((task) => task.stageId === status);
+};
+
+const getTasksForUser = (userId) => {
+  return tasks.value.filter(task => task.assignedToId === userId);
 };
 
 // Gestion drag and drop
@@ -218,7 +228,7 @@ onMounted(async () => {
     <p v-if="requestError && !kanban" class="my-2 text-center text-red-500 dark:text-red-400">{{ requestError }}</p>
     <!-- Show error only if kanban hasn't loaded -->
 
-    <div v-for="(taskGroup, assignedToId) in tasksGroupedByAssigned" :key="assignedToId" class="mb-6">
+    <div v-for="(group, assignedToId) in allUsersWithGroupedTasks" :key="assignedToId" class="mb-6">
       <!-- En-tête avec le nom de la personne et un bouton pour replier/déplier -->
       <div
           class="flex gap-2 items-center p-4 rounded-lg"
@@ -241,7 +251,7 @@ onMounted(async () => {
           </svg>
         </button>
         <h2 class="text-xl font-semibold">
-          {{ taskGroup[0].assignedTo }} (Total: {{ taskGroup.length }})
+          {{ group.user.username }} (Total: {{ group.tasks.length }})
         </h2>
 
       </div>
@@ -266,7 +276,7 @@ onMounted(async () => {
                 </h2>
                 <span
                     class="bg-blue-100 dark:bg-gray-700 text-blue-600 dark:text-yellow-300 rounded-full px-3 py-1 text-sm min-w-14">
-                  {{ countTasks(taskGroup, column.id) }} / {{ column.maxRecord }}
+                  {{ countTasks(group.tasks, column.id) }} / {{ column.maxRecord }}
               </span>
               </div>
               <p class="text-sm text-gray-600 dark:text-gray-400">
@@ -282,14 +292,14 @@ onMounted(async () => {
             >
               <!-- Placeholder pour permettre le drop dans une colonne vide -->
               <div
-                  v-if="!getTasksByStatus(taskGroup, column.id).length"
+                  v-if="!getTasksByStatus(group.tasks, column.id).length"
                   class="border-2 border-dashed border-gray-400 dark:border-gray-600 h-16 flex items-center justify-center"
               >
                 <p class="text-sm text-gray-500 dark:text-gray-400">Déposez une tâche ici</p>
               </div>
 
               <div
-                  v-for="task in getTasksByStatus(taskGroup, column.id)"
+                  v-for="task in getTasksByStatus(group.tasks, column.id)"
                   :key="task.id"
                   draggable="true"
                   class="task bg-gray-100 dark:bg-gray-700 rounded-lg p-4 shadow hover:shadow-md dark:hover:shadow-gray-600 cursor-pointer"
