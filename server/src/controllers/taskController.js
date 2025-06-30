@@ -139,6 +139,36 @@ export const updateStageTask = async (req, res, next) => {
   }
 };
 
+// Archivage  d'une tâche
+export const archiveTask = async (req, res, next) => {
+  try {
+    const { taskId } = req.params;
+
+    const [updated] = await Task.update({ isArchived: true }, { where: { id: taskId } });
+    if (!updated) throw new NotFoundError('Task not found.');
+
+    res.data = {};
+    next();
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// Restoration d'une tâche
+export const restoreTask = async (req, res, next) => {
+  try {
+    const { taskId } = req.params;
+
+    const [updated] = await Task.update({ isArchived: false }, { where: { id: taskId } });
+    if (!updated) throw new NotFoundError('Task not found.');
+
+    res.data = {};
+    next();
+  } catch (error) {
+    return next(error);
+  }
+};
+
 // Suppression d'une tâche
 export const deleteTask = async (req, res, next) => {
   try {
