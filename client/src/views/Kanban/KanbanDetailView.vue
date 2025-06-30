@@ -419,6 +419,7 @@ onMounted(async () => {
         v-if="showQRCodeModal"
         :link-url="linkUrl"
         :qr-code-url="qrCodeUrl"
+        @handle-response="handleResponseFormSubmit"
         @close="showQRCodeModal = false"
     />
 
