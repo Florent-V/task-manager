@@ -54,8 +54,6 @@ const deleteTask = () => {
 
 const toggleArchive = async () => {
   try {
-    console.log("kanbanId.value", kanbanId.value);
-    console.log("task.kanbanId", props.task.kanbanId);
     await (props.task.isArchived
         ? taskService.restoreTask(kanbanId.value, props.task.id)
         : taskService.archiveTask(kanbanId.value, props.task.id)

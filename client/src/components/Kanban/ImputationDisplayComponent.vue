@@ -78,6 +78,7 @@ const deleteImputation = async (imputationId) => {
   try {
     await taskService.deleteImputation(props.kanbanId, props.taskId, imputationId);
     imputations.value = imputations.value.filter(imp => imp.id !== imputationId);
+    kanbanStore.updateTasksImputations(props.taskId, imputations.value);
     logger.info('Imputation deleted successfully');
   } catch (err) {
     logger.error('Error deleting imputation:', err);
@@ -86,13 +87,15 @@ const deleteImputation = async (imputationId) => {
 
 const addImputation = (imputation) => {
   imputations.value.push(kanbanStore.enrichImputation(imputation));
+  kanbanStore.updateTasksImputations(props.taskId, imputations.value);
 };
 
 const updateImputation = (updatedImputation) => {
   const index = imputations.value.findIndex(item => item.id === updatedImputation.id);
   if (index !== -1) {
-    imputations.value[index] = updatedImputation;
+    imputations.value[index] = kanbanStore.enrichImputation(updatedImputation);
   }
+  kanbanStore.updateTasksImputations(props.taskId, imputations.value);
 };
 
 // Expose methods for parent component
