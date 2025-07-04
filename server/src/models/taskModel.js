@@ -30,6 +30,11 @@ const Task = sequelize.define(
         min: 0,
       },
     },
+    isArchived: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
     // Champs relationnels
     kanbanId: {
       type: DataTypes.UUID,

@@ -29,6 +29,7 @@ const taskService = new TaskService();
 
 const requestLoading = computed(() => handleRequestStore.isLoading);
 const requestError = computed(() => handleRequestStore.error);
+const kanbanId = ref(route.params.id);
 const comments = ref([]);
 const showDeleteConfirmationModal = ref(false);
 
@@ -49,6 +50,20 @@ const editTask = () => emit('edit');
 const deleteTask = () => {
   showDeleteConfirmationModal.value = false;
   emit('delete', props.task.id);
+};
+
+const toggleArchive = async () => {
+  try {
+    await (props.task.isArchived
+        ? taskService.restoreTask(kanbanId.value, props.task.id)
+        : taskService.archiveTask(kanbanId.value, props.task.id)
+    );
+    props.task.isArchived = !props.task.isArchived;
+    emit('handleResponse', props.tasks);
+
+  } catch (err) {
+    logger.error('Error archiving/unarchiving task from modal:', err);
+  }
 };
 
 const openTaskView = () => {
@@ -83,6 +98,13 @@ onMounted(fetchComments);
           </button>
           <button class="text-gray-500 dark:text-gray-300 hover:text-blue-500" @click="editTask">
             <v-icon name="fa-edit"/>
+          </button>
+          <button
+              class="text-gray-500 dark:text-gray-300 hover:text-yellow-500"
+              @click="toggleArchive"
+              :title="props.task.isArchived ? 'Unarchive Task' : 'Archive Task'"
+          >
+            <v-icon :name="props.task.isArchived ? 'md-unarchive-outlined' : 'md-archive-outlined'"/>
           </button>
           <button
               class="text-gray-500 dark:text-gray-300 hover:text-red-500"

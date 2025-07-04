@@ -17,6 +17,8 @@ import {
   updateTask,
   deleteTask,
   updateStageTask,
+  archiveTask,
+  restoreTask
 } from '../controllers/taskController.js';
 
 const router = express.Router({ mergeParams: true });
@@ -46,6 +48,12 @@ router.patch(
   checkTaskRelationship,
   updateStageTask
 );
+
+// PATCH /kanban/:id/task/:taskId/archive - Archive a specific task
+router.patch('/:taskId/archive', archiveTask);
+
+// PATCH /kanban/:id/task/:taskId/archive - Unarchive a specific task
+router.patch('/:taskId/restore', restoreTask);
 
 // DELETE /kanban/:id/task/:taskId - Delete a specific task
 router.delete('/:taskId', deleteTask);

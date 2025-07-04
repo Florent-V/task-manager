@@ -14,6 +14,7 @@ import { useHandleRequestStore } from "@/stores/handleRequestStore.js";
 import { setTitle, setDescription } from "@/utils/documentInfos.js";
 import { TimeParser } from "@/utils/timeParser.js";
 import logger from '@/utils/logger.js';
+import { TaskService } from '@/services/taskService.js';
 import TaskFormModal from "@/components/Kanban/TaskFormModal.vue";
 
 const route = useRoute();
@@ -21,6 +22,7 @@ const router = useRouter();
 const kanbanStore = useKanbanStore();
 const handleRequestStore = useHandleRequestStore();
 const timeParser = new TimeParser();
+const taskService = new TaskService();
 
 // Task related state
 const kanbanId = ref(route.params.kanbanId);
@@ -74,6 +76,20 @@ const imputedBarWidth = computed(() => {
   return (totalImputedMinutes.value / maxValue.value) * 100;
 });
 
+const toggleArchive = async () => {
+  try {
+    await (task.value.isArchived
+            ? taskService.restoreTask(kanbanId.value, taskId.value)
+            : taskService.archiveTask(kanbanId.value, taskId.value)
+    );
+    task.value.isArchived = !task.value.isArchived;
+    kanbanStore.editTask(task.value)
+
+  } catch (err) {
+    logger.error('Error archiving/unarchiving task from modal:', err);
+  }
+};
+
 const editTask = () => {
   showTaskFormModal.value = true;
 };
@@ -95,6 +111,7 @@ const handleResponseImputationFormSubmit = async (response) => {
     selectedImputation.value = null;
   } else {
     // Create new imputation
+    console.log("API response", response);
     imputationDisplayRef.value?.addImputation(response.imputation);
   }
 };
@@ -235,15 +252,22 @@ onMounted(async () => {
           <div class="flex space-x-2">
             <button
                 class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
+                @click="toggleArchive"
+                :title="task.isArchived ? 'Unarchive Task' : 'Archive Task'"
+            >
+              <v-icon :name="task.isArchived ? 'md-unarchive-outlined' : 'md-archive-outlined'"/>
+            </button>
+            <button
+                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
                 @click="editTask"
             >
-              Editer
+              <v-icon name="fa-edit"/>
             </button>
             <button
                 class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
                 @click="goBackToKanban"
             >
-              Back to Kanban Board
+              <v-icon name="bi-backspace"/>
             </button>
           </div>
         </div>

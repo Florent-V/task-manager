@@ -40,6 +40,19 @@ export class TaskService {
     );
   }
 
+  async archiveTask(kanbanId, taskId) {
+    return await this.executeRequest(
+      () => client.patch(`/api/kanban/${kanbanId}/task/${taskId}/archive`)
+    );
+  }
+
+  async restoreTask(kanbanId, taskId) {
+    console.log('restoreTask', kanbanId, taskId);
+    return await this.executeRequest(
+      () => client.patch(`/api/kanban/${kanbanId}/task/${taskId}/restore`)
+    );
+  }
+
   async deleteTask(kanbanId, taskId) {
     return await this.executeRequest(
       () => client.delete(`/api/kanban/${kanbanId}/task/${taskId}`)

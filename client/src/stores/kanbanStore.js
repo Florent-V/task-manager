@@ -146,6 +146,19 @@ export const useKanbanStore = defineStore('kanbanStore', {
       return tasks.map(task => this.enrichTask(task));
     },
 
+    updateTasksImputations(taskId, imputations) {
+      logger.debug('Updating task imputations for task ID:', taskId);
+      try {
+        const task = this.tasks.find(task => task.id === taskId);
+        if (task) {
+          task.imputations = imputations;
+        }
+      } catch (err) {
+        logger.error('Error updating task imputations:', err);
+        throw err;
+      }
+    },
+
     // Function to enrich a single comment with author name
     enrichComment(comment) {
       logger.debug('Enriching comment:', comment);

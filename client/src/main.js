@@ -27,6 +27,9 @@ import {
   BiBarChartLineFill,
   RiRobotLine,
   IoSparklesOutline,
+  MdArchiveOutlined,
+  MdUnarchiveOutlined,
+  BiBackspace ,
 } from "oh-vue-icons/icons";
 
 import { cropText } from '@/utils/crop.js';
@@ -59,6 +62,9 @@ addIcons(
   BiBarChartLineFill,
   RiRobotLine,
   IoSparklesOutline,
+  MdArchiveOutlined,
+  MdUnarchiveOutlined,
+  BiBackspace ,
 );
 
 const app = createApp(App)

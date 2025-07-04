@@ -85,9 +85,6 @@ const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...form
 const isEditing = computed(() => !!formData.value.id);
 const requestError = computed(() => handleRequestStore.error);
 const isEstimationFormInvalid = computed(() => {
-  console.log("isEstimationFormInvalid")
-  console.log("!formData.value.estimationString?.trim()", !formData.value.estimationString?.trim());
-  console.log("!timeParser.validateTimeInput(formData.value.estimationString)", !timeParser.validateTimeInput(formData.value.estimationString));
   if (!formData.value.estimationString?.trim()) return true; // Disabled if empty or only spaces
   return !timeParser.validateTimeInput(formData.value.estimationString); // Disabled if invalid format
 });
