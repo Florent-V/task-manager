@@ -471,18 +471,18 @@ export const seedDatabase = async () => {
     ]);
 
     const imputations = await imputation.bulkCreate([
-      { date: '2023-06-01', taskId: tasks[0].id, userId: users[0].id, comment: 'Comment 1', timeSpent: 150 },
-      { date: '2023-06-02', taskId: tasks[1].id, userId: users[1].id, comment: 'Comment 2', timeSpent: 120 },
-      { date: '2023-06-03', taskId: tasks[1].id, userId: users[0].id, comment: 'Comment 3', timeSpent: 180 },
-      { date: '2023-06-04', taskId: tasks[0].id, userId: users[1].id, comment: 'Comment 4', timeSpent: 240 },
-      { date: '2023-06-05', taskId: tasks[0].id, userId: users[0].id, comment: 'Comment 5', timeSpent: 300 },
-      { date: '2023-06-06', taskId: tasks[1].id, userId: users[1].id, comment: 'Comment 6', timeSpent: 360 },
-      { date: '2023-06-07', taskId: tasks[6].id, userId: users[0].id, comment: 'Comment 7', timeSpent: 200 },
-      { date: '2023-06-08', taskId: tasks[7].id, userId: users[1].id, comment: 'Comment 8', timeSpent: 220 },
-      { date: '2023-06-09', taskId: tasks[6].id, userId: users[1].id, comment: 'Comment 9', timeSpent: 250 },
-      { date: '2023-06-10', taskId: tasks[7].id, userId: users[0].id, comment: 'Comment 10', timeSpent: 280 },
-      { date: '2023-06-11', taskId: tasks[6].id, userId: users[0].id, comment: 'Comment 11', timeSpent: 300 },
-      { date: '2023-06-12', taskId: tasks[7].id, userId: users[1].id, comment: 'Comment 12', timeSpent: 320 },
+      { date: '2025-06-01', taskId: tasks[0].id, userId: users[0].id, comment: 'Comment 1', timeSpent: 150 },
+      { date: '2025-06-02', taskId: tasks[1].id, userId: users[1].id, comment: 'Comment 2', timeSpent: 120 },
+      { date: '2025-06-03', taskId: tasks[1].id, userId: users[0].id, comment: 'Comment 3', timeSpent: 180 },
+      { date: '2025-06-04', taskId: tasks[0].id, userId: users[1].id, comment: 'Comment 4', timeSpent: 240 },
+      { date: '2025-06-05', taskId: tasks[0].id, userId: users[0].id, comment: 'Comment 5', timeSpent: 300 },
+      { date: '2025-06-06', taskId: tasks[1].id, userId: users[1].id, comment: 'Comment 6', timeSpent: 360 },
+      { date: '2025-06-07', taskId: tasks[6].id, userId: users[0].id, comment: 'Comment 7', timeSpent: 200 },
+      { date: '2025-06-08', taskId: tasks[7].id, userId: users[1].id, comment: 'Comment 8', timeSpent: 220 },
+      { date: '2025-06-09', taskId: tasks[6].id, userId: users[1].id, comment: 'Comment 9', timeSpent: 250 },
+      { date: '2025-06-10', taskId: tasks[7].id, userId: users[0].id, comment: 'Comment 10', timeSpent: 280 },
+      { date: '2025-06-11', taskId: tasks[6].id, userId: users[0].id, comment: 'Comment 11', timeSpent: 300 },
+      { date: '2025-06-12', taskId: tasks[7].id, userId: users[1].id, comment: 'Comment 12', timeSpent: 320 },
     ]);
 
     logger.info('Test data created successfully!');
