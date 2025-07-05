@@ -76,4 +76,25 @@ export class TimeParser {
 
     return parts.length > 0 ? parts.join(" ") : "0m";
   }
+
+  /**
+   * Formats total minutes into an H:MM string.
+   * @param {number} totalMinutes The total time in minutes.
+   * @returns {string} The formatted time string e.g., "1:30" or "0:45". Returns "0:00" if invalid.
+   */
+  formatMinutesToHourMinuteString(totalMinutes) {
+    if (isNaN(totalMinutes) || totalMinutes < 0) {
+      return "0:00";
+    }
+    if (totalMinutes === 0) {
+      return "0:00"; // Or simply "0" or "-" as preferred, but H:MM format implies this.
+    }
+
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    const paddedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+
+    return `${hours}:${paddedMinutes}`;
+  }
 }

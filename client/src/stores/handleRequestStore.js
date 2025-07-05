@@ -4,7 +4,7 @@ import { defineStore } from 'pinia';
 export const useHandleRequestStore = defineStore('loadingStore', {
   state: () => ({
     isLoading: false,
-    error: null,
+    error: '',
   }),
   actions: {
     setLoading(isLoading) {

@@ -9,7 +9,7 @@ import { useKanbanStore } from '@/stores/kanbanStore.js';
 import { useHandleRequestStore } from "@/stores/handleRequestStore.js";
 import { TaskService } from '@/services/taskService.js';
 
-const emit = defineEmits(['close', 'edit', 'delete', 'add-comment']);
+const emit = defineEmits(['close', 'edit', 'delete', 'add-comment', 'handleResponse']);
 const props = defineProps({
   task: {
     type: Object,
@@ -55,9 +55,10 @@ const deleteTask = () => {
 const toggleArchive = async () => {
   try {
     await (props.task.isArchived
-        ? taskService.restoreTask(kanbanId.value, props.task.id)
-        : taskService.archiveTask(kanbanId.value, props.task.id)
+            ? taskService.restoreTask(kanbanId.value, props.task.id)
+            : taskService.archiveTask(kanbanId.value, props.task.id)
     );
+    // eslint-disable-next-line vue/no-mutating-props
     props.task.isArchived = !props.task.isArchived;
     emit('handleResponse', props.tasks);
 
@@ -101,8 +102,8 @@ onMounted(fetchComments);
           </button>
           <button
               class="text-gray-500 dark:text-gray-300 hover:text-yellow-500"
-              @click="toggleArchive"
               :title="props.task.isArchived ? 'Unarchive Task' : 'Archive Task'"
+              @click="toggleArchive"
           >
             <v-icon :name="props.task.isArchived ? 'md-unarchive-outlined' : 'md-archive-outlined'"/>
           </button>
@@ -170,7 +171,9 @@ onMounted(fetchComments);
         <!-- Comments Section -->
         <div v-else class="mt-8">
           <div class="mt-4 space-y-4">
-            <div v-for="comment in sortedComments" :key="comment.id" class="p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
+            <div
+                v-for="comment in sortedComments" :key="comment.id"
+                class="p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
               <div class="flex justify-between items-start">
                 <div>
                   <p class="text-sm font-medium text-gray-800 dark:text-gray-200">

@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import User from '../models/userModel.js';
 import Imputation from '../models/imputationModel.js';
 import Task from '../models/taskModel.js';
@@ -81,24 +82,49 @@ export async function getImputationsForUser(req, res, next) {
     throw new UnauthorizedError('You must be logged in to access this resource.');
   }
 
+  const { startDate, endDate } = req.query;
+  logger.debug(
+    `Fetching imputations for user ${userId} with startDate: ${startDate}, endDate: ${endDate}`
+  );
+
   try {
-    const includeTaskClause = {
-      model: Task,
-      as: 'task',
-      attributes: ['id', 'title', 'estimation', 'kanbanId'],
-      include: [
-        {
-          model: Kanban,
-          as: 'kanban',
-          attributes: ['id', 'title'],
-        },
-      ],
+    // Base where clause for imputations
+    const imputationWhereClause = {
+      userId: req.user.id, // Ensure we only get imputations for the logged-in user
     };
 
+    // Liste des paramètres de date à vérifier
+    const dateParams = [
+      { param: startDate, operator: Op.gte },
+      { param: endDate, operator: Op.lte },
+    ];
+    // Filtrer les paramètres définis et construire l'objet date
+    const dateConditions = dateParams.reduce((acc, { param, operator }) => {
+      if (param) {
+        acc[operator] = new Date(param);
+      }
+      return acc;
+    }, {});
+    // Ajouter les conditions de date à l'objet principal si nécessaire
+    if (Object.getOwnPropertySymbols(dateConditions).length > 0) {
+      imputationWhereClause.date = dateConditions;
+    }
+
     const imputations = await Imputation.findAll({
-      where: { userId: req.user.id }, // Assure-toi que l'ID de l'utilisateur est disponible dans req.user.id
+      where: imputationWhereClause,
       include: [
-        includeTaskClause,
+        {
+          model: Task,
+          as: 'task',
+          attributes: ['id', 'title', 'estimation', 'kanbanId'],
+          include: [
+            {
+              model: Kanban,
+              as: 'kanban',
+              attributes: ['id', 'title'],
+            },
+          ],
+        },
         {
           model: User,
           as: 'user',
@@ -119,11 +145,14 @@ export async function getImputationsForUser(req, res, next) {
           model: Task,
           as: 'tasks',
           attributes: ['id', 'title', 'estimation'],
+          required: true, // Assure que seules les tâches avec des imputations sont incluses
           include: [
             {
               model: Imputation,
               as: 'imputations',
               attributes: ['id', 'date', 'timeSpent', 'comment'],
+              where: imputationWhereClause, // Apply date and user filter here
+              required: true, // Assure que seules les tâches avec des imputations sont incluses
               include: [
                 {
                   model: User,

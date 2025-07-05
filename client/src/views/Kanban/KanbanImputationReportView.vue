@@ -1,11 +1,12 @@
 <script setup>
 import { ref, onMounted, computed, watch, defineProps } from 'vue';
 
+import LoaderComponent from '@/components/LoaderComponent.vue';
+import KanbanImputationStatsComponent from '@/components/Kanban/KanbanImputationStatsComponent.vue';
 import { useKanbanStore } from '@/stores/kanbanStore.js';
+import { useHandleRequestStore } from "@/stores/handleRequestStore.js";
 import { KanbanService } from '@/services/kanbanService.js';
 import { TimeParser } from '@/utils/timeParser.js';
-import LoaderComponent from '@/components/LoaderComponent.vue';
-import KanbanImputationStats from '@/components/Kanban/KanbanImputationStats.vue';
 import { setTitle, setDescription } from "@/utils/documentInfos.js";
 import logger from "@/utils/logger.js";
 
@@ -16,17 +17,22 @@ const props = defineProps({
   },
 });
 
+// Initialize services and data
 const kanbanStore = useKanbanStore();
+const handleRequestStore = useHandleRequestStore();
 const kanbanService = new KanbanService();
 const timeParser = new TimeParser();
 
+// State
 const tasks = ref([]);
 const users = ref([]);
 const kanbanDetails = ref({});
-const isLoading = ref(false);
-const error = ref(null);
+const selectedUserId = ref(null);
 
+// Computed Properties
 // Derived data built in a single pass over tasks
+const requestLoading = computed(() => handleRequestStore.isLoading);
+const requestError = computed(() => handleRequestStore.error);
 const derivedData = computed(() => {
   const summary = [];
   const flat = [];
@@ -98,7 +104,6 @@ const usersOnThisKanban = computed(() => {
     .sort((a, b) => a.fullName.localeCompare(b.fullName));
 });
 
-const selectedUserId = ref(null);
 function selectUser(id) {
   selectedUserId.value = selectedUserId.value === id ? null : id;
 }
@@ -118,7 +123,6 @@ watch(() => props.kanbanId, (newId) => {
 const fetchReportData = async () => {
   if (!props.kanbanId) return;
 
-  error.value = null;
   try {
     // Optionally still init store to get kanban metadata (title)
     await kanbanStore.initStore(props.kanbanId);
@@ -133,8 +137,8 @@ const fetchReportData = async () => {
 
   } catch (err) {
     logger.error('Error fetching Kanban imputation report:', err);
+    requestError.value = `Erreur lors de la récupération des imputations du kanban: ${err.message}`;
     tasks.value = [];
-    error.value = 'Unable to fetch report';
   }
 };
 
@@ -147,122 +151,130 @@ onMounted(async () => {
 
 <template>
   <div class="container mx-auto p-4">
-    <div v-if="isLoading" class="flex justify-center items-center h-64">
+    <div v-if="requestLoading" class="flex justify-center items-center h-64">
       <LoaderComponent />
     </div>
-    <div v-else-if="error" class="text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 p-4 rounded-md border border-red-300 dark:border-red-700">
-      <p class="font-semibold">Error loading report:</p>
-      <p>{{ error }}</p>
+
+    <div v-else-if="requestError" class="text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 p-4 rounded-md border border-red-300 dark:border-red-700">
+      <p class="font-semibold">Error loading report:
+        <span>({{ requestError }})</span>
+      </p>
     </div>
-    <div v-else-if="sortedImputations.length === 0" class="text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-slate-700 p-4 rounded-md">
-      <h1 class="text-2xl font-semibold mb-4">Kanban Report: {{ kanbanDetails?.title || props.kanbanId }}</h1>
-      <p>No imputations found for this Kanban board.</p>
-    </div>
+
     <div v-else>
-      <h1 class="text-4xl font-bold mb-8 text-center text-blue-800 dark:text-yellow-300 break-words">
-        Kanban Report: {{ kanbanDetails?.title || 'Loading...' }}
-      </h1>
-
-      <!-- Overall Summary -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
-          <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Total Estimated Time</h2>
-          <p class="text-3xl font-bold text-blue-600">
-            {{ timeParser.formatMinutesToTimeString(grandTotalEstimatedTime) }}
-          </p>
-          <p class="text-sm text-gray-500 dark:text-gray-400">for reported tasks</p>
-        </div>
-        <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
-          <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Total Time Spent</h2>
-          <p :class="['text-3xl font-bold', grandTotalTimeSpent > grandTotalEstimatedTime ? 'text-red-600' : 'text-green-600']">
-            {{ timeParser.formatMinutesToTimeString(grandTotalTimeSpent) }}
-          </p>
-          <p class="text-sm text-gray-500 dark:text-gray-400">on this Kanban board</p>
-        </div>
+      <!-- No error, No imputations found -->
+      <div v-if="sortedImputations.length === 0" class="text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-slate-700 p-4 rounded-md">
+        <h1 class="text-2xl font-semibold mb-4">Kanban Report: {{ kanbanDetails?.title || props.kanbanId }}</h1>
+        <p>No imputations found for this Kanban board.</p>
       </div>
 
-      <!-- Task-Specific Summary Table -->
-      <div class="mb-8 bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
-        <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Tasks Summary</h2>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-600">
-            <thead class="bg-gray-100 dark:bg-slate-700">
-            <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Task Title</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Estimated Time</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Total Time Spent</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Variance</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Variance %</th>
-            </tr>
-            </thead>
-            <tbody class="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-600">
-            <tr v-for="task in tasksSummary" :key="task.id">
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{{ task.title }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ timeParser.formatMinutesToTimeString(task.estimation) }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ timeParser.formatMinutesToTimeString(task.totalTimeSpentOnTask) }}</td>
-              <td :class="['px-6 py-4 whitespace-nowrap text-sm font-semibold', task.varianceMinutes > 0 ? 'text-red-500' : task.varianceMinutes < 0 ? 'text-green-500' : 'text-gray-500']">
-                {{ timeParser.formatMinutesToTimeString(task.varianceAbsMinutes) }}
-                <span v-if="task.varianceMinutes > 0">(Over)</span>
-                <span v-else-if="task.varianceMinutes < 0">(Under)</span>
-              </td>
-              <td :class="['px-6 py-4 whitespace-nowrap text-sm font-semibold', task.variancePerc > 100 ? 'text-red-500' : 'text-green-500']">
-                {{ task.variancePerc.toFixed(0) }}%
-              </td>
-            </tr>
-            </tbody>
-          </table>
+      <div v-else>
+        <h1 class="text-4xl font-bold mb-8 text-center text-blue-800 dark:text-yellow-300 break-words">
+          Kanban Report: {{ kanbanDetails?.title || 'Loading...' }}
+        </h1>
+
+        <!-- Overall Summary -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Total Estimated Time</h2>
+            <p class="text-3xl font-bold text-blue-600">
+              {{ timeParser.formatMinutesToTimeString(grandTotalEstimatedTime) }}
+            </p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">for reported tasks</p>
+          </div>
+          <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Total Time Spent</h2>
+            <p :class="['text-3xl font-bold', grandTotalTimeSpent > grandTotalEstimatedTime ? 'text-red-600' : 'text-green-600']">
+              {{ timeParser.formatMinutesToTimeString(grandTotalTimeSpent) }}
+            </p>
+            <p class="text-sm text-gray-500 dark:text-gray-400">on this Kanban board</p>
+          </div>
         </div>
-      </div>
 
-      <!-- Detailed Imputations Table -->
-      <div class="mb-8 bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
-        <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Detailed Imputations</h2>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-600">
-            <thead class="bg-gray-100 dark:bg-slate-700">
-            <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Task Title</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">User</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Time Spent</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Imputation Date</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Comment</th>
-            </tr>
-            </thead>
-            <tbody class="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-600">
-            <tr v-for="imputation in formattedImputations" :key="imputation.id">
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{{ imputation.title }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ imputation.userFullName }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ imputation.timeSpentFormatted }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ imputation.dateFormatted }}</td>
-              <td class="px-6 py-4 whitespace-normal text-sm text-gray-500 dark:text-gray-400 max-w-xs break-words">{{ imputation.comment }}</td>
-            </tr>
-            </tbody>
-          </table>
+        <!-- Task-Specific Summary Table -->
+        <div class="mb-8 bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
+          <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Tasks Summary</h2>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-600">
+              <thead class="bg-gray-100 dark:bg-slate-700">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Task Title</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Estimated Time</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Total Time Spent</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Variance</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Variance %</th>
+              </tr>
+              </thead>
+              <tbody class="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-600">
+              <tr v-for="task in tasksSummary" :key="task.id">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{{ task.title }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ timeParser.formatMinutesToTimeString(task.estimation) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ timeParser.formatMinutesToTimeString(task.totalTimeSpentOnTask) }}</td>
+                <td :class="['px-6 py-4 whitespace-nowrap text-sm font-semibold', task.varianceMinutes > 0 ? 'text-red-500' : task.varianceMinutes < 0 ? 'text-green-500' : 'text-gray-500']">
+                  {{ timeParser.formatMinutesToTimeString(task.varianceAbsMinutes) }}
+                  <span v-if="task.varianceMinutes > 0">(Over)</span>
+                  <span v-else-if="task.varianceMinutes < 0">(Under)</span>
+                </td>
+                <td :class="['px-6 py-4 whitespace-nowrap text-sm font-semibold', task.variancePerc > 100 ? 'text-red-500' : 'text-green-500']">
+                  {{ task.variancePerc.toFixed(0) }}%
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
+
+        <!-- Detailed Imputations Table -->
+        <div class="mb-8 bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
+          <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Detailed Imputations</h2>
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-600">
+              <thead class="bg-gray-100 dark:bg-slate-700">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Task Title</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">User</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Time Spent</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Imputation Date</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Comment</th>
+              </tr>
+              </thead>
+              <tbody class="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-600">
+              <tr v-for="imputation in formattedImputations" :key="imputation.id">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{{ imputation.title }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ imputation.userFullName }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ imputation.timeSpentFormatted }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ imputation.dateFormatted }}</td>
+                <td class="px-6 py-4 whitespace-normal text-sm text-gray-500 dark:text-gray-400 max-w-xs break-words">{{ imputation.comment }}</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- User Activity Section -->
+        <div v-if="usersOnThisKanban.length > 0" class="mb-8 bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
+          <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">User Activity on this Kanban</h2>
+          <ul class="space-y-2">
+            <li v-for="user in usersOnThisKanban" :key="user.id" class="text-sm">
+              <button
+                  :class="['text-blue-600 hover:text-blue-800 hover:underline dark:text-yellow-400 dark:hover:text-yellow-200', selectedUserId===user.id ? 'font-semibold' : '']"
+                  @click="selectUser(user.id)"
+              >
+                {{ user.fullName }}
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Imputations for selected user (if any) -->
+        <KanbanImputationStatsComponent
+            v-if="selectedUserId && imputationsForSelectedUser.length > 0"
+            :kanban-title="`Imputations for ${usersOnThisKanban.find(u=>u.id===selectedUserId)?.fullName || 'Selected user'}`"
+            :kanban-id="props.kanbanId"
+            :imputations="imputationsForSelectedUser"
+        />
+
       </div>
-
-      <!-- User Activity Section -->
-      <div v-if="usersOnThisKanban.length > 0" class="mb-8 bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
-        <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">User Activity on this Kanban</h2>
-        <ul class="space-y-2">
-          <li v-for="user in usersOnThisKanban" :key="user.id" class="text-sm">
-            <button
-                :class="['text-blue-600 hover:text-blue-800 hover:underline dark:text-yellow-400 dark:hover:text-yellow-200', selectedUserId===user.id ? 'font-semibold' : '']"
-                @click="selectUser(user.id)"
-            >
-              {{ user.fullName }}
-            </button>
-          </li>
-        </ul>
-      </div>
-
-      <!-- Imputations for selected user (if any) -->
-      <KanbanImputationStats
-          v-if="selectedUserId && imputationsForSelectedUser.length > 0"
-          :kanban-title="`Imputations for ${usersOnThisKanban.find(u=>u.id===selectedUserId)?.fullName || 'Selected user'}`"
-          :kanban-id="props.kanbanId"
-          :imputations="imputationsForSelectedUser" />
-
     </div>
   </div>
 </template>

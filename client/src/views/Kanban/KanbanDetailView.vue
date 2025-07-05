@@ -81,10 +81,6 @@ const getTasksByStatus = (tasks, status) => {
   return tasks.filter((task) => task.stageId === status);
 };
 
-const getTasksForUser = (userId) => {
-  return tasks.value.filter(task => task.assignedToId === userId);
-};
-
 // Gestion drag and drop
 let draggedTask = null;
 
