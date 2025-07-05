@@ -18,7 +18,7 @@ import {
   deleteTask,
   updateStageTask,
   archiveTask,
-  restoreTask
+  restoreTask,
 } from '../controllers/taskController.js';
 
 const router = express.Router({ mergeParams: true });

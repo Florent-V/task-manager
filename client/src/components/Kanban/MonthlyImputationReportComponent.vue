@@ -127,7 +127,7 @@ const calendarData = computed(() => {
     taskEntry.days.set(dayOfMonth, currentTime + (imp.timeSpent || 0));
     taskEntry.totalTaskTime += (imp.timeSpent || 0);
   });
-  return Array.from(tasksMap.values()).sort((a,b) => a.title.localeCompare(b.title));
+  return Array.from(tasksMap.values()).sort((a, b) => a.title.localeCompare(b.title));
 });
 
 const dailyTotals = computed(() => {
@@ -146,11 +146,13 @@ const grandTotalMonthlyTime = computed(() => {
 
 
 // Fetch data when the component mounts or when the month changes
-onMounted(() => {
+onMounted(async () => {
   // Ensure user is available before initial fetch if not covered by immediate watcher
   if (viewedUser.value?.id) {
-    fetchMonthlyImputations();
+    await fetchMonthlyImputations();
   }
+  setTitle(`Imputations mensuelles de ${viewedUser.value.username}`);
+  setDescription(`Cette page affiche les imputations mensuelles de ${viewedUser.value.username}`);
 });
 
 watch(currentDisplayMonth, fetchMonthlyImputations);
@@ -187,38 +189,56 @@ const dayNumbers = computed(() => Array.from({ length: daysInMonth.value }, (_, 
         Monthly Log: {{ monthName }} {{ year }}
       </h2>
       <div class="flex items-center gap-2 mt-3 sm:mt-0">
-        <button class="px-3 py-1 border border-blue-600 text-blue-600 rounded hover:bg-blue-50 dark:border-yellow-400 dark:text-yellow-400 dark:hover:bg-slate-700" @click="goToPreviousMonth">&lt; Prev</button>
-        <button class="px-3 py-1 border border-gray-400 text-gray-700 rounded hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-slate-700" @click="goToCurrentMonth">Today</button>
-        <button class="px-3 py-1 border border-blue-600 text-blue-600 rounded hover:bg-blue-50 dark:border-yellow-400 dark:text-yellow-400 dark:hover:bg-slate-700" @click="goToNextMonth">Next &gt;</button>
+        <button
+            class="px-3 py-1 border border-blue-600 text-blue-600 rounded hover:bg-blue-50 dark:border-yellow-400 dark:text-yellow-400 dark:hover:bg-slate-700"
+            @click="goToPreviousMonth">&lt; Prev
+        </button>
+        <button
+            class="px-3 py-1 border border-gray-400 text-gray-700 rounded hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-slate-700"
+            @click="goToCurrentMonth">Today
+        </button>
+        <button
+            class="px-3 py-1 border border-blue-600 text-blue-600 rounded hover:bg-blue-50 dark:border-yellow-400 dark:text-yellow-400 dark:hover:bg-slate-700"
+            @click="goToNextMonth">Next &gt;
+        </button>
       </div>
     </div>
 
     <div v-if="requestLoading" class="flex justify-center items-center h-64">
-      <LoaderComponent />
+      <LoaderComponent/>
     </div>
-    <div v-else-if="error || requestError" class="text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/20 p-4 rounded-md">
+    <div
+        v-else-if="error || requestError"
+        class="text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/20 p-4 rounded-md">
       <p class="font-semibold">Error:
         <span v-if="requestError">({{ requestError }})</span>
         <span v-if="error">({{ error }})</span>
       </p>
     </div>
-    <div v-else-if="calendarData.length === 0" class="text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-slate-700/50 p-4 rounded-md text-center">
+    <div
+        v-else-if="calendarData.length === 0"
+        class="text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-slate-700/50 p-4 rounded-md text-center">
       No imputations found for {{ monthName }} {{ year }}.
     </div>
 
     <div v-else class="overflow-x-auto">
-      <table class="min-w-full border border-gray-200 dark:border-slate-700 divide-y divide-gray-200 dark:divide-slate-700">
+      <table
+          class="min-w-full border border-gray-200 dark:border-slate-700 divide-y divide-gray-200 dark:divide-slate-700">
         <thead class="bg-gray-50 dark:bg-slate-700 text-gray-700 dark:text-gray-200">
         <tr>
           <th class="sticky left-0 z-10 bg-gray-50 dark:bg-slate-700 p-2 min-w-[200px] md:min-w-[250px]">Task</th>
-          <th v-for="day in dayNumbers" :key="`header-${day}`" class="p-2 text-center min-w-[60px] hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
+          <th
+              v-for="day in dayNumbers" :key="`header-${day}`"
+              class="p-2 text-center min-w-[60px] hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
             {{ day }}
           </th>
           <th class="p-2 text-center font-bold min-w-[80px] sticky right-0 z-10 bg-gray-50 dark:bg-slate-700">Total</th>
         </tr>
         </thead>
         <tbody class="bg-white dark:bg-slate-800">
-        <tr v-for="task in calendarData" :key="task.id" class="bg-white even:bg-gray-50 dark:bg-slate-800 dark:even:bg-slate-700 hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
+        <tr
+            v-for="task in calendarData" :key="task.id"
+            class="bg-white even:bg-gray-50 dark:bg-slate-800 dark:even:bg-slate-700 hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
           <td class="sticky left-0 z-10 bg-white dark:bg-slate-800 group-hover:bg-gray-50 dark:group-hover:bg-slate-600/30 p-2 border-t border-gray-200 dark:border-slate-700">
             <RouterLink
                 :to="`/kanban/${task.kanbanId}/task/${task.id}`"
@@ -229,7 +249,9 @@ const dayNumbers = computed(() => Array.from({ length: daysInMonth.value }, (_, 
             </RouterLink>
             <div class="text-xs text-gray-500 dark:text-gray-400">{{ task.kanbanTitle }}</div>
           </td>
-          <td v-for="day in dayNumbers" :key="`task-${task.id}-day-${day}`" class="p-2 text-center border-t border-gray-200 dark:border-slate-700">
+          <td
+              v-for="day in dayNumbers" :key="`task-${task.id}-day-${day}`"
+              class="p-2 text-center border-t border-gray-200 dark:border-slate-700">
               <span v-if="task.days.get(day)" class="text-sm">
                 {{ timeParser.formatMinutesToHourMinuteString(task.days.get(day)) }}
               </span>
@@ -265,9 +287,11 @@ const dayNumbers = computed(() => Array.from({ length: daysInMonth.value }, (_, 
   position: sticky;
   /* Ensure background is opaque if rows behind have different colors on hover etc. */
 }
+
 .table th.sticky.left-0, .table td.sticky.left-0 {
   left: 0;
 }
+
 .table th.sticky.right-0, .table td.sticky.right-0 {
   right: 0;
 }
@@ -277,6 +301,7 @@ const dayNumbers = computed(() => Array.from({ length: daysInMonth.value }, (_, 
   /* background-color: #f0f8ff; /* Example: AliceBlue */
   /* outline: 1px solid #4A90E2; /* Example: Blue outline */
 }
+
 /* Dark mode for today's column */
 .dark .today-column {
   /* background-color: #2c3e50; /* Example: Darker blue/grey */

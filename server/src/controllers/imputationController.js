@@ -138,16 +138,6 @@ export async function getImputationsForUser(req, res, next) {
       ],
     });
 
-
-
-
-
-
-
-
-
-
-
     const kanbans = await Kanban.findAll({
       attributes: ['id', 'title'],
       include: [
@@ -183,12 +173,7 @@ export async function getImputationsForUser(req, res, next) {
       order: [
         ['id', 'ASC'],
         [{ model: Task, as: 'tasks' }, 'id', 'ASC'],
-        [
-          { model: Task, as: 'tasks' },
-          { model: Imputation, as: 'imputations' },
-          'date',
-          'DESC'
-        ],
+        [{ model: Task, as: 'tasks' }, { model: Imputation, as: 'imputations' }, 'date', 'DESC'],
         [
           { model: Task, as: 'tasks' },
           { model: Imputation, as: 'imputations' },

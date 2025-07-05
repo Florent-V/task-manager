@@ -1,5 +1,7 @@
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+
+import logger from '@/utils/logger.js';
 
 const props = defineProps({
   modelValue: { // Format YYYY-MM-DD
@@ -31,6 +33,7 @@ const displayMonth = ref(today.getMonth()); // 0-11 for Date object month
 watch(() => props.modelValue, (newValue) => {
   if (newValue && /^\d{4}-\d{2}-\d{2}$/.test(newValue)) {
     const [year, month, day] = newValue.split('-').map(Number);
+    logger.info(`Updating calendar display to ${year}-${month}-${day}`);
     displayYear.value = year;
     displayMonth.value = month - 1; // Date object month is 0-11
   } else if (!newValue) { // If modelValue is cleared, reset calendar to today's month
@@ -39,15 +42,19 @@ watch(() => props.modelValue, (newValue) => {
   }
 }, { immediate: true });
 
-
 const formattedDisplayDate = computed(() => {
   if (!props.modelValue) return props.placeholder;
   // Optionally, format more nicely, e.g., "Jul 5, 2024"
   // For now, keep YYYY-MM-DD or could use toLocaleDateString
   try {
     const [year, month, day] = props.modelValue.split('-').map(Number);
-    return new Date(year, month - 1, day).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-  } catch (e) {
+    return new Date(year, month - 1, day).toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  } catch (err) {
+    logger.error('Error formatting date:', err);
     return props.placeholder;
   }
 });
@@ -131,7 +138,6 @@ onMounted(() => {
   document.addEventListener('click', handleClickOutside, true);
 });
 
-import { onUnmounted } from 'vue';
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside, true);
 });
@@ -140,7 +146,13 @@ onUnmounted(() => {
 
 <template>
   <div ref="calendarRef" class="relative w-full">
-    <label v-if="label" for="dateInput" class="block w-full text-center mb-2 text-gray-700 dark:text-gray-300 font-medium">{{ label }}</label>
+    <label
+        v-if="label"
+        for="dateInput"
+        class="block w-full text-center mb-2 text-gray-700 dark:text-gray-300 font-medium"
+    >
+      {{ label }}
+    </label>
     <div
         id="dateInput"
         tabindex="0"
@@ -153,7 +165,10 @@ onUnmounted(() => {
     >
       <span>{{ formattedDisplayDate }}</span>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 text-gray-400">
-        <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+        <path
+            fill-rule="evenodd"
+            d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
+            clip-rule="evenodd"/>
       </svg>
     </div>
 
@@ -165,13 +180,24 @@ onUnmounted(() => {
         leave-from-class="transform opacity-100 scale-100"
         leave-to-class="transform opacity-0 scale-95"
     >
-      <div v-if="showCalendar" class="absolute z-50 mt-1 w-full sm:w-80 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 p-4 shadow-lg rounded-md">
+      <div
+          v-if="showCalendar"
+          class="absolute z-50 mt-1 w-full sm:w-80 bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 p-4 shadow-lg rounded-md"
+      >
         <div class="flex justify-between items-center mb-3">
-          <button aria-label="Previous month" @click.stop="changeDisplayMonth(-1)" class="p-1 rounded hover:bg-gray-200 dark:hover:bg-slate-600">
+          <button
+              aria-label="Previous month" class="p-1 rounded hover:bg-gray-200 dark:hover:bg-slate-600"
+              @click.stop="changeDisplayMonth(-1)"
+          >
             &lt;
           </button>
-          <div class="font-semibold text-gray-800 dark:text-gray-200 text-center" aria-live="polite">{{ currentCalendarMonthName }}</div>
-          <button aria-label="Next month" @click.stop="changeDisplayMonth(1)" class="p-1 rounded hover:bg-gray-200 dark:hover:bg-slate-600">
+          <div class="font-semibold text-gray-800 dark:text-gray-200 text-center" aria-live="polite">
+            {{ currentCalendarMonthName }}
+          </div>
+          <button
+              aria-label="Next month" class="p-1 rounded hover:bg-gray-200 dark:hover:bg-slate-600"
+              @click.stop="changeDisplayMonth(1)"
+          >
             &gt;
           </button>
         </div>
@@ -196,7 +222,10 @@ onUnmounted(() => {
             </button>
           </div>
         </div>
-        <button @click.stop="showCalendar = false" class="w-full py-2 mt-3 border border-gray-300 dark:border-slate-600 rounded-md text-center text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-600">Close</button>
+        <button
+            class="w-full py-2 mt-3 border border-gray-300 dark:border-slate-600 rounded-md text-center text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-600"
+            @click.stop="showCalendar = false">Close
+        </button>
       </div>
     </transition>
   </div>

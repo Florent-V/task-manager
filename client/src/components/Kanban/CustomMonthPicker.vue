@@ -61,14 +61,22 @@ function changeMonth(offset) {
   <div class="w-full">
     <label v-if="label" class="block text-center mb-2 text-gray-700 dark:text-gray-300 font-medium">{{ label }}</label>
     <div class="flex items-center border border-gray-300 dark:border-slate-600 rounded-md overflow-hidden">
-      <button type="button" class="p-2 hover:bg-gray-100 dark:hover:bg-slate-600 focus:outline-none" @click="changeMonth(-1)">
-        <v-icon name="co-chevron-left" class="w-5 h-5 text-gray-600 dark:text-gray-200" />
+      <button
+          type="button"
+          class="p-2 hover:bg-gray-100 dark:hover:bg-slate-600 focus:outline-none"
+          @click="changeMonth(-1)"
+      >
+        <v-icon name="co-chevron-left" class="w-5 h-5 text-gray-600 dark:text-gray-200"/>
       </button>
       <div class="flex-1 text-center py-2 text-sm text-gray-800 dark:text-gray-200">
         {{ displayedDate }}
       </div>
-      <button type="button" class="p-2 hover:bg-gray-100 dark:hover:bg-slate-600 focus:outline-none" @click="changeMonth(1)">
-        <v-icon name="co-chevron-right" class="w-5 h-5 text-gray-600 dark:text-gray-200" />
+      <button
+          type="button"
+          class="p-2 hover:bg-gray-100 dark:hover:bg-slate-600 focus:outline-none"
+          @click="changeMonth(1)"
+      >
+        <v-icon name="co-chevron-right" class="w-5 h-5 text-gray-600 dark:text-gray-200"/>
       </button>
     </div>
   </div>

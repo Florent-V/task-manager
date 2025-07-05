@@ -202,10 +202,14 @@ const cancelOverall = () => {
         <div class="flex justify-between items-center">
           <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-200">Filter Imputations (Summary Report)</h2>
           <div class="flex items-center space-x-3">
-            <button :class="currentViewMode === 'report' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'" class="px-4 py-2 rounded-md focus:outline-none" @click="currentViewMode = 'report'">
+            <button
+                :class="currentViewMode === 'report' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'"
+                class="px-4 py-2 rounded-md focus:outline-none" @click="currentViewMode = 'report'">
               Summary Report
             </button>
-            <button :class="currentViewMode === 'calendar' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'" class="px-4 py-2 rounded-md focus:outline-none" @click="currentViewMode = 'calendar'">
+            <button
+                :class="currentViewMode === 'calendar' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'"
+                class="px-4 py-2 rounded-md focus:outline-none" @click="currentViewMode = 'calendar'">
               Monthly Calendar
             </button>
           </div>
@@ -215,7 +219,9 @@ const cancelOverall = () => {
           <div class="flex justify-center">
             <div class="flex items-center gap-4 w-full sm:w-1/2">
               <label for="filterType" class="text-gray-700 dark:text-gray-300 font-medium">Filter By</label>
-              <select v-model="filterTypeProxy" id="filterType" class="flex-1 py-2 px-3 mx-0 border border-gray-300 bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-yellow-400">
+              <select
+                  id="filterType" v-model="filterTypeProxy"
+                  class="flex-1 py-2 px-3 mx-0 border border-gray-300 bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-yellow-400">
                 <option value="month">Month/Year</option>
                 <option value="customRange">Custom Range</option>
                 <option value="overall">Overall</option>
@@ -225,19 +231,21 @@ const cancelOverall = () => {
           <!-- Date pickers row -->
           <div class="flex justify-center items-center gap-4">
             <div v-if="filterType === 'month'" class="w-full sm:w-1/2">
-              <CustomMonthPicker v-model="selectedMonthYear" label="Select Month" />
+              <CustomMonthPicker v-model="selectedMonthYear" label="Select Month"/>
             </div>
             <template v-if="filterType === 'customRange'">
               <div class="w-full sm:w-1/3">
-                <CustomDatePicker v-model="customStartDate" label="Start Date" />
+                <CustomDatePicker v-model="customStartDate" label="Start Date"/>
               </div>
               <div class="w-full sm:w-1/3">
-                <CustomDatePicker v-model="customEndDate" label="End Date" />
+                <CustomDatePicker v-model="customEndDate" label="End Date"/>
               </div>
             </template>
           </div>
           <!-- Error message -->
-          <p v-if="error && filterType === 'customRange' && customStartDate && customEndDate && new Date(customEndDate) < new Date(customStartDate)" class="text-red-500 text-sm text-center">{{ error }}</p>
+          <p
+              v-if="error && filterType === 'customRange' && customStartDate && customEndDate && new Date(customEndDate) < new Date(customStartDate)"
+              class="text-red-500 text-sm text-center">{{ error }}</p>
         </div>
         <!-- Confirmation modal for 'overall' filter -->
         <ModalConfirmation
@@ -254,10 +262,12 @@ const cancelOverall = () => {
       <div v-if="currentViewMode === 'report'">
 
         <div v-if="requestLoading" class="flex justify-center items-center h-64">
-          <LoaderComponent />
+          <LoaderComponent/>
         </div>
 
-        <div v-else-if="error || requestError" class="text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 p-4 rounded-md border border-red-300 dark:border-red-700">
+        <div
+            v-else-if="error || requestError"
+            class="text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 p-4 rounded-md border border-red-300 dark:border-red-700">
           <p class="font-semibold">Error loading report data:
             <span v-if="requestError">({{ requestError }})</span>
             <span v-if="error">({{ error }})</span>
@@ -265,15 +275,21 @@ const cancelOverall = () => {
         </div>
 
         <div v-else>
-          <div v-if="kanbans.length === 0" class="text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-slate-700 p-4 rounded-md">
-            <p>No imputations found for {{ viewedUser.firstName }} {{ viewedUser.lastName }} {{ reportPeriodDescription.toLowerCase() }}.</p>
+          <div
+              v-if="kanbans.length === 0"
+              class="text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-slate-700 p-4 rounded-md">
+            <p>No imputations found for {{ viewedUser.firstName }} {{ viewedUser.lastName }}
+              {{ reportPeriodDescription.toLowerCase() }}.</p>
           </div>
 
           <div v-else>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-              <div class="bg-white dark:bg-slate-700 p-6 rounded-lg shadow dark:shadow-gray-700 col-span-1 md:col-span-2">
+              <div
+                  class="bg-white dark:bg-slate-700 p-6 rounded-lg shadow dark:shadow-gray-700 col-span-1 md:col-span-2">
                 <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">
-                  Total Time Logged {{ reportPeriodDescription }} by {{ viewedUser.firstName }} {{ viewedUser.lastName }}
+                  Total Time Logged {{ reportPeriodDescription }} by {{ viewedUser.firstName }} {{
+                    viewedUser.lastName
+                  }}
                 </h2>
                 <p class="text-3xl font-bold text-blue-600 dark:text-yellow-400">
                   {{ timeParser.formatMinutesToTimeString(grandTotalTimeSpent) }}
@@ -294,7 +310,7 @@ const cancelOverall = () => {
 
       <!-- Calendar View Content -->
       <div v-if="currentViewMode === 'calendar'">
-        <MonthlyImputationReportComponent :initial-month="selectedMonthYear" />
+        <MonthlyImputationReportComponent :initial-month="selectedMonthYear"/>
       </div>
     </div>
   </div>
@@ -304,6 +320,7 @@ const cancelOverall = () => {
 .max-w-xs {
   max-width: 20rem; /* Example for comment column */
 }
+
 /* Ensure DaisyUI form elements are styled correctly in dark mode if not by default */
 .dark .select, .dark .input {
   color-scheme: dark; /* This can sometimes help with date pickers native UI */
