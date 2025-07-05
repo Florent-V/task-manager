@@ -79,11 +79,26 @@ export class KanbanService {
 
   /**
    * Fetches the time tracking report for the current user.
+   *
+   * @param {{
+   *   startDate?: string,
+   *   endDate?: string
+   * }} options - Optional parameters for filtering.
    * @returns {Promise<any>} The promise from the API call.
    */
-  async getUserTimeTrackingReport() {
-    return await this.executeRequest(
-      () => client.get(`/api/timetracking/me`),
-    )
+  async getUserTimeTrackingReport(options = {}) {
+    let url = `/api/timetracking/me`;
+    const params = new URLSearchParams();
+    if (options.startDate) {
+      params.append('startDate', options.startDate);
+    }
+    if (options.endDate) {
+      params.append('endDate', options.endDate);
+    }
+    const queryString = params.toString();
+    if (queryString) {
+      url += `?${queryString}`;
+    }
+    return await this.executeRequest(() => client.get(url));
   }
 }
