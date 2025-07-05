@@ -9,13 +9,13 @@ import CommentFormComponent from "@/components/Kanban/CommentFormComponent.vue";
 import ImputationDisplayComponent from "@/components/Kanban/ImputationDisplayComponent.vue";
 import CommentDisplayComponent from "@/components/Kanban/CommentDisplayComponent.vue";
 import ModalConfirmation from '@/components/ModalConfirmation.vue';
+import TaskFormModal from "@/components/Kanban/TaskFormModal.vue";
 import { useKanbanStore } from '@/stores/kanbanStore.js';
 import { useHandleRequestStore } from "@/stores/handleRequestStore.js";
 import { setTitle, setDescription } from "@/utils/documentInfos.js";
 import { TimeParser } from "@/utils/timeParser.js";
 import logger from '@/utils/logger.js';
 import { TaskService } from '@/services/taskService.js';
-import TaskFormModal from "@/components/Kanban/TaskFormModal.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -182,8 +182,8 @@ async function fetchTask() {
   try {
     await kanbanStore.initStore(kanbanId.value);
     task.value = kanbanStore.getTaskById(taskId.value);
-    console.log('task.value', task.value);
     if (!task.value) {
+      requestError.value = 'Task not found';
       logger.warn(`Task with ID ${taskId.value} not found in Kanban ${kanbanId.value}`);
       // TODO display a user-friendly message or redirect
       return;
@@ -252,8 +252,8 @@ onMounted(async () => {
           <div class="flex space-x-2">
             <button
                 class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
-                @click="toggleArchive"
                 :title="task.isArchived ? 'Unarchive Task' : 'Archive Task'"
+                @click="toggleArchive"
             >
               <v-icon :name="task.isArchived ? 'md-unarchive-outlined' : 'md-archive-outlined'"/>
             </button>
