@@ -29,7 +29,9 @@ import {
   IoSparklesOutline,
   MdArchiveOutlined,
   MdUnarchiveOutlined,
-  BiBackspace ,
+  BiBackspace,
+  CoChevronLeft,
+  CoChevronRight,
 } from "oh-vue-icons/icons";
 
 import { cropText } from '@/utils/crop.js';
@@ -64,7 +66,9 @@ addIcons(
   IoSparklesOutline,
   MdArchiveOutlined,
   MdUnarchiveOutlined,
-  BiBackspace ,
+  BiBackspace,
+  CoChevronLeft,
+  CoChevronRight,
 );
 
 const app = createApp(App)

@@ -29,6 +29,7 @@ export default [
     path: '/kanban/:id',
     name: 'kanbanDetail',
     meta: {
+      requiresAuth: true,
       title: 'Kanban Détail View',
       description: 'This is the kanban detail page'
     },
@@ -59,6 +60,7 @@ export default [
     name: 'TaskDetailViewPage',
     component: TaskDetailView,
     meta: {
+      requiresAuth: true,
       title: 'Task Details',
       description: 'Detailed view of a specific task'
     },
