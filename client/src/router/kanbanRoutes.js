@@ -53,7 +53,7 @@ export default [
       description: 'This is the kanban imputation report page'
     },
     component: KanbanImputationReportView,
-    props: true, // Automatically pass route params as props (e.g., userId)
+    props: true, // Automatically pass route params (kanbanId) as props
   },
   {
     path: '/kanban/:kanbanId/task/:taskId',
@@ -64,6 +64,6 @@ export default [
       title: 'Task Details',
       description: 'Detailed view of a specific task'
     },
-    props: true // Allows route params (kanbanId, taskId) to be passed as props
+    props: true // Automatically pass route params (kanbanId, taskId) as props
   }
 ]
