@@ -3,6 +3,7 @@ import { ref, watch, defineProps, computed } from 'vue';
 import { KanbanService } from '@/services/kanbanService.js';
 import LoaderComponent from '@/components/LoaderComponent.vue';
 import PaginationComponent from '@/components/PaginationComponent.vue';
+import KanbanImputationStatsComponent from '@/components/Kanban/KanbanImputationStatsComponent.vue';
 import logger from "@/utils/logger.js";
 
 const props = defineProps({
@@ -13,11 +14,16 @@ const props = defineProps({
   timeParser: {
     type: Object,
     required: true
+  },
+  usersOnThisKanban: {
+    type: Array,
+    default: () => []
   }
 });
 
 const kanbanService = new KanbanService();
 
+const selectedUserId = ref(null);
 const imputations = ref([]);
 const isLoading = ref(false);
 const error = ref(null);
@@ -27,6 +33,10 @@ const itemsPerPage = ref(10); // Or make this a prop
 const totalItems = ref(0);
 
 const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.value));
+
+function selectUser(id) {
+  selectedUserId.value = selectedUserId.value === id ? null : id;
+}
 
 async function fetchData() {
   if (!props.kanbanId) return;
@@ -64,6 +74,19 @@ function handlePageChange(newPage) {
   currentPage.value = newPage;
   fetchData();
 }
+
+const selectedUserName = computed(() => {
+  if (!selectedUserId.value || !props.usersOnThisKanban) return 'Selected User';
+  const user = props.usersOnThisKanban.find(u => u.id === selectedUserId.value);
+  return user ? user.fullName : 'Selected User';
+});
+
+const detailedImputationsForSelectedUser = computed(() => {
+  if (!selectedUserId.value || !imputations.value) {
+    return [];
+  }
+  return imputations.value.filter(imp => imp.userId === selectedUserId.value);
+});
 </script>
 
 <template>
@@ -72,8 +95,8 @@ function handlePageChange(newPage) {
     <div v-if="isLoading && (!imputations || imputations.length === 0)" class="flex justify-center py-4">
       <LoaderComponent />
     </div>
-    <div v-else-if="!isLoading && (!imputations || imputations.length === 0)" class="text-center py-4 text-gray-500 dark:text-gray-400">
-      No detailed imputations to display.
+    <div v-else-if="!isLoading && (!imputations || imputations.length === 0) && !error" class="text-center py-4 text-gray-500 dark:text-gray-400">
+      No detailed imputations to display for this Kanban.
     </div>
     <div v-else-if="imputations && imputations.length > 0" class="overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-600">
@@ -107,6 +130,49 @@ function handlePageChange(newPage) {
       />
     </div>
     <div v-if="error" class="text-red-500 text-sm mt-2">{{ error }}</div>
+  </div>
+
+  <div class="mb-8 bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
+    <!-- User Selection Section moved here -->
+    <div v-if="props.usersOnThisKanban && props.usersOnThisKanban.length > 0">
+      <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Select User for Detailed Stats</h2>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
+        Select a user to view their imputation statistics from the table above. The stats shown will be based on the currently loaded page of imputations.
+      </p>
+      <ul class="space-y-2">
+        <li v-for="user in props.usersOnThisKanban" :key="user.id" class="text-sm">
+          <button
+              :class="['text-blue-600 hover:text-blue-800 hover:underline dark:text-yellow-400 dark:hover:text-yellow-200', selectedUserId === user.id ? 'font-semibold ring-2 ring-blue-500 dark:ring-yellow-500 rounded px-1' : 'px-1']"
+              @click="selectUser(user.id)"
+          >
+            {{ user.fullName }}
+          </button>
+        </li>
+      </ul>
+      <button
+          v-if="selectedUserId"
+          @click="selectUser(null)"
+          class="mt-4 text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 underline"
+      >
+        Clear selection
+      </button>
+    </div v-if="props.usersOnThisKanban && props.usersOnThisKanban.length > 0">
+    <div v-else-if="!isLoading && (!props.usersOnThisKanban || props.usersOnThisKanban.length === 0) && imputations.length > 0" class="mt-8 pt-6 border-t border-gray-200 dark:border-slate-600 text-center text-gray-500 dark:text-gray-400">
+      No users found on this Kanban to display activity for.
+    </div>
+
+    <!-- Stats for selected user -->
+    <KanbanImputationStatsComponent
+        v-if="selectedUserId && detailedImputationsForSelectedUser.length > 0"
+        :kanban-id="props.kanbanId"
+        :imputations="detailedImputationsForSelectedUser"
+        :kanban-title="`Imputations for ${selectedUserName}`"
+        class="mt-6"
+    />
+    <div v-else-if="selectedUserId && detailedImputationsForSelectedUser.length === 0 && !isLoading" class="mt-6 p-4 bg-yellow-50 dark:bg-slate-700 rounded-lg text-center text-gray-600 dark:text-gray-300">
+      No imputations found for {{ selectedUserName }} in the current view.
+    </div>
+
   </div>
 </template>
 

@@ -3,7 +3,6 @@ import { ref, computed, watch, defineProps } from 'vue';
 
 import LoaderComponent from '@/components/LoaderComponent.vue';
 import LoaderDotsComponent from "@/components/LoaderDotsComponent.vue";
-import KanbanImputationStatsComponent from '@/components/Kanban/KanbanImputationStatsComponent.vue';
 import TasksSummaryTable from '@/components/Kanban/TaskSummaryTable.vue';
 import DetailedImputationsTable from '@/components/Kanban/DetailedImputationTable.vue';
 import { useKanbanStore } from '@/stores/kanbanStore.js';
@@ -29,7 +28,6 @@ const timeParser = new TimeParser();
 // State for data managed by this parent component
 const users = ref([]);
 const kanbanDetails = ref({});
-const selectedUserId = ref(null);
 // Specific loading states for data fetched
 const isLoadingTotals = ref(false);
 const isLoadingBase = ref(false);
@@ -55,19 +53,6 @@ const usersOnThisKanban = computed(() => {
 function selectUser(id) {
   selectedUserId.value = selectedUserId.value === id ? null : id;
 }
-
-// ImputationsForSelectedUser is commented out as data source is now in child component
-// This functionality will need to be re-thought if kept in parent.
-// For now, this component will not display these stats.
-/*
-const imputationsForSelectedUser = computed(() => {
-  // This would need data from DetailedImputationsTable or a separate API call
-  // For now, returning an empty array as the data is not available here.
-  // If DetailedImputationsTable emits its current page data, this could be updated.
-  return [];
-});
-*/
-
 
 // Fetching functions for data managed by this parent
 const fetchKanbanBaseDetails = async () => {
@@ -120,7 +105,6 @@ watch(() => props.kanbanId, (newId, oldId) => {
     // Reset  data
     kanbanDetails.value = { id: props.kanbanId };
     users.value = [];
-    selectedUserId.value = null;
     tasksTotalEstimatedTime.value = 0;
     tasksTotalImputedTime.value = 0;
     handleRequestStore.clearError();
@@ -137,9 +121,9 @@ watch(() => props.kanbanId, (newId, oldId) => {
     <!-- Header with overall stats-->
     <div>
       <div>
-        <h1 class="flex gap-12 mb-8 justify-center items-center text-center text-blue-800 dark:text-yellow-300 break-words">
-          <span class="text-4xl  font-bold">Kanban Report:</span>
-          <span v-if="isLoadingBase" class="loader-container">
+        <h1 class="flex mb-8 gap-2 justify-center items-center text-center text-blue-800 dark:text-yellow-300 break-words">
+          <span class="text-4xl font-bold">Kanban Report:</span>
+          <span v-if="isLoadingBase" class="ml-10">
             <LoaderDotsComponent />
           </span>
           <span v-else class="text-4xl font-bold">{{ kanbanDetails.title }}</span>
@@ -176,44 +160,10 @@ watch(() => props.kanbanId, (newId, oldId) => {
     <DetailedImputationsTable
         :kanban-id="props.kanbanId"
         :time-parser="timeParser"
+        :users-on-this-kanban="usersOnThisKanban"
         class="mb-8"
     />
 
-    <div>
-      <!-- User Activity Section - Remains in parent -->
-      <div v-if="usersOnThisKanban.length > 0" class="mb-8 bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
-        <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">User Activity on this Kanban</h2>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
-          To see detailed stats for a user, please refer to their profile or specific task imputations.
-        </p>
-        <ul class="space-y-2">
-          <li v-for="user in usersOnThisKanban" :key="user.id" class="text-sm">
-            <button
-                :class="['text-blue-600 hover:text-blue-800 hover:underline dark:text-yellow-400 dark:hover:text-yellow-200', selectedUserId===user.id ? 'font-semibold' : '']"
-                @click="selectUser(user.id)"
-            >
-              {{ user.fullName }}
-            </button>
-          </li>
-        </ul>
-      </div>
-
-      <!-- KanbanImputationStatsComponent is commented out as its data source is now managed by DetailedImputationsTable.
-           A strategy to reintegrate this would involve either:
-           1. Emitting selected user's imputations from DetailedImputationsTable to this parent.
-           2. Making KanbanImputationStatsComponent fetch its own data based on selectedUserId and kanbanId.
-           For now, it's commented to keep the scope focused on the current refactoring.
-      -->
-      <!--
-      <KanbanImputationStatsComponent
-          v-if="selectedUserId"
-          :kanban-title="`Imputations for ${usersOnThisKanban.find(u=>u.id===selectedUserId)?.fullName || 'Selected user'}`"
-          :kanban-id="props.kanbanId"
-          :user-id="selectedUserId"
-          // This component would need to fetch its own data or receive it via event
-      />
-      -->
-    </div>
   </div>
 </template>
 
