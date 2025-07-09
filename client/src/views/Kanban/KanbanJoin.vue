@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
 import { client } from '@/services/requestMaker.js';
-import { hookApi } from "@/utils/requestHook.js";
+import { hookApi } from "@/services/requestHook.js";
 import LoaderComponent from "@/components/LoaderComponent.vue";
 import logger from "@/utils/logger.js";
 
