@@ -21,7 +21,12 @@ import {
   setKanbanUpdateValidator,
 } from '../middleware/kanbanMiddleware.js';
 import { remove } from '../middleware/basicCrudMiddleware.js';
-import { getImputationsForKanban } from '../controllers/imputationController.js';
+import {
+  getImputationsForKanban,
+  getKanbanImputationTotals,
+  getTasksSummaryForKanbanPaginated,
+  getDetailedImputationsForKanbanPaginated,
+} from '../controllers/imputationController.js';
 
 /** @type {import('express').Router} */
 const router = Router();
@@ -53,6 +58,15 @@ router.patch('/:id', setKanbanUpdateValidator, validate, updateKanban, getKanban
 
 // DELETE /kanban/:id - Suppression d'un Kanban
 router.delete('/:id', remove);
+
+// GET /kanban/:id/imputations/totals - Récupération des totaux globaux pour le rapport d'imputation
+router.get('/:id/imputations/totals', getKanbanImputationTotals);
+
+// GET /kanban/:id/imputations/tasks-summary - Récupération du résumé des tâches paginé
+router.get('/:id/imputations/tasks-summary', getTasksSummaryForKanbanPaginated);
+
+// GET /kanban/:id/imputations/detailed-list - Récupération de la liste détaillée des imputations paginée
+router.get('/:id/imputations/detailed-list', getDetailedImputationsForKanbanPaginated);
 
 // GET /kanban/:id/imputations - Récupération des imputations d'un Kanban
 router.get('/:id/imputations', getImputationsForKanban);

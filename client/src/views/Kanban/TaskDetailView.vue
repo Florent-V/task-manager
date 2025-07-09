@@ -238,14 +238,21 @@ onMounted(async () => {
       <p>Loading task details...</p>
     </div>
 
-    <div v-else-if="task">
-      <div
-          v-if="requestError"
-          class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800" role="alert">
-        <span class="font-medium">Error loading task!</span> {{ requestError }}
+    <div
+        v-else-if="requestError"
+        class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800" role="alert"
+    >
+      <p class="font-semibold">Error loading Taks details:
+        <span>({{ requestError }})</span>
+      </p>
+    </div>
+
+    <div v-else>
+      <div v-if="!task" class="text-center text-gray-500 dark:text-gray-400 mt-10">
+        <p v-if="!requestLoading">Tâche non trouvée ou impossible à charger.</p>
       </div>
 
-      <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
+      <div v-else class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
         <!-- Header: Title and Back Button -->
         <div class="flex justify-between items-center mb-6">
           <h1 class="text-3xl font-bold text-gray-900 dark:text-yellow-300">{{ task.title }}</h1>
@@ -372,9 +379,7 @@ onMounted(async () => {
         </div>
       </div>
     </div>
-    <div v-else class="text-center text-gray-500 dark:text-gray-400 mt-10">
-      <p v-if="!requestLoading">Tâche non trouvée ou impossible à charger.</p>
-    </div>
+
 
     <TaskFormModal
         v-if="showTaskFormModal"

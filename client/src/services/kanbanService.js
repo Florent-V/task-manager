@@ -78,6 +78,54 @@ export class KanbanService {
   }
 
   /**
+   * Fetches the global totals for the imputation report of a specific Kanban.
+   * @param {string} kanbanId - The ID of the Kanban.
+   * @returns {Promise<any>} The promise from the API call.
+   */
+  async getKanbanImputationTotals(kanbanId) {
+    return await this.executeRequest(
+      () => client.get(`/api/kanban/${kanbanId}/imputations/totals`)
+    );
+  }
+
+
+  /**
+   * Fetches the paginated tasks summary for the imputation report of a specific Kanban.
+   * @param {string} kanbanId - The ID of the Kanban.
+   * @param {{
+   *   page: number,
+   *   limit: number
+   * }} paginationParams - Pagination parameters, including page number and items per page.
+   * @returns {Promise<any>} The promise from the API call.
+   */
+  async getKanbanTasksSummary(kanbanId, { page, limit }) {
+    const params = new URLSearchParams();
+    if (page) params.append('page', page);
+    if (limit) params.append('limit', limit);
+    const queryString = params.toString();
+    const url = `/api/kanban/${kanbanId}/imputations/tasks-summary${queryString ? `?${queryString}` : ''}`;
+    return await this.executeRequest(() => client.get(url));
+  }
+
+  /**
+   * Fetches the paginated detailed list of imputations for a specific Kanban.
+   * @param {string} kanbanId - The ID of the Kanban.
+   * @param {{
+   *   page: number,
+   *   limit: number
+   * }} paginationParams - Pagination parameters, including page number and items per page.
+   * @returns {Promise<any>} The promise from the API call.
+   */
+  async getKanbanDetailedImputations(kanbanId, { page, limit }) {
+    const params = new URLSearchParams();
+    if (page) params.append('page', page);
+    if (limit) params.append('limit', limit);
+    const queryString = params.toString();
+    const url = `/api/kanban/${kanbanId}/imputations/detailed-list${queryString ? `?${queryString}` : ''}`;
+    return await this.executeRequest(() => client.get(url));
+  }
+
+  /**
    * Fetches the time tracking report for the current user.
    *
    * @param {{

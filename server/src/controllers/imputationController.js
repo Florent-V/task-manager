@@ -6,6 +6,9 @@ import Kanban from '../models/kanbanModel.js';
 import logger from '../config/logger.js';
 import UnauthorizedError from '../error/unauthorizedError.js';
 import NotFoundError from '../error/notFoundError.js';
+import { getTaskTimingSums } from "../repository/taskRepository.js";
+import { getPaginatedImputationsDetail } from "../services/imputationService.js";
+import { getPaginatedTasksSummary } from "../services/taskService.js";
 
 export async function createImputation(req, res, next) {
   logger.debug('createImputation');
@@ -19,7 +22,7 @@ export async function createImputation(req, res, next) {
       userId,
       timeSpent,
       comment: comment || null,
-      date: date || new Date(), // Or allow user to specify date? For now, current date.
+      date: date || new Date(),
     });
 
     res.statusCode = 201;
@@ -30,6 +33,119 @@ export async function createImputation(req, res, next) {
     next(error);
   }
 }
+
+export async function getKanbanImputationTotals(req, res, next) {
+  logger.debug('getKanbanImputationTotals');
+  const { id: kanbanId } = req.params;
+
+  try {
+    res.data = await getTaskTimingSums(kanbanId);
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getTasksSummaryForKanbanPaginated(req, res, next) {
+  logger.debug('CTRL: getTasksSummaryForKanbanPaginated');
+  const { id: kanbanId } = req.params;
+  const { page = 1, limit = 10 } = req.query;
+  try {
+    res.data = await getPaginatedTasksSummary(kanbanId, parseInt(page, 10), parseInt(limit, 10));
+    next();
+  } catch (error) {
+    console.log("## ERROR", error);
+    next(error);
+  }
+}
+
+export async function oldgetTasksSummaryForKanbanPaginated(req, res, next) {
+  logger.debug('getTasksSummaryForKanbanPaginated');
+  const { id: kanbanId } = req.params;
+  const { page = 1, limit = 10 } = req.query;
+  const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
+
+  try {
+    const tasksData = await Task.findAndCountAll({
+      attributes: ['id', 'title', 'estimation', 'createdAt'],
+      where: { kanbanId },
+      include: [
+        {
+          model: Imputation,
+          as: 'imputations',
+          attributes: ['id', 'timeSpent', 'date', 'comment', 'userId'],
+          include: [
+            {
+              model: User,
+              as: 'user',
+              attributes: ['id', 'firstName', 'lastName', 'email'],
+            },
+          ],
+        },
+      ],
+      order: [['createdAt', 'DESC']],
+      limit: parseInt(limit, 10),
+      offset,
+      distinct: true, // Important for correct count with includes
+    });
+
+    res.data = { rows: tasksData.rows, count: tasksData.count };
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getDetailedImputationsForKanbanPaginated(req, res, next) {
+  logger.debug('CTRL: getDetailedImputationsForKanbanPaginated');
+  const { id: kanbanId } = req.params;
+  const { page = 1, limit = 10 } = req.query;
+  try {
+    res.data = await getPaginatedImputationsDetail(kanbanId, parseInt(page, 10), parseInt(limit, 10));
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function oldgetDetailedImputationsForKanbanPaginated(req, res, next) {
+  logger.debug('getDetailedImputationsForKanbanPaginated');
+  const { id: kanbanId } = req.params; // kanbanId is passed as 'id' from the route
+  const { page = 1, limit = 10 } = req.query;
+  const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
+
+  try {
+    const imputationsData = await Imputation.findAndCountAll({
+      attributes: ['id', 'timeSpent', 'date', 'comment', 'userId', 'taskId'],
+      include: [
+        {
+          model: Task,
+          as: 'task',
+          attributes: ['id', 'title', 'estimation', 'createdAt'], // Include task attributes needed by frontend
+          where: { kanbanId }, // Filter by kanbanId through the Task model
+          required: true, // Ensures only imputations from tasks in this kanban are fetched
+        },
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'firstName', 'lastName', 'email'],
+        },
+      ],
+      order: [
+        ['date', 'DESC'],
+        ['createdAt', 'DESC'],
+      ],
+      limit: parseInt(limit, 10),
+      offset,
+      distinct: true, // Important for correct count with includes
+    });
+    res.data = { rows: imputationsData.rows, count: imputationsData.count };
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
+
 
 export async function getImputationsForKanban(req, res, next) {
   logger.debug('getImputationsForKanban');
