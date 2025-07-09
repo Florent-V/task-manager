@@ -132,9 +132,9 @@ const detailedImputationsForSelectedUser = computed(() => {
     <div v-if="error" class="text-red-500 text-sm mt-2">{{ error }}</div>
   </div>
 
-  <div class="mb-8 bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
+  <div >
     <!-- User Selection Section moved here -->
-    <div v-if="props.usersOnThisKanban && props.usersOnThisKanban.length > 0">
+    <div v-if="props.usersOnThisKanban && props.usersOnThisKanban.length > 0" class="mb-8 bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
       <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Select User for Detailed Stats</h2>
       <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
         Select a user to view their imputation statistics from the table above. The stats shown will be based on the currently loaded page of imputations.
@@ -156,7 +156,7 @@ const detailedImputationsForSelectedUser = computed(() => {
       >
         Clear selection
       </button>
-    </div v-if="props.usersOnThisKanban && props.usersOnThisKanban.length > 0">
+    </div>
     <div v-else-if="!isLoading && (!props.usersOnThisKanban || props.usersOnThisKanban.length === 0) && imputations.length > 0" class="mt-8 pt-6 border-t border-gray-200 dark:border-slate-600 text-center text-gray-500 dark:text-gray-400">
       No users found on this Kanban to display activity for.
     </div>
