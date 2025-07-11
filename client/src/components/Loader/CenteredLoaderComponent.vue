@@ -1,15 +1,28 @@
 <template>
-  <div class="flex-grow loader-wrapper my-2">
-    <div class="dot-loader">
-      <div></div>
-      <div></div>
-      <div></div>
-      <div></div>
+  <div class="loader-container">
+    <div class="loader-wrapper">
+      <div class="dot-loader">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.loader-container {
+  position: fixed; /* Utilisez 'fixed' pour couvrir toute la fenêtre */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .loader-wrapper {
   display: flex;
   justify-content: center;
