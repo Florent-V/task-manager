@@ -1,22 +1,17 @@
 // services/kanbanService.js
 import { client } from '@/services/requestMaker.js';
-import { hookApi } from '@/services/requestHookService.js';
 
+/**
+ * Service for interacting with Kanban API.
+ */
 export class KanbanService {
-  constructor() {
-    const { executeRequest } = hookApi();
-    this.executeRequest = executeRequest;
-  }
-
   /**
    * Fetches a specific Kanban.
    * @param {string} kanbanId - The ID of the Kanban to fetch.
    * @returns {Promise<any>} The promise from the API call.
    */
-  async getKanban(kanbanId) {
-    return await this.executeRequest(
-      () => client.get(`/api/kanban/${kanbanId}`)
-    );
+  getKanban(kanbanId) {
+    return client.get(`/api/kanban/${kanbanId}`);
   }
 
   /**
@@ -25,10 +20,8 @@ export class KanbanService {
    * @param {object} kanbanData - The data for the new Kanban.
    * @returns {Promise<any>} The promise from the API call.
    */
-  async createKanban(kanbanId, kanbanData) {
-    return await this.executeRequest(
-      () => client.post(`/api/kanban/${kanbanId}`, kanbanData)
-    );
+  createKanban(kanbanId, kanbanData) {
+    return client.post(`/api/kanban/${kanbanId}`, kanbanData);
   }
 
   /**
@@ -37,10 +30,8 @@ export class KanbanService {
    * @param {object} updatedKanbanData - The updated data for the Kanban.
    * @returns {Promise<any>} The promise from the API call.
    */
-  async editKanban(kanbanId, updatedKanbanData) {
-    return await this.executeRequest(
-      () => client.patch(`/api/kanban/${kanbanId}}`, updatedKanbanData)
-    );
+  editKanban(kanbanId, updatedKanbanData) {
+    return client.patch(`/api/kanban/${kanbanId}`, updatedKanbanData);
   }
 
   /**
@@ -48,22 +39,17 @@ export class KanbanService {
    * @param {string} kanbanId - The ID of the Kanban to delete.
    * @returns {Promise<any>} The promise from the API call.
    */
-  async deleteKanban(kanbanId) {
-    return await this.executeRequest(
-      () => client.delete(`/api/kanban/${kanbanId}`)
-    );
+  deleteKanban(kanbanId) {
+    return client.delete(`/api/kanban/${kanbanId}`);
   }
-
 
   /**
    * Shares a Kanban with the currently logged-in user.
    * @param {string} kanbanId - The ID of the Kanban to share.
    * @returns {Promise<any>} The promise from the API call.
    */
-  async shareKanban(kanbanId) {
-    return await this.executeRequest(
-      () => client.post(`/api/kanban/${kanbanId}/share`, {}),
-    );
+  shareKanban(kanbanId) {
+    return client.post(`/api/kanban/${kanbanId}/share`, {});
   }
 
   /**
@@ -71,10 +57,8 @@ export class KanbanService {
    * @param {string} kanbanId - The ID of the Kanban.
    * @returns {Promise<any>} The promise from the API call.
    */
-  async getKanbanImputationReport(kanbanId) {
-    return await this.executeRequest(
-      () => client.get(`/api/kanban/${kanbanId}/imputations`)
-    );
+  getKanbanImputationReport(kanbanId) {
+    return client.get(`/api/kanban/${kanbanId}/imputations`);
   }
 
   /**
@@ -82,12 +66,9 @@ export class KanbanService {
    * @param {string} kanbanId - The ID of the Kanban.
    * @returns {Promise<any>} The promise from the API call.
    */
-  async getKanbanImputationTotals(kanbanId) {
-    return await this.executeRequest(
-      () => client.get(`/api/kanban/${kanbanId}/imputations/totals`)
-    );
+  getKanbanImputationTotals(kanbanId) {
+    return client.get(`/api/kanban/${kanbanId}/imputations/totals`);
   }
-
 
   /**
    * Fetches the paginated tasks summary for the imputation report of a specific Kanban.
@@ -98,13 +79,13 @@ export class KanbanService {
    * }} paginationParams - Pagination parameters, including page number and items per page.
    * @returns {Promise<any>} The promise from the API call.
    */
-  async getKanbanTasksSummary(kanbanId, { page, limit }) {
+  getKanbanTasksSummary(kanbanId, { page, limit }) {
     const params = new URLSearchParams();
     if (page) params.append('page', page);
     if (limit) params.append('limit', limit);
-    const queryString = params.toString();
-    const url = `/api/kanban/${kanbanId}/imputations/tasks-summary${queryString ? `?${queryString}` : ''}`;
-    return await this.executeRequest(() => client.get(url));
+    const query = params.toString();
+    const url = `/api/kanban/${kanbanId}/imputations/tasks-summary${query ? `?${query}` : ''}`;
+    return client.get(url);
   }
 
   /**
@@ -116,13 +97,13 @@ export class KanbanService {
    * }} paginationParams - Pagination parameters, including page number and items per page.
    * @returns {Promise<any>} The promise from the API call.
    */
-  async getKanbanDetailedImputations(kanbanId, { page, limit }) {
+  getKanbanDetailedImputations(kanbanId, { page, limit }) {
     const params = new URLSearchParams();
     if (page) params.append('page', page);
     if (limit) params.append('limit', limit);
-    const queryString = params.toString();
-    const url = `/api/kanban/${kanbanId}/imputations/detailed-list${queryString ? `?${queryString}` : ''}`;
-    return await this.executeRequest(() => client.get(url));
+    const query = params.toString();
+    const url = `/api/kanban/${kanbanId}/imputations/detailed-list${query ? `?${query}` : ''}`;
+    return client.get(url);
   }
 
   /**
@@ -134,7 +115,7 @@ export class KanbanService {
    * }} options - Optional parameters for filtering.
    * @returns {Promise<any>} The promise from the API call.
    */
-  async getUserTimeTrackingReport(options = {}) {
+  getUserTimeTrackingReport(options = {}) {
     let url = `/api/timetracking/me`;
     const params = new URLSearchParams();
     if (options.startDate) {
@@ -143,10 +124,8 @@ export class KanbanService {
     if (options.endDate) {
       params.append('endDate', options.endDate);
     }
-    const queryString = params.toString();
-    if (queryString) {
-      url += `?${queryString}`;
-    }
-    return await this.executeRequest(() => client.get(url));
+    const query = params.toString();
+    if (query) url += `?${query}`;
+    return client.get(url);
   }
 }
