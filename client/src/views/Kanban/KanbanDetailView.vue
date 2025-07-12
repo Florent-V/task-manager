@@ -4,7 +4,6 @@ import { useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
 
 import LoaderComponent from '@/components/LoaderComponent.vue';
-import CenteredLoaderComponent from "@/components/Loader/CenteredLoaderComponent.vue";
 import TaskFormModal from '@/components/Kanban/TaskFormModal.vue';
 import TaskViewModal from '@/components/Kanban/TaskViewModal.vue';
 import QRCodeModal from '@/components/Kanban/KanbanQRCodeModal.vue';
