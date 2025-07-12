@@ -177,7 +177,6 @@ defineExpose({
 
       <!-- List of imputations -->
       <ul v-else class="space-y-4">
-
         <li
             v-for="imputation in sortedImputations" :key="imputation.id"
             class="p-3 bg-gray-50 dark:bg-gray-700 rounded-md shadow-sm">

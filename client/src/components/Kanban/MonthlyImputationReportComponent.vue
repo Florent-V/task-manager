@@ -32,7 +32,7 @@ const {
 } = hookApi();
 
 // State
-const error = ref(null);
+const errorUser = ref(null);
 const imputationsData = ref([]); // Raw imputations from the API for the current month
 const currentDisplayMonth = ref(props.initialMonth); // YYYY-MM format
 
@@ -55,7 +55,7 @@ const dayNumbers = computed(() => Array.from({ length: daysInMonth.value }, (_, 
 const fetchMonthlyImputations = async () => {
 
   if (!viewedUser.value?.id) {
-    error.value = 'No user found';
+    errorUser.value = 'No user found';
     return;
   }
 
@@ -170,7 +170,7 @@ watch(() => authStore.user, (newUser, oldUser) => {
   } else if (!newUser?.id && imputationsData.value.length > 0) {
     // User logged out, clear data
     imputationsData.value = [];
-    error.value = "User logged out.";
+    errorUser.value = "User logged out.";
   }
 }, { immediate: true }); // Immediate true helps on initial load if user is already logged in
 
@@ -186,100 +186,111 @@ watch(() => props.initialMonth, (newInitialMonth) => {
 
 <template>
   <div class="p-4 bg-base-100 dark:bg-slate-800 shadow-lg rounded-lg">
-    <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
-      <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-100">
-        Monthly Log: {{ monthName }} {{ year }}
-      </h2>
-      <div class="flex items-center gap-2 mt-3 sm:mt-0">
-        <button
-            class="px-3 py-1 border border-blue-600 text-blue-600 rounded hover:bg-blue-50 dark:border-yellow-400 dark:text-yellow-400 dark:hover:bg-slate-700"
-            @click="goToPreviousMonth">&lt; Prev
-        </button>
-        <button
-            class="px-3 py-1 border border-gray-400 text-gray-700 rounded hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-slate-700"
-            @click="goToCurrentMonth">Today
-        </button>
-        <button
-            class="px-3 py-1 border border-blue-600 text-blue-600 rounded hover:bg-blue-50 dark:border-yellow-400 dark:text-yellow-400 dark:hover:bg-slate-700"
-            @click="goToNextMonth">Next &gt;
-        </button>
+    <div
+        v-if="errorUser"
+        class="text-center text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 p-4 rounded-md border border-red-300 dark:border-red-700"
+    >
+      {{ errorUser }}
+    </div>
+
+    <div v-else>
+      <div class="flex flex-col sm:flex-row justify-between items-center mb-6">
+        <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-100">
+          Monthly Log: {{ monthName }} {{ year }}
+        </h2>
+        <div class="flex items-center gap-2 mt-3 sm:mt-0">
+          <button
+              class="px-3 py-1 border border-blue-600 text-blue-600 rounded hover:bg-blue-50 dark:border-yellow-400 dark:text-yellow-400 dark:hover:bg-slate-700"
+              @click="goToPreviousMonth">&lt; Prev
+          </button>
+          <button
+              class="px-3 py-1 border border-gray-400 text-gray-700 rounded hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-slate-700"
+              @click="goToCurrentMonth">Today
+          </button>
+          <button
+              class="px-3 py-1 border border-blue-600 text-blue-600 rounded hover:bg-blue-50 dark:border-yellow-400 dark:text-yellow-400 dark:hover:bg-slate-700"
+              @click="goToNextMonth">Next &gt;
+          </button>
+        </div>
       </div>
-    </div>
 
-    <div v-if="requestLoading" class="flex justify-center items-center h-64">
-      <LoaderComponent/>
-    </div>
-    <div
-        v-else-if="error || requestError"
-        class="text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/20 p-4 rounded-md">
-      <p class="font-semibold">Error:
-        <span v-if="requestError">({{ requestError }})</span>
-        <span v-if="error">({{ error }})</span>
-      </p>
-    </div>
-    <div
-        v-else-if="calendarData.length === 0"
-        class="text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-slate-700/50 p-4 rounded-md text-center">
-      No imputations found for {{ monthName }} {{ year }}.
-    </div>
+      <div v-if="requestLoading" class="flex justify-center items-center h-64">
+        <LoaderComponent/>
+      </div>
+      <div
+          v-else-if="requestError"
+          class="text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/20 p-4 rounded-md">
+        <p class="font-semibold">Error:
+          <span v-if="requestError">({{ requestError }})</span>
+        </p>
+      </div>
+      <div
+          v-else-if="calendarData.length === 0"
+          class="text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-slate-700/50 p-4 rounded-md text-center">
+        No imputations found for {{ monthName }} {{ year }}.
+      </div>
 
-    <div v-else class="overflow-x-auto">
-      <table
-          class="min-w-full border border-gray-200 dark:border-slate-700 divide-y divide-gray-200 dark:divide-slate-700">
-        <thead class="bg-gray-50 dark:bg-slate-700 text-gray-700 dark:text-gray-200">
-        <tr>
-          <th class="sticky left-0 z-10 bg-gray-50 dark:bg-slate-700 p-2 min-w-[200px] md:min-w-[250px]">Task</th>
-          <th
-              v-for="day in dayNumbers" :key="`header-${day}`"
-              class="p-2 text-center min-w-[60px] hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
-            {{ day }}
-          </th>
-          <th class="p-2 text-center font-bold min-w-[80px] sticky right-0 z-10 bg-gray-50 dark:bg-slate-700">Total</th>
-        </tr>
-        </thead>
-        <tbody class="bg-white dark:bg-slate-800">
-        <tr
-            v-for="task in calendarData" :key="task.id"
-            class="bg-white even:bg-gray-50 dark:bg-slate-800 dark:even:bg-slate-700 hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
-          <td class="sticky left-0 z-10 bg-white dark:bg-slate-800 group-hover:bg-gray-50 dark:group-hover:bg-slate-600/30 p-2 border-t border-gray-200 dark:border-slate-700">
-            <RouterLink
-                :to="`/kanban/${task.kanbanId}/task/${task.id}`"
-                class="text-blue-600 hover:underline dark:text-yellow-400 dark:hover:text-yellow-300 font-medium"
-                :title="`Kanban: ${task.kanbanTitle}`"
-            >
-              {{ task.title }}
-            </RouterLink>
-            <div class="text-xs text-gray-500 dark:text-gray-400">{{ task.kanbanTitle }}</div>
-          </td>
-          <td
-              v-for="day in dayNumbers" :key="`task-${task.id}-day-${day}`"
-              class="p-2 text-center border-t border-gray-200 dark:border-slate-700">
+      <div v-else class="overflow-x-auto">
+        <table
+            class="min-w-full border border-gray-200 dark:border-slate-700 divide-y divide-gray-200 dark:divide-slate-700">
+          <thead class="bg-gray-50 dark:bg-slate-700 text-gray-700 dark:text-gray-200">
+          <tr>
+            <th class="sticky left-0 z-10 bg-gray-50 dark:bg-slate-700 p-2 min-w-[200px] md:min-w-[250px]">Task</th>
+            <th
+                v-for="day in dayNumbers" :key="`header-${day}`"
+                class="p-2 text-center min-w-[60px] hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
+              {{ day }}
+            </th>
+            <th class="p-2 text-center font-bold min-w-[80px] sticky right-0 z-10 bg-gray-50 dark:bg-slate-700">Total</th>
+          </tr>
+          </thead>
+          <tbody class="bg-white dark:bg-slate-800">
+          <tr
+              v-for="task in calendarData" :key="task.id"
+              class="bg-white even:bg-gray-50 dark:bg-slate-800 dark:even:bg-slate-700 hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors">
+            <td class="sticky left-0 z-10 bg-white dark:bg-slate-800 group-hover:bg-gray-50 dark:group-hover:bg-slate-600/30 p-2 border-t border-gray-200 dark:border-slate-700">
+              <RouterLink
+                  :to="`/kanban/${task.kanbanId}/task/${task.id}`"
+                  class="text-blue-600 hover:underline dark:text-yellow-400 dark:hover:text-yellow-300 font-medium"
+                  :title="`Kanban: ${task.kanbanTitle}`"
+              >
+                {{ task.title }}
+              </RouterLink>
+              <div class="text-xs text-gray-500 dark:text-gray-400">{{ task.kanbanTitle }}</div>
+            </td>
+            <td
+                v-for="day in dayNumbers" :key="`task-${task.id}-day-${day}`"
+                class="p-2 text-center border-t border-gray-200 dark:border-slate-700">
               <span v-if="task.days.get(day)" class="text-sm">
                 {{ timeParser.formatMinutesToHourMinuteString(task.days.get(day)) }}
               </span>
-            <span v-else class="text-gray-400 dark:text-slate-500">-</span>
-          </td>
-          <td class="p-2 text-center font-bold border-t border-gray-200 dark:border-slate-700 sticky right-0 z-10 bg-white dark:bg-slate-800 group-hover:bg-gray-50 dark:group-hover:bg-slate-600/30">
-            {{ timeParser.formatMinutesToHourMinuteString(task.totalTaskTime) }}
-          </td>
-        </tr>
-        </tbody>
-        <tfoot class="bg-gray-100 dark:bg-slate-700 font-bold text-gray-800 dark:text-gray-100">
-        <tr>
-          <td class="sticky left-0 z-10 bg-gray-100 dark:bg-slate-700 p-2">Monthly Total</td>
-          <td v-for="day in dayNumbers" :key="`footer-day-${day}`" class="p-2 text-center">
+              <span v-else class="text-gray-400 dark:text-slate-500">-</span>
+            </td>
+            <td class="p-2 text-center font-bold border-t border-gray-200 dark:border-slate-700 sticky right-0 z-10 bg-white dark:bg-slate-800 group-hover:bg-gray-50 dark:group-hover:bg-slate-600/30">
+              {{ timeParser.formatMinutesToHourMinuteString(task.totalTaskTime) }}
+            </td>
+          </tr>
+          </tbody>
+          <tfoot class="bg-gray-100 dark:bg-slate-700 font-bold text-gray-800 dark:text-gray-100">
+          <tr>
+            <td class="sticky left-0 z-10 bg-gray-100 dark:bg-slate-700 p-2">Monthly Total</td>
+            <td v-for="day in dayNumbers" :key="`footer-day-${day}`" class="p-2 text-center">
               <span v-if="dailyTotals[day] > 0">
                 {{ timeParser.formatMinutesToHourMinuteString(dailyTotals[day]) }}
               </span>
-            <span v-else>-</span>
-          </td>
-          <td class="p-2 text-center sticky right-0 z-10 bg-gray-100 dark:bg-slate-700">
-            {{ timeParser.formatMinutesToHourMinuteString(grandTotalMonthlyTime) }}
-          </td>
-        </tr>
-        </tfoot>
-      </table>
+              <span v-else>-</span>
+            </td>
+            <td class="p-2 text-center sticky right-0 z-10 bg-gray-100 dark:bg-slate-700">
+              {{ timeParser.formatMinutesToHourMinuteString(grandTotalMonthlyTime) }}
+            </td>
+          </tr>
+          </tfoot>
+        </table>
+      </div>
+
     </div>
+
+
   </div>
 </template>
 
