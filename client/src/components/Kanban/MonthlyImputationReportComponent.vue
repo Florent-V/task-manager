@@ -3,13 +3,14 @@ import { ref, watch, onMounted, computed } from 'vue';
 import { RouterLink } from 'vue-router';
 
 import LoaderComponent from '@/components/LoaderComponent.vue';
-import { KanbanService } from '@/services/kanbanService.js';
 import { useAuthStore } from '@/stores/authStore.js';
-import { useHandleRequestStore } from "@/stores/handleRequestStore.js";
 import { TimeParser } from '@/utils/timeParser.js';
 import logger from '@/utils/logger.js';
 import { setTitle, setDescription } from "@/utils/documentInfos.js";
+import { KanbanService } from '@/services/kanbanService.js';
+import { hookApi } from "@/services/requestHook.js";
 
+// Props
 const props = defineProps({
   initialMonth: {
     type: String,
@@ -22,9 +23,13 @@ const props = defineProps({
 
 // Initialize services and data
 const authStore = useAuthStore();
-const handleRequestStore = useHandleRequestStore();
 const kanbanService = new KanbanService();
 const timeParser = new TimeParser();
+const {
+  isLoading: requestLoading,
+  error: requestError,
+  executeRequest
+} = hookApi();
 
 // State
 const error = ref(null);
@@ -33,8 +38,6 @@ const currentDisplayMonth = ref(props.initialMonth); // YYYY-MM format
 
 // Computed Properties
 const viewedUser = computed(() => authStore.user);
-const requestLoading = computed(() => handleRequestStore.isLoading);
-const requestError = computed(() => handleRequestStore.error);
 const year = computed(() => parseInt(currentDisplayMonth.value.split('-')[0]));
 const month = computed(() => parseInt(currentDisplayMonth.value.split('-')[1])); // 1-12
 const monthName = computed(() => {
@@ -45,6 +48,8 @@ const daysInMonth = computed(() => {
   // Day 0 of next month gives last day of current month
   return new Date(year.value, month.value, 0).getDate();
 });
+// For the template, an array of day numbers
+const dayNumbers = computed(() => Array.from({ length: daysInMonth.value }, (_, i) => i + 1));
 
 // Methods
 const fetchMonthlyImputations = async () => {
@@ -58,7 +63,9 @@ const fetchMonthlyImputations = async () => {
   const endDate = `${currentDisplayMonth.value}-${daysInMonth.value.toString().padStart(2, '0')}`;
 
   try {
-    const response = await kanbanService.getUserTimeTrackingReport({ startDate, endDate });
+    const response = await executeRequest(
+        () => kanbanService.getUserTimeTrackingReport({ startDate, endDate })
+    );
     // We need a flat list of imputations, each with task info (id, title, kanbanId)
     let allImputations = [];
     if (response.kanbans) {
@@ -144,12 +151,11 @@ const grandTotalMonthlyTime = computed(() => {
   return dailyTotals.value.reduce((sum, time) => sum + time, 0);
 });
 
-
 // Fetch data when the component mounts or when the month changes
-onMounted(async () => {
+onMounted(() => {
   // Ensure user is available before initial fetch if not covered by immediate watcher
   if (viewedUser.value?.id) {
-    await fetchMonthlyImputations();
+    fetchMonthlyImputations();
   }
   setTitle(`Imputations mensuelles de ${viewedUser.value.username}`);
   setDescription(`Cette page affiche les imputations mensuelles de ${viewedUser.value.username}`);
@@ -176,10 +182,6 @@ watch(() => props.initialMonth, (newInitialMonth) => {
     // The watcher on currentDisplayMonth will trigger fetchMonthlyImputations
   }
 });
-
-// For the template, an array of day numbers
-const dayNumbers = computed(() => Array.from({ length: daysInMonth.value }, (_, i) => i + 1));
-
 </script>
 
 <template>
