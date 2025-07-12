@@ -3,6 +3,7 @@ import { QueryTypes } from 'sequelize';
 import Imputation from '../models/imputationModel.js';
 import Task from '../models/taskModel.js';
 import User from '../models/userModel.js';
+import Kanban from "../models/kanbanModel.js";
 
 /**
  * Retrieves the sum of estimated and imputed times for tasks in a specific Kanban.
@@ -62,5 +63,43 @@ export function getTasksByKanbanIdPaginated(kanbanId, limit, offset) {
     offset,
     distinct: true, // Necessary for correct count with includes that might create duplicates before distinct
     // subQuery: false, // May be needed depending on the complexity and if `distinct` alone doesn't solve count issues with Sequelize. Test first.
+  });
+}
+
+/**
+ * Retrieves all tasks associated with a specific Kanban ID.
+ *
+ * @param {string} kanbanId - The ID of the Kanban for which to retrieve tasks.
+ * @returns {Promise<Task[]>} The tasks associated with the Kanban.
+ */
+export function getTasksWithImputationsByKanban(kanbanId) {
+  return Task.findAll({
+    attributes: ['id', 'title', 'estimation'],
+    include: [
+      {
+        model: Kanban,
+        as: 'kanban',
+        attributes: ['id', 'title'],
+      },
+      {
+        model: Imputation,
+        as: 'imputations',
+        include: [
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'firstName', 'lastName', 'email'],
+          },
+        ],
+      },
+    ],
+    where: {
+      kanbanId: kanbanId, // Filtre principal sur l'ID du Kanban
+    },
+    order: [
+      ['id', 'ASC'], // Trie par l'ID de la tâche
+      [{ model: Imputation, as: 'imputations' }, 'date', 'DESC'], // Puis par la date d'imputation
+      [{ model: Imputation, as: 'imputations' }, 'createdAt', 'DESC'], // Enfin par la date de création
+    ],
   });
 }
