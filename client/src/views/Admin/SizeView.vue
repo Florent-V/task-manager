@@ -4,7 +4,7 @@ import { ref, onMounted } from 'vue';
 import { client } from '@/services/requestMaker.js';
 import { hookApi } from "@/services/requestHook.js";
 import logger from "@/utils/logger.js";
-import LoaderComponent from "@/components/LoaderComponent.vue";
+import LoaderComponent from "@/components/Loader/LoaderComponent.vue";
 import ModalComponent from "@/components/ModalComponent.vue";
 import SizeFormComponent from "@/components/Admin/SizeFormComponent.vue";
 

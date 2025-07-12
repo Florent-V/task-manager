@@ -6,7 +6,7 @@ import { hookApi } from '@/services/requestHook.js';
 import { setTitle, setDescription } from "@/utils/documentInfos.js";
 import logger from '@/utils/logger.js';
 import UserFormComponent from "@/components/User/UserFormComponent.vue";
-import LoaderComponent from '@/components/LoaderComponent.vue';
+import LoaderComponent from '@/components/Loader/LoaderComponent.vue';
 
 const { isLoading, error, executeRequest } = hookApi();
 const filesApiUrl = `${apiBaseUrl}/api/uploads`;

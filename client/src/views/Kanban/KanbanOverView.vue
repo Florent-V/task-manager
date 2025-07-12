@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router';
 import { client } from '@/services/requestMaker.js';
 import { hookApi } from "@/services/requestHook.js";
 import logger from "@/utils/logger.js";
-import LoaderComponent from "@/components/LoaderComponent.vue";
+import LoaderComponent from "@/components/Loader/LoaderComponent.vue";
 import KanbanFormComponent from "@/components/Kanban/KanbanFormComponent.vue";
 
 const router = useRouter();

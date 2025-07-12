@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'; // Added watch to the import statement
 
-import LoaderComponent from '@/components/LoaderComponent.vue';
+import LoaderComponent from '@/components/Loader/LoaderComponent.vue';
 import ModalConfirmation from '@/components/ModalConfirmation.vue';
 import { useKanbanStore } from '@/stores/kanbanStore.js';
 import { useAuthStore } from '@/stores/authStore';

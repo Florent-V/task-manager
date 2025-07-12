@@ -2,7 +2,7 @@
 import { ref, onMounted, computed, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import LoaderComponent from '@/components/LoaderComponent.vue';
+import LoaderComponent from '@/components/Loader/LoaderComponent.vue';
 import SpinnerComponent from '@/components/Loader/SpinnerComponent.vue';
 import TaskDisplayDetails from '@/components/Kanban/TaskDisplayDetailsComponent.vue';
 import ImputationFormComponent from "@/components/Kanban/ImputationFormComponent.vue";

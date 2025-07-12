@@ -6,7 +6,7 @@ import { client } from '@/services/requestMaker.js';
 import { hookApi } from '@/services/requestHook.js';
 import logger from '@/utils/logger.js';
 import ToDoListFormComponent from '@/components/ToDoList/ToDoListFormComponent.vue';
-import LoaderComponent from '@/components/LoaderComponent.vue';
+import LoaderComponent from '@/components/Loader/LoaderComponent.vue';
 
 const { isLoading, error, executeRequest } = hookApi();
 
