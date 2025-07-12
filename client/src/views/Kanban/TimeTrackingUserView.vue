@@ -115,7 +115,7 @@ const fetchUserReportData = async () => {
     const data = await executeRequest(() => kanbanService.getUserTimeTrackingReport(params));
     kanbans.value = data.kanbans || [];
   } catch (err) {
-    requestError.value = `Erreur lors de la récupération des imputations: ${err.message}`;
+    requestError.value = `Erreur lors de la récupération des imputations. ${requestError.value}`;
     logger.error('Error fetching task details:', err);
     kanbans.value = []; // Clear kanbans on error
   }

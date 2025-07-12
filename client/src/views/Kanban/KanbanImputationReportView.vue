@@ -73,7 +73,7 @@ const fetchKanbanBaseDetails = async () => {
     setDescription(`Imputation Report for Kanban : ${kanbanDetails.value.title}`);
   } catch (err) {
     logger.error('Error fetching Kanban base details in Parent:', err);
-    requestKanbanError.value = `Erreur chargement détails Kanban: ${err.message}`;
+    requestKanbanError.value = `Erreur chargement détails Kanban: ${requestKanbanError.value}`;
     users.value = [];
     setTitle(`Report - Error`);
     setDescription(`Error loading report for Kanban ${props.kanbanId}`);
@@ -90,7 +90,7 @@ const fetchKanbanTotals = async () => {
     tasksTotalImputedTime.value = totalsData.tasksTotalImputedTime || 0;
   } catch (err) {
     logger.error('Error fetching Kanban imputation totals in Parent:', err);
-    requestTotalsError.value = `Erreur chargement totaux: ${err.message}`;
+    requestTotalsError.value = `Erreur chargement totaux: ${requestTotalsError.value}`;
     tasksTotalEstimatedTime.value = 0;
     tasksTotalImputedTime.value = 0;
   }

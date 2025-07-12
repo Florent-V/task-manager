@@ -28,6 +28,11 @@ const {
   executeRequest
 } = hookApi();
 
+const {
+  error: requestUpdateError,
+  executeRequest: executeUpdateRequest
+} = hookApi();
+
 // Ref
 const selectedTask = ref(null);
 const showTaskModal = ref(false);
@@ -99,25 +104,23 @@ const handleDrop = async (event, columnId, assignedToId) => {
   const sourceColumn = draggedTask.stageId;
   const targetColumn = stages.value.find((col) => col.id === columnId);
 
-  if (sourceColumn && targetColumn) {
-    draggedTask.stageId = columnId;
-    draggedTask.assignedToId = assignedToId;
-  }
-  await updateTaskStage(draggedTask);
-  draggedTask = null;
-};
-
-// Fonction pour mettre à jour la colonne et le responsable d'une tâche
-const updateTaskStage = async (task) => {
   try {
-    await taskService.updateTaskStage(
-        task.kanbanId,
-        task.id,
-        task.stageId,
-        task.assignedToId
-    );
+    await executeUpdateRequest(() => taskService.updateTaskStage(
+        draggedTask.kanbanId,
+        draggedTask.id,
+        draggedTask.stageId,
+        draggedTask.assignedToId
+    ));
+
+    if (sourceColumn && targetColumn) {
+      draggedTask.stageId = columnId;
+      draggedTask.assignedToId = assignedToId;
+    }
   } catch (err) {
     logger.error('Error in update stage:', err);
+    requestUpdateError.value = `Error updating task stage. ${requestUpdateError.value}`;
+  } finally {
+    draggedTask = null;
   }
 };
 
@@ -164,13 +167,8 @@ const closeTaskFormModal = () => {
 };
 
 const deleteTask = async (id) => {
-  try {
-    await taskService.deleteTask(route.params.id, id);
-    kanbanStore.deleteTask(id);
-    closeTaskModal();
-  } catch (err) {
-    logger.error('Error deleting Tasks:', err?.response?.data?.message || err.message);
-  }
+  kanbanStore.deleteTask(id);
+  closeTaskModal();
 };
 
 const shareKanban = async () => {
@@ -205,7 +203,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <LoaderComponent v-if="requestLoading" class="flex place-content-center" />
+  <LoaderComponent v-if="requestLoading" class="flex place-content-center"/>
 
   <div v-else class="container mx-auto mb-8 flex-grow">
     <div
@@ -248,6 +246,13 @@ onMounted(() => {
         </div>
       </div>
 
+      <!-- display update error-->
+      <div
+          v-if="requestUpdateError"
+          class="text-center text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 p-4 rounded-md border border-red-300 dark:border-red-700"
+      >
+        {{ requestUpdateError }}
+      </div>
 
       <div v-for="(group, assignedToId) in allUsersWithGroupedTasks" :key="assignedToId" class="mb-6">
         <!-- En-tête avec le nom de la personne et un bouton pour replier/déplier -->

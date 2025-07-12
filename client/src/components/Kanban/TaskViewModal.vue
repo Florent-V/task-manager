@@ -37,6 +37,11 @@ const {
   executeRequest
 } = hookApi();
 
+const {
+  error: requestDeleteError,
+  executeRequest: executeDeleteRequest
+} = hookApi();
+
 // Ref state
 const kanbanId = ref(route.params.id);
 const comments = ref([]);
@@ -57,9 +62,15 @@ const formatDate = (dateString) => {
 // Methods
 const closeModal = () => emit('close');
 const editTask = () => emit('edit');
-const deleteTask = () => {
-  showDeleteConfirmationModal.value = false;
-  emit('delete', props.task.id);
+const deleteTask = async () => {
+  try {
+    showDeleteConfirmationModal.value = false;
+    await executeDeleteRequest(() => taskService.deleteTask(kanbanId.value, props.task.id));
+    emit('delete', props.task.id);
+  } catch (err) {
+    requestDeleteError.value = `Error deleting task. ${requestDeleteError.value}`;
+    logger.error('Error deleting task', err);
+  }
 };
 
 const openTaskView = () => {
@@ -122,7 +133,12 @@ onMounted(fetchComments);
         </div>
       </div>
 
-      <p v-if="archiveError" class="mt-2 text-right text-sm text-red-600 dark:text-red-400">{{ archiveError }}</p>
+      <p v-if="archiveError" class="mt-2 text-right text-sm text-red-600 dark:text-red-400">
+        {{ archiveError }}
+      </p>
+      <p v-if="requestDeleteError" class="mt-2 text-right text-sm text-red-600 dark:text-red-400">
+        {{ requestDeleteError }}
+      </p>
 
       <!-- Task Details -->
       <div class="my-6 space-y-6">
