@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, watch, defineProps } from 'vue';
 
-import LoaderComponent from '@/components/LoaderComponent.vue';
+import LoaderComponent from '@/components/Loader/LoaderComponent.vue';
 import LoaderDotsComponent from "@/components/Loader/LoaderDotsComponent.vue";
 import TasksSummaryTable from '@/components/Kanban/TaskSummaryTable.vue';
 import DetailedImputationsTable from '@/components/Kanban/DetailedImputationTable.vue';

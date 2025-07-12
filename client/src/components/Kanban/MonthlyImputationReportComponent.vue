@@ -2,7 +2,7 @@
 import { ref, watch, onMounted, computed } from 'vue';
 import { RouterLink } from 'vue-router';
 
-import LoaderComponent from '@/components/LoaderComponent.vue';
+import LoaderComponent from '@/components/Loader/LoaderComponent.vue';
 import { useAuthStore } from '@/stores/authStore.js';
 import { TimeParser } from '@/utils/timeParser.js';
 import logger from '@/utils/logger.js';

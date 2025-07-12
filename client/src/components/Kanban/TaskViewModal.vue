@@ -3,7 +3,7 @@
 import { computed, ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import LoaderComponent from '@/components/LoaderComponent.vue';
+import LoaderComponent from '@/components/Loader/LoaderComponent.vue';
 import SpinnerComponent from '@/components/Loader/SpinnerComponent.vue';
 import ModalConfirmation from '@/components/ModalConfirmation.vue';
 import ArchiveToggle from '@/components/Kanban/ArchiveToggle.vue';

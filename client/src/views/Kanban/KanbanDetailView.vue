@@ -3,7 +3,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
 
-import LoaderComponent from '@/components/LoaderComponent.vue';
+import LoaderComponent from '@/components/Loader/LoaderComponent.vue';
 import TaskFormModal from '@/components/Kanban/TaskFormModal.vue';
 import TaskViewModal from '@/components/Kanban/TaskViewModal.vue';
 import QRCodeModal from '@/components/Kanban/KanbanQRCodeModal.vue';

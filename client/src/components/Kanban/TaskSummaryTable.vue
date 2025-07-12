@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch, defineProps, computed } from 'vue';
 
-import LoaderComponent from '@/components/LoaderComponent.vue';
+import LoaderComponent from '@/components/Loader/LoaderComponent.vue';
 import PaginationComponent from '@/components/PaginationComponent.vue';
 import logger from "@/utils/logger.js";
 import { KanbanService } from '@/services/kanbanService.js';

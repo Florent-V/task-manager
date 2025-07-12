@@ -4,7 +4,7 @@ import { useRouter, useRoute } from 'vue-router';
 
 import { client } from '@/services/requestMaker.js';
 import { hookApi } from "@/services/requestHook.js";
-import LoaderComponent from "@/components/LoaderComponent.vue";
+import LoaderComponent from "@/components/Loader/LoaderComponent.vue";
 import logger from "@/utils/logger.js";
 
 const router = useRouter();

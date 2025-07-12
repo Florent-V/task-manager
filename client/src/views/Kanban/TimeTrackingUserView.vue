@@ -6,7 +6,7 @@ import MonthlyImputationReportComponent from "@/components/Kanban/MonthlyImputat
 import CustomMonthPicker from '@/components/Kanban/CustomMonthPicker.vue';
 import CustomDatePicker from '@/components/Kanban/CustomDatePicker.vue';
 import ModalConfirmation from '@/components/ModalConfirmation.vue';
-import LoaderComponent from '@/components/LoaderComponent.vue';
+import LoaderComponent from '@/components/Loader/LoaderComponent.vue';
 import { useAuthStore } from '@/stores/authStore.js';
 import { TimeParser } from '@/utils/timeParser.js';
 import { setTitle, setDescription } from "@/utils/documentInfos.js";
