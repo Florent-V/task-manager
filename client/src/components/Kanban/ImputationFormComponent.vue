@@ -34,7 +34,6 @@ const emit = defineEmits(['handleResponse', 'cancel']);
 const taskService = new TaskService();
 const timeParser = new TimeParser();
 const {
-  isLoading: requestLoading,
   error: requestError,
   executeRequest
 } = hookApi();

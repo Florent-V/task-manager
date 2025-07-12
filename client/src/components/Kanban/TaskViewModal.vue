@@ -1,4 +1,5 @@
 <script setup>
+/* eslint-disable vue/no-mutating-props */
 import { computed, ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -107,20 +108,20 @@ onMounted(fetchComments);
             <v-icon name="fa-edit"/>
           </button>
           <ArchiveToggle
-            :kanbanId="kanbanId"
-            :taskId="props.task.id"
-            :isArchived="props.task.isArchived"
-            @update:isArchived="value => { props.task.isArchived = value; archiveError = null }"
-            @error="archiveError = $event"
+              :kanban-id="kanbanId"
+              :task-id="props.task.id"
+              :is-archived="props.task.isArchived"
+              @update:is-archived="value => { props.task.isArchived = value; archiveError = null }"
+              @error="archiveError = $event"
           >
             <template #default="{ onClick, loading }">
               <button
-                class="text-gray-500 dark:text-gray-300 hover:text-yellow-500"
-                :title="props.task.isArchived ? 'Unarchive Task' : 'Archive Task'"
-                @click="onClick"
+                  class="text-gray-500 dark:text-gray-300 hover:text-yellow-500"
+                  :title="props.task.isArchived ? 'Unarchive Task' : 'Archive Task'"
+                  @click="onClick"
               >
-                <SpinnerComponent v-if="loading" />
-                <v-icon v-else :name="props.task.isArchived ? 'md-unarchive-outlined' : 'md-archive-outlined'" />
+                <SpinnerComponent v-if="loading"/>
+                <v-icon v-else :name="props.task.isArchived ? 'md-unarchive-outlined' : 'md-archive-outlined'"/>
               </button>
             </template>
           </ArchiveToggle>

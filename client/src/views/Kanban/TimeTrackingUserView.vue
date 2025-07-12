@@ -328,7 +328,7 @@ const cancelOverall = () => {
 
       <div v-else>
         <p class="text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-slate-700 p-4 rounded-md">
-          <p>Invalid view mode for report.</p>
+          Invalid view mode for report.
         </p>
       </div>
     </div>

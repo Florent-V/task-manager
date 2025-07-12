@@ -114,8 +114,9 @@ function handlePageChange(newPage) {
     </div>
 
     <div v-else>
-      <div v-if="imputations.length === 0"
-           class="text-center py-4 text-gray-500 dark:text-gray-400">
+      <div
+          v-if="imputations.length === 0"
+          class="text-center py-4 text-gray-500 dark:text-gray-400">
         No detailed imputations to display for this Kanban.
       </div>
 
@@ -123,23 +124,28 @@ function handlePageChange(newPage) {
         <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-600">
           <thead class="bg-gray-100 dark:bg-slate-700">
           <tr>
-            <th scope="col"
+            <th
+                scope="col"
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               Task Title
             </th>
-            <th scope="col"
+            <th
+                scope="col"
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               User
             </th>
-            <th scope="col"
+            <th
+                scope="col"
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               Time Spent
             </th>
-            <th scope="col"
+            <th
+                scope="col"
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               Imputation Date
             </th>
-            <th scope="col"
+            <th
+                scope="col"
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               Comment
             </th>
@@ -172,7 +178,7 @@ function handlePageChange(newPage) {
             :total-pages="totalPages"
             :total-items="totalItems"
             :items-per-page="itemsPerPage"
-            @update:currentPage="handlePageChange"
+            @update:current-page="handlePageChange"
         />
       </div>
     </div>
@@ -181,8 +187,9 @@ function handlePageChange(newPage) {
   <!-- User Selection Section -->
   <div>
     <!-- User Selection Section moved here -->
-    <div v-if="props.usersOnThisKanban && props.usersOnThisKanban.length > 0"
-         class="mb-8 bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
+    <div
+        v-if="props.usersOnThisKanban && props.usersOnThisKanban.length > 0"
+        class="mb-8 bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
       <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Select User for Detailed Stats</h2>
       <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
         Select a user to view their imputation statistics from the table above. The stats shown will be based on the
@@ -200,8 +207,8 @@ function handlePageChange(newPage) {
       </ul>
       <button
           v-if="selectedUserId"
-          @click="selectUser(null)"
           class="mt-4 text-sm text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 underline"
+          @click="selectUser(null)"
       >
         Clear selection
       </button>
@@ -220,8 +227,9 @@ function handlePageChange(newPage) {
         :kanban-title="`Imputations for ${selectedUserName}`"
         class="mt-6"
     />
-    <div v-else-if="selectedUserId && detailedImputationsForSelectedUser.length === 0 && !isLoading"
-         class="mt-6 p-4 bg-yellow-50 dark:bg-slate-700 rounded-lg text-center text-gray-600 dark:text-gray-300">
+    <div
+        v-else-if="selectedUserId && detailedImputationsForSelectedUser.length === 0 && !isLoading"
+        class="mt-6 p-4 bg-yellow-50 dark:bg-slate-700 rounded-lg text-center text-gray-600 dark:text-gray-300">
       No imputations found for {{ selectedUserName }} in the current view.
     </div>
 

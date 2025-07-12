@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, watch } from 'vue';
 
 import LoaderComponent from '@/components/LoaderComponent.vue';
 import ModalConfirmation from '@/components/ModalConfirmation.vue';
@@ -26,6 +26,7 @@ const props = defineProps({
 });
 
 // Emits
+// eslint-disable-next-line no-unused-vars
 const emit = defineEmits([
   'create-comment',
   'edit-comment',

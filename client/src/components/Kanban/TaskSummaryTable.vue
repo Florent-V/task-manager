@@ -94,23 +94,28 @@ function handlePageChange(newPage) {
         <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-600">
           <thead class="bg-gray-100 dark:bg-slate-700">
           <tr>
-            <th scope="col"
+            <th
+                scope="col"
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               Task Title
             </th>
-            <th scope="col"
+            <th
+                scope="col"
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               Estimated Time
             </th>
-            <th scope="col"
+            <th
+                scope="col"
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               Total Time Spent
             </th>
-            <th scope="col"
+            <th
+                scope="col"
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               Variance
             </th>
-            <th scope="col"
+            <th
+                scope="col"
                 class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
               Variance %
             </th>
@@ -146,7 +151,7 @@ function handlePageChange(newPage) {
             :total-pages="totalPages"
             :total-items="totalItems"
             :items-per-page="itemsPerPage"
-            @update:currentPage="handlePageChange"
+            @update:current-page="handlePageChange"
         />
       </div>
     </div>

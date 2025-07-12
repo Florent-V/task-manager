@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'; // Added watch to the import statement
+import { ref, computed, watch } from 'vue'; // Added watch to the import statement
 
 import LoaderComponent from '@/components/LoaderComponent.vue';
 import ModalConfirmation from '@/components/ModalConfirmation.vue';

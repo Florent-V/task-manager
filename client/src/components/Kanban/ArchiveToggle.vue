@@ -1,5 +1,6 @@
 <script setup>
 import { toRefs } from 'vue';
+
 import { hookApi } from '@/services/requestHook.js';
 import { TaskService } from '@/services/taskService.js';
 import logger from "@/utils/logger.js";
@@ -44,5 +45,5 @@ async function toggle() {
 
 <template>
   <!-- Button slot only -->
-  <slot :onClick="toggle" :loading="isLoading" />
+  <slot :on-click="toggle" :loading="isLoading" />
 </template>

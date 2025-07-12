@@ -29,8 +29,8 @@ const {
 } = hookApi();
 
 // Task related state
-const kanbanId = ref(route.params.kanbanId);
-const taskId = ref(route.params.taskId);
+const kanbanId = ref(String(route.params.kanbanId));
+const taskId = ref(String(route.params.taskId));
 const task = ref({});
 // Form State
 const showImputationForm = ref(false);
@@ -203,10 +203,10 @@ onMounted(() => {
           <h1 class="text-3xl font-bold text-gray-900 dark:text-yellow-300">Tâche : {{ task.title }}</h1>
           <div class="flex space-x-2">
             <ArchiveToggle
-                :kanbanId="kanbanId"
-                :taskId="taskId"
-                :isArchived="task.isArchived"
-                @update:isArchived="value => {
+                :kanban-id="kanbanId"
+                :task-id="taskId"
+                :is-archived="task.isArchived"
+                @update:is-archived="value => {
                   task.isArchived = value; kanbanStore.editTask(task); archiveError = null
                 }"
                 @error="archiveError = $event"

@@ -143,8 +143,9 @@ watch(() => props.kanbanId, (newId, oldId) => {
         <div v-if="requestTotalsLoading" class="flex justify-center py-1">
           <LoaderComponent size="small"/>
         </div>
-        <p v-else
-           :class="['text-3xl font-bold', tasksTotalImputedTime > tasksTotalEstimatedTime && tasksTotalEstimatedTime > 0 ? 'text-red-600' : 'text-green-600']">
+        <p
+            v-else
+            :class="['text-3xl font-bold', tasksTotalImputedTime > tasksTotalEstimatedTime && tasksTotalEstimatedTime > 0 ? 'text-red-600' : 'text-green-600']">
           {{ timeParser.formatMinutesToTimeString(tasksTotalImputedTime) }}
         </p>
         <p class="text-sm text-gray-500 dark:text-gray-400">on this Kanban board</p>
