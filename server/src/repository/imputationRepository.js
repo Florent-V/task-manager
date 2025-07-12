@@ -53,7 +53,7 @@ export function getImputationsByKanbanIdPaginated(kanbanId, limit, offset) {
     ],
     limit,
     offset,
-    distinct: true,// Necessary for correct count with includes that might create duplicates before distinct
+    distinct: true, // Necessary for correct count with includes that might create duplicates before distinct
     // subQuery: false, // May be needed depending on the complexity and if `distinct` alone doesn't solve count issues with Sequelize. Test first.
     raw: true, // Convertit directement les résultats en objets simples
     nest: true, // Assure que les résultats sont imbriqués correctement

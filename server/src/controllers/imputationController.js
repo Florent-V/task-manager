@@ -6,9 +6,9 @@ import Kanban from '../models/kanbanModel.js';
 import logger from '../config/logger.js';
 import UnauthorizedError from '../error/unauthorizedError.js';
 import NotFoundError from '../error/notFoundError.js';
-import { getTaskTimingSums } from "../repository/taskRepository.js";
-import { getPaginatedImputationsDetail } from "../services/imputationService.js";
-import { getPaginatedTasksSummary } from "../services/taskService.js";
+import { getTaskTimingSums } from '../repository/taskRepository.js';
+import { getPaginatedImputationsDetail } from '../services/imputationService.js';
+import { getPaginatedTasksSummary } from '../services/taskService.js';
 
 export async function createImputation(req, res, next) {
   logger.debug('createImputation');
@@ -54,7 +54,7 @@ export async function getTasksSummaryForKanbanPaginated(req, res, next) {
     res.data = await getPaginatedTasksSummary(kanbanId, parseInt(page, 10), parseInt(limit, 10));
     next();
   } catch (error) {
-    console.log("## ERROR", error);
+    console.log('## ERROR', error);
     next(error);
   }
 }
@@ -101,7 +101,11 @@ export async function getDetailedImputationsForKanbanPaginated(req, res, next) {
   const { id: kanbanId } = req.params;
   const { page = 1, limit = 10 } = req.query;
   try {
-    res.data = await getPaginatedImputationsDetail(kanbanId, parseInt(page, 10), parseInt(limit, 10));
+    res.data = await getPaginatedImputationsDetail(
+      kanbanId,
+      parseInt(page, 10),
+      parseInt(limit, 10)
+    );
     next();
   } catch (error) {
     next(error);
@@ -145,7 +149,6 @@ export async function oldgetDetailedImputationsForKanbanPaginated(req, res, next
     next(error);
   }
 }
-
 
 export async function getImputationsForKanban(req, res, next) {
   logger.debug('getImputationsForKanban');
