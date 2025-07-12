@@ -8,18 +8,21 @@ import CustomDatePicker from '@/components/Kanban/CustomDatePicker.vue';
 import ModalConfirmation from '@/components/ModalConfirmation.vue';
 import LoaderComponent from '@/components/LoaderComponent.vue';
 import { useAuthStore } from '@/stores/authStore.js';
-import { useHandleRequestStore } from "@/stores/handleRequestStore.js";
-import { KanbanService } from '@/services/kanbanService.js';
 import { TimeParser } from '@/utils/timeParser.js';
 import { setTitle, setDescription } from "@/utils/documentInfos.js";
 import logger from '@/utils/logger.js';
+import { KanbanService } from '@/services/kanbanService.js';
+import { hookApi } from "@/services/requestHook.js";
 
 // Initialize services and data
-// Services
 const kanbanService = new KanbanService();
 const timeParser = new TimeParser();
 const authStore = useAuthStore();
-const handleRequestStore = useHandleRequestStore();
+const {
+  isLoading: requestLoading,
+  error: requestError,
+  executeRequest
+} = hookApi();
 
 // Initialize date to current month for that mode.
 const today = new Date();
@@ -37,7 +40,7 @@ const formatDate = (date) => {
 
 // Ref state for template
 const kanbans = ref([]);
-const error = ref(null);
+const errorDate = ref(null);
 // Filter states - Initial filter type set to 'customRange' for the rolling month default
 const filterType = ref('customRange'); // 'month', 'customRange', 'overall'
 // View mode for switching between report and calendar
@@ -51,8 +54,6 @@ const selectedMonthYear = ref(`${currentYear}-${currentMonthStr}`);
 
 // Computed Properties
 const viewedUser = computed(() => authStore.user);
-const requestLoading = computed(() => handleRequestStore.isLoading);
-const requestError = computed(() => handleRequestStore.error);
 
 // Proxy to intercept 'overall' selection
 const filterTypeProxy = computed({
@@ -111,18 +112,18 @@ const fetchUserReportData = async () => {
   }
 
   try {
-    const data = await kanbanService.getUserTimeTrackingReport(params);
+    const data = await executeRequest(() => kanbanService.getUserTimeTrackingReport(params));
     kanbans.value = data.kanbans || [];
   } catch (err) {
-    requestError.value = `Erreur lors de la récupération des imputations: ${err.message}`;
+    requestError.value = `Erreur lors de la récupération des imputations. ${requestError.value}`;
     logger.error('Error fetching task details:', err);
     kanbans.value = []; // Clear kanbans on error
   }
 };
 
 // Initial fetch on mount
-onMounted(async () => {
-  await fetchUserReportData();
+onMounted(() => {
+  fetchUserReportData();
   setTitle(`Imputations de ${viewedUser.value.username}`);
   setDescription(`Cette page présente les imputations de ${viewedUser.value.username}`);
 });
@@ -157,10 +158,11 @@ watch([customStartDate, customEndDate], ([newStart, newEnd], [oldStart, oldEnd])
   if (currentViewMode.value === 'report' && filterType.value === 'customRange' && (newStart !== oldStart || newEnd !== oldEnd)) {
     if (customStartDate.value || customEndDate.value) {
       if (customStartDate.value && customEndDate.value && new Date(customEndDate.value) < new Date(customStartDate.value)) {
-        error.value = "End date cannot be before start date.";
+        errorDate.value = "The end date cannot be before the start date.";
+        kanbans.value = [];
         return;
       }
-      error.value = null;
+      errorDate.value = null;
       fetchUserReportData();
     } else if (!customStartDate.value && !customEndDate.value && (oldStart || oldEnd)) {
       fetchUserReportData();
@@ -174,8 +176,6 @@ watch(currentViewMode, (newMode, oldMode) => {
     // If data for current report filters needs refresh, fetch it.
     fetchUserReportData();
   }
-  // MonthlyImputationCalendar fetches its own data based on its `initialMonth` prop
-  // and internal navigation.
 });
 
 // Confirm/cancel handlers for overall
@@ -201,6 +201,7 @@ const cancelOverall = () => {
       <div class="mb-8 p-4 flex flex-col gap-4 bg-base-200 dark:bg-slate-800 rounded-lg shadow">
         <div class="flex justify-between items-center">
           <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-200">Filter Imputations (Summary Report)</h2>
+
           <div class="flex items-center space-x-3">
             <button
                 :class="currentViewMode === 'report' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'"
@@ -214,6 +215,7 @@ const cancelOverall = () => {
             </button>
           </div>
         </div>
+
         <div v-if="currentViewMode === 'report'" class="w-full flex flex-col gap-4">
           <!-- Filter select row -->
           <div class="flex justify-center">
@@ -243,9 +245,20 @@ const cancelOverall = () => {
             </template>
           </div>
           <!-- Error message -->
-          <p
-              v-if="error && filterType === 'customRange' && customStartDate && customEndDate && new Date(customEndDate) < new Date(customStartDate)"
-              class="text-red-500 text-sm text-center">{{ error }}</p>
+          <div
+              v-if="errorDate"
+              class="text-center text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 p-4 rounded-md border border-red-300 dark:border-red-700"
+          >
+              {{ errorDate }}
+          </div>
+<!--          <p-->
+<!--              v-if="filterType === 'customRange' && customStartDate && customEndDate && new Date(customEndDate) < new Date(customStartDate)"-->
+<!--              class="text-red-500 text-sm text-center"-->
+<!--          >-->
+<!--            The end date cannot be before the start date.-->
+<!--          </p>-->
+
+
         </div>
         <!-- Confirmation modal for 'overall' filter -->
         <ModalConfirmation
@@ -266,7 +279,7 @@ const cancelOverall = () => {
         </div>
 
         <div
-            v-else-if="error || requestError"
+            v-else-if="requestError"
             class="text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 p-4 rounded-md border border-red-300 dark:border-red-700">
           <p class="font-semibold">Error loading report data:
             <span v-if="requestError">({{ requestError }})</span>
@@ -309,8 +322,14 @@ const cancelOverall = () => {
       </div>
 
       <!-- Calendar View Content -->
-      <div v-if="currentViewMode === 'calendar'">
+      <div v-else-if="currentViewMode === 'calendar'">
         <MonthlyImputationReportComponent :initial-month="selectedMonthYear"/>
+      </div>
+
+      <div v-else>
+        <p class="text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-slate-700 p-4 rounded-md">
+          Invalid view mode for report.
+        </p>
       </div>
     </div>
   </div>

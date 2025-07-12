@@ -1,47 +1,47 @@
 <script setup>
-import { ref, onMounted, computed , nextTick } from 'vue';
+import { ref, onMounted, computed, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import LoaderComponent from '@/components/LoaderComponent.vue';
+import SpinnerComponent from '@/components/Loader/SpinnerComponent.vue';
 import TaskDisplayDetails from '@/components/Kanban/TaskDisplayDetailsComponent.vue';
 import ImputationFormComponent from "@/components/Kanban/ImputationFormComponent.vue";
 import CommentFormComponent from "@/components/Kanban/CommentFormComponent.vue";
 import ImputationDisplayComponent from "@/components/Kanban/ImputationDisplayComponent.vue";
 import CommentDisplayComponent from "@/components/Kanban/CommentDisplayComponent.vue";
-import ModalConfirmation from '@/components/ModalConfirmation.vue';
 import TaskFormModal from "@/components/Kanban/TaskFormModal.vue";
+import ArchiveToggle from "@/components/Kanban/ArchiveToggle.vue"; // Import ArchiveToggle
 import { useKanbanStore } from '@/stores/kanbanStore.js';
-import { useHandleRequestStore } from "@/stores/handleRequestStore.js";
 import { setTitle, setDescription } from "@/utils/documentInfos.js";
 import { TimeParser } from "@/utils/timeParser.js";
 import logger from '@/utils/logger.js';
-import { TaskService } from '@/services/taskService.js';
+import { hookApi } from "@/services/requestHook.js";
 
+// Initialize services and data
 const route = useRoute();
 const router = useRouter();
 const kanbanStore = useKanbanStore();
-const handleRequestStore = useHandleRequestStore();
 const timeParser = new TimeParser();
-const taskService = new TaskService();
+const {
+  isLoading: requestLoading,
+  error: requestError,
+  executeRequest
+} = hookApi();
 
 // Task related state
-const kanbanId = ref(route.params.kanbanId);
-const taskId = ref(route.params.taskId);
-const task = ref(null);
+const kanbanId = ref(String(route.params.kanbanId));
+const taskId = ref(String(route.params.taskId));
+const task = ref({});
 // Form State
 const showImputationForm = ref(false);
 const showCommentForm = ref(false);
 const selectedImputation = ref(null);
 const selectedComment = ref(null);
-const showDeleteImputationConfirmation = ref(false);
-const showDeleteCommentConfirmation = ref(false);
-const imputationToDeleteId = ref(null);
-const commentToDeleteId = ref(null);
 const showTaskFormModal = ref(false);
-
 // Component refs
 const imputationDisplayRef = ref(null);
 const commentDisplayRef = ref(null);
+const archiveError = ref(null);
 
 // Reactive data from child components
 const totalImputedMinutes = ref(0);
@@ -51,13 +51,11 @@ const users = computed(() => kanbanStore.users);
 const stages = computed(() => kanbanStore.stages);
 const priorities = computed(() => kanbanStore.priorities);
 const sizes = computed(() => kanbanStore.sizes);
-const requestLoading = computed(() => handleRequestStore.isLoading);
-const requestError = computed(() => handleRequestStore.error);
 const taskEstimationMinutes = computed(() => task.value?.estimation || 0);
 
 // Progress bar calculations based on total from child component
-const formattedTotalImputedTime = computed(() => 
-  timeParser.formatMinutesToTimeString(totalImputedMinutes.value)
+const formattedTotalImputedTime = computed(() =>
+    timeParser.formatMinutesToTimeString(totalImputedMinutes.value)
 );
 
 const maxValue = computed(() => {
@@ -75,20 +73,6 @@ const imputedBarWidth = computed(() => {
   if (!maxValue.value) return 0;
   return (totalImputedMinutes.value / maxValue.value) * 100;
 });
-
-const toggleArchive = async () => {
-  try {
-    await (task.value.isArchived
-            ? taskService.restoreTask(kanbanId.value, taskId.value)
-            : taskService.archiveTask(kanbanId.value, taskId.value)
-    );
-    task.value.isArchived = !task.value.isArchived;
-    kanbanStore.editTask(task.value)
-
-  } catch (err) {
-    logger.error('Error archiving/unarchiving task from modal:', err);
-  }
-};
 
 const editTask = () => {
   showTaskFormModal.value = true;
@@ -144,11 +128,6 @@ const closeCommentForm = () => {
   showCommentForm.value = false;
 };
 
-function confirmDeleteComment(commentId) {
-  commentToDeleteId.value = commentId;
-  showDeleteCommentConfirmation.value = true;
-}
-
 const openCreateImputationForm = async () => {
   selectedImputation.value = null;
   showImputationForm.value = true;
@@ -166,11 +145,6 @@ const closeImputationForm = () => {
   showImputationForm.value = false;
 };
 
-function confirmDeleteImputation(imputationId) {
-  imputationToDeleteId.value = imputationId;
-  showDeleteImputationConfirmation.value = true;
-}
-
 function goBackToKanban() {
   router.push(`/kanban/${kanbanId.value}`);
 }
@@ -180,43 +154,18 @@ function goBackToKanban() {
 async function fetchTask() {
   logger.debug(`Fetching task details for Kanban ID: ${kanbanId.value}, Task ID: ${taskId.value}`);
   try {
-    await kanbanStore.initStore(kanbanId.value);
+    await executeRequest(() => kanbanStore.initStore(kanbanId.value));
     task.value = kanbanStore.getTaskById(taskId.value);
     if (!task.value) {
       requestError.value = 'Task not found';
       logger.warn(`Task with ID ${taskId.value} not found in Kanban ${kanbanId.value}`);
-      // TODO display a user-friendly message or redirect
       return;
     }
+    setTitle(`Task Détails - ${task.value.title}`);
+    setDescription(`Kanban - ${task.value.description}`);
     logger.debug('Task details fetched successfully:', task.value);
   } catch (err) {
-    requestError.value = `Erreur lors de la recherche de la tâche: ${err.message}`;
     logger.error('Error fetching task details:', err);
-  }
-}
-
-// Execute deletion of an imputation
-async function executeDeleteImputation() {
-  if (!imputationToDeleteId.value) return;
-  try {
-    await imputationDisplayRef.value?.deleteImputation(imputationToDeleteId.value);
-  } catch (err) {
-    logger.error('Error deleting imputation:', err);
-  } finally {
-    showDeleteImputationConfirmation.value = false;
-    imputationToDeleteId.value = null;
-  }
-}
-
-async function executeDeleteComment() {
-  if (!commentToDeleteId.value) return;
-  try {
-    await commentDisplayRef.value?.deleteComment(commentToDeleteId.value);
-  } catch (err) {
-    logger.error('Error deleting comment:', err);
-  } finally {
-    showDeleteCommentConfirmation.value = false;
-    commentToDeleteId.value = null;
   }
 }
 
@@ -225,45 +174,54 @@ const handleTotalImputedChanged = (newTotal) => {
   totalImputedMinutes.value = newTotal;
 };
 
-onMounted(async () => {
-  await fetchTask();
-  setTitle(`Task Détails - ${task.value.title}`);
-  setDescription(`Kanban - ${task.value.description}`);
+onMounted(() => {
+  fetchTask();
 });
 </script>
 <template>
   <div class="container mx-auto p-4">
-    <div v-if="requestLoading && !task" class="text-center">
-      <LoaderComponent/>
-      <p>Loading task details...</p>
-    </div>
 
-    <div
-        v-else-if="requestError"
-        class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800" role="alert"
-    >
-      <p class="font-semibold">Error loading Taks details:
-        <span>({{ requestError }})</span>
-      </p>
-    </div>
-
-    <div v-else>
-      <div v-if="!task" class="text-center text-gray-500 dark:text-gray-400 mt-10">
-        <p v-if="!requestLoading">Tâche non trouvée ou impossible à charger.</p>
+    <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
+      <!--  loader    -->
+      <div v-if="requestLoading" class="text-center my-12">
+        <LoaderComponent/>
+        <p class="mt-2">Loading task details...</p>
       </div>
-
-      <div v-else class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
+      <!-- display error-->
+      <div
+          v-else-if="requestError"
+          class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800" role="alert"
+      >
+        <p class="font-semibold">Error loading Taks details:
+          <span>({{ requestError }})</span>
+        </p>
+      </div>
+      <!--display task details-->
+      <div v-else-if="task.id">
         <!-- Header: Title and Back Button -->
         <div class="flex justify-between items-center mb-6">
-          <h1 class="text-3xl font-bold text-gray-900 dark:text-yellow-300">{{ task.title }}</h1>
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-yellow-300">Tâche : {{ task.title }}</h1>
           <div class="flex space-x-2">
-            <button
-                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
-                :title="task.isArchived ? 'Unarchive Task' : 'Archive Task'"
-                @click="toggleArchive"
+            <ArchiveToggle
+                :kanban-id="kanbanId"
+                :task-id="taskId"
+                :is-archived="task.isArchived"
+                @update:is-archived="value => {
+                  task.isArchived = value; kanbanStore.editTask(task); archiveError = null
+                }"
+                @error="archiveError = $event"
             >
-              <v-icon :name="task.isArchived ? 'md-unarchive-outlined' : 'md-archive-outlined'"/>
-            </button>
+              <template #default="{ onClick, loading }">
+                <button
+                    :title="task.isArchived ? 'Unarchive Task' : 'Archive Task'"
+                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
+                    @click="onClick"
+                >
+                  <SpinnerComponent v-if="loading"/>
+                  <v-icon v-else :name="task.isArchived ? 'md-unarchive-outlined' : 'md-archive-outlined'"/>
+                </button>
+              </template>
+            </ArchiveToggle>
             <button
                 class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
                 @click="editTask"
@@ -278,6 +236,8 @@ onMounted(async () => {
             </button>
           </div>
         </div>
+
+        <p v-if="archiveError" class="mt-2 text-right text-sm text-red-600 dark:text-red-400">{{ archiveError }}</p>
 
         <!-- Task Display Details Component -->
         <TaskDisplayDetails :task="task" class="mb-6"/>
@@ -329,89 +289,68 @@ onMounted(async () => {
             Attention: Le temps imputé dépasse le temps estimé.
           </div>
         </div>
+      </div>
 
-        <!-- Imputations and Comments Display Section -->
-        <div class="flex gap-3 mb-6">
-          <ImputationDisplayComponent 
+      <!-- Imputations and Comments Display Section -->
+      <div class="flex gap-3 mb-6">
+        <ImputationDisplayComponent
             ref="imputationDisplayRef"
             :kanban-id="kanbanId"
-            :task-id="taskId"
             :show-form-button="!showImputationForm"
+            :task-id="taskId"
             @create-imputation="openCreateImputationForm"
             @edit-imputation="openEditImputationForm"
-            @delete-imputation="confirmDeleteImputation"
             @total-changed="handleTotalImputedChanged"
-          />
-          <CommentDisplayComponent 
+        />
+
+        <CommentDisplayComponent
             ref="commentDisplayRef"
             :kanban-id="kanbanId"
-            :task-id="taskId"
             :show-form-button="!showCommentForm"
+            :task-id="taskId"
             @create-comment="openCreateCommentForm"
             @edit-comment="openEditCommentForm"
-            @delete-comment="confirmDeleteComment"
-          />
-        </div>
-
-        <!-- Imputation Form Section -->
-        <ImputationFormComponent
-            v-if="showImputationForm"
-            :initial-data="selectedImputation"
-            :kanban-id="kanbanId"
-            :task-id="taskId"
-            @cancel="closeImputationForm"
-            @handle-response="handleResponseImputationFormSubmit"
         />
+      </div>
 
-        <CommentFormComponent
-            v-if="showCommentForm"
-            :initial-data="selectedComment"
-            :kanban-id="kanbanId"
-            :task-id="taskId"
-            @cancel="closeCommentForm"
-            @handle-response="handleResponseCommentFormSubmit"
-        />
+      <!-- Imputation Form Section -->
+      <ImputationFormComponent
+          v-if="showImputationForm"
+          :initial-data="selectedImputation"
+          :kanban-id="kanbanId"
+          :task-id="taskId"
+          @cancel="closeImputationForm"
+          @handle-response="handleResponseImputationFormSubmit"
+      />
 
-        <!-- Kanban ID and Task ID - Kept for reference if needed -->
-        <div class="mt-8 pt-6 border-t dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
-          <p>Kanban ID: {{ kanbanId }}</p>
-          <p>Task ID: {{ taskId }}</p>
-        </div>
+      <CommentFormComponent
+          v-if="showCommentForm"
+          :initial-data="selectedComment"
+          :kanban-id="kanbanId"
+          :task-id="taskId"
+          @cancel="closeCommentForm"
+          @handle-response="handleResponseCommentFormSubmit"
+      />
+
+      <!-- Kanban ID and Task ID - Kept for reference if needed -->
+      <div class="mt-8 pt-6 border-t dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400">
+        <p>Kanban ID: {{ kanbanId }}</p>
+        <p>Task ID: {{ taskId }}</p>
       </div>
     </div>
-
 
     <TaskFormModal
         v-if="showTaskFormModal"
         :initial-data="task"
-        :users="users"
         :kanban-id="kanbanId"
         :priorities="priorities"
         :sizes="sizes"
         :stages="stages"
-        @handle-response="handleResponseTaskFormSubmit"
+        :users="users"
         @cancel="closeTaskFormModal"
+        @handle-response="handleResponseTaskFormSubmit"
     />
 
-    <!-- Modal Confirmation for Deleting Imputation -->
-    <ModalConfirmation
-        v-if="showDeleteImputationConfirmation"
-        cancel-button-text="Annuler"
-        confirm-button-text="Supprimer"
-        question="Êtes-vous sûr de vouloir supprimer cette imputation ?"
-        @cancel="showDeleteImputationConfirmation = false"
-        @confirm="executeDeleteImputation"
-    />
-
-    <!-- Modal Confirmation for Deleting Comment -->
-    <ModalConfirmation
-        v-if="showDeleteCommentConfirmation"
-        cancel-button-text="Annuler"
-        confirm-button-text="Supprimer"
-        question="Êtes-vous sûr de vouloir supprimer ce commentaire ?"
-        @cancel="showDeleteCommentConfirmation = false"
-        @confirm="executeDeleteComment"
-    />
   </div>
 </template>
 <style scoped>

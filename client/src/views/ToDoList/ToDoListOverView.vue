@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { client } from '@/services/requestMaker.js';
-import { hookApi } from '@/utils/requestHook.js';
+import { hookApi } from '@/services/requestHook.js';
 import logger from '@/utils/logger.js';
 import ToDoListFormComponent from '@/components/ToDoList/ToDoListFormComponent.vue';
 import LoaderComponent from '@/components/LoaderComponent.vue';

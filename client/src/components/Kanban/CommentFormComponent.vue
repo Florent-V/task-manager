@@ -1,12 +1,12 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 
-import { useHandleRequestStore } from "@/stores/handleRequestStore.js";
 import logger from '@/utils/logger.js';
 import useFormErrors from '@/utils/handleFormErrors.js';
 import { TaskService } from '@/services/taskService.js';
+import { hookApi } from "@/services/requestHook.js";
 
-const emit = defineEmits(['handleResponse', 'cancel']);
+// Props
 const props = defineProps({
   initialData: {
     type: Object,
@@ -25,11 +25,18 @@ const props = defineProps({
   },
 });
 
-const handleRequestStore = useHandleRequestStore();
+// Emits
+const emit = defineEmits(['handleResponse', 'cancel']);
+
+// Initialize services and data
 const taskService = new TaskService();
+const {
+  error: requestError,
+  executeRequest
+} = hookApi();
 
+// Handle Form Data
 const formData = ref({ ...props.initialData });
-
 watch(() => props.initialData, (newValue) => {
       formData.value = newValue ? { ...newValue } : { title: '', content: '' };
     },
@@ -39,7 +46,6 @@ watch(() => props.initialData, (newValue) => {
 const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...formData.value });
 
 // Computed Properties
-const requestError = computed(() => handleRequestStore.error);
 const isEditing = computed(() => !!formData.value.id);
 
 // Methods
@@ -53,19 +59,19 @@ const submitForm = async () => {
     let response;
     if (formData.value.id) {
       // Update existing comment
-      response = await taskService.editComment(
+      response = executeRequest(() => taskService.editComment(
           props.kanbanId,
           props.taskId,
           formData.value.id,
           data
-      );
+      ))
     } else {
       // Create new comment
-      response = await taskService.createComment(
+      response = await executeRequest(() => taskService.createComment(
           props.kanbanId,
           props.taskId,
           data
-      );
+      ));
     }
     emit('handleResponse', response);
     closeForm();

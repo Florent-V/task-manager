@@ -1,5 +1,4 @@
-import { getTasksByKanbanIdPaginated } from "../repository/taskRepository.js";
-
+import { getTasksByKanbanIdPaginated } from '../repository/taskRepository.js';
 
 /**
  * Gets the paginated summary of tasks for a Kanban, including calculated variance metrics.
@@ -10,13 +9,20 @@ import { getTasksByKanbanIdPaginated } from "../repository/taskRepository.js";
  */
 export async function getPaginatedTasksSummary(kanbanId, page, limit) {
   const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
-  const { rows: tasks, count } = await getTasksByKanbanIdPaginated(kanbanId, parseInt(limit, 10), offset);
+  const { rows: tasks, count } = await getTasksByKanbanIdPaginated(
+    kanbanId,
+    parseInt(limit, 10),
+    offset
+  );
 
-  const formattedTasks = tasks.map(taskInstance => {
+  const formattedTasks = tasks.map((taskInstance) => {
     // Convert Sequelize instance to plain object to safely add properties
     const task = taskInstance.get({ plain: true });
 
-    task.totalTimeSpentOnTask = (task.imputations || []).reduce((sum, imp) => sum + (imp.timeSpent || 0), 0);
+    task.totalTimeSpentOnTask = (task.imputations || []).reduce(
+      (sum, imp) => sum + (imp.timeSpent || 0),
+      0
+    );
     const estimation = task.estimation || 0;
     task.varianceMinutes = task.totalTimeSpentOnTask - estimation;
     task.varianceAbsMinutes = Math.abs(task.varianceMinutes);
@@ -24,7 +30,7 @@ export async function getPaginatedTasksSummary(kanbanId, page, limit) {
 
     // Ensure imputations also are plain objects if they are Sequelize instances
     if (task.imputations) {
-      task.imputations = task.imputations.map(impInstance => {
+      task.imputations = task.imputations.map((impInstance) => {
         const imp = impInstance.get ? impInstance.get({ plain: true }) : impInstance;
         if (imp.user && imp.user.get) {
           imp.user = imp.user.get({ plain: true });

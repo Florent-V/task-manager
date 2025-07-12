@@ -1,4 +1,4 @@
-import { getImputationsByKanbanIdPaginated } from "../repository/imputationRepository.js";
+import { getImputationsByKanbanIdPaginated } from '../repository/imputationRepository.js';
 
 /**
  * Gets the paginated detailed list of imputations for a Kanban, adding user's full name.
@@ -9,14 +9,19 @@ import { getImputationsByKanbanIdPaginated } from "../repository/imputationRepos
  */
 export async function getPaginatedImputationsDetail(kanbanId, page, limit) {
   const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
-  const { rows: imputations, count } = await getImputationsByKanbanIdPaginated(kanbanId, parseInt(limit, 10), offset);
+  const { rows: imputations, count } = await getImputationsByKanbanIdPaginated(
+    kanbanId,
+    parseInt(limit, 10),
+    offset
+  );
 
-  const formattedImputations = imputations.map(imputation => {
+  const formattedImputations = imputations.map((imputation) => {
     let userFullName = 'N/A';
     if (imputation.user) {
-      userFullName = (imputation.user.firstName && imputation.user.lastName)
-        ? `${imputation.user.firstName} ${imputation.user.lastName}`
-        : imputation.user.firstName || imputation.user.lastName || 'N/A';
+      userFullName =
+        imputation.user.firstName && imputation.user.lastName
+          ? `${imputation.user.firstName} ${imputation.user.lastName}`
+          : imputation.user.firstName || imputation.user.lastName || 'N/A';
     }
     return {
       ...imputation,

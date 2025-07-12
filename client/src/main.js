@@ -32,6 +32,7 @@ import {
   BiBackspace,
   CoChevronLeft,
   CoChevronRight,
+  HiRefresh,
 } from "oh-vue-icons/icons";
 
 import { cropText } from '@/utils/crop.js';
@@ -69,6 +70,7 @@ addIcons(
   BiBackspace,
   CoChevronLeft,
   CoChevronRight,
+  HiRefresh,
 );
 
 const app = createApp(App)

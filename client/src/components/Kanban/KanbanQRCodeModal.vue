@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router';
 
 import logger from "@/utils/logger.js";
 import { client } from "@/services/requestMaker.js";
-import { hookApi } from "@/utils/requestHook.js";
+import { hookApi } from "@/services/requestHook.js";
 
 const props = defineProps({
   qrCodeUrl: {

@@ -1,9 +1,8 @@
-import sequelize from "../database/connect.js";
+import sequelize from '../database/connect.js';
 import { QueryTypes } from 'sequelize';
 import Imputation from '../models/imputationModel.js';
 import Task from '../models/taskModel.js';
 import User from '../models/userModel.js';
-
 
 /**
  * Retrieves the sum of estimated and imputed times for tasks in a specific Kanban.
@@ -26,12 +25,11 @@ export async function getTaskTimingSums(kanbanId) {
     `,
     {
       replacements: { kanbanId },
-      type: QueryTypes.SELECT
+      type: QueryTypes.SELECT,
     }
   );
   return result[0];
 }
-
 
 /**
  * Retrieves paginated tasks associated with a specific Kanban ID.

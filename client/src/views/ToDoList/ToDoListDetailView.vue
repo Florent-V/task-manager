@@ -3,7 +3,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { client } from '@/services/requestMaker.js';
-import { hookApi } from '@/utils/requestHook.js';
+import { hookApi } from '@/services/requestHook.js';
 import { setTitle, setDescription } from "@/utils/documentInfos.js";
 import ToDoItemFormComponent from '@/components/ToDoList/ToDoItemFormComponent.vue';
 import ToDoItemImageModalComponent from '@/components/ToDoList/ToDoItemImageModalComponent.vue';

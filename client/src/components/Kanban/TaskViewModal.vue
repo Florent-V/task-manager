@@ -1,15 +1,18 @@
 <script setup>
+/* eslint-disable vue/no-mutating-props */
 import { computed, ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import LoaderComponent from '@/components/LoaderComponent.vue';
+import SpinnerComponent from '@/components/Loader/SpinnerComponent.vue';
 import ModalConfirmation from '@/components/ModalConfirmation.vue';
-import logger from '@/utils/logger.js';
+import ArchiveToggle from '@/components/Kanban/ArchiveToggle.vue';
 import { useKanbanStore } from '@/stores/kanbanStore.js';
-import { useHandleRequestStore } from "@/stores/handleRequestStore.js";
+import logger from '@/utils/logger.js';
+import { hookApi } from "@/services/requestHook.js";
 import { TaskService } from '@/services/taskService.js';
 
-const emit = defineEmits(['close', 'edit', 'delete', 'add-comment', 'handleResponse']);
+// Props
 const props = defineProps({
   task: {
     type: Object,
@@ -21,17 +24,30 @@ const props = defineProps({
   },
 });
 
+// Emits
+const emit = defineEmits(['close', 'edit', 'delete', 'add-comment']);
+
+// Initialize services and data
 const route = useRoute();
 const router = useRouter();
 const kanbanStore = useKanbanStore();
-const handleRequestStore = useHandleRequestStore();
 const taskService = new TaskService();
+const {
+  isLoading: requestLoading,
+  error: requestError,
+  executeRequest
+} = hookApi();
 
-const requestLoading = computed(() => handleRequestStore.isLoading);
-const requestError = computed(() => handleRequestStore.error);
+const {
+  error: requestDeleteError,
+  executeRequest: executeDeleteRequest
+} = hookApi();
+
+// Ref state
 const kanbanId = ref(route.params.id);
 const comments = ref([]);
 const showDeleteConfirmationModal = ref(false);
+const archiveError = ref(null);
 
 // Computed
 const sortedComments = computed(() => {
@@ -47,23 +63,14 @@ const formatDate = (dateString) => {
 // Methods
 const closeModal = () => emit('close');
 const editTask = () => emit('edit');
-const deleteTask = () => {
-  showDeleteConfirmationModal.value = false;
-  emit('delete', props.task.id);
-};
-
-const toggleArchive = async () => {
+const deleteTask = async () => {
   try {
-    await (props.task.isArchived
-            ? taskService.restoreTask(kanbanId.value, props.task.id)
-            : taskService.archiveTask(kanbanId.value, props.task.id)
-    );
-    // eslint-disable-next-line vue/no-mutating-props
-    props.task.isArchived = !props.task.isArchived;
-    emit('handleResponse', props.tasks);
-
+    showDeleteConfirmationModal.value = false;
+    await executeDeleteRequest(() => taskService.deleteTask(kanbanId.value, props.task.id));
+    emit('delete', props.task.id);
   } catch (err) {
-    logger.error('Error archiving/unarchiving task from modal:', err);
+    requestDeleteError.value = `Error deleting task. ${requestDeleteError.value}`;
+    logger.error('Error deleting task', err);
   }
 };
 
@@ -73,7 +80,7 @@ const openTaskView = () => {
 
 const fetchComments = async () => {
   try {
-    const data = await taskService.getComments(route.params.id, props.task.id);
+    const data = await executeRequest(() => taskService.getComments(route.params.id, props.task.id));
     comments.value = kanbanStore.enrichComments(data.comments);
   } catch (err) {
     logger.error('Error fetching comments', err);
@@ -100,13 +107,25 @@ onMounted(fetchComments);
           <button class="text-gray-500 dark:text-gray-300 hover:text-blue-500" @click="editTask">
             <v-icon name="fa-edit"/>
           </button>
-          <button
-              class="text-gray-500 dark:text-gray-300 hover:text-yellow-500"
-              :title="props.task.isArchived ? 'Unarchive Task' : 'Archive Task'"
-              @click="toggleArchive"
+          <ArchiveToggle
+              :kanban-id="kanbanId"
+              :task-id="props.task.id"
+              :is-archived="props.task.isArchived"
+              @update:is-archived="value => { props.task.isArchived = value; archiveError = null }"
+              @error="archiveError = $event"
           >
-            <v-icon :name="props.task.isArchived ? 'md-unarchive-outlined' : 'md-archive-outlined'"/>
-          </button>
+            <template #default="{ onClick, loading }">
+              <button
+                  class="text-gray-500 dark:text-gray-300 hover:text-yellow-500"
+                  :title="props.task.isArchived ? 'Unarchive Task' : 'Archive Task'"
+                  @click="onClick"
+              >
+                <SpinnerComponent v-if="loading"/>
+                <v-icon v-else :name="props.task.isArchived ? 'md-unarchive-outlined' : 'md-archive-outlined'"/>
+              </button>
+            </template>
+          </ArchiveToggle>
+
           <button
               class="text-gray-500 dark:text-gray-300 hover:text-red-500"
               @click="showDeleteConfirmationModal = true">
@@ -114,6 +133,13 @@ onMounted(fetchComments);
           </button>
         </div>
       </div>
+
+      <p v-if="archiveError" class="mt-2 text-right text-sm text-red-600 dark:text-red-400">
+        {{ archiveError }}
+      </p>
+      <p v-if="requestDeleteError" class="mt-2 text-right text-sm text-red-600 dark:text-red-400">
+        {{ requestDeleteError }}
+      </p>
 
       <!-- Task Details -->
       <div class="my-6 space-y-6">
@@ -159,18 +185,22 @@ onMounted(fetchComments);
         </h3>
 
         <!-- Loader -->
-        <div v-if="requestLoading && comments.length === 0" class="text-center">
+        <div v-if="requestLoading" class="text-center">
           <LoaderComponent/>
           <p>Chargement des commentaires...</p>
         </div>
 
-        <div v-else-if="comments.length === 0" class="text-gray-500 dark:text-gray-400">
-          Aucune imputation pour cette tâche.
-        </div>
+        <p v-else-if="requestError" class="mt-4 text-red-600 dark:text-red-400">
+          {{ requestError }}
+        </p>
 
         <!-- Comments Section -->
         <div v-else class="mt-8">
-          <div class="mt-4 space-y-4">
+          <div v-if="comments.length === 0" class="text-gray-500 dark:text-gray-400">
+            Aucune imputation pour cette tâche.
+          </div>
+
+          <div v-else class="mt-4 space-y-4">
             <div
                 v-for="comment in sortedComments" :key="comment.id"
                 class="p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
@@ -185,9 +215,7 @@ onMounted(fetchComments);
               <p class="mt-2 text-gray-600 dark:text-gray-300">{{ comment.content }}</p>
             </div>
           </div>
-          <p v-if="requestError" class="mt-4 text-red-600 dark:text-red-400">{{ requestError }}</p>
         </div>
-
       </div>
 
       <!-- Footer -->

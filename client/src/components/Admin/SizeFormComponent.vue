@@ -2,7 +2,7 @@
 import { ref, computed, watch } from 'vue';
 
 import { client } from '@/services/requestMaker.js';
-import { hookApi } from "@/utils/requestHook.js";
+import { hookApi } from "@/services/requestHook.js";
 import logger from "@/utils/logger.js";
 import useFormErrors from "@/utils/handleFormErrors.js";
 
