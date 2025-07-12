@@ -3,25 +3,25 @@ import { ref, onMounted, computed, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import LoaderComponent from '@/components/LoaderComponent.vue';
+import SpinnerComponent from '@/components/Loader/SpinnerComponent.vue';
 import TaskDisplayDetails from '@/components/Kanban/TaskDisplayDetailsComponent.vue';
 import ImputationFormComponent from "@/components/Kanban/ImputationFormComponent.vue";
 import CommentFormComponent from "@/components/Kanban/CommentFormComponent.vue";
 import ImputationDisplayComponent from "@/components/Kanban/ImputationDisplayComponent.vue";
 import CommentDisplayComponent from "@/components/Kanban/CommentDisplayComponent.vue";
 import TaskFormModal from "@/components/Kanban/TaskFormModal.vue";
+import ArchiveToggle from "@/components/Kanban/ArchiveToggle.vue"; // Import ArchiveToggle
 import { useKanbanStore } from '@/stores/kanbanStore.js';
 import { setTitle, setDescription } from "@/utils/documentInfos.js";
 import { TimeParser } from "@/utils/timeParser.js";
 import logger from '@/utils/logger.js';
 import { hookApi } from "@/services/requestHook.js";
-import { TaskService } from '@/services/taskService.js';
 
 // Initialize services and data
 const route = useRoute();
 const router = useRouter();
 const kanbanStore = useKanbanStore();
 const timeParser = new TimeParser();
-const taskService = new TaskService();
 const {
   isLoading: requestLoading,
   error: requestError,
@@ -38,10 +38,10 @@ const showCommentForm = ref(false);
 const selectedImputation = ref(null);
 const selectedComment = ref(null);
 const showTaskFormModal = ref(false);
-
 // Component refs
 const imputationDisplayRef = ref(null);
 const commentDisplayRef = ref(null);
+const archiveError = ref(null);
 
 // Reactive data from child components
 const totalImputedMinutes = ref(0);
@@ -73,20 +73,6 @@ const imputedBarWidth = computed(() => {
   if (!maxValue.value) return 0;
   return (totalImputedMinutes.value / maxValue.value) * 100;
 });
-
-const toggleArchive = async () => {
-  try {
-    await (task.value.isArchived
-            ? taskService.restoreTask(kanbanId.value, taskId.value)
-            : taskService.archiveTask(kanbanId.value, taskId.value)
-    );
-    task.value.isArchived = !task.value.isArchived;
-    kanbanStore.editTask(task.value)
-
-  } catch (err) {
-    logger.error('Error archiving/unarchiving task from modal:', err);
-  }
-};
 
 const editTask = () => {
   showTaskFormModal.value = true;
@@ -211,18 +197,31 @@ onMounted(() => {
         </p>
       </div>
       <!--display task details-->
-      <div v-else>
+      <div v-else-if="task.id">
         <!-- Header: Title and Back Button -->
         <div class="flex justify-between items-center mb-6">
           <h1 class="text-3xl font-bold text-gray-900 dark:text-yellow-300">Tâche : {{ task.title }}</h1>
           <div class="flex space-x-2">
-            <button
-                :title="task.isArchived ? 'Unarchive Task' : 'Archive Task'"
-                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
-                @click="toggleArchive"
+            <ArchiveToggle
+                :kanbanId="kanbanId"
+                :taskId="taskId"
+                :isArchived="task.isArchived"
+                @update:isArchived="value => {
+                  task.isArchived = value; kanbanStore.editTask(task); archiveError = null
+                }"
+                @error="archiveError = $event"
             >
-              <v-icon :name="task.isArchived ? 'md-unarchive-outlined' : 'md-archive-outlined'"/>
-            </button>
+              <template #default="{ onClick, loading }">
+                <button
+                    :title="task.isArchived ? 'Unarchive Task' : 'Archive Task'"
+                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
+                    @click="onClick"
+                >
+                  <SpinnerComponent v-if="loading"/>
+                  <v-icon v-else :name="task.isArchived ? 'md-unarchive-outlined' : 'md-archive-outlined'"/>
+                </button>
+              </template>
+            </ArchiveToggle>
             <button
                 class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-800"
                 @click="editTask"
@@ -237,6 +236,8 @@ onMounted(() => {
             </button>
           </div>
         </div>
+
+        <p v-if="archiveError" class="mt-2 text-right text-sm text-red-600 dark:text-red-400">{{ archiveError }}</p>
 
         <!-- Task Display Details Component -->
         <TaskDisplayDetails :task="task" class="mb-6"/>

@@ -16,7 +16,7 @@ export function hookApi() {
       return await requestPromise();
     } catch (err) {
       logger.error('hookApi() - Erreur lors de la requête');
-      error.value = `Erreur lors de la requête, veuillez réessayer - ${err.message}`;
+      error.value = `Erreur lors de la requête, veuillez réessayer - ${err?.response?.data?.message ?? err.message}`;
       throw err;
     } finally {
       isLoading.value = false;

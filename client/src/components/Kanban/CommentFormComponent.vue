@@ -31,7 +31,6 @@ const emit = defineEmits(['handleResponse', 'cancel']);
 // Initialize services and data
 const taskService = new TaskService();
 const {
-  isLoading: requestLoading,
   error: requestError,
   executeRequest
 } = hookApi();
