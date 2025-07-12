@@ -1,14 +1,20 @@
 import { Op } from 'sequelize';
 import User from '../models/userModel.js';
 import Imputation from '../models/imputationModel.js';
-import Task from '../models/taskModel.js';
-import Kanban from '../models/kanbanModel.js';
 import logger from '../config/logger.js';
 import UnauthorizedError from '../error/unauthorizedError.js';
 import NotFoundError from '../error/notFoundError.js';
-import { getTaskTimingSums } from '../repository/taskRepository.js';
+import {
+  getTaskTimingSums,
+  getTasksWithImputationsByKanban,
+} from '../repository/taskRepository.js';
 import { getPaginatedImputationsDetail } from '../services/imputationService.js';
 import { getPaginatedTasksSummary } from '../services/taskService.js';
+import {
+  getImputationsForUserByWhereClause,
+  getImputationsByTaskId,
+} from '../repository/imputationRepository.js';
+import { getKanbansWithUserImputations } from '../repository/kanbanRepository.js';
 
 export async function createImputation(req, res, next) {
   logger.debug('createImputation');
@@ -59,43 +65,6 @@ export async function getTasksSummaryForKanbanPaginated(req, res, next) {
   }
 }
 
-export async function oldgetTasksSummaryForKanbanPaginated(req, res, next) {
-  logger.debug('getTasksSummaryForKanbanPaginated');
-  const { id: kanbanId } = req.params;
-  const { page = 1, limit = 10 } = req.query;
-  const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
-
-  try {
-    const tasksData = await Task.findAndCountAll({
-      attributes: ['id', 'title', 'estimation', 'createdAt'],
-      where: { kanbanId },
-      include: [
-        {
-          model: Imputation,
-          as: 'imputations',
-          attributes: ['id', 'timeSpent', 'date', 'comment', 'userId'],
-          include: [
-            {
-              model: User,
-              as: 'user',
-              attributes: ['id', 'firstName', 'lastName', 'email'],
-            },
-          ],
-        },
-      ],
-      order: [['createdAt', 'DESC']],
-      limit: parseInt(limit, 10),
-      offset,
-      distinct: true, // Important for correct count with includes
-    });
-
-    res.data = { rows: tasksData.rows, count: tasksData.count };
-    next();
-  } catch (error) {
-    next(error);
-  }
-}
-
 export async function getDetailedImputationsForKanbanPaginated(req, res, next) {
   logger.debug('CTRL: getDetailedImputationsForKanbanPaginated');
   const { id: kanbanId } = req.params;
@@ -112,78 +81,12 @@ export async function getDetailedImputationsForKanbanPaginated(req, res, next) {
   }
 }
 
-export async function oldgetDetailedImputationsForKanbanPaginated(req, res, next) {
-  logger.debug('getDetailedImputationsForKanbanPaginated');
-  const { id: kanbanId } = req.params; // kanbanId is passed as 'id' from the route
-  const { page = 1, limit = 10 } = req.query;
-  const offset = (parseInt(page, 10) - 1) * parseInt(limit, 10);
-
-  try {
-    const imputationsData = await Imputation.findAndCountAll({
-      attributes: ['id', 'timeSpent', 'date', 'comment', 'userId', 'taskId'],
-      include: [
-        {
-          model: Task,
-          as: 'task',
-          attributes: ['id', 'title', 'estimation', 'createdAt'], // Include task attributes needed by frontend
-          where: { kanbanId }, // Filter by kanbanId through the Task model
-          required: true, // Ensures only imputations from tasks in this kanban are fetched
-        },
-        {
-          model: User,
-          as: 'user',
-          attributes: ['id', 'firstName', 'lastName', 'email'],
-        },
-      ],
-      order: [
-        ['date', 'DESC'],
-        ['createdAt', 'DESC'],
-      ],
-      limit: parseInt(limit, 10),
-      offset,
-      distinct: true, // Important for correct count with includes
-    });
-    res.data = { rows: imputationsData.rows, count: imputationsData.count };
-    next();
-  } catch (error) {
-    next(error);
-  }
-}
-
 export async function getImputationsForKanban(req, res, next) {
   logger.debug('getImputationsForKanban');
   const { id: kanbanId } = req.params;
 
   try {
-    const tasks = await Task.findAll({
-      attributes: ['id', 'title', 'estimation'],
-      include: [
-        {
-          model: Kanban,
-          as: 'kanban',
-          attributes: ['id', 'title'],
-        },
-        {
-          model: Imputation,
-          as: 'imputations',
-          include: [
-            {
-              model: User,
-              as: 'user',
-              attributes: ['id', 'firstName', 'lastName', 'email'],
-            },
-          ],
-        },
-      ],
-      where: {
-        kanbanId: kanbanId, // Filtre principal sur l'ID du Kanban
-      },
-      order: [
-        ['id', 'ASC'], // Trie par l'ID de la tâche
-        [{ model: Imputation, as: 'imputations' }, 'date', 'DESC'], // Puis par la date d'imputation
-        [{ model: Imputation, as: 'imputations' }, 'createdAt', 'DESC'], // Enfin par la date de création
-      ],
-    });
+    const tasks = await getTasksWithImputationsByKanban(kanbanId);
 
     res.data = { tasks };
     next();
@@ -229,78 +132,8 @@ export async function getImputationsForUser(req, res, next) {
       imputationWhereClause.date = dateConditions;
     }
 
-    const imputations = await Imputation.findAll({
-      where: imputationWhereClause,
-      include: [
-        {
-          model: Task,
-          as: 'task',
-          attributes: ['id', 'title', 'estimation', 'kanbanId'],
-          include: [
-            {
-              model: Kanban,
-              as: 'kanban',
-              attributes: ['id', 'title'],
-            },
-          ],
-        },
-        {
-          model: User,
-          as: 'user',
-          attributes: ['id', 'firstName', 'lastName', 'email'],
-        },
-      ],
-      order: [
-        [{ model: Task, as: 'task' }, 'id', 'ASC'],
-        ['date', 'DESC'],
-        ['createdAt', 'DESC'],
-      ],
-    });
-
-    const kanbans = await Kanban.findAll({
-      attributes: ['id', 'title'],
-      include: [
-        {
-          model: Task,
-          as: 'tasks',
-          attributes: ['id', 'title', 'estimation'],
-          required: true, // Assure que seules les tâches avec des imputations sont incluses
-          include: [
-            {
-              model: Imputation,
-              as: 'imputations',
-              attributes: ['id', 'date', 'timeSpent', 'comment'],
-              where: imputationWhereClause, // Apply date and user filter here
-              required: true, // Assure que seules les tâches avec des imputations sont incluses
-              include: [
-                {
-                  model: User,
-                  as: 'user',
-                  attributes: ['id', 'firstName', 'lastName', 'email'],
-                  where: { id: req.user.id },
-                },
-                {
-                  model: Task,
-                  as: 'task',
-                  attributes: ['id', 'title'],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-      order: [
-        ['id', 'ASC'],
-        [{ model: Task, as: 'tasks' }, 'id', 'ASC'],
-        [{ model: Task, as: 'tasks' }, { model: Imputation, as: 'imputations' }, 'date', 'DESC'],
-        [
-          { model: Task, as: 'tasks' },
-          { model: Imputation, as: 'imputations' },
-          'createdAt',
-          'DESC',
-        ],
-      ],
-    });
+    const imputations = await getImputationsForUserByWhereClause(imputationWhereClause);
+    const kanbans = await getKanbansWithUserImputations(imputationWhereClause, userId);
 
     res.data = { imputations, kanbans };
 
@@ -314,20 +147,7 @@ export async function getImputationsForTask(req, res, next) {
   logger.debug('getImputationsForTask');
   const { taskId } = req.params;
   try {
-    const imputations = await Imputation.findAll({
-      where: { taskId },
-      include: [
-        {
-          model: User,
-          as: 'user',
-          attributes: ['id', 'firstName', 'lastName', 'email'],
-        },
-      ],
-      order: [
-        ['date', 'DESC'],
-        ['createdAt', 'DESC'],
-      ],
-    });
+    const imputations = await getImputationsByTaskId(taskId);
 
     res.data = { imputations };
 

@@ -1,6 +1,7 @@
 import Imputation from '../models/imputationModel.js';
 import Task from '../models/taskModel.js';
 import User from '../models/userModel.js';
+import Kanban from '../models/kanbanModel.js';
 
 /**
  * Calculates the sum of time spent for all imputations in a specific Kanban.
@@ -54,8 +55,64 @@ export function getImputationsByKanbanIdPaginated(kanbanId, limit, offset) {
     limit,
     offset,
     distinct: true, // Necessary for correct count with includes that might create duplicates before distinct
-    // subQuery: false, // May be needed depending on the complexity and if `distinct` alone doesn't solve count issues with Sequelize. Test first.
     raw: true, // Convertit directement les résultats en objets simples
     nest: true, // Assure que les résultats sont imbriqués correctement
+  });
+}
+
+/**
+ * Retrieves all imputations for a user with nested task and kanban.
+ * @param {object} imputationWhereClause - where clause for Imputation.
+ * @returns {Promise<Imputation[]>}
+ */
+export function getImputationsForUserByWhereClause(imputationWhereClause) {
+  return Imputation.findAll({
+    where: imputationWhereClause,
+    include: [
+      {
+        model: Task,
+        as: 'task',
+        attributes: ['id', 'title', 'estimation', 'kanbanId'],
+        include: [
+          {
+            model: Kanban,
+            as: 'kanban',
+            attributes: ['id', 'title'],
+          },
+        ],
+      },
+      {
+        model: User,
+        as: 'user',
+        attributes: ['id', 'firstName', 'lastName', 'email'],
+      },
+    ],
+    order: [
+      [{ model: Task, as: 'task' }, 'id', 'ASC'],
+      ['date', 'DESC'],
+      ['createdAt', 'DESC'],
+    ],
+  });
+}
+
+/**
+ * Retrieves all imputations for a given task.
+ * @param {string} taskId - The ID of the task.
+ * @returns {Promise<Imputation[]>}
+ */
+export function getImputationsByTaskId(taskId) {
+  return Imputation.findAll({
+    where: { taskId },
+    include: [
+      {
+        model: User,
+        as: 'user',
+        attributes: ['id', 'firstName', 'lastName', 'email'],
+      },
+    ],
+    order: [
+      ['date', 'DESC'],
+      ['createdAt', 'DESC'],
+    ],
   });
 }
