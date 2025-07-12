@@ -3,7 +3,7 @@ import { QueryTypes } from 'sequelize';
 import Imputation from '../models/imputationModel.js';
 import Task from '../models/taskModel.js';
 import User from '../models/userModel.js';
-import Kanban from "../models/kanbanModel.js";
+import Kanban from '../models/kanbanModel.js';
 
 /**
  * Retrieves the sum of estimated and imputed times for tasks in a specific Kanban.

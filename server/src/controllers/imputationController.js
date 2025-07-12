@@ -4,12 +4,15 @@ import Imputation from '../models/imputationModel.js';
 import logger from '../config/logger.js';
 import UnauthorizedError from '../error/unauthorizedError.js';
 import NotFoundError from '../error/notFoundError.js';
-import { getTaskTimingSums, getTasksWithImputationsByKanban } from '../repository/taskRepository.js';
+import {
+  getTaskTimingSums,
+  getTasksWithImputationsByKanban,
+} from '../repository/taskRepository.js';
 import { getPaginatedImputationsDetail } from '../services/imputationService.js';
 import { getPaginatedTasksSummary } from '../services/taskService.js';
 import {
   getImputationsForUserByWhereClause,
-  getImputationsByTaskId
+  getImputationsByTaskId,
 } from '../repository/imputationRepository.js';
 import { getKanbansWithUserImputations } from '../repository/kanbanRepository.js';
 
