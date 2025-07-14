@@ -84,7 +84,6 @@ const allUsersWithGroupedTasks = computed(() => {
 // Fonctions utilitaires pour la gestion des tâches
 const toggleExpand = (assignedToId) => {
   foldedGroups.value[assignedToId] = !foldedGroups.value[assignedToId];
-  console.log("foldedGroups", foldedGroups.value)
 };
 
 const getTasksByStatus = (tasks, status) => {

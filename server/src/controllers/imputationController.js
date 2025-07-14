@@ -60,7 +60,6 @@ export async function getTasksSummaryForKanbanPaginated(req, res, next) {
     res.data = await getPaginatedTasksSummary(kanbanId, parseInt(page, 10), parseInt(limit, 10));
     next();
   } catch (error) {
-    console.log('## ERROR', error);
     next(error);
   }
 }
