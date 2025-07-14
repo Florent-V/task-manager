@@ -21,12 +21,11 @@ export const authenticateToken = (req, res, next) => {
 };
 
 export const authenticateByCookieSession = (req, res, next) => {
-  // TODO Delete console.log in production
-  logger.debug('Authenticating by cookie session');
-  logger.debug('Request cookies:', { cookies: req.cookies });
-  logger.debug('Request signed cookies:', { signedCookies: req.signedCookies });
+  // logger.debug('Authenticating by cookie session');
+  // logger.debug('Request cookies:', { cookies: req.cookies });
+  // logger.debug('Request signed cookies:', { signedCookies: req.signedCookies });
   try {
-    // TODO Delete auth by header in production use only cookie
+    // Switch betwwen token in header and cookie here to make request with frontend
     // const token = req.header('Authorization')?.split(' ')[1];
     const token = req.signedCookies.access_token;
 

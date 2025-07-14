@@ -10,7 +10,6 @@ export async function generateToDoList(req, res) {
 
   try {
     const tasks = await aiService.generateToDoList(prompt);
-    console.log('tasks', tasks);
     res.json(tasks);
   } catch (error) {
     logger.error(`Erreur API /ai/generate-todolist: ${error.message}`, { prompt });

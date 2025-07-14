@@ -129,7 +129,6 @@ const submitForm = async () => {
     if (formData.value.id) {
       // Update existing task
       logger.debug("Updating task with ID:", formData.value.id);
-      console.log("data", data);
       response = await executeRequest(() => taskService.editTask(props.kanbanId, formData.value.id, data));
     } else {
       // Create new task

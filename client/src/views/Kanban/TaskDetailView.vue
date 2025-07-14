@@ -95,7 +95,6 @@ const handleResponseImputationFormSubmit = async (response) => {
     selectedImputation.value = null;
   } else {
     // Create new imputation
-    console.log("API response", response);
     imputationDisplayRef.value?.addImputation(response.imputation);
   }
 };
