@@ -99,6 +99,10 @@ This project is production ready with a docker-compose-prod.yml file which conta
 + DB crud with axios
 + Responsive Design
 + Dark Mode
++ **AI-Powered Task Generation**: Automatically create to-do lists from a prompt.
++ **Time Tracking**: Log time spent on tasks (imputations) and view reports.
++ **Commenting System**: Collaborate by leaving comments on tasks.
++ **Advanced Project Management**: Organize Kanban boards into Products and customize stages.
 
 ## Testing
 
@@ -125,6 +129,10 @@ This project is production ready with a docker-compose-prod.yml file which conta
 + Refresh Token
 + Session Token
 + AdminJS Dashboard to manage the database
++ **AI-Powered To-Do List Generation**
++ **Time Tracking and Reporting (Imputations)**
++ **Task Commenting System**
++ **Advanced Kanban Management (Products, Stages)**
 
 # Local Installation
 
@@ -244,6 +252,7 @@ sudo docker compose -f docker-compose-prod.yml down --rmi all --volumes --remove
 - Valider les formulaires côté front
 - critère validation mot de passe
 - service toast message
+- Améliorer l'UI/UX des rapports d'imputation
 
 # Docker Help Commands
 
