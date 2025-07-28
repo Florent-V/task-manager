@@ -8,10 +8,11 @@ export class KanbanService {
   /**
    * Fetches a specific Kanban.
    * @param {string} kanbanId - The ID of the Kanban to fetch.
+   * @param {string} searchQuery - Optional search query to filter Kanban.
    * @returns {Promise<any>} The promise from the API call.
    */
-  getKanban(kanbanId) {
-    return client.get(`/api/kanban/${kanbanId}`);
+  getKanban(kanbanId, searchQuery = '')  {
+    return client.get(`/api/kanban/${kanbanId}`, { search: searchQuery });
   }
 
   /**
@@ -50,6 +51,15 @@ export class KanbanService {
    */
   shareKanban(kanbanId) {
     return client.post(`/api/kanban/${kanbanId}/share`, {});
+  }
+
+  /**
+   * Leave a Kanban for the currently logged-in user.
+   * @param {string} kanbanId - The ID of the Kanban to share.
+   * @returns {Promise<any>} The promise from the API call.
+   */
+  leaveKanban(kanbanId) {
+    return client.post(`/api/kanban/${kanbanId}/leave`, {});
   }
 
   /**
