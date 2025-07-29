@@ -188,7 +188,15 @@ const getCurrentUserId = () => {
 
 const fetchData = async () => {
   try {
-    await executeRequest(() => kanbanStore.initStore(route.params.id));
+    await executeRequest(
+        () => kanbanStore.initStore(route.params.id),
+        {
+          showToasts: true,
+          loadingMessage: 'Chargement du kanban...',
+          successMessage: 'Kanban chargé avec succès !',
+          errorMessage: 'Impossible de charger le Kanban'
+        }
+    );
     setTitle(`Kanban - ${kanban.value.title}`);
     setDescription(`Kanban - ${kanban.value.description}`);
   } catch (err) {
