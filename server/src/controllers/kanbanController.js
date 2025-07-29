@@ -42,7 +42,6 @@ export const getKanbansByUser = async (req, res, next) => {
       throw new ForbiddenError('Access denied: You do not have permission to access Kanbans');
 
     const { search } = req.query;
-    console.log('Search query:', search);
     res.data.kanbans = await kanbanRepository.getKanbansByUser(userId, search);
     next();
   } catch (error) {

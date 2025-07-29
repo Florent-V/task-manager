@@ -123,8 +123,8 @@ export const createKanban = async (userId, { title, description, stages }) => {
  * @returns {Promise<Array>} A list of all Kanbans.
  * @throws {Error} Throws an error if the retrieval fails.
  */
-export const getAllKanbans = async () => {
-  return await Kanban.findAll({ include: includeKanban });
+export const getAllKanbans = () => {
+  return Kanban.findAll();
 };
 
 /**
@@ -135,7 +135,7 @@ export const getAllKanbans = async () => {
  * @returns {Promise<Array>} A list of Kanbans associated with the user.
  * @throws {Error} Throws an error if the retrieval fails.
  */
-export const getKanbansByUser = async (userId, search) => {
+export const getKanbansByUser = (userId, search) => {
 
   const whereCondition = {
     [Op.and]: [
@@ -150,7 +150,7 @@ export const getKanbansByUser = async (userId, search) => {
     ],
   };
 
-  return await Kanban.findAll({
+  return Kanban.findAll({
     where: whereCondition,
     include: [
       ...includeKanban,
@@ -171,8 +171,8 @@ export const getKanbansByUser = async (userId, search) => {
  * @returns {Promise<Object|null>} The Kanban object if found, otherwise null.
  * @throws {Error} Throws an error if the retrieval fails.
  */
-export const getKanbanById = async (id) => {
-  return await Kanban.findByPk(id, { include: includeKanban });
+export const getKanbanById = (id) => {
+  return Kanban.findByPk(id, { include: includeKanban });
 };
 
 /**
@@ -183,8 +183,8 @@ export const getKanbanById = async (id) => {
  * @returns {Promise<Object>} The updated Kanban object.
  * @throws {Error} Throws an error if the update fails.
  */
-export const updateKanban = async (id, { title, description, stages }) => {
-  return await sequelize.transaction(async (t) => {
+export const updateKanban = (id, { title, description, stages }) => {
+  return sequelize.transaction(async (t) => {
     const kanban = await getKanbanById(id);
     if (!kanban) throw new Error('Kanban Not Found');
 

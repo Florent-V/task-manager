@@ -1,36 +1,5 @@
-import Task from '../models/taskModel.js';
-import Comment from '../models/commentModel.js';
-import Kanban from '../models/kanbanModel.js';
-import User from '../models/userModel.js';
-import Imputation from '../models/imputationModel.js';
 import NotFoundError from '../error/notFoundError.js';
-
-export const includeTask = [
-  {
-    model: Comment,
-    as: 'comments',
-  },
-  {
-    model: Imputation,
-    as: 'imputations',
-    include: [
-      {
-        model: User,
-        as: 'user', // Must match the alias defined in relations
-        attributes: ['id', 'firstName', 'lastName', 'email'], // Specify user attributes to return
-      },
-    ],
-    order: [
-      ['date', 'DESC'],
-      ['createdAt', 'DESC'],
-    ],
-  },
-  {
-    model: Kanban,
-    as: 'kanban',
-    attributes: ['id', 'title'],
-  },
-];
+import * as taskRepository from '../repository/taskRepository.js';
 
 // Création d'une nouvelle tâche
 export const createTask = async (req, res, next) => {
@@ -38,7 +7,7 @@ export const createTask = async (req, res, next) => {
     const { id: kanbanId } = req.params;
     const { title, description, estimation, priorityId, sizeId, stageId, assignedToId } = req.body;
 
-    const newTask = await Task.create({
+    const newTask = await taskRepository.createTask({
       title,
       description,
       estimation,
@@ -62,9 +31,10 @@ export const createTask = async (req, res, next) => {
 export const getAllTasksByKanban = async (req, res, next) => {
   try {
     const { id: kanbanId } = req.params;
+    const { search } = req.query;
 
     res.data = {
-      task: await Task.findAll({ where: { kanbanId }, include: includeTask }),
+      task: await taskRepository.getTasksByKanban(kanbanId, search),
     };
 
     next();
@@ -79,7 +49,7 @@ export const getTaskById = async (req, res, next) => {
     let task = req.task;
     if (!task) {
       const { id: taskId } = req.params;
-      task = await Task.findByPk(taskId, { include: includeTask });
+      task = await taskRepository.getTaskById(taskId);
 
       if (!task) throw new NotFoundError('Task not found.');
     }
@@ -97,22 +67,15 @@ export const updateTask = async (req, res, next) => {
     const { taskId } = req.params;
     const { title, description, estimation, priorityId, sizeId, stageId, assignedToId } = req.body;
 
-    const [updated] = await Task.update(
-      {
-        title,
-        description,
-        estimation,
-        priorityId,
-        sizeId,
-        stageId,
-        assignedToId,
-      },
-      { where: { id: taskId } }
-    );
-
-    if (!updated) throw new NotFoundError('Task not found.');
-
-    const updatedTask = await Task.findByPk(taskId, { include: includeTask });
+    const updatedTask = await taskRepository.updateTask(taskId, {
+      title,
+      description,
+      estimation,
+      priorityId,
+      sizeId,
+      stageId,
+      assignedToId,
+    });
 
     res.data = { task: updatedTask };
     next();
@@ -126,11 +89,7 @@ export const updateStageTask = async (req, res, next) => {
     const { taskId } = req.params;
     const { stageId, assignedToId } = req.body;
 
-    const [updated] = await Task.update({ stageId, assignedToId }, { where: { id: taskId } });
-
-    if (!updated) throw new NotFoundError('Task not found.');
-
-    const updatedTask = await Task.findByPk(taskId, { include: includeTask });
+    const updatedTask = await taskRepository.updateTask(taskId, { stageId, assignedToId });
 
     res.data = { task: updatedTask };
     next();
@@ -144,8 +103,7 @@ export const archiveTask = async (req, res, next) => {
   try {
     const { taskId } = req.params;
 
-    const [updated] = await Task.update({ isArchived: true }, { where: { id: taskId } });
-    if (!updated) throw new NotFoundError('Task not found.');
+    await taskRepository.updateTask(taskId, { isArchived: true });
 
     res.data = {};
     next();
@@ -159,8 +117,7 @@ export const restoreTask = async (req, res, next) => {
   try {
     const { taskId } = req.params;
 
-    const [updated] = await Task.update({ isArchived: false }, { where: { id: taskId } });
-    if (!updated) throw new NotFoundError('Task not found.');
+    await taskRepository.updateTask(taskId, { isArchived: false });
 
     res.data = {};
     next();
@@ -173,9 +130,8 @@ export const restoreTask = async (req, res, next) => {
 export const deleteTask = async (req, res, next) => {
   try {
     const { taskId } = req.params;
-    const deleted = await Task.destroy({ where: { id: taskId } });
 
-    if (!deleted) throw new NotFoundError('Task not found.');
+    await taskRepository.deleteTask(taskId);
 
     res.statusCode = 204;
     next();

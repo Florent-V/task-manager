@@ -12,7 +12,11 @@ export class KanbanService {
    * @returns {Promise<any>} The promise from the API call.
    */
   getKanban(kanbanId, searchQuery = '')  {
-    return client.get(`/api/kanban/${kanbanId}`, { search: searchQuery });
+    const params = {};
+    if (searchQuery) {
+      params.search = searchQuery;
+    }
+    return client.get(`/api/kanban/${kanbanId}`, { ...params });
   }
 
   /**
