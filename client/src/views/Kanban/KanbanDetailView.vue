@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { storeToRefs } from 'pinia';
 
@@ -7,6 +7,7 @@ import LoaderComponent from '@/components/Loader/LoaderComponent.vue';
 import TaskFormModal from '@/components/Kanban/TaskFormModal.vue';
 import TaskViewModal from '@/components/Kanban/TaskViewModal.vue';
 import QRCodeModal from '@/components/Kanban/KanbanQRCodeModal.vue';
+import SearchTaskComponent from "@/components/Kanban/SearchTaskComponent.vue";
 import { useKanbanStore } from '@/stores/kanbanStore.js';
 import { useAuthStore } from '@/stores/authStore';
 import { setTitle, setDescription } from "@/utils/documentInfos.js";
@@ -243,6 +244,10 @@ onMounted(() => {
             <v-icon name="md-share-outlined" scale="1.6"/>
           </button>
         </div>
+      </div>
+
+      <div class="flex justify-end mb-4">
+        <SearchTaskComponent class="md:w-1/2" />
       </div>
 
       <!-- display update error-->

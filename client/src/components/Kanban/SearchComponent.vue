@@ -34,7 +34,7 @@ watch(() => props.modelValue, (newValue) => {
         type="text"
     />
     <span class="absolute inset-y-0 right-0 flex items-center pr-3">
-      <v-icon name="fa-search" class="text-gray-400" />
+      <v-icon name="bi-search" class="text-gray-400" />
     </span>
   </div>
 </template>

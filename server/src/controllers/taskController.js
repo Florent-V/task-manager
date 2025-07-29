@@ -33,9 +33,7 @@ export const getAllTasksByKanban = async (req, res, next) => {
     const { id: kanbanId } = req.params;
     const { search } = req.query;
 
-    res.data = {
-      task: await taskRepository.getTasksByKanban(kanbanId, search),
-    };
+    res.data.tasks = await taskRepository.getTasksByKanban(kanbanId, search);
 
     next();
   } catch (error) {
