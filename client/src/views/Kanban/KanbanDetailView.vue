@@ -42,6 +42,8 @@ const showQRCodeModal = ref(false);
 const qrCodeUrl = ref(null);
 const linkUrl = ref(null);
 const foldedGroups = ref({});
+const isMenuOpen = ref(false);
+const menu = ref(null);
 
 // Computed Properties
 const kanban = computed(() => kanbanStore.kanban);
@@ -197,6 +199,20 @@ const fetchData = async () => {
   }
 };
 
+watch(isMenuOpen, (isOpen) => {
+  if (isOpen) {
+    document.addEventListener('click', closeMenu);
+  } else {
+    document.removeEventListener('click', closeMenu);
+  }
+});
+
+const closeMenu = (event) => {
+  if (menu.value && !menu.value.contains(event.target)) {
+    isMenuOpen.value = false;
+  }
+};
+
 onMounted(() => {
   fetchData();
 });
@@ -220,34 +236,39 @@ onMounted(() => {
         {{ kanban.title }}
       </h1>
 
-      <div class="flex justify-between items-center px-4 mb-4"> <!-- items-center added for vertical alignment -->
-        <div v-if="kanban" class="prose dark:prose-invert text-gray-600 dark:text-gray-400 break-words">
+      <div v-if="kanban" class="px-4 mb-4 prose dark:prose-invert text-gray-600 dark:text-gray-400 break-words">
           <div v-html="kanban.description"></div>
-        </div>
-
-        <div v-if="kanban" class="text-right flex items-center space-x-2">
-          <!-- Added flex, items-center, space-x-2 and v-if -->
-          <router-link
-              :to="{ name: 'KanbanImputationReportView', params: { kanbanId: route.params.id } }"
-              class="flex items-center justify-center px-3 md:px-4 py-2 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-md hover:bg-blue-700 dark:hover:bg-yellow-600 transition duration-150"
-              title="Imputation Timelog Report"
-          >
-            <v-icon name="bi-bar-chart-line-fill" scale="1.2"/>
-            <span class="ml-1 md:ml-2 hidden sm:inline">Time Tracking</span>
-            <!-- Text hidden on very small screens, then shown -->
-          </router-link>
-          <button
-              class="flex w-14 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-full items-center justify-center"
-              title="Share Kanban"
-              @click="shareKanban"
-          >
-            <v-icon name="md-share-outlined" scale="1.6"/>
-          </button>
-        </div>
       </div>
 
-      <div class="flex justify-end mb-4">
-        <SearchTaskComponent class="md:w-1/2" />
+      <div class="flex justify-end mb-4 space-x-2">
+        <SearchTaskComponent class="md:w-1/2"/>
+        <div class="relative" ref="menu">
+          <button
+              @click="isMenuOpen = !isMenuOpen"
+              class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+          >
+            <v-icon name="bi-three-dots-vertical" scale="1.5"/>
+          </button>
+          <div
+              v-if="isMenuOpen"
+              class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-10"
+          >
+            <router-link
+                :to="{ name: 'KanbanImputationReportView', params: { kanbanId: route.params.id } }"
+                class="flex gap-2 items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              <v-icon name="bi-bar-chart-line-fill" class="mr-2"/>
+              <span>Time Tracking</span>
+            </router-link>
+            <button
+                @click="shareKanban"
+                class="w-full flex gap-2 items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              <v-icon name="md-share-outlined" class="mr-2"/>
+              <span>Partager</span>
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- display update error-->

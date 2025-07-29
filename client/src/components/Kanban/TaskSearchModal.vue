@@ -9,6 +9,10 @@ const props = defineProps({
   show: {
     type: Boolean,
     required: true
+  },
+  error: {
+    type: String,
+    default: 'test'
   }
 });
 
@@ -21,6 +25,9 @@ const goToTask = (task) => {
 
 <template>
   <div v-if="show" class="absolute z-10 w-full mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+    <div v-if="error" class="px-4 py-2 border-b dark:border-gray-700">
+      <p class="text-red-500">{{ error }}</p>
+    </div>
     <ul class="max-h-60 overflow-auto">
       <li
           v-for="task in tasks"
