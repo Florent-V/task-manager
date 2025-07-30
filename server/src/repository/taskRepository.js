@@ -5,7 +5,7 @@ import Imputation from '../models/imputationModel.js';
 import Task from '../models/taskModel.js';
 import User from '../models/userModel.js';
 import Kanban from '../models/kanbanModel.js';
-import Comment from "../models/commentModel.js";
+import Comment from '../models/commentModel.js';
 
 /**
  * @typedef {{
@@ -166,16 +166,15 @@ export const createTask = (taskData) => {
  * @throws {Error} Throws an error if the retrieval fails.
  */
 export const getTasksByKanban = (kanbanId, search) => {
-
   const whereCondition = {
     [Op.and]: [
       search
         ? {
-          [Op.or]: [
-            { title: { [Op.like]: `%${search}%` } },
-            { description: { [Op.like]: `%${search}%` } },
-          ],
-        }
+            [Op.or]: [
+              { title: { [Op.like]: `%${search}%` } },
+              { description: { [Op.like]: `%${search}%` } },
+            ],
+          }
         : {},
     ],
   };

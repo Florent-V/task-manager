@@ -250,10 +250,10 @@ onMounted(() => {
 
       <div class="flex justify-end mb-4 space-x-2">
         <SearchTaskComponent class="md:w-1/2"/>
-        <div class="relative" ref="menu">
+        <div ref="menu" class="relative">
           <button
-              @click="isMenuOpen = !isMenuOpen"
               class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+              @click="isMenuOpen = !isMenuOpen"
           >
             <v-icon name="bi-three-dots-vertical" scale="1.5"/>
           </button>
@@ -269,8 +269,8 @@ onMounted(() => {
               <span>Time Tracking</span>
             </router-link>
             <button
-                @click="shareKanban"
                 class="w-full flex gap-2 items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                @click="shareKanban"
             >
               <v-icon name="md-share-outlined" class="mr-2"/>
               <span>Partager</span>

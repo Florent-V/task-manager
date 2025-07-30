@@ -97,7 +97,6 @@ export function getKanbansWithUserImputations(imputationWhereClause, userId) {
  */
 export const createKanban = async (userId, { title, description, stages }) => {
   return await sequelize.transaction(async (t) => {
-
     // Create a new Kanban
     const newKanban = await Kanban.create(
       { title, description, stages },
@@ -136,16 +135,15 @@ export const getAllKanbans = () => {
  * @throws {Error} Throws an error if the retrieval fails.
  */
 export const getKanbansByUser = (userId, search) => {
-
   const whereCondition = {
     [Op.and]: [
       search
         ? {
-          [Op.or]: [
-            { title: { [Op.like]: `%${search}%` } },
-            { description: { [Op.like]: `%${search}%` } },
-          ],
-        }
+            [Op.or]: [
+              { title: { [Op.like]: `%${search}%` } },
+              { description: { [Op.like]: `%${search}%` } },
+            ],
+          }
         : {},
     ],
   };

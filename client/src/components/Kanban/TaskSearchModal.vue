@@ -1,6 +1,7 @@
 <script setup>
 import { useRouter } from 'vue-router';
 
+// eslint-disable-next-line no-unused-vars
 const props = defineProps({
   tasks: {
     type: Array,

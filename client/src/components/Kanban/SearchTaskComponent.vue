@@ -2,9 +2,8 @@
 import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
-import LoaderComponent from '@/components/Loader/LoaderComponent.vue';
-import SearchComponent from './SearchComponent.vue';
-import TaskSearchModal from './TaskSearchModal.vue';
+import TaskSearchModal from '@/components/Kanban/TaskSearchModal.vue';
+import SearchComponent from '@/components/Kanban/SearchComponent.vue';
 import logger from '@/utils/logger.js';
 import { hookApi } from "@/services/requestHook.js";
 import { TaskService } from '@/services/taskService.js';

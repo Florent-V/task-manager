@@ -7,7 +7,6 @@ import KanbanFormComponent from "@/components/Kanban/KanbanFormComponent.vue";
 import SearchComponent from "@/components/Kanban/SearchComponent.vue";
 import logger from "@/utils/logger.js";
 import { KanbanService } from '@/services/kanbanService.js';
-import { client } from '@/services/requestMaker.js';
 import { hookApi } from "@/services/requestHook.js";
 
 // Initialize services and data

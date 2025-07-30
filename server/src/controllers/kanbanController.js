@@ -14,7 +14,11 @@ export const createKanban = async (req, res, next) => {
       throw new ForbiddenError('Access denied: You do not have permission to create Kanban');
 
     const { title, description, stages } = req.body;
-    const { newKanban } = await kanbanRepository.createKanban(userId, { title, description, stages } );
+    const { newKanban } = await kanbanRepository.createKanban(userId, {
+      title,
+      description,
+      stages,
+    });
 
     res.statusCode = 201;
     res.data.kanban = newKanban;
