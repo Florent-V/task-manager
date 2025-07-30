@@ -1,8 +1,10 @@
+import 'vue3-toastify/dist/index.css';
 import './assets/index.css'
 import './assets/quilljs.css'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { OhVueIcon, addIcons } from "oh-vue-icons";
+import Vue3Toastify from 'vue3-toastify';
 import {
   MdClose,
   MdCloseRound,
@@ -40,7 +42,6 @@ import { cropText } from '@/utils/crop.js';
 
 import App from './App.vue'
 import router from './router'
-
 
 addIcons(
   MdClose,
@@ -81,4 +82,5 @@ app.config.globalProperties.$cropText = cropText;
 app.component("VIcon", OhVueIcon);
 app.use(createPinia())
 app.use(router)
+app.use(Vue3Toastify);
 app.mount('#app')
