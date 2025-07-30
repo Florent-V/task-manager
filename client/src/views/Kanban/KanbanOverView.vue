@@ -1,19 +1,28 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { client } from '@/services/requestMaker.js';
-import { hookApi } from "@/services/requestHook.js";
-import logger from "@/utils/logger.js";
 import LoaderComponent from "@/components/Loader/LoaderComponent.vue";
 import KanbanFormComponent from "@/components/Kanban/KanbanFormComponent.vue";
+import SearchComponent from "@/components/Kanban/SearchComponent.vue";
+import logger from "@/utils/logger.js";
+import { KanbanService } from '@/services/kanbanService.js';
+import { hookApi } from "@/services/requestHook.js";
 
+// Initialize services and data
 const router = useRouter();
+const kanbanService = new KanbanService();
 const { isLoading, error, executeRequest } = hookApi();
+const {
+  error: leaveKanbanError,
+  executeRequest: leaveKanbanExecuteRequest
+} = hookApi();
 
+// State
 const kanbans = ref([]);
 const showForm = ref(false);
 const selectedKanban = ref(null);
+const searchQuery = ref('');
 
 const handleResponseFormSubmit = async (response) => {
   if (selectedKanban.value) {
@@ -45,7 +54,9 @@ const openEditForm = (list) => {
 
 const leaveKanban = async (kanban) => {
   try {
-    await executeRequest(() => client.post(`/api/kanban/${kanban.id}/leave`));
+    await leaveKanbanExecuteRequest(
+        () => kanbanService.leaveKanban(kanban.id),
+    );
     kanbans.value = kanbans.value.filter(k => k.id !== kanban.id);
   } catch (err) {
     logger.error("Error leaving kanban", err?.response?.data?.message || err.message);
@@ -59,7 +70,9 @@ const closeForm = () => {
 
 const fetchKanbans = async () => {
   try {
-    const data = await executeRequest(() => client.get('/api/kanban'));
+    const data = await executeRequest(
+        () => kanbanService.getKanban('', searchQuery.value),
+    );
     logger.debug('kanbans', data);
     kanbans.value = data.kanbans;
   } catch (err) {
@@ -70,6 +83,10 @@ const fetchKanbans = async () => {
 const redirectToItem = (id) => {
   router.push(`/kanban/${id}`);
 };
+
+watch(searchQuery, () => {
+  fetchKanbans();
+});
 
 onMounted(fetchKanbans);
 </script>
@@ -101,6 +118,10 @@ onMounted(fetchKanbans);
         </span>
           </button>
         </div>
+      </div>
+
+      <div class="mb-4 px-6">
+        <SearchComponent v-model="searchQuery" placeholder="Rechercher un kanban..." />
       </div>
 
       <!-- Loader -->
@@ -158,9 +179,9 @@ onMounted(fetchKanbans);
           <p class="text-center text-gray-700 dark:text-gray-300 text-xl">Aucun kanban trouvé</p>
         </div>
 
-        <div v-if="error">
-          <p class="text-center text-red-700 dark:text-red-300 text-xl">{{ error }}</p>
-        </div>
+        <p v-if="error" class="text-center text-red-700 dark:text-red-300 text-xl">{{ error }}</p>
+        <p v-if="leaveKanbanError" class="text-center text-red-700 dark:text-red-300 text-xl">{{ leaveKanbanError }}</p>
+
       </div>
 
     </div>

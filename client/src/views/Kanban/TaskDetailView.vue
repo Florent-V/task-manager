@@ -10,7 +10,7 @@ import CommentFormComponent from "@/components/Kanban/CommentFormComponent.vue";
 import ImputationDisplayComponent from "@/components/Kanban/ImputationDisplayComponent.vue";
 import CommentDisplayComponent from "@/components/Kanban/CommentDisplayComponent.vue";
 import TaskFormModal from "@/components/Kanban/TaskFormModal.vue";
-import ArchiveToggle from "@/components/Kanban/ArchiveToggle.vue"; // Import ArchiveToggle
+import ArchiveToggle from "@/components/Kanban/ArchiveToggle.vue";
 import { useKanbanStore } from '@/stores/kanbanStore.js';
 import { setTitle, setDescription } from "@/utils/documentInfos.js";
 import { TimeParser } from "@/utils/timeParser.js";
