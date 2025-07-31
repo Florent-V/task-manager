@@ -6,6 +6,7 @@ import Task from '../models/taskModel.js';
 import User from '../models/userModel.js';
 import Kanban from '../models/kanbanModel.js';
 import Comment from '../models/commentModel.js';
+import Stage from '../models/stageModel.js';
 
 /**
  * @typedef {{
@@ -116,12 +117,17 @@ export function getTasksByKanbanIdPaginated(kanbanId, limit, offset) {
  */
 export function getTasksWithImputationsByKanban(kanbanId) {
   return Task.findAll({
-    attributes: ['id', 'title', 'estimation'],
+    attributes: ['id', 'title', 'estimation', 'isArchived'],
     include: [
       {
         model: Kanban,
         as: 'kanban',
         attributes: ['id', 'title'],
+      },
+      {
+        model: Stage,
+        as: 'stage',
+        attributes: ['name'],
       },
       {
         model: Imputation,

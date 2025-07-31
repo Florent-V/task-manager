@@ -22,6 +22,9 @@ export const setRouteFound = (req, res, next) => {
 };
 
 export const send = (req, res) => {
+  if (res.headersSent) {
+    return;
+  }
   if (res.routeFound) {
     if (Object.keys(res.data).length > 0) {
       res.status(res.statusCode || 200).json(res.data);

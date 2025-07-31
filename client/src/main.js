@@ -36,6 +36,9 @@ import {
   CoChevronRight,
   HiRefresh,
   BiSearch,
+  BiCalendar4Week,
+  HiDocumentReport,
+  RiFileExcel2Line,
 } from "oh-vue-icons/icons";
 
 import { cropText } from '@/utils/crop.js';
@@ -74,6 +77,9 @@ addIcons(
   CoChevronRight,
   HiRefresh,
   BiSearch,
+  BiCalendar4Week,
+  HiDocumentReport,
+  RiFileExcel2Line,
 );
 
 const app = createApp(App)

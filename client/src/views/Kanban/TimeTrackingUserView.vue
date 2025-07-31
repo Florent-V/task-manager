@@ -91,26 +91,24 @@ const grandTotalTimeSpent = computed(() => {
 });
 
 // Methods
-const fetchUserReportData = async () => {
-  let params = {};
-
-  // Set the startDate and endDate based on the selected filter type
+const getReportParams = () => {
+  const params = {};
   if (filterType.value === 'month' && selectedMonthYear.value) {
     const [year, month] = selectedMonthYear.value.split('-');
     const startDate = new Date(year, parseInt(month) - 1, 1);
-    const endDate = new Date(year, parseInt(month), 0); // Last day of the month
-
+    const endDate = new Date(year, parseInt(month), 0);
     params.startDate = startDate.toISOString().split('T')[0];
     params.endDate = endDate.toISOString().split('T')[0];
   } else if (filterType.value === 'customRange') {
-    if (customStartDate.value) {
-      params.startDate = customStartDate.value;
-    }
-    if (customEndDate.value) {
-      params.endDate = customEndDate.value;
-    }
+    if (customStartDate.value) params.startDate = customStartDate.value;
+    if (customEndDate.value) params.endDate = customEndDate.value;
   }
+  // 'overall' case needs no params
+  return params;
+};
 
+const fetchUserReportData = async () => {
+  const params = getReportParams();
   try {
     const data = await executeRequest(() => kanbanService.getUserTimeTrackingReport(params));
     kanbans.value = data.kanbans || [];
@@ -188,6 +186,16 @@ const cancelOverall = () => {
   filterType.value = previousFilterType.value;
   showOverallConfirm.value = false;
 };
+
+const exportToExcel = async () => {
+  const params = getReportParams();
+  try {
+    await kanbanService.exportUserTimeTrackingReport(params);
+  } catch (err) {
+    logger.error('Error exporting to Excel:', err);
+    // Optionally, show an error message to the user
+  }
+};
 </script>
 
 <template>
@@ -204,14 +212,25 @@ const cancelOverall = () => {
 
           <div class="flex items-center space-x-3">
             <button
+                class="px-4 py-2 rounded-md focus:outline-none bg-green-600 text-white hover:bg-green-700"
+                @click="exportToExcel"
+            >
+              <v-icon name="ri-file-excel-2-line" scale="1.2" class="mr-2"/>
+              <span>Export to Excel</span>
+            </button>
+            <button
                 :class="currentViewMode === 'report' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'"
-                class="px-4 py-2 rounded-md focus:outline-none" @click="currentViewMode = 'report'">
-              Summary Report
+                class="px-4 py-2 rounded-md focus:outline-none" @click="currentViewMode = 'report'"
+            >
+              <v-icon name="hi-document-report" scale="1.2" class="mr-2"/>
+              <span>Summary Report</span>
             </button>
             <button
                 :class="currentViewMode === 'calendar' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'"
-                class="px-4 py-2 rounded-md focus:outline-none" @click="currentViewMode = 'calendar'">
-              Monthly Calendar
+                class="px-4 py-2 rounded-md focus:outline-none" @click="currentViewMode = 'calendar'"
+            >
+              <v-icon name="bi-calendar4-week" scale="1.2" class="mr-2"/>
+              <span>Monthly Calendar</span>
             </button>
           </div>
         </div>
