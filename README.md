@@ -61,6 +61,9 @@ This project is production ready with a docker-compose-prod.yml file which conta
 * [Local Installation](#local-installation)
   * [How To Setup](#how-to-setup)
   * [Configuration .env](#configuration-env)
+  * [Email Configuration](#email-configuration)
+    * [Development](#development)
+    * [Production](#production)
   * [Checklist](#checklist)
 * [Deploy in production](#deploy-in-production)
 * [TODO](#todo)
@@ -99,10 +102,12 @@ This project is production ready with a docker-compose-prod.yml file which conta
 + DB crud with axios
 + Responsive Design
 + Dark Mode
++ **Admin Dashboard**: Manage users, tasks, and projects with AdminJS.
 + **AI-Powered Task Generation**: Automatically create to-do lists from a prompt.
 + **Time Tracking**: Log time spent on tasks (imputations) and view reports.
 + **Commenting System**: Collaborate by leaving comments on tasks.
 + **Advanced Project Management**: Organize Kanban boards into Products and customize stages.
++ **Export to excel**: Download Imputations and Time Tracking reports in Excel format.
 
 ## Testing
 
@@ -362,8 +367,7 @@ Contributions are welcome! Please follow the steps below to contribute:
 
 This project is under MIT license. See the LICENSE file for more details.
 
+NB:
 Lorsque le conteneur MySQL démarrera, il exécutera automatiquement tous les scripts .sql présents dans le dossier /docker-entrypoint-initdb.d (qui correspond à votre dossier sql local) lors de la première initialisation de la base de données.
-
 Quelques points importants à noter :
-
 Cette méthode n'exécutera les scripts que lors de la première initialisation de la base de données. Si vous modifiez le script SQL et que vous voulez le réexécuter, vous devrez supprimer le volume de données MySQL et le recréer :
