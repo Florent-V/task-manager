@@ -110,6 +110,14 @@ watch(() => props.kanbanId, (newId, oldId) => {
   }
 }, { immediate: true }); // immediate: true ensures it runs on component mount
 
+const exportToExcel = async () => {
+  try {
+    await kanbanService.exportKanbanImputationReport(props.kanbanId);
+  } catch (err) {
+    logger.error('Error exporting to Excel:', err);
+    // Optionally, show an error message to the user
+  }
+};
 </script>
 
 <template>
@@ -123,6 +131,16 @@ watch(() => props.kanbanId, (newId, oldId) => {
           </span>
         <span v-else class="text-4xl font-bold">{{ kanbanDetails.title }}</span>
       </h1>
+      <div class="flex justify-end mb-4">
+        <button
+            class="px-4 py-2 rounded-md focus:outline-none bg-green-600 text-white hover:bg-green-700"
+            @click="exportToExcel"
+        >
+          <v-icon name="ri-file-excel-2-line" scale="1.2" class="mr-2"/>
+          <span>Export to Excel</span>
+        </button>
+      </div>
+
     </div>
 
     <!-- Overall Summary -->
