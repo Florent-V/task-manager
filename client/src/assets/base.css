@@ -29,6 +29,8 @@
   --color-heading: var(--vt-c-text-light-1);
   --color-text: var(--vt-c-text-light-1);
   --section-gap: 160px;
+  --toastify-color-light: #D8E8FE;
+  --toastify-color-dark: #2E1C4E;
 }
 
 .dark {

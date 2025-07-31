@@ -27,6 +27,7 @@ import {
   getTasksSummaryForKanbanPaginated,
   getDetailedImputationsForKanbanPaginated,
 } from '../controllers/imputationController.js';
+import { exportKanbanImputationReport } from '../controllers/excelExportController.js';
 
 /** @type {import('express').Router} */
 const router = Router();
@@ -67,6 +68,9 @@ router.get('/:id/imputations/tasks-summary', getTasksSummaryForKanbanPaginated);
 
 // GET /kanban/:id/imputations/detailed-list - Récupération de la liste détaillée des imputations paginée
 router.get('/:id/imputations/detailed-list', getDetailedImputationsForKanbanPaginated);
+
+// GET /kanban/:id/imputation-report/export - Export detailed imputations for a Kanban
+router.get('/:id/imputation-report/export', exportKanbanImputationReport);
 
 // GET /kanban/:id/imputations - Récupération des imputations d'un Kanban
 router.get('/:id/imputations', getImputationsForKanban);

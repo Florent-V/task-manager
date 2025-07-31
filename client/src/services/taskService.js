@@ -29,10 +29,16 @@ export class TaskService {
   /**
    * Fetches tasks for a Kanban.
    * @param {string} kanbanId - The ID of the Kanban.
+   * @param {string} searchQuery - Optional search query to filter tasks inside kanban.
    * @returns {Promise<any>} Axios response promise.
    */
-  getTasks(kanbanId) {
-    return client.get(`/api/kanban/${kanbanId}/task`);
+  getTasks(kanbanId, searchQuery) {
+    const params = {};
+    // Only add the search parameter if searchQuery is not empty
+    if (searchQuery) {
+      params.search = searchQuery;
+    }
+    return client.get(`/api/kanban/${kanbanId}/task`, { ...params });
   }
 
   /**
