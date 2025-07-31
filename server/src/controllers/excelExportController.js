@@ -3,7 +3,7 @@ import { Op } from 'sequelize';
 import logger from '../config/logger.js';
 import * as imputationRepository from '../repository/imputationRepository.js';
 import * as taskRepository from '../repository/taskRepository.js';
-import UnauthorizedError from "../error/unauthorizedError.js";
+import UnauthorizedError from '../error/unauthorizedError.js';
 
 export const exportUserTimeTrackingReport = async (req, res, next) => {
   logger.debug('ExportUserTimeTrackingReport');
@@ -85,7 +85,7 @@ export const exportKanbanImputationReport = async (req, res, next) => {
 
     const kanbanTitle = tasks.length > 0 ? tasks[0].kanban.title : 'Kanban Report';
 
-    const tasksSummary = tasks.map(task => {
+    const tasksSummary = tasks.map((task) => {
       const totalTimeSpentOnTask = task.imputations.reduce((acc, imp) => acc + imp.timeSpent, 0);
       const varianceMinutes = totalTimeSpentOnTask - task.estimation;
       const varianceAbsMinutes = Math.abs(varianceMinutes);
@@ -104,14 +104,18 @@ export const exportKanbanImputationReport = async (req, res, next) => {
       };
     });
 
-    const detailedImputations = await imputationRepository.getImputationsByKanbanIdPaginated(kanbanId, 9999, 0);
+    const detailedImputations = await imputationRepository.getImputationsByKanbanIdPaginated(
+      kanbanId,
+      9999,
+      0
+    );
 
     const reportData = {
       kanbanTitle,
       tasksSummary,
-      detailedImputations: detailedImputations.rows.map(imp => ({
+      detailedImputations: detailedImputations.rows.map((imp) => ({
         ...imp,
-        userFullName: `${imp.user.firstName} ${imp.user.lastName}`
+        userFullName: `${imp.user.firstName} ${imp.user.lastName}`,
       })),
     };
 
@@ -138,7 +142,7 @@ export const exportKanbanImputationReport = async (req, res, next) => {
       'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'Content-Disposition': `attachment; filename="${filename}"`,
       'Content-Length': excelBuffer.length,
-      'Cache-Control': 'no-cache'
+      'Cache-Control': 'no-cache',
     });
 
     // Envoyer le buffer

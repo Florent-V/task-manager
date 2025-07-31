@@ -23,7 +23,11 @@ class GenerateExcelService {
   async generateKanbanImputationReport(reportData) {
     const workbook = this._createWorkbook();
     this._addTasksSummarySheet(workbook, reportData.tasksSummary || [], reportData.kanbanTitle);
-    this._addDetailedImputationsSheet(workbook, reportData.detailedImputations || [], reportData.kanbanTitle);
+    this._addDetailedImputationsSheet(
+      workbook,
+      reportData.detailedImputations || [],
+      reportData.kanbanTitle
+    );
     return workbook.xlsx.writeBuffer();
   }
 
@@ -44,12 +48,23 @@ class GenerateExcelService {
       { header: 'Stage', key: 'stage', width: 20 },
       { header: 'Archived', key: 'isArchived', width: 12, alignment: { horizontal: 'center' } },
       { header: 'Estimated', key: 'estimation', width: 15, alignment: { horizontal: 'center' } },
-      { header: 'Time Spent', key: 'totalTimeSpent', width: 15, alignment: { horizontal: 'center' } },
+      {
+        header: 'Time Spent',
+        key: 'totalTimeSpent',
+        width: 15,
+        alignment: { horizontal: 'center' },
+      },
       { header: 'Variance', key: 'variance', width: 15, alignment: { horizontal: 'center' } },
       { header: 'Variance %', key: 'variancePerc', width: 15, alignment: { horizontal: 'center' } },
     ];
 
-    this._addStyledSheet(sheet, `Tasks Summary - ${kanbanTitle}`, columns, tasksSummary, this._addSummaryDataRows.bind(this));
+    this._addStyledSheet(
+      sheet,
+      `Tasks Summary - ${kanbanTitle}`,
+      columns,
+      tasksSummary,
+      this._addSummaryDataRows.bind(this)
+    );
   }
 
   _addDetailedImputationsSheet(workbook, detailedImputations, kanbanTitle) {
@@ -62,51 +77,71 @@ class GenerateExcelService {
       { header: 'Comment', key: 'comment', width: 50 },
     ];
 
-    this._addStyledSheet(sheet, `Detailed Imputations - ${kanbanTitle}`, columns, detailedImputations, this._addDetailedDataRows.bind(this));
+    this._addStyledSheet(
+      sheet,
+      `Detailed Imputations - ${kanbanTitle}`,
+      columns,
+      detailedImputations,
+      this._addDetailedDataRows.bind(this)
+    );
   }
 
   _addUserTimeTrackingSheet(workbook, kanbanGroups) {
     const sheet = workbook.addWorksheet('User Time Tracking');
 
     const columns = [
-        { header: 'Task', key: 'task', width: 45 },
-        { header: 'Date', key: 'date', width: 15, style: { alignment: { horizontal: 'center' } } },
-        { header: 'Time Spent', key: 'timeSpent', width: 15, style: { alignment: { horizontal: 'center' } } },
-        { header: 'Comment', key: 'comment', width: 50 },
+      { header: 'Task', key: 'task', width: 45 },
+      { header: 'Date', key: 'date', width: 15, style: { alignment: { horizontal: 'center' } } },
+      {
+        header: 'Time Spent',
+        key: 'timeSpent',
+        width: 15,
+        style: { alignment: { horizontal: 'center' } },
+      },
+      { header: 'Comment', key: 'comment', width: 50 },
     ];
 
     columns.forEach((colDef, i) => {
-        const col = sheet.getColumn(i + 1);
-        col.width = colDef.width;
-        if (colDef.style) {
-            col.alignment = colDef.style.alignment;
-        }
+      const col = sheet.getColumn(i + 1);
+      col.width = colDef.width;
+      if (colDef.style) {
+        col.alignment = colDef.style.alignment;
+      }
     });
 
     this._addTitle(sheet, 'User Time Tracking Report', columns.length);
 
-    kanbanGroups.forEach(group => {
-        const kanbanTitleRow = sheet.addRow([group.kanbanTitle]);
-        sheet.mergeCells(kanbanTitleRow.number, 1, kanbanTitleRow.number, columns.length);
-        const kanbanTitleCell = sheet.getCell(kanbanTitleRow.number, 1);
-        kanbanTitleCell.font = { name: 'Calibri', size: 14, bold: true, color: { argb: this.colors.textLight } };
-        kanbanTitleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: this.colors.secondary } };
-        kanbanTitleCell.alignment = { vertical: 'middle', horizontal: 'center' };
-        
-        sheet.addRow([]);
+    kanbanGroups.forEach((group) => {
+      const kanbanTitleRow = sheet.addRow([group.kanbanTitle]);
+      sheet.mergeCells(kanbanTitleRow.number, 1, kanbanTitleRow.number, columns.length);
+      const kanbanTitleCell = sheet.getCell(kanbanTitleRow.number, 1);
+      kanbanTitleCell.font = {
+        name: 'Calibri',
+        size: 14,
+        bold: true,
+        color: { argb: this.colors.textLight },
+      };
+      kanbanTitleCell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: this.colors.secondary },
+      };
+      kanbanTitleCell.alignment = { vertical: 'middle', horizontal: 'center' };
 
-        this._addHeaders(sheet, columns);
+      sheet.addRow([]);
 
-        group.imputations.forEach(imp => {
-            sheet.addRow([
-                imp.task,
-                imp.date.toLocaleDateString(),
-                this.timeParser.formatMinutesToTimeString(imp.timeSpent),
-                imp.comment,
-            ]);
-        });
+      this._addHeaders(sheet, columns);
 
-        sheet.addRow([]);
+      group.imputations.forEach((imp) => {
+        sheet.addRow([
+          imp.task,
+          imp.date.toLocaleDateString(),
+          this.timeParser.formatMinutesToTimeString(imp.timeSpent),
+          imp.comment,
+        ]);
+      });
+
+      sheet.addRow([]);
     });
 
     this._styleAllCells(sheet);
@@ -117,8 +152,8 @@ class GenerateExcelService {
   // =================================================================
 
   _addSummaryDataRows(sheet, data) {
-    data.forEach(task => {
-      const varianceSign = task.varianceMinutes > 0 ? '+' : (task.varianceMinutes < 0 ? '-' : '');
+    data.forEach((task) => {
+      const varianceSign = task.varianceMinutes > 0 ? '+' : task.varianceMinutes < 0 ? '-' : '';
       const row = sheet.addRow([
         task.title,
         task.stage,
@@ -133,21 +168,37 @@ class GenerateExcelService {
       const variancePercCell = row.getCell(7);
 
       if (task.varianceMinutes > 0) {
-        varianceCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: this.colors.negative } };
+        varianceCell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: this.colors.negative },
+        };
         varianceCell.font = { color: { argb: this.colors.negativeFont } };
-        variancePercCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: this.colors.negative } };
+        variancePercCell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: this.colors.negative },
+        };
         variancePercCell.font = { color: { argb: this.colors.negativeFont } };
       } else if (task.varianceMinutes < 0) {
-        varianceCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: this.colors.positive } };
+        varianceCell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: this.colors.positive },
+        };
         varianceCell.font = { color: { argb: this.colors.positiveFont } };
-        variancePercCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: this.colors.positive } };
+        variancePercCell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: this.colors.positive },
+        };
         variancePercCell.font = { color: { argb: this.colors.positiveFont } };
       }
     });
   }
 
   _addDetailedDataRows(sheet, data) {
-    data.forEach(imputation => {
+    data.forEach((imputation) => {
       sheet.addRow([
         imputation.task.title,
         imputation.userFullName,
@@ -159,15 +210,15 @@ class GenerateExcelService {
   }
 
   _addUserReportDataRows(sheet, data) {
-      data.forEach(imputation => {
-          sheet.addRow([
-              imputation.kanban,
-              imputation.task,
-              imputation.date,
-              imputation.timeSpent,
-              imputation.comment,
-          ]);
-      });
+    data.forEach((imputation) => {
+      sheet.addRow([
+        imputation.kanban,
+        imputation.task,
+        imputation.date,
+        imputation.timeSpent,
+        imputation.comment,
+      ]);
+    });
   }
 
   // =================================================================
@@ -199,8 +250,8 @@ class GenerateExcelService {
   }
 
   _addHeaders(sheet, columns) {
-    const headerRow = sheet.addRow(columns.map(c => c.header));
-    headerRow.eachCell(cell => {
+    const headerRow = sheet.addRow(columns.map((c) => c.header));
+    headerRow.eachCell((cell) => {
       cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: this.colors.primary } };
       cell.font = { bold: true, color: { argb: this.colors.textLight } };
       cell.alignment = { vertical: 'middle', horizontal: 'center' };
@@ -221,7 +272,7 @@ class GenerateExcelService {
     sheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
       // Skip title and header
       if (rowNumber <= 2) return;
-      row.eachCell({ includeEmpty: true }, cell => {
+      row.eachCell({ includeEmpty: true }, (cell) => {
         cell.border = {
           top: { style: 'thin', color: { argb: 'FFD6DBDF' } },
           left: { style: 'thin', color: { argb: 'FFD6DBDF' } },
@@ -230,10 +281,10 @@ class GenerateExcelService {
         };
         // Alternate row color for readability, but not for header
         if (rowNumber > 3 && rowNumber % 2 === 0) {
-            // Check if cell doesn't already have a fill from conditional formatting
-            if (!cell.fill) {
-                 cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8F9F9' } };
-            }
+          // Check if cell doesn't already have a fill from conditional formatting
+          if (!cell.fill) {
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8F9F9' } };
+          }
         }
       });
     });
