@@ -1,7 +1,7 @@
 import Task from '../models/taskModel.js';
 import Size from '../models/sizeModel.js';
 import Priority from '../models/priorityModel.js';
-import { includeTask } from '../controllers/taskController.js';
+import { includeTask } from '../repository/taskRepository.js';
 import { taskSchema, updateStageTaskSchema, updateTaskSchema } from '../joiSchema/taskSchema.js';
 import NotFoundError from '../error/notFoundError.js';
 

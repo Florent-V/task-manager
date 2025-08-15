@@ -3,13 +3,13 @@ import { ref, watch, computed, onMounted } from "vue";
 import Quill from 'quill';
 
 import 'quill/dist/quill.snow.css';
-import { useHandleRequestStore } from "@/stores/handleRequestStore.js";
 import logger from "@/utils/logger.js";
 import useFormErrors from "@/utils/handleFormErrors.js";
 import { TimeParser } from "@/utils/timeParser.js";
+import { hookApi } from "@/services/requestHook.js";
 import { TaskService } from '@/services/taskService.js';
 
-const emit = defineEmits(['handleResponse', 'cancel']);
+// Props
 const props = defineProps({
   initialData: {
     type: Object,
@@ -45,16 +45,22 @@ const props = defineProps({
   },
 });
 
-const handleRequestStore = useHandleRequestStore();
+// Emits
+const emit = defineEmits(['handleResponse', 'cancel']);
+
+// Initialize services and data
 const taskService = new TaskService();
 const timeParser = new TimeParser();
+const {
+  error: requestError,
+  executeRequest
+} = hookApi();
 
 // Ref
 const editorContainer = ref(null);
-const formData = ref({ ...props.initialData });
-const estimationFormError = ref(null);
 
-// Gestion du formulaire
+// Handle Form Data
+const formData = ref({ ...props.initialData });
 const newTask = {
   title: null,
   description: null,
@@ -65,7 +71,6 @@ const newTask = {
   stageId: null,
   assignedToId: null,
 };
-
 watch(() => props.initialData, (newValue) => {
       formData.value = newValue
           ? {
@@ -82,30 +87,26 @@ watch(() => props.initialData, (newValue) => {
 // Utilitaire de gestions des erreurs de formulaire
 const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...formData.value });
 
+// Computed
 const isEditing = computed(() => !!formData.value.id);
-const requestError = computed(() => handleRequestStore.error);
 const isEstimationFormInvalid = computed(() => {
-  console.log("isEstimationFormInvalid")
-  console.log("!formData.value.estimationString?.trim()", !formData.value.estimationString?.trim());
-  console.log("!timeParser.validateTimeInput(formData.value.estimationString)", !timeParser.validateTimeInput(formData.value.estimationString));
   if (!formData.value.estimationString?.trim()) return true; // Disabled if empty or only spaces
   return !timeParser.validateTimeInput(formData.value.estimationString); // Disabled if invalid format
 });
 
-
 const checkEstimationValue = () => {
 
   if (isEstimationFormInvalid.value) {
-    estimationFormError.value = 'Format de temps invalide. Utilisez par ex. "1h 30m" ou "2d".';
+    errors.value.estimation = 'Format de temps invalide. Utilisez par ex. "1h 30m" ou "2d".';
     return;
   }
   const timeSpentString = formData.value.estimationString.trim();
   const timeSpentInMinutes = timeParser.parseTimeInputToMinutes(timeSpentString);
   if (timeSpentInMinutes <= 0) {
-    estimationFormError.value = 'Le temps imputé doit être supérieur à zéro.';
+    errors.value.estimation = 'Le temps imputé doit être supérieur à zéro.';
     return;
   }
-  estimationFormError.value = null;
+  errors.value.estimation = null;
   return timeSpentInMinutes;
 };
 
@@ -128,12 +129,11 @@ const submitForm = async () => {
     if (formData.value.id) {
       // Update existing task
       logger.debug("Updating task with ID:", formData.value.id);
-      console.log("data", data);
-      response = await taskService.editTask(props.kanbanId, formData.value.id, data);
+      response = await executeRequest(() => taskService.editTask(props.kanbanId, formData.value.id, data));
     } else {
       // Create new task
       logger.debug("Creating new task");
-      response = await taskService.createTask(props.kanbanId, data);
+      response = await executeRequest(() => taskService.createTask(props.kanbanId, data));
     }
     emit('handleResponse', response);
     closeForm();
@@ -190,7 +190,6 @@ onMounted(async () => {
       <div class="flex justify-between items-center border-b pb-4 dark:border-gray-600">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-yellow-300">
           {{ isEditing ? "Modifier la tâche" : "Créer une tâche" }}
-
         </h2>
         <button class="text-gray-500 dark:text-gray-300 hover:text-red-500" @click="closeForm">
           <v-icon name="md-close"/>
@@ -311,9 +310,6 @@ onMounted(async () => {
               />
               <p v-if="errors.estimation" class="mt-2 text-sm text-red-600 dark:text-red-400">
                 {{ errors.estimation }}
-              </p>
-              <p v-if="estimationFormError" class="text-red-500 dark:text-red-400">
-                {{ estimationFormError }}
               </p>
             </div>
 

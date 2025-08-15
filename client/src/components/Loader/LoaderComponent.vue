@@ -1,5 +1,5 @@
 <template>
-  <div class="loader-wrapper">
+  <div class="flex-grow loader-wrapper my-2">
     <div class="dot-loader">
       <div></div>
       <div></div>
@@ -14,7 +14,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 5rem;
 }
 
 .dot-loader {

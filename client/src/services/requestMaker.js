@@ -7,8 +7,8 @@ import router from '../router';
 
 logger.debug('VITE_API_BASE_URL', import.meta.env.VITE_API_BASE_URL)
 export const apiBaseUrl = import.meta.env.VITE_API_BASE_URL.includes('localhost')
-    ? import.meta.env.VITE_API_BASE_URL
-    : `https://${import.meta.env.VITE_API_BASE_URL}`;
+  ? import.meta.env.VITE_API_BASE_URL
+  : `https://${import.meta.env.VITE_API_BASE_URL}`;
 
 logger.debug('apiBaseUrl:', apiBaseUrl);
 
@@ -23,9 +23,9 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
 
-    const originalConfig  = error.config;
+    const originalConfig = error.config;
     logger.error('####Interceptor');
-    
+
     if (error.response && error.response.status === 401 && !originalConfig._retry) {
       logger.error('Interceptor - 401:', error.response.data.message);
       originalConfig._retry = true; // Prevent infinite loop
@@ -36,8 +36,8 @@ apiClient.interceptors.response.use(
         logger.error('Interceptor - On login, no refresh token needed');
         return Promise.reject(error); // Retournez simplement l'erreur pour le login incorrect
       }
-      
-       // Si c'est une erreur de rafraîchissement, déconnectez l'utilisateur immédiatement
+
+      // Si c'est une erreur de rafraîchissement, déconnectez l'utilisateur immédiatement
       if (error.response.data.name === 'RefreshTokenError') {
         logger.error(' Interceptor - RefreshTokenError');
         await authStore.logout();
@@ -91,21 +91,21 @@ const request = async (requestPromise) => {
 };
 
 export const client = {
-  get: (url, withCredentials = true) =>
-    request(apiClient.get(url, { withCredentials })),
-  
+  get: (url, params = {},  withCredentials = true) =>
+    request(apiClient.get(url, { params, withCredentials })),
+
   post: (url, data, withCredentials = true) =>
     request(apiClient.post(url, data, { withCredentials })),
-  
+
   put: (url, data, withCredentials = true) =>
     request(apiClient.put(url, data, { withCredentials })),
 
   patch: (url, data, withCredentials = true) =>
-      request(apiClient.patch(url, data, { withCredentials })),
-  
+    request(apiClient.patch(url, data, { withCredentials })),
+
   delete: (url, withCredentials = true) =>
     request(apiClient.delete(url, { withCredentials })),
-   // Méthodes spécifiques pour l'envoi de fichiers
+  // Méthodes spécifiques pour l'envoi de fichiers
   postWithFile: (url, formData, withCredentials = true) =>
     request(apiClient.post(url, formData, {
       withCredentials,

@@ -1,13 +1,13 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 
-import { useHandleRequestStore } from "@/stores/handleRequestStore.js";
 import logger from '@/utils/logger.js';
 import useFormErrors from '@/utils/handleFormErrors.js';
 import { TimeParser } from "@/utils/timeParser.js";
+import { hookApi } from "@/services/requestHook.js";
 import { TaskService } from '@/services/taskService.js';
 
-const emit = defineEmits(['handleResponse', 'cancel']);
+// Props
 const props = defineProps({
   initialData: {
     type: Object,
@@ -27,18 +27,24 @@ const props = defineProps({
   },
 });
 
-const handleRequestStore = useHandleRequestStore();
+// Emits
+const emit = defineEmits(['handleResponse', 'cancel']);
+
+// Initialize services and data
 const taskService = new TaskService();
 const timeParser = new TimeParser();
-
-const formData = ref({ ...props.initialData });
-const imputationFormError = ref(null);
+const {
+  error: requestError,
+  executeRequest
+} = hookApi();
 
 const formatDate = (date) => {
   if (!date) return null;
   return new Date(date).toISOString().slice(0, 10);
 };
 
+// Handle Form Data
+const formData = ref({ ...props.initialData });
 watch(() => props.initialData, (newValue) => {
       formData.value = newValue
           ? {
@@ -58,7 +64,6 @@ watch(() => props.initialData, (newValue) => {
 const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...formData.value });
 
 // Computed Properties
-const requestError = computed(() => handleRequestStore.error);
 const isEditing = computed(() => !!formData.value.id);
 const isImputationFormInvalid = computed(() => {
   if (!formData.value.timeSpentString?.trim()) return true; // Disabled if empty or only spaces
@@ -69,16 +74,16 @@ const isImputationFormInvalid = computed(() => {
 const checkImputationValue = () => {
 
   if (isImputationFormInvalid.value) {
-    imputationFormError.value = 'Format de temps invalide. Utilisez par ex. "1h 30m" ou "2d".';
+    errors.value.timeSpent = 'Format de temps invalide. Utilisez par ex. "1h 30m" ou "2d".';
     return;
   }
   const timeSpentString = formData.value.timeSpentString.trim();
   const timeSpentInMinutes = timeParser.parseTimeInputToMinutes(timeSpentString);
   if (timeSpentInMinutes <= 0) {
-    imputationFormError.value = 'Le temps imputé doit être supérieur à zéro.';
+    errors.value.timeSpent = 'Le temps imputé doit être supérieur à zéro.';
     return;
   }
-  imputationFormError.value = null;
+  errors.value.timeSpent = null;
   return timeSpentInMinutes;
 };
 
@@ -97,19 +102,19 @@ const submitForm = async () => {
     let response;
     if (formData.value.id) {
       // Update existing comment
-      response = await taskService.editImputation(
+      response = executeRequest(() => taskService.editImputation(
           props.kanbanId,
           props.taskId,
           formData.value.id,
           data
-      );
+      ))
     } else {
       // Create new comment
-      response = await taskService.createImputation(
+      response = await executeRequest(() => taskService.createImputation(
           props.kanbanId,
           props.taskId,
           data
-      );
+      ));
     }
     emit('handleResponse', response);
     closeForm();
@@ -127,8 +132,9 @@ const closeForm = () => {
 const resetForm = () => {
   clearErrors();
   formData.value = {
-    title: '',
-    content: '',
+    timeSpentString: null,
+    comment: null,
+    date: null
   };
 };
 </script>
@@ -158,9 +164,6 @@ const resetForm = () => {
           />
           <p v-if="errors.timeSpent" class="text-red-500 dark:text-red-400">
             {{ errors.timeSpent }}
-          </p>
-          <p v-if="imputationFormError" class="text-red-500 dark:text-red-400">
-            {{ imputationFormError }}
           </p>
         </div>
 

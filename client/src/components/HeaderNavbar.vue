@@ -2,7 +2,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { initializeTheme } from '@/utils/initDarkMode';
+import { useTheme } from "@/composables/useTheme.js";
 import { useAuthStore } from '@/stores/authStore';
 import logger from "@/utils/logger.js";
 import { apiBaseUrl } from "@/services/requestMaker.js";
@@ -11,18 +11,12 @@ const router = useRouter();
 const userStore = useAuthStore();
 const user = computed(() => userStore.user);
 const filesApiUrl = `${apiBaseUrl}/api/uploads`;
+const { isDarkMode, initTheme, toggleDarkMode } = useTheme();
 
 const isMobileMenuOpen = ref(false)
 const isResourcesDropdownOpen = ref(false)
 const isUserDropdownOpen = ref(false)
 const isMobileResourcesDropdownOpen = ref(false)
-const isDarkMode = ref(document.documentElement.classList.contains('dark'));
-
-const toggleDarkMode = () => {
-  document.documentElement.classList.toggle('dark');
-  isDarkMode.value = document.documentElement.classList.contains('dark');
-  localStorage.setItem('theme', isDarkMode.value ? 'dark' : 'light');
-}
 
 const toggleMobileMenu = () => {
   isMobileMenuOpen.value = !isMobileMenuOpen.value
@@ -80,7 +74,7 @@ const logout = () => {
 }
 
 onMounted(() => {
-  initializeTheme(isDarkMode);
+  initTheme();
 });
 </script>
 

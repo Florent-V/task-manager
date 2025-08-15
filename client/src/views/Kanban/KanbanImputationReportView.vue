@@ -1,269 +1,188 @@
 <script setup>
-import { ref, onMounted, computed, watch, defineProps } from 'vue';
+import { ref, computed, watch, defineProps } from 'vue';
 
+import LoaderComponent from '@/components/Loader/LoaderComponent.vue';
+import LoaderDotsComponent from "@/components/Loader/LoaderDotsComponent.vue";
+import TasksSummaryTable from '@/components/Kanban/TaskSummaryTable.vue';
+import DetailedImputationsTable from '@/components/Kanban/DetailedImputationTable.vue';
 import { useKanbanStore } from '@/stores/kanbanStore.js';
-import { KanbanService } from '@/services/kanbanService.js';
 import { TimeParser } from '@/utils/timeParser.js';
-import LoaderComponent from '@/components/LoaderComponent.vue';
-import KanbanImputationStats from '@/components/Kanban/KanbanImputationStats.vue';
 import { setTitle, setDescription } from "@/utils/documentInfos.js";
 import logger from "@/utils/logger.js";
+import { KanbanService } from '@/services/kanbanService.js';
+import { hookApi } from "@/services/requestHook.js";
 
+// Props
 const props = defineProps({
   kanbanId: {
-    type: String, // Automatically passed from route params
+    type: String,
     required: true
   },
 });
 
+// Initialize services and data
 const kanbanStore = useKanbanStore();
 const kanbanService = new KanbanService();
 const timeParser = new TimeParser();
+const {
+  isLoading: requestKanbanLoading,
+  error: requestKanbanError,
+  executeRequest: executeKanbanRequest
+} = hookApi();
 
-const tasks = ref([]);
+const {
+  isLoading: requestTotalsLoading,
+  error: requestTotalsError,
+  executeRequest: executeTotalsRequest
+} = hookApi();
+
+// State for data managed by this parent component
 const users = ref([]);
 const kanbanDetails = ref({});
-const isLoading = ref(false);
-const error = ref(null);
+// Global Totals State
+const tasksTotalEstimatedTime = ref(0);
+const tasksTotalImputedTime = ref(0);
 
-// Derived data built in a single pass over tasks
-const derivedData = computed(() => {
-  const summary = [];
-  const flat = [];
-
-  tasks.value.forEach(task => {
-    const totalSpent = (task.imputations || []).reduce((sum, imp) => {
-      flat.push({
-        ...imp,
-        task: {
-          id: task.id,
-          title: task.title,
-          estimation: task.estimation,
-          createdAt: task.createdAt,
-        }
-      });
-      return sum + (imp.timeSpent || 0);
-    }, 0);
-
-    const varianceMinutes = totalSpent - (task.estimation || 0);
-
-    summary.push({
-      id: task.id,
-      title: task.title,
-      estimation: task.estimation || 0,
-      totalTimeSpentOnTask: totalSpent,
-      createdAt: task.createdAt || 0,
-      varianceMinutes,
-      varianceAbsMinutes: Math.abs(varianceMinutes),
-      variancePerc: task.estimation ? (totalSpent / task.estimation) * 100 : 0,
-    });
-  });
-
-  summary.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  flat.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-  return { summary, flat };
-});
-
-const sortedImputations = computed(() => derivedData.value.flat);
-const tasksSummary = computed(() => derivedData.value.summary);
-
-const formattedImputations = computed(() => {
-  return sortedImputations.value.map(imp => ({
-    ...imp,
-    title: imp.task?.title || 'N/A',
-    userFullName: `${imp.user?.firstName || ''} ${imp.user?.lastName || ''}`.trim() || 'N/A',
-    timeSpentFormatted: timeParser.formatMinutesToTimeString(imp.timeSpent),
-    dateFormatted: new Date(imp.date).toLocaleDateString(),
-  }));
-});
-
-const grandTotalTimeSpent = computed(() => sortedImputations.value.reduce((total, imp) => total + imp.timeSpent, 0));
-
-const grandTotalEstimatedTime = computed(() => {
-  // Sum of unique task estimations from tasksSummary
-  // This ensures each task's estimation is counted only once
-  return tasksSummary.value.reduce((total, task) => total + task.estimation, 0);
-});
-
+// Computed Properties
 const usersOnThisKanban = computed(() => {
-  if (!users.value === 0) return [];
+  if (!users.value || users.value.length === 0) return [];
   return [...users.value]
-    .map(u => ({
-      id: u.id,
-      firstName: u.firstName || '',
-      lastName: u.lastName || '',
-      fullName: `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Unknown User',
-    }))
-    .sort((a, b) => a.fullName.localeCompare(b.fullName));
+      .map(u => ({
+        id: u.id,
+        firstName: u.firstName || '',
+        lastName: u.lastName || '',
+        fullName: `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Unknown User',
+      }))
+      .sort((a, b) => a.fullName.localeCompare(b.fullName));
 });
 
-const selectedUserId = ref(null);
-function selectUser(id) {
-  selectedUserId.value = selectedUserId.value === id ? null : id;
-}
-
-const imputationsForSelectedUser = computed(() => {
-  if (!selectedUserId.value) return [];
-  return sortedImputations.value.filter(imp => imp.user?.id === selectedUserId.value);
-});
-
-// Watch props.kanbanId directly as it's reactive
-watch(() => props.kanbanId, (newId) => {
-  if (newId) {
-    fetchReportData();
-  }
-});
-
-const fetchReportData = async () => {
+// Fetching functions for data managed by this parent
+const fetchKanbanBaseDetails = async () => {
   if (!props.kanbanId) return;
 
-  error.value = null;
   try {
-    // Optionally still init store to get kanban metadata (title)
-    await kanbanStore.initStore(props.kanbanId);
-    users.value = kanbanStore.users;
+    await executeKanbanRequest(
+        () => kanbanStore.initStore(props.kanbanId)
+    );
+    users.value = kanbanStore.users || [];
     kanbanDetails.value = {
-      id: kanbanStore.kanban.id,
-      title: kanbanStore.kanban.title,
+      id: kanbanStore.kanban?.id,
+      title: kanbanStore.kanban?.title,
     };
-
-    const data = await kanbanService.getKanbanImputationReport(props.kanbanId);
-    tasks.value = data.tasks || [];
-
+    setTitle(`Imputation Report for Kanban : ${kanbanDetails.value.title}`);
+    setDescription(`Imputation Report for Kanban : ${kanbanDetails.value.title}`);
   } catch (err) {
-    logger.error('Error fetching Kanban imputation report:', err);
-    tasks.value = [];
-    error.value = 'Unable to fetch report';
+    logger.error('Error fetching Kanban base details in Parent:', err);
+    requestKanbanError.value = `Erreur chargement détails Kanban: ${requestKanbanError.value}`;
+    users.value = [];
+    setTitle(`Report - Error`);
+    setDescription(`Error loading report for Kanban ${props.kanbanId}`);
   }
 };
 
-onMounted(async () => {
-  await fetchReportData();
-  setTitle(`Report - ${kanbanDetails.value.title}`);
-  setDescription(`Report for Kanban ${kanbanDetails.value.title}`);
-});
+const fetchKanbanTotals = async () => {
+  if (!props.kanbanId) return;
+  try {
+    const totalsData = await executeTotalsRequest(
+        () => kanbanService.getKanbanImputationTotals(props.kanbanId)
+    );
+    tasksTotalEstimatedTime.value = totalsData.tasksTotalEstimatedTime || 0;
+    tasksTotalImputedTime.value = totalsData.tasksTotalImputedTime || 0;
+  } catch (err) {
+    logger.error('Error fetching Kanban imputation totals in Parent:', err);
+    requestTotalsError.value = `Erreur chargement totaux: ${requestTotalsError.value}`;
+    tasksTotalEstimatedTime.value = 0;
+    tasksTotalImputedTime.value = 0;
+  }
+};
+
+// Watch props.kanbanId to re-fetch parent-managed data
+watch(() => props.kanbanId, (newId, oldId) => {
+  // Ensure it runs only when kanbanId actually changes or for initial load via immediate
+  if (newId && (newId !== oldId || !kanbanDetails.value.id)) {
+    // Reset  data
+    kanbanDetails.value = { id: props.kanbanId };
+    users.value = [];
+    tasksTotalEstimatedTime.value = 0;
+    tasksTotalImputedTime.value = 0;
+    fetchKanbanBaseDetails();
+    fetchKanbanTotals();
+  }
+}, { immediate: true }); // immediate: true ensures it runs on component mount
+
+const exportToExcel = async () => {
+  try {
+    await kanbanService.exportKanbanImputationReport(props.kanbanId);
+  } catch (err) {
+    logger.error('Error exporting to Excel:', err);
+    // Optionally, show an error message to the user
+  }
+};
 </script>
 
 <template>
   <div class="container mx-auto p-4">
-    <div v-if="isLoading" class="flex justify-center items-center h-64">
-      <LoaderComponent />
-    </div>
-    <div v-else-if="error" class="text-red-700 dark:text-red-300 bg-red-100 dark:bg-red-900/30 p-4 rounded-md border border-red-300 dark:border-red-700">
-      <p class="font-semibold">Error loading report:</p>
-      <p>{{ error }}</p>
-    </div>
-    <div v-else-if="sortedImputations.length === 0" class="text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-slate-700 p-4 rounded-md">
-      <h1 class="text-2xl font-semibold mb-4">Kanban Report: {{ kanbanDetails?.title || props.kanbanId }}</h1>
-      <p>No imputations found for this Kanban board.</p>
-    </div>
-    <div v-else>
-      <h1 class="text-4xl font-bold mb-8 text-center text-blue-800 dark:text-yellow-300 break-words">
-        Kanban Report: {{ kanbanDetails?.title || 'Loading...' }}
+    <!-- Header with overall stats-->
+    <div>
+      <h1 class="flex mb-8 gap-2 justify-center items-center text-center text-blue-800 dark:text-yellow-300 break-words">
+        <span class="text-4xl font-bold">Kanban Report:</span>
+        <span v-if="requestKanbanLoading" class="ml-10">
+            <LoaderDotsComponent/>
+          </span>
+        <span v-else class="text-4xl font-bold">{{ kanbanDetails.title }}</span>
       </h1>
-
-      <!-- Overall Summary -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
-          <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Total Estimated Time</h2>
-          <p class="text-3xl font-bold text-blue-600">
-            {{ timeParser.formatMinutesToTimeString(grandTotalEstimatedTime) }}
-          </p>
-          <p class="text-sm text-gray-500 dark:text-gray-400">for reported tasks</p>
-        </div>
-        <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
-          <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Total Time Spent</h2>
-          <p :class="['text-3xl font-bold', grandTotalTimeSpent > grandTotalEstimatedTime ? 'text-red-600' : 'text-green-600']">
-            {{ timeParser.formatMinutesToTimeString(grandTotalTimeSpent) }}
-          </p>
-          <p class="text-sm text-gray-500 dark:text-gray-400">on this Kanban board</p>
-        </div>
+      <div class="flex justify-end mb-4">
+        <button
+            class="px-4 py-2 rounded-md focus:outline-none bg-green-600 text-white hover:bg-green-700"
+            @click="exportToExcel"
+        >
+          <v-icon name="ri-file-excel-2-line" scale="1.2" class="mr-2"/>
+          <span>Export to Excel</span>
+        </button>
       </div>
-
-      <!-- Task-Specific Summary Table -->
-      <div class="mb-8 bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
-        <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Tasks Summary</h2>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-600">
-            <thead class="bg-gray-100 dark:bg-slate-700">
-            <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Task Title</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Estimated Time</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Total Time Spent</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Variance</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Variance %</th>
-            </tr>
-            </thead>
-            <tbody class="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-600">
-            <tr v-for="task in tasksSummary" :key="task.id">
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{{ task.title }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ timeParser.formatMinutesToTimeString(task.estimation) }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ timeParser.formatMinutesToTimeString(task.totalTimeSpentOnTask) }}</td>
-              <td :class="['px-6 py-4 whitespace-nowrap text-sm font-semibold', task.varianceMinutes > 0 ? 'text-red-500' : task.varianceMinutes < 0 ? 'text-green-500' : 'text-gray-500']">
-                {{ timeParser.formatMinutesToTimeString(task.varianceAbsMinutes) }}
-                <span v-if="task.varianceMinutes > 0">(Over)</span>
-                <span v-else-if="task.varianceMinutes < 0">(Under)</span>
-              </td>
-              <td :class="['px-6 py-4 whitespace-nowrap text-sm font-semibold', task.variancePerc > 100 ? 'text-red-500' : 'text-green-500']">
-                {{ task.variancePerc.toFixed(0) }}%
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Detailed Imputations Table -->
-      <div class="mb-8 bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
-        <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Detailed Imputations</h2>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200 dark:divide-slate-600">
-            <thead class="bg-gray-100 dark:bg-slate-700">
-            <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Task Title</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">User</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Time Spent</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Imputation Date</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Comment</th>
-            </tr>
-            </thead>
-            <tbody class="bg-white dark:bg-slate-800 divide-y divide-gray-200 dark:divide-slate-600">
-            <tr v-for="imputation in formattedImputations" :key="imputation.id">
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">{{ imputation.title }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ imputation.userFullName }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ imputation.timeSpentFormatted }}</td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{{ imputation.dateFormatted }}</td>
-              <td class="px-6 py-4 whitespace-normal text-sm text-gray-500 dark:text-gray-400 max-w-xs break-words">{{ imputation.comment }}</td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- User Activity Section -->
-      <div v-if="usersOnThisKanban.length > 0" class="mb-8 bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
-        <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">User Activity on this Kanban</h2>
-        <ul class="space-y-2">
-          <li v-for="user in usersOnThisKanban" :key="user.id" class="text-sm">
-            <button
-                :class="['text-blue-600 hover:text-blue-800 hover:underline dark:text-yellow-400 dark:hover:text-yellow-200', selectedUserId===user.id ? 'font-semibold' : '']"
-                @click="selectUser(user.id)"
-            >
-              {{ user.fullName }}
-            </button>
-          </li>
-        </ul>
-      </div>
-
-      <!-- Imputations for selected user (if any) -->
-      <KanbanImputationStats
-          v-if="selectedUserId && imputationsForSelectedUser.length > 0"
-          :kanban-title="`Imputations for ${usersOnThisKanban.find(u=>u.id===selectedUserId)?.fullName || 'Selected user'}`"
-          :kanban-id="props.kanbanId"
-          :imputations="imputationsForSelectedUser" />
 
     </div>
+
+    <!-- Overall Summary -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Total Estimated Time (All Tasks)</h2>
+        <div v-if="requestTotalsLoading" class="flex justify-center py-1">
+          <LoaderComponent size="small"/>
+        </div>
+        <p v-else class="text-3xl font-bold text-blue-600">
+          {{ timeParser.formatMinutesToTimeString(tasksTotalEstimatedTime) }}
+        </p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">for all tasks on this board</p>
+      </div>
+      <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Total Time Spent (All
+          Imputations)</h2>
+        <div v-if="requestTotalsLoading" class="flex justify-center py-1">
+          <LoaderComponent size="small"/>
+        </div>
+        <p
+            v-else
+            :class="['text-3xl font-bold', tasksTotalImputedTime > tasksTotalEstimatedTime && tasksTotalEstimatedTime > 0 ? 'text-red-600' : 'text-green-600']">
+          {{ timeParser.formatMinutesToTimeString(tasksTotalImputedTime) }}
+        </p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">on this Kanban board</p>
+      </div>
+    </div>
+
+    <!-- Child components now handle their own data fetching and pagination -->
+    <TasksSummaryTable
+        :kanban-id="props.kanbanId"
+        :time-parser="timeParser"
+        class="mb-8"
+    />
+
+    <DetailedImputationsTable
+        :kanban-id="props.kanbanId"
+        :time-parser="timeParser"
+        :users-on-this-kanban="usersOnThisKanban"
+    />
+
   </div>
 </template>
 

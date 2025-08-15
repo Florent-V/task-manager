@@ -29,6 +29,7 @@ export default [
     path: '/kanban/:id',
     name: 'kanbanDetail',
     meta: {
+      requiresAuth: true,
       title: 'Kanban Détail View',
       description: 'This is the kanban detail page'
     },
@@ -52,16 +53,17 @@ export default [
       description: 'This is the kanban imputation report page'
     },
     component: KanbanImputationReportView,
-    props: true, // Automatically pass route params as props (e.g., userId)
+    props: true, // Automatically pass route params (kanbanId) as props
   },
   {
     path: '/kanban/:kanbanId/task/:taskId',
     name: 'TaskDetailViewPage',
     component: TaskDetailView,
     meta: {
+      requiresAuth: true,
       title: 'Task Details',
       description: 'Detailed view of a specific task'
     },
-    props: true // Allows route params (kanbanId, taskId) to be passed as props
+    props: true // Automatically pass route params (kanbanId, taskId) as props
   }
 ]
