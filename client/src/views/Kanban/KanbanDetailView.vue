@@ -110,8 +110,8 @@ const handleDrop = async (event, columnId, assignedToId) => {
     await executeUpdateRequest(() => taskService.updateTaskStage(
         draggedTask.kanbanId,
         draggedTask.id,
-        draggedTask.stageId,
-        draggedTask.assignedToId
+        columnId,
+        assignedToId
     ));
 
     if (sourceColumn && targetColumn) {
@@ -245,7 +245,7 @@ onMounted(() => {
       </h1>
 
       <div v-if="kanban" class="px-4 mb-4 prose dark:prose-invert text-gray-600 dark:text-gray-400 break-words">
-          <div v-html="kanban.description"></div>
+        <div v-html="kanban.description"></div>
       </div>
 
       <div class="flex justify-end mb-4 space-x-2">
