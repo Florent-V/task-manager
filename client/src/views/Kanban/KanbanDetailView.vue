@@ -254,7 +254,7 @@ onMounted(() => {
         {{ kanban.title }}
       </h1>
 
-      <div v-if="kanban" class="px-4 mb-4 prose dark:prose-invert text-gray-600 dark:text-gray-400 break-words">
+      <div v-if="kanban" class="px-4 mb-4 prose dark:prose-invert max-w-none text-gray-600 dark:text-gray-400 break-words">
         <div v-html="kanban.description"></div>
       </div>
 
