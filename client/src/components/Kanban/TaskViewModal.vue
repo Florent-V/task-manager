@@ -146,7 +146,7 @@ onMounted(fetchComments);
         <!-- Description -->
         <div>
           <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300">Description</h3>
-          <div class="prose dark:prose-invert mt-2 text-gray-600 dark:text-gray-400" v-html="task.description"></div>
+          <div class="prose dark:prose-invert max-w-none mt-2 text-gray-600 dark:text-gray-400" v-html="task.description"></div>
         </div>
 
         <!-- Additional Information -->
