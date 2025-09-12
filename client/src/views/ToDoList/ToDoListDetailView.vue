@@ -8,17 +8,22 @@ import ToggleComponent from '@/components/ToggleComponent.vue';
 import LoaderComponent from '@/components/Loader/LoaderComponent.vue';
 import QRCodeModal from '@/components/ToDoList/ToDoListQRCodeModal.vue';
 import AIGenerateTasks from '@/components/ToDoList/AIGenerateTasks.vue';
+import { useToast } from '@/composables/useToast'
 import { setTitle, setDescription } from "@/utils/documentInfos.js";
 import logger from '@/utils/logger.js';
-import { client } from '@/services/requestMaker.js';
 import { hookApi } from '@/services/requestHook.js';
 import { ToDoItemService } from "@/services/toDoItemService.js";
 import { ToDoListService } from "@/services/toDoListService.js";
 
 const route = useRoute();
+const { showSuccess, showError } = useToast()
 const toDoItemService = new ToDoItemService();
 const toDoListService = new ToDoListService();
 const { isLoading, error, executeRequest } = hookApi();
+const {
+  error: silentRequestError,
+  executeRequest: executeSilentRequest
+} = hookApi();
 
 const toDoList = ref({});
 const toDoItems = ref([]);
@@ -37,7 +42,9 @@ const openMenuId = ref(null);
 // Récupération des items de la ToDoList
 const fetchToDoItems = async () => {
   try {
-    const data = await executeRequest(() => client.get(`/api/todolist/${route.params.id}/`));
+    const data = await executeRequest(
+        () => toDoListService.getToDoList(route.params.id)
+    );
     logger.debug('todolist', data);
     toDoItems.value = data.toDoList.toDoItems;
     toDoList.value = data.toDoList;
@@ -100,10 +107,14 @@ const closeForm = () => {
 // Flag ToDoItem as done
 const toggleToDoItemDone = async (item) => {
   try {
-    const response = await executeRequest(() => client.patch(`/api/todolist/${route.params.id}/todoitem/${item.id}`, { done: !item.done }));
+    const response = await executeSilentRequest(
+        () => toDoItemService.editToDoItem(route.params.id, item.id, { done: !item.done })
+    );
+    showSuccess('Tâche mise à jour avec succès');
     const index = toDoItems.value.findIndex(i => i.id === response.toDoItem.id);
     toDoItems.value[index].done = !toDoItems.value[index].done;
   } catch (err) {
+    showError('Erreur lors de la mise à jour de la tâche');
     logger.error('Error updating ToDoItem:', err?.response?.data?.message || err.message);
   }
 };
@@ -111,9 +122,13 @@ const toggleToDoItemDone = async (item) => {
 // Delete ToDoItem
 const deleteToDoItem = async (item) => {
   try {
-    await executeRequest(() => client.delete(`/api/todolist/${route.params.id}/todoitem/${item.id}`));
+    await executeSilentRequest(
+        () => toDoItemService.deleteToDoItem(route.params.id, item.id)
+    );
+    showSuccess('Tâche supprimée avec succès');
     toDoItems.value = toDoItems.value.filter(i => i.id !== item.id);
   } catch (err) {
+    showError('Erreur lors de la suppression de la tâche');
     logger.error('Error deleting ToDoItem:', err?.response?.data?.message || err.message);
   }
 };
@@ -136,11 +151,15 @@ const decrementQuantity = async (item) => {
 const updateItemQuantityInDatabase = async (item) => {
   try {
     logger.debug('Mise à jour de la quantité...', `/api/todolist/${route.params.id}/todoitem/${item.id}`);
-    const response = await executeRequest(() => client.patch(`/api/todolist/${route.params.id}/todoitem/${item.id}`, { quantity: item.quantity }));
+    const response = await executeSilentRequest(
+        () => toDoItemService.editToDoItem(route.params.id, item.id, { quantity: item.quantity })
+    );
     const index = toDoItems.value.findIndex(i => i.id === response.toDoItem.id);
     toDoItems.value[index].quantity = response.toDoItem.quantity;
+    showSuccess('Tâche mise à jour avec succès');
     logger.debug('Quantité mise à jour avec succès');
   } catch (err) {
+    showError('Erreur lors de la mise à jour de la tâche');
     logger.error('Error updating quantity:', err?.response?.data?.message || err.message);
   }
 };
@@ -148,11 +167,14 @@ const updateItemQuantityInDatabase = async (item) => {
 // Fonction pour partager la ToDoList
 const shareToDoList = async () => {
   try {
-    const data = await executeRequest(() => client.post(`/api/todolist/${route.params.id}/share`, {}));
+    const data = await executeSilentRequest(
+        () => toDoListService.shareToDoList(route.params.id)
+    );
     qrCodeUrl.value = data.qrCodeUrl;
     linkUrl.value = data.linkUrl;
     showQRCodeModal.value = true;
   } catch (err) {
+    showError('Erreur lors du partage de la liste de tâches');
     logger.error('Error sharing ToDoList:', err?.response?.data?.message || err.message);
   }
 };

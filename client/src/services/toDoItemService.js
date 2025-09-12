@@ -62,11 +62,19 @@ export class ToDoItemService {
    */
   editToDoItem(toDoListId, itemId, updatedItemData) {
     logger.debug(`Editing ToDoItem with ID: ${itemId} in ToDoList ID: ${toDoListId}`);
-    return client.patch(`${this._basePath(toDoListId)}/${itemId}`, updatedItemData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    return client.patch(`${this._basePath(toDoListId)}/${itemId}`, updatedItemData);
+  }
+
+  /**
+   * Edits a ToDoItem with file.
+   * @param {string} toDoListId - The ID of the parent ToDoList.
+   * @param {string} itemId - The ID of the item to edit.
+   * @param {FormData} updatedItemData - The updated data for the item.
+   * @returns {Promise<any>} The promise from the API call.
+   */
+  editToDoItemWithFile(toDoListId, itemId, updatedItemData) {
+    logger.debug(`Editing ToDoItem with ID: ${itemId} in ToDoList ID: ${toDoListId}`);
+    return client.patchWithFile(`${this._basePath(toDoListId)}/${itemId}`, updatedItemData);
   }
 
   /**
