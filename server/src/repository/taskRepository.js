@@ -57,22 +57,31 @@ export const includeTask = [
 export async function getTaskTimingSums(kanbanId) {
   const result = await sequelize.query(
     `
-    SELECT
-      SUM(t.estimation) AS tasksTotalEstimatedTime,
-      COALESCE(SUM(i.timeSpent), 0) AS tasksTotalImputedTime
-    FROM
-      task t
-    LEFT JOIN
-      imputation i ON t.id = i.taskId AND i.taskId IS NOT NULL
-    WHERE
-      t.kanbanId = :kanbanId
+        SELECT
+            SUM(t.estimation) AS tasksTotalEstimatedTime,
+            COALESCE(SUM(i.totalImputed), 0) AS tasksTotalImputedTime,
+            SUM(
+                    CASE
+                        WHEN t.isArchived = 0 THEN
+                            GREATEST(t.estimation - COALESCE(i.totalImputed, 0), 0)
+                        ELSE 0
+                        END
+            ) AS tasksTotalRemainingTime
+        FROM task t
+                 LEFT JOIN (
+            SELECT taskId, SUM(timeSpent) AS totalImputed
+            FROM imputation
+            GROUP BY taskId
+        ) i ON t.id = i.taskId
+        WHERE t.kanbanId = :kanbanId
     `,
     {
       replacements: { kanbanId },
       type: QueryTypes.SELECT,
     }
   );
-  return result[0];
+
+  return result[0]; // contient { tasksTotalEstimatedTime, tasksTotalImputedTime, tasksTotalRemainingTime }
 }
 
 /**
