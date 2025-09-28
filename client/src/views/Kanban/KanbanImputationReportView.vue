@@ -42,6 +42,7 @@ const kanbanDetails = ref({});
 // Global Totals State
 const tasksTotalEstimatedTime = ref(0);
 const tasksTotalImputedTime = ref(0);
+const tasksTotalRemainingTime = ref(0);
 
 // Computed Properties
 const usersOnThisKanban = computed(() => {
@@ -54,6 +55,17 @@ const usersOnThisKanban = computed(() => {
         fullName: `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Unknown User',
       }))
       .sort((a, b) => a.fullName.localeCompare(b.fullName));
+});
+
+const delta = computed(() => {
+  const deltaValue = tasksTotalEstimatedTime.value - (tasksTotalImputedTime.value + tasksTotalRemainingTime.value);
+  const sign = deltaValue > 0 ? '-' : '+';
+  const formattedTime = timeParser.formatMinutesToTimeString(Math.abs(deltaValue));
+
+  return {
+    timeString: `${sign} ${formattedTime}`,
+    colorClass: deltaValue < 0 ? 'text-red-600' : 'text-green-600'
+  };
 });
 
 // Fetching functions for data managed by this parent
@@ -86,13 +98,15 @@ const fetchKanbanTotals = async () => {
     const totalsData = await executeTotalsRequest(
         () => kanbanService.getKanbanImputationTotals(props.kanbanId)
     );
-    tasksTotalEstimatedTime.value = totalsData.tasksTotalEstimatedTime || 0;
-    tasksTotalImputedTime.value = totalsData.tasksTotalImputedTime || 0;
+    tasksTotalEstimatedTime.value = parseInt(totalsData.tasksTotalEstimatedTime, 10) || 0;
+    tasksTotalImputedTime.value = parseInt(totalsData.tasksTotalImputedTime, 10) || 0;
+    tasksTotalRemainingTime.value = parseInt(totalsData.tasksTotalRemainingTime, 10) || 0;
   } catch (err) {
     logger.error('Error fetching Kanban imputation totals in Parent:', err);
     requestTotalsError.value = `Erreur chargement totaux: ${requestTotalsError.value}`;
     tasksTotalEstimatedTime.value = 0;
     tasksTotalImputedTime.value = 0;
+    tasksTotalRemainingTime.value = 0;
   }
 };
 
@@ -105,6 +119,7 @@ watch(() => props.kanbanId, (newId, oldId) => {
     users.value = [];
     tasksTotalEstimatedTime.value = 0;
     tasksTotalImputedTime.value = 0;
+    tasksTotalRemainingTime.value = 0;
     fetchKanbanBaseDetails();
     fetchKanbanTotals();
   }
@@ -146,16 +161,6 @@ const exportToExcel = async () => {
     <!-- Overall Summary -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
       <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
-        <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Total Estimated Time (All Tasks)</h2>
-        <div v-if="requestTotalsLoading" class="flex justify-center py-1">
-          <LoaderComponent size="small"/>
-        </div>
-        <p v-else class="text-3xl font-bold text-blue-600">
-          {{ timeParser.formatMinutesToTimeString(tasksTotalEstimatedTime) }}
-        </p>
-        <p class="text-sm text-gray-500 dark:text-gray-400">for all tasks on this board</p>
-      </div>
-      <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
         <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Total Time Spent (All
           Imputations)</h2>
         <div v-if="requestTotalsLoading" class="flex justify-center py-1">
@@ -167,6 +172,36 @@ const exportToExcel = async () => {
           {{ timeParser.formatMinutesToTimeString(tasksTotalImputedTime) }}
         </p>
         <p class="text-sm text-gray-500 dark:text-gray-400">on this Kanban board</p>
+      </div>
+      <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Total Remaining Time</h2>
+        <div v-if="requestTotalsLoading" class="flex justify-center py-1">
+          <LoaderComponent size="small"/>
+        </div>
+        <p v-else class="text-3xl font-bold text-orange-500">
+          {{ timeParser.formatMinutesToTimeString(tasksTotalRemainingTime) }}
+        </p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">remaining for all tasks</p>
+      </div>
+      <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Total Estimated Time (All Tasks)</h2>
+        <div v-if="requestTotalsLoading" class="flex justify-center py-1">
+          <LoaderComponent size="small"/>
+        </div>
+        <p v-else class="text-3xl font-bold text-blue-600">
+          {{ timeParser.formatMinutesToTimeString(tasksTotalEstimatedTime) }}
+        </p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">for all tasks on this board</p>
+      </div>
+      <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Delta (Estimated vs Actuals)</h2>
+        <div v-if="requestTotalsLoading" class="flex justify-center py-1">
+          <LoaderComponent size="small"/>
+        </div>
+        <p v-else :class="['text-3xl font-bold', delta.colorClass]">
+          {{ delta.timeString }}
+        </p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">vs. planned estimate</p>
       </div>
     </div>
 

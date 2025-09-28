@@ -197,7 +197,7 @@ onMounted(fetchComments);
         <!-- Comments Section -->
         <div v-else class="mt-8">
           <div v-if="comments.length === 0" class="text-gray-500 dark:text-gray-400">
-            Aucune imputation pour cette tâche.
+            Aucun commentaire pour cette tâche.
           </div>
 
           <div v-else class="mt-4 space-y-4">
