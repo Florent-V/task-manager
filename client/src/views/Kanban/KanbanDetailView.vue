@@ -110,8 +110,8 @@ const handleDrop = async (event, columnId, assignedToId) => {
     await executeUpdateRequest(() => taskService.updateTaskStage(
         draggedTask.kanbanId,
         draggedTask.id,
-        draggedTask.stageId,
-        draggedTask.assignedToId
+        columnId,
+        assignedToId
     ));
 
     if (sourceColumn && targetColumn) {
@@ -221,6 +221,16 @@ const closeMenu = (event) => {
   }
 };
 
+const stripHtmlAndCrop = (html, length = 50) => {
+  if (!html) return '';
+  // Create a temporary div to strip HTML tags
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  const text = div.textContent || div.innerText || '';
+  // Crop the text
+  return text.length > length ? text.substring(0, length) + '...' : text;
+};
+
 onMounted(() => {
   fetchData();
 });
@@ -244,8 +254,8 @@ onMounted(() => {
         {{ kanban.title }}
       </h1>
 
-      <div v-if="kanban" class="px-4 mb-4 prose dark:prose-invert text-gray-600 dark:text-gray-400 break-words">
-          <div v-html="kanban.description"></div>
+      <div v-if="kanban" class="px-4 mb-4 prose dark:prose-invert max-w-none text-gray-600 dark:text-gray-400 break-words">
+        <div v-html="kanban.description"></div>
       </div>
 
       <div class="flex justify-end mb-4 space-x-2">
@@ -524,48 +534,29 @@ onMounted(() => {
 
         <!-- Contenu des tâches, conditionné par l'état de dépliement -->
         <div v-if="!foldedGroups['archived']" class="overflow-x-auto flex-grow">
-          <!-- Zone de tâches non assignées -->
-          <div v-if="archivedTasks.length" class="mb-8">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-700 p-4">
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <div
-                    v-for="task in archivedTasks"
-                    :key="task.id"
-                    class="task bg-gray-100 dark:bg-gray-700 rounded-lg p-4 shadow hover:shadow-md dark:hover:shadow-gray-600 cursor-pointer"
-                    @click="openTaskModal(task)"
-                >
-                  <h3 class="font-bold text-gray-900 dark:text-gray-300">
-                    {{ $cropText(task.title, 40) }}
-                  </h3>
-                  <p class="text-gray-600 dark:text-gray-400">
-                    {{ $cropText(task.description, 100) }}
-                  </p>
-                  <div class="flex justify-between items-center mt-2 text-sm">
-              <span
-                  class="inline-block text-sm font-medium px-2 py-1 rounded-full"
-                  :style="{ backgroundColor: task.priorityColor }"
+          <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-700 p-4">
+            <!-- Header -->
+            <div class="flex text-sm font-semibold text-gray-600 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700 pb-2 mb-2">
+              <div class="w-3/12 px-2">Tâche</div>
+              <div class="w-3/12 px-2">Description</div>
+              <div class="w-2/12 px-2">Assigné à</div>
+              <div class="w-2/12 px-2 text-right">Estimation</div>
+              <div class="w-2/12 px-2 text-right">Temps consigné</div>
+            </div>
+
+            <!-- Rows -->
+            <div class="space-y-1">
+              <div
+                  v-for="task in archivedTasks"
+                  :key="task.id"
+                  class="flex items-center rounded-md p-2 -mx-2 transition hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                  @click="openTaskModal(task)"
               >
-                {{ task.priorityLabel }}
-              </span>
-                    <span
-                        class="inline-block text-sm font-medium px-2 py-1 rounded-full"
-                        :style="{ backgroundColor: task.sizeColor }"
-                    >
-                {{ task.sizeLabel }}
-              </span>
-                  </div>
-                  <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Assignee: {{ task.assignedTo }}</p>
-                  <div class="flex justify-between items-center text-sm">
-                    <p class="w-1/2 flex flex-col text-sm text-gray-500 dark:text-gray-400">
-                      <span>Estimation :</span>
-                      <span>{{ taskService.formatMinutesToTimeString(task.estimation) }}</span>
-                    </p>
-                    <p class="w-1/2 flex flex-col text-sm text-gray-500 dark:text-gray-400">
-                      <span>Consigné :</span>
-                      <span>{{ taskService.calculateTimeSpent(task) }}</span>
-                    </p>
-                  </div>
-                </div>
+                <div class="w-3/12 px-2 font-medium text-gray-900 dark:text-gray-200 truncate" :title="task.title">{{ task.title }}</div>
+                <div class="w-3/12 px-2 text-gray-600 dark:text-gray-300 truncate" :title="stripHtmlAndCrop(task.description, 200)">{{ stripHtmlAndCrop(task.description, 50) }}</div>
+                <div class="w-2/12 px-2 text-gray-600 dark:text-gray-300 truncate" :title="task.assignedTo">{{ task.assignedTo || 'N/A' }}</div>
+                <div class="w-2/12 px-2 text-right text-gray-600 dark:text-gray-300">{{ taskService.formatMinutesToTimeString(task.estimation) }}</div>
+                <div class="w-2/12 px-2 text-right text-gray-600 dark:text-gray-300">{{ taskService.calculateTimeSpent(task) }}</div>
               </div>
             </div>
           </div>

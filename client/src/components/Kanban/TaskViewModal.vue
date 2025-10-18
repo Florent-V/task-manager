@@ -146,7 +146,7 @@ onMounted(fetchComments);
         <!-- Description -->
         <div>
           <h3 class="text-lg font-medium text-gray-700 dark:text-gray-300">Description</h3>
-          <div class="prose dark:prose-invert mt-2 text-gray-600 dark:text-gray-400" v-html="task.description"></div>
+          <div class="prose dark:prose-invert max-w-none mt-2 text-gray-600 dark:text-gray-400" v-html="task.description"></div>
         </div>
 
         <!-- Additional Information -->
@@ -197,7 +197,7 @@ onMounted(fetchComments);
         <!-- Comments Section -->
         <div v-else class="mt-8">
           <div v-if="comments.length === 0" class="text-gray-500 dark:text-gray-400">
-            Aucune imputation pour cette tâche.
+            Aucun commentaire pour cette tâche.
           </div>
 
           <div v-else class="mt-4 space-y-4">

@@ -2,18 +2,28 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 
-import { client } from '@/services/requestMaker.js';
-import { hookApi } from '@/services/requestHook.js';
-import { setTitle, setDescription } from "@/utils/documentInfos.js";
 import ToDoItemFormComponent from '@/components/ToDoList/ToDoItemFormComponent.vue';
 import ToDoItemImageModalComponent from '@/components/ToDoList/ToDoItemImageModalComponent.vue';
 import ToggleComponent from '@/components/ToggleComponent.vue';
 import LoaderComponent from '@/components/Loader/LoaderComponent.vue';
 import QRCodeModal from '@/components/ToDoList/ToDoListQRCodeModal.vue';
+import AIGenerateTasks from '@/components/ToDoList/AIGenerateTasks.vue';
+import { useToast } from '@/composables/useToast'
+import { setTitle, setDescription } from "@/utils/documentInfos.js";
 import logger from '@/utils/logger.js';
+import { hookApi } from '@/services/requestHook.js';
+import { ToDoItemService } from "@/services/toDoItemService.js";
+import { ToDoListService } from "@/services/toDoListService.js";
 
 const route = useRoute();
+const { showSuccess, showError } = useToast()
+const toDoItemService = new ToDoItemService();
+const toDoListService = new ToDoListService();
 const { isLoading, error, executeRequest } = hookApi();
+const {
+  error: silentRequestError,
+  executeRequest: executeSilentRequest
+} = hookApi();
 
 const toDoList = ref({});
 const toDoItems = ref([]);
@@ -29,15 +39,12 @@ const linkUrl = ref(null);
 const showItemImageModal = ref(false);
 const openMenuId = ref(null);
 
-// Pour l'IA
-const aiPrompt = ref('');
-const isGeneratingWithAI = ref(false);
-const aiError = ref(null);
-
 // Récupération des items de la ToDoList
 const fetchToDoItems = async () => {
   try {
-    const data = await executeRequest(() => client.get(`/api/todolist/${route.params.id}/`));
+    const data = await executeRequest(
+        () => toDoListService.getToDoList(route.params.id)
+    );
     logger.debug('todolist', data);
     toDoItems.value = data.toDoList.toDoItems;
     toDoList.value = data.toDoList;
@@ -100,10 +107,14 @@ const closeForm = () => {
 // Flag ToDoItem as done
 const toggleToDoItemDone = async (item) => {
   try {
-    const response = await executeRequest(() => client.patch(`/api/todolist/${route.params.id}/todoitem/${item.id}`, { done: !item.done }));
+    const response = await executeSilentRequest(
+        () => toDoItemService.editToDoItem(route.params.id, item.id, { done: !item.done })
+    );
+    showSuccess('Tâche mise à jour avec succès');
     const index = toDoItems.value.findIndex(i => i.id === response.toDoItem.id);
     toDoItems.value[index].done = !toDoItems.value[index].done;
   } catch (err) {
+    showError('Erreur lors de la mise à jour de la tâche');
     logger.error('Error updating ToDoItem:', err?.response?.data?.message || err.message);
   }
 };
@@ -111,9 +122,13 @@ const toggleToDoItemDone = async (item) => {
 // Delete ToDoItem
 const deleteToDoItem = async (item) => {
   try {
-    await executeRequest(() => client.delete(`/api/todolist/${route.params.id}/todoitem/${item.id}`));
+    await executeSilentRequest(
+        () => toDoItemService.deleteToDoItem(route.params.id, item.id)
+    );
+    showSuccess('Tâche supprimée avec succès');
     toDoItems.value = toDoItems.value.filter(i => i.id !== item.id);
   } catch (err) {
+    showError('Erreur lors de la suppression de la tâche');
     logger.error('Error deleting ToDoItem:', err?.response?.data?.message || err.message);
   }
 };
@@ -136,11 +151,15 @@ const decrementQuantity = async (item) => {
 const updateItemQuantityInDatabase = async (item) => {
   try {
     logger.debug('Mise à jour de la quantité...', `/api/todolist/${route.params.id}/todoitem/${item.id}`);
-    const response = await executeRequest(() => client.patch(`/api/todolist/${route.params.id}/todoitem/${item.id}`, { quantity: item.quantity }));
+    const response = await executeSilentRequest(
+        () => toDoItemService.editToDoItem(route.params.id, item.id, { quantity: item.quantity })
+    );
     const index = toDoItems.value.findIndex(i => i.id === response.toDoItem.id);
     toDoItems.value[index].quantity = response.toDoItem.quantity;
+    showSuccess('Tâche mise à jour avec succès');
     logger.debug('Quantité mise à jour avec succès');
   } catch (err) {
+    showError('Erreur lors de la mise à jour de la tâche');
     logger.error('Error updating quantity:', err?.response?.data?.message || err.message);
   }
 };
@@ -148,11 +167,14 @@ const updateItemQuantityInDatabase = async (item) => {
 // Fonction pour partager la ToDoList
 const shareToDoList = async () => {
   try {
-    const data = await executeRequest(() => client.post(`/api/todolist/${route.params.id}/share`, {}));
+    const data = await executeSilentRequest(
+        () => toDoListService.shareToDoList(route.params.id)
+    );
     qrCodeUrl.value = data.qrCodeUrl;
     linkUrl.value = data.linkUrl;
     showQRCodeModal.value = true;
   } catch (err) {
+    showError('Erreur lors du partage de la liste de tâches');
     logger.error('Error sharing ToDoList:', err?.response?.data?.message || err.message);
   }
 };
@@ -192,10 +214,6 @@ const toggleMenu = (item) => {
   openMenuId.value = openMenuId.value === item.id ? null : item.id;
 };
 
-// const closeMenu = (item) => {
-//   item.showMenu = false;
-// };
-
 // Fonction pour fermer tous les menus
 const closeAllMenus = (event) => {
   // Vérifie si le clic est à l'intérieur du menu ou du bouton (évite la fermeture immédiate)
@@ -216,32 +234,8 @@ onUnmounted(() => {
   document.removeEventListener('click', closeAllMenus);
 });
 
-// Fonction pour générer des tâches avec l'IA
-const generateWithAI = async () => {
-  if (!aiPrompt.value.trim() || isGeneratingWithAI.value) return;
-
-  isGeneratingWithAI.value = true;
-  aiError.value = null;
-  try {
-    const generatedTasks = await executeRequest(() => client.post('/api/ai/generate-todolist', { prompt: aiPrompt.value }));
-    if (generatedTasks && generatedTasks.length > 0) {
-      // Ajouter chaque tâche générée comme un nouvel item
-      for (const taskTitle of generatedTasks) {
-        const newItem = { title: taskTitle, done: false };
-        // Appel direct pour créer l'item (similaire à ce qui est fait dans ToDoItemFormComponent)
-        const response = await executeRequest(
-            () => client.postWithFile(`/api/todolist/${route.params.id}/todoitem`, newItem)
-        );
-        toDoItems.value.push(response.toDoItem);
-      }
-      aiPrompt.value = ''; // Vider le champ après la génération
-    }
-  } catch (err) {
-    logger.error('Error generating tasks with AI:', err?.response?.data?.message || err.message);
-    aiError.value = err?.response?.data?.message || 'Erreur lors de la génération des tâches.';
-  } finally {
-    isGeneratingWithAI.value = false;
-  }
+const handleTasksGenerated = (newItems) => {
+  toDoItems.value.push(...newItems);
 };
 
 </script>
@@ -279,34 +273,7 @@ const generateWithAI = async () => {
       </div>
 
       <!-- Section IA -->
-      <div class="px-4 mb-6">
-        <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg dark:shadow-gray-700">
-          <h3 class="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300 flex items-center">
-            <v-icon name="ri-robot-line" class="mr-2" scale="1.2" />
-            Générer des tâches avec l'IA
-          </h3>
-          <div class="flex items-center gap-2">
-            <input
-                v-model="aiPrompt"
-                type="text"
-                placeholder="Ex: Ingrédients pour une tarte aux pommes"
-                class="flex-grow border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                @keyup.enter="generateWithAI"
-            />
-            <button
-                class="bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-lg flex items-center justify-center transition duration-300"
-                :disabled="isGeneratingWithAI || !aiPrompt.trim()"
-                @click="generateWithAI"
-            >
-              <v-icon v-if="!isGeneratingWithAI" name="io-sparkles-outline" scale="1.2"/>
-              <LoaderComponent v-else :small="true" />
-              <span class="ml-2 hidden sm:inline">{{ isGeneratingWithAI ? 'Génération...' : 'Générer' }}</span>
-            </button>
-          </div>
-          <p v-if="aiError" class="text-sm mt-2 text-red-600 dark:text-red-400">{{ aiError }}</p>
-        </div>
-      </div>
-
+      <AIGenerateTasks v-if="toDoList.id" :to-do-list-id="toDoList.id" @tasks-generated="handleTasksGenerated" />
 
       <!-- QRCodeModal -->
       <QRCodeModal
