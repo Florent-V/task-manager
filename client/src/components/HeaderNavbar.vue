@@ -115,7 +115,7 @@ onMounted(() => {
             <RouterLink
                 :to="{ name: 'TimeTrackingOverview' }"
                 class="hover:text-blue-600 dark:hover:text-yellow-300 transition duration-100">
-              Mes imputations
+              Imputations
             </RouterLink>
           </li>
           <li>
@@ -241,7 +241,7 @@ onMounted(() => {
           <RouterLink
               :to="{ name: 'TimeTrackingOverview' }"
               class="block py-2 text-gray-800 dark:text-white hover:text-blue-600 dark:hover:text-yellow-300 transition duration-300">
-            Mes imputations
+            Imputations
           </RouterLink>
         </li>
         <li>
