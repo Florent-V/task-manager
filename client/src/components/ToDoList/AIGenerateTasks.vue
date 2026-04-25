@@ -32,7 +32,7 @@ const generateWithAI = async () => {
       for (const taskTitle of generatedTasks) {
         const newItem = { title: taskTitle, done: false };
         const response = await executeRequest(
-            () => client.postWithFile(`/api/todolist/${props.toDoListId}/todoitem`, newItem)
+            () => client.post(`/api/todolist/${props.toDoListId}/todoitem`, newItem)
         );
         newItems.push(response.toDoItem);
       }
