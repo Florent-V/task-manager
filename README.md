@@ -220,6 +220,31 @@ MAIL_FROM="My Awesome Kanban App" <noreply@myawesomekanban.com>
 *   Always use environment variables provided by your hosting platform or a secure secrets management system to store and inject these sensitive details into your production application.
 *   Ensure your `server/.env` file (if used in production, though not recommended for credentials) is listed in your `.gitignore` file.
 
+## Setup Password for user
+
+To set up a password for a user, you can use the following command to generate a bcrypt hash of your password.
+This is useful for creating an admin user or any user in your database.
+```bash
+docker exec -it <container_name_or_id> sh
+# and
+node -e "const bcrypt = require('bcryptjs'); bcrypt.genSalt(10).then(salt => bcrypt.hash('VOTRE_MOT_DE_PASSE', salt)).then(hash => console.log('\nVotre hash est : ' + hash + '\n'));"
+or
+node --input-type="module" -e "import bcrypt from 'bcryptjs'; const salt = await bcrypt.genSalt(10); const hash = await bcrypt.hash('VOTRE_MOT_DE_PASSE', salt); console.log('\nVotre hash est : ' + hash + '\n');"
+```
+Then, copy the generated hash and update the `password` field of the user in the database with this hash.
+You need to connect to the MySQL container and execute a SQL query to update the password of the user.
+```bash
+docker exec -it <container_name_or_id> sh
+# and
+mysql -u<username> -p<password>
+# and
+USE <database_name>;
+```
+You can do this with a SQL query like this
+```sql
+UPDATE users SET password = 'VOTRE_HASH' WHERE email = 'EMAIL_DE_L_UTILISATEUR';
+```
+
 ## Checklist
 
 When you use this template, try follow the checklist to update your info properly
