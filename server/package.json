@@ -9,6 +9,8 @@
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
     "make:crud": "node src/generate/generate-entity.js",
+    "db:sync": "node src/database/sync.js",
+    "db:sync:force": "node src/database/sync.js --force",
     "lint": "eslint . --ext .js",
     "lint:fix": "eslint . --ext .js --fix"
   },
