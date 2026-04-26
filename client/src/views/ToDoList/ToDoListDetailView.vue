@@ -347,7 +347,7 @@ const handleTasksGenerated = (newItems) => {
               class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3 text-gray-700 dark:text-gray-200"
               @click="showAISheet = true; isMobileMenuOpen = false"
             >
-              <v-icon name="io-sparkles-outline" class="text-green-500"/>
+              <v-icon name="io-sparkles-sharp" class="text-green-500"/>
               Génération IA
             </button>
             <button
