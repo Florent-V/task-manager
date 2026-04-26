@@ -12,7 +12,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['tasks-generated']);
+const emit = defineEmits(['tasks-generated', 'close']);
 
 const { executeRequest } = hookApi();
 
@@ -49,12 +49,17 @@ const generateWithAI = async () => {
 </script>
 
 <template>
-  <div class="px-4 mb-6">
+  <div class="mb-6 px-2 sm:px-4">
     <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg dark:shadow-gray-700">
-      <h3 class="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300 flex items-center">
-        <v-icon name="ri-robot-line" class="mr-2" scale="1.2" />
-        Générer des tâches avec l'IA
-      </h3>
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 flex items-center">
+          <v-icon name="ri-robot-line" class="mr-2" scale="1.2" />
+          Générer des tâches avec l'IA
+        </h3>
+        <button @click="$emit('close')" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+          <v-icon name="md-close" />
+        </button>
+      </div>
       <div class="flex items-center gap-2">
         <input
             v-model="aiPrompt"

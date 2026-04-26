@@ -38,6 +38,9 @@ const qrCodeUrl = ref(null);
 const linkUrl = ref(null);
 const showItemImageModal = ref(false);
 const openMenuId = ref(null);
+const showAISheet = ref(false);
+const isMobileMenuOpen = ref(false);
+const quickTaskTitle = ref('');
 
 // Récupération des items de la ToDoList
 const fetchToDoItems = async () => {
@@ -66,12 +69,31 @@ const handleResponseFormSubmit = async (response) => {
   if (selectedToDoItem.value) {
     // Update existing to-do item
     const index = toDoItems.value.findIndex(item => item.id === response.toDoItem.id);
-    toDoItems.value[index] = response.toDoItem;
+    if (index !== -1) {
+      toDoItems.value[index] = response.toDoItem;
+    } else {
+      toDoItems.value.push(response.toDoItem);
+    }
   } else {
     // Create new to-do item
     toDoItems.value.push(response.toDoItem);
   }
   closeForm();
+};
+
+const submitQuickTask = async () => {
+  if (!quickTaskTitle.value.trim()) return;
+  try {
+    const response = await executeSilentRequest(
+      () => toDoItemService.createToDoItemSimple(route.params.id, { title: quickTaskTitle.value.trim(), done: false })
+    );
+    toDoItems.value.push(response.toDoItem);
+    quickTaskTitle.value = '';
+    showSuccess('Tâche ajoutée');
+  } catch (err) {
+    showError('Erreur lors de l\'ajout de la tâche');
+    logger.error('Error creating quick ToDoItem:', err?.response?.data?.message || err.message);
+  }
 };
 
 // Ouvrir le formulaire de création
@@ -214,11 +236,18 @@ const toggleMenu = (item) => {
   openMenuId.value = openMenuId.value === item.id ? null : item.id;
 };
 
+const toggleMobileMenu = () => {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value;
+};
+
 // Fonction pour fermer tous les menus
 const closeAllMenus = (event) => {
   // Vérifie si le clic est à l'intérieur du menu ou du bouton (évite la fermeture immédiate)
   if (!event.target.closest('.menu-container')) {
     openMenuId.value = null;
+  }
+  if (!event.target.closest('.mobile-menu-container')) {
+    isMobileMenuOpen.value = false;
   }
 };
 
@@ -250,30 +279,102 @@ const handleTasksGenerated = (newItems) => {
       </h1>
 
       <!-- ToDoList Tool Bar -->
-      <div class="flex flex-col sm:flex-row justify-between items-center px-4 mb-4 gap-4">
-        <ToggleComponent
-            v-model:state="showOnlyPending"
-            label="Supprimer fait"
-        />
-
-        <div class="flex gap-2">
-          <div v-if="!isCreating" class="text-right">
-            <button class="w-14 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-full flex items-center justify-center" @click="openCreateForm">
-              <v-icon name="md-add" scale="1.6"/>
+      <div class="flex justify-between items-center px-4 mb-6 gap-4">
+        <div class="flex-grow max-w-md">
+          <div class="relative flex items-center">
+            <input
+              v-model="quickTaskTitle"
+              type="text"
+              placeholder="Ajouter une tâche..."
+              class="w-full border border-gray-300 dark:border-gray-600 py-2 pl-4 pr-10 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
+              @keyup.enter="submitQuickTask"
+            />
+            <button
+              class="absolute right-2 text-blue-600 dark:text-yellow-400 p-1"
+              @click="submitQuickTask"
+            >
+              <v-icon name="md-add" scale="1.2"/>
             </button>
           </div>
-          <div class="text-right">
+        </div>
+
+        <!-- Desktop Actions -->
+        <div class="hidden sm:flex items-center gap-3">
+          <ToggleComponent
+              v-model:state="showOnlyPending"
+              label="Masquer fait"
+          />
+          <button
+              class="flex w-10 h-10 bg-blue-600 dark:bg-yellow-400 text-white rounded-full items-center justify-center shadow hover:bg-blue-700 dark:hover:bg-yellow-500 transition"
+              title="Générer avec IA"
+              @click="showAISheet = !showAISheet">
+            <v-icon name="io-sparkles-sharp" scale="1.2"/>
+          </button>
+          <button
+              class="flex w-10 h-10 bg-blue-600 dark:bg-yellow-400 text-white rounded-full items-center justify-center shadow hover:bg-blue-700 dark:hover:bg-yellow-500 transition"
+              title="Ajout complet"
+              @click="openCreateForm">
+            <v-icon name="md-add" scale="1.2"/>
+          </button>
+          <button
+              class="flex w-10 h-10 bg-blue-600 dark:bg-yellow-400 text-white rounded-full items-center justify-center shadow hover:bg-blue-700 dark:hover:bg-yellow-500 transition"
+              title="Partager"
+              @click="shareToDoList">
+            <v-icon name="md-share-outlined" scale="1.2"/>
+          </button>
+        </div>
+
+        <!-- Mobile Actions Menu -->
+        <div class="sm:hidden relative mobile-menu-container">
+          <button
+            class="p-2 text-gray-600 dark:text-gray-300"
+            @click.stop="toggleMobileMenu"
+          >
+            <v-icon name="bi-three-dots-vertical" scale="1.5"/>
+          </button>
+
+          <div
+            v-if="isMobileMenuOpen"
+            class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50 overflow-hidden"
+          >
+            <div class="p-3 border-b border-gray-100 dark:border-gray-700">
+              <ToggleComponent
+                v-model:state="showOnlyPending"
+                label="Masquer fait"
+              />
+            </div>
             <button
-                class="flex w-14 h-14 bg-blue-600 dark:bg-yellow-400 text-white rounded-full items-center justify-center"
-                @click="shareToDoList">
-              <v-icon name="md-share-outlined" scale="1.6"/>
+              class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3 text-gray-700 dark:text-gray-200"
+              @click="showAISheet = true; isMobileMenuOpen = false"
+            >
+              <v-icon name="io-sparkles-outline" class="text-green-500"/>
+              Génération IA
+            </button>
+            <button
+              class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3 text-gray-700 dark:text-gray-200"
+              @click="openCreateForm(); isMobileMenuOpen = false"
+            >
+              <v-icon name="md-add" class="text-blue-600 dark:text-yellow-400"/>
+              Ajout complet
+            </button>
+            <button
+              class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3 text-gray-700 dark:text-gray-200"
+              @click="shareToDoList(); isMobileMenuOpen = false"
+            >
+              <v-icon name="md-share-outlined" class="text-blue-600 dark:text-yellow-400"/>
+              Partager
             </button>
           </div>
         </div>
       </div>
 
       <!-- Section IA -->
-      <AIGenerateTasks v-if="toDoList.id" :to-do-list-id="toDoList.id" @tasks-generated="handleTasksGenerated" />
+      <AIGenerateTasks
+        v-if="toDoList.id && showAISheet"
+        :to-do-list-id="toDoList.id"
+        @tasks-generated="handleTasksGenerated"
+        @close="showAISheet = false"
+      />
 
       <!-- QRCodeModal -->
       <QRCodeModal

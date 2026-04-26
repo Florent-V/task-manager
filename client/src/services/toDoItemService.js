@@ -46,11 +46,18 @@ export class ToDoItemService {
    */
   createToDoItem(toDoListId, itemData) {
     logger.debug(`Creating ToDoItem in ToDoList ID: ${toDoListId}`);
-    return client.post(this._basePath(toDoListId), itemData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    return client.postWithFile(this._basePath(toDoListId), itemData);
+  }
+
+  /**
+   * Creates a new ToDoItem without file.
+   * @param {string} toDoListId - The ID of the parent ToDoList.
+   * @param {object} itemData - The data for the new item.
+   * @returns {Promise<any>} The promise from the API call.
+   */
+  createToDoItemSimple(toDoListId, itemData) {
+    logger.debug(`Creating ToDoItem simple in ToDoList ID: ${toDoListId}`);
+    return client.post(this._basePath(toDoListId), itemData);
   }
 
   /**
