@@ -85,7 +85,10 @@ app.use(errorHandler);
 app.listen(port, async () => {
   logger.info(`Serveur démarré sur le port ${port}`);
   try {
-    await initDB(false);
+    // Replace true by false when sync isn't needed
+    // Replace force by alter to keep data
+    // await initDB(true, 'force');
+    await initDB(false, 'alter');
     logger.info('Database connection has been established successfully.');
   } catch (error) {
     logger.error('Unable to connect to the database:', {
