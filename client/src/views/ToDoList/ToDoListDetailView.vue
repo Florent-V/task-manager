@@ -286,7 +286,7 @@ const handleTasksGenerated = (newItems) => {
               v-model="quickTaskTitle"
               type="text"
               placeholder="Ajouter une tâche..."
-              class="w-full border border-gray-300 dark:border-gray-600 py-2 pl-4 pr-10 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
+              class="w-full border border-gray-300 dark:border-gray-600 py-2 pl-4 pr-10 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
               @keyup.enter="submitQuickTask"
             />
             <button
@@ -305,10 +305,10 @@ const handleTasksGenerated = (newItems) => {
               label="Masquer fait"
           />
           <button
-              class="flex w-10 h-10 bg-green-500 text-white rounded-full items-center justify-center shadow hover:bg-green-600 transition"
+              class="flex w-10 h-10 bg-blue-600 dark:bg-yellow-400 text-white rounded-full items-center justify-center shadow hover:bg-blue-700 dark:hover:bg-yellow-500 transition"
               title="Générer avec IA"
               @click="showAISheet = !showAISheet">
-            <v-icon name="io-sparkles-outline" scale="1.2"/>
+            <v-icon name="io-sparkles-sharp" scale="1.2"/>
           </button>
           <button
               class="flex w-10 h-10 bg-blue-600 dark:bg-yellow-400 text-white rounded-full items-center justify-center shadow hover:bg-blue-700 dark:hover:bg-yellow-500 transition"
