@@ -56,6 +56,54 @@ Décorer la salle`;
   }
 }
 
+/**
+ * Organise une liste de tâches en catégories en utilisant l'API Mistral.
+ * @param {object[]} items Liste des items (id, title).
+ * @returns {Promise<object[]>} Une promesse qui se résout avec un tableau d'objets {id, category}.
+ */
+async function organizeToDoList(items) {
+  if (!client) {
+    throw new Error('Client Mistral non initialisé. Vérifiez la configuration de la clé API.');
+  }
+
+  const systemPrompt = `Vous êtes un assistant expert en organisation. Votre tâche est de classer une liste d'éléments de to-do list en catégories logiques (thèmes, rayons de magasin, types d'activités, etc.).
+Vous recevrez une liste d'éléments au format JSON : [{"id": "...", "title": "..."}].
+Vous devez répondre uniquement par un tableau JSON contenant l'id de l'item et le nom de la catégorie associée.
+Le format de réponse doit être strictement : [{"id": "...", "category": "..."}].
+Regroupez le maximum d'items par catégorie pour que l'organisation soit efficace. Utilisez des noms de catégories simples et clairs en français.
+Ne donnez aucune explication, seulement le JSON.`;
+
+  try {
+    const chatResponse = await client.chat.complete({
+      model: 'mistral-small-latest',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: JSON.stringify(items) },
+      ],
+    });
+
+    if (chatResponse.choices && chatResponse.choices.length > 0) {
+      let content = chatResponse.choices[0].message.content.trim();
+      // Nettoyer d'éventuels blocs de code markdown
+      if (content.startsWith('```json')) {
+        content = content
+          .replace(/^```json/, '')
+          .replace(/```$/, '')
+          .trim();
+      } else if (content.startsWith('```')) {
+        content = content.replace(/^```/, '').replace(/```$/, '').trim();
+      }
+      return JSON.parse(content);
+    } else {
+      throw new Error("Réponse invalide de l'API Mistral.");
+    }
+  } catch (error) {
+    logger.error("Erreur lors de l'organisation par l'IA:", error);
+    throw new Error(`Erreur lors de l'organisation de la liste: ${error.message}`);
+  }
+}
+
 export default {
   generateToDoList,
+  organizeToDoList,
 };

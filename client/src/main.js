@@ -40,6 +40,8 @@ import {
   BiCalendar4Week,
   HiDocumentReport,
   RiFileExcel2Line,
+  HiSolidSortAscending,
+  MdLayersclearRound,
 } from "oh-vue-icons/icons";
 
 import { cropText } from '@/utils/crop.js';
@@ -82,6 +84,8 @@ addIcons(
   BiCalendar4Week,
   HiDocumentReport,
   RiFileExcel2Line,
+  HiSolidSortAscending,
+  MdLayersclearRound,
 );
 
 const app = createApp(App)

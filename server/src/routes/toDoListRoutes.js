@@ -9,6 +9,7 @@ import {
   shareToDoList,
   joinToDoList,
   addMemberByMail,
+  clearCategories,
 } from '../controllers/toDoListController.js';
 import { authenticateByCookieSession, isAdmin } from '../middleware/authMiddleware.js';
 import {
@@ -35,6 +36,8 @@ router.get('/all', isAdmin, getAllToDoLists);
 router.get('/:id', getToDoListAndCheckAccess);
 router.patch('/:id', getToDoListAndCheckAccess, setUpdateValidator, validate, updateToDoList);
 router.delete('/:id', getToDoListAndCheckAccess, remove);
+
+router.delete('/:id/categories', getToDoListAndCheckAccess, clearCategories);
 
 // share todolist
 router.post('/:id/share', getToDoListAndCheckAccess, shareToDoList);

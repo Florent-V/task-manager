@@ -3,6 +3,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 
 import ToDoItemFormComponent from '@/components/ToDoList/ToDoItemFormComponent.vue';
+import ToDoItemComponent from '@/components/ToDoList/ToDoItemComponent.vue';
 import ToDoItemImageModalComponent from '@/components/ToDoList/ToDoItemImageModalComponent.vue';
 import ToggleComponent from '@/components/ToggleComponent.vue';
 import LoaderComponent from '@/components/Loader/LoaderComponent.vue';
@@ -14,11 +15,13 @@ import logger from '@/utils/logger.js';
 import { hookApi } from '@/services/requestHook.js';
 import { ToDoItemService } from "@/services/toDoItemService.js";
 import { ToDoListService } from "@/services/toDoListService.js";
+import { AIService } from "@/services/aiService.js";
 
 const route = useRoute();
 const { showSuccess, showError } = useToast()
 const toDoItemService = new ToDoItemService();
 const toDoListService = new ToDoListService();
+const aiService = new AIService();
 const { isLoading, error, executeRequest } = hookApi();
 const {
   error: silentRequestError,
@@ -41,6 +44,7 @@ const openMenuId = ref(null);
 const showAISheet = ref(false);
 const isMobileMenuOpen = ref(false);
 const quickTaskTitle = ref('');
+const isOrganizing = ref(false);
 
 // Récupération des items de la ToDoList
 const fetchToDoItems = async () => {
@@ -63,6 +67,23 @@ const filteredToDoItems = computed(() => {
   return showOnlyPending.value
       ? toDoItems.value.filter(item => !item.done)
       : toDoItems.value;
+});
+
+const isFullyCategorized = computed(() => {
+  const pendingItems = toDoItems.value.filter(item => !item.done);
+  return pendingItems.length > 0 && pendingItems.every(item => item.category);
+});
+
+const groupedToDoItems = computed(() => {
+  if (!isFullyCategorized.value) return null;
+
+  const groups = {};
+  toDoItems.value.filter(item => !item.done).forEach(item => {
+    const cat = item.category || 'Non catégorisé';
+    if (!groups[cat]) groups[cat] = [];
+    groups[cat].push(item);
+  });
+  return groups;
 });
 
 const handleResponseFormSubmit = async (response) => {
@@ -267,6 +288,40 @@ const handleTasksGenerated = (newItems) => {
   toDoItems.value.push(...newItems);
 };
 
+const handleUpdateQuantity = ({ item, quantity }) => {
+  const index = toDoItems.value.findIndex(i => i.id === item.id);
+  if (index !== -1) {
+    toDoItems.value[index].quantity = quantity;
+  }
+};
+
+const organizeWithAI = async () => {
+  if (isOrganizing.value) return;
+  isOrganizing.value = true;
+  try {
+    const data = await executeSilentRequest(() => aiService.organizeToDoList(route.params.id));
+    toDoItems.value = data.toDoList.toDoItems;
+    toDoList.value = data.toDoList;
+    showSuccess('Liste organisée avec succès');
+  } catch (err) {
+    showError('Erreur lors de l\'organisation par l\'IA');
+    logger.error('Error organizing with AI:', err?.response?.data?.message || err.message);
+  } finally {
+    isOrganizing.value = false;
+  }
+};
+
+const clearCategories = async () => {
+  try {
+    const response = await executeSilentRequest(() => toDoListService.clearCategories(route.params.id));
+    toDoItems.value = response.toDoList.toDoItems;
+    showSuccess('Catégories nettoyées');
+  } catch (err) {
+    showError('Erreur lors du nettoyage des catégories');
+    logger.error('Error clearing categories:', err?.response?.data?.message || err.message);
+  }
+};
+
 </script>
 
 <template>
@@ -311,6 +366,21 @@ const handleTasksGenerated = (newItems) => {
             <v-icon name="io-sparkles-sharp" scale="1.2"/>
           </button>
           <button
+              class="flex w-10 h-10 bg-green-600 text-white rounded-full items-center justify-center shadow hover:bg-green-700 transition"
+              title="Organiser avec IA"
+              :disabled="isOrganizing"
+              @click="organizeWithAI">
+            <v-icon v-if="!isOrganizing" name="hi-solid-sort-ascending" scale="1.2"/>
+            <LoaderComponent v-else :small="true" />
+          </button>
+          <button
+              v-if="toDoItems.some(i => i.category)"
+              class="flex w-10 h-10 bg-red-600 text-white rounded-full items-center justify-center shadow hover:bg-red-700 transition"
+              title="Nettoyer catégories"
+              @click="clearCategories">
+            <v-icon name="md-layersclear-round" scale="1.2"/>
+          </button>
+          <button
               class="flex w-10 h-10 bg-blue-600 dark:bg-yellow-400 text-white rounded-full items-center justify-center shadow hover:bg-blue-700 dark:hover:bg-yellow-500 transition"
               title="Ajout complet"
               @click="openCreateForm">
@@ -349,6 +419,22 @@ const handleTasksGenerated = (newItems) => {
             >
               <v-icon name="io-sparkles-sharp" class="text-green-500"/>
               Génération IA
+            </button>
+            <button
+              class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3 text-gray-700 dark:text-gray-200"
+              :disabled="isOrganizing"
+              @click="organizeWithAI(); isMobileMenuOpen = false"
+            >
+              <v-icon name="hi-solid-sort-ascending" class="text-green-600"/>
+              Organiser avec IA
+            </button>
+            <button
+              v-if="toDoItems.some(i => i.category)"
+              class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3 text-gray-700 dark:text-gray-200"
+              @click="clearCategories(); isMobileMenuOpen = false"
+            >
+              <v-icon name="md-layersclear-round" class="text-red-600"/>
+              Nettoyer catégories
             </button>
             <button
               class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3 text-gray-700 dark:text-gray-200"
@@ -403,106 +489,71 @@ const handleTasksGenerated = (newItems) => {
       >
         <p class="py-3 text-center">{{ toDoList.description }}</p>
         <!-- Title Table -->
-        <h2 class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-t-lg text-xl font-semibold">
-          A faire</h2>
-
-        <ul v-if="filteredToDoItems.filter(item => !item.done).length > 0">
-          <li
-              v-for="item in filteredToDoItems.filter(item => !item.done)" :key="item.id"
-              class="flex gap-2 items-center bg-white dark:bg-gray-800 p-2 pl-4 rounded-lg mb-2 shadow-lg dark:shadow-gray-700 relative"
-          >
-            <button
-                class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500"
-                @click="toggleToDoItemDone(item)"
-            >
-              <v-icon name='md-checkboxoutlineblank'/>
-            </button>
-
-            <div v-if="isEditing && selectedToDoItem.id === item.id" class="flex-grow">
-              <ToDoItemFormComponent
-                  :initial-data="selectedToDoItem"
-                  :inline-form="true"
-                  @cancel="closeForm"
-                  @handle-response="handleResponseFormSubmit"
+        <template v-if="groupedToDoItems">
+          <div v-for="(items, category) in groupedToDoItems" :key="category" class="mb-6">
+            <h2 class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-4 py-2 rounded-t-lg text-lg font-semibold">
+              {{ category }}
+            </h2>
+            <ul>
+              <ToDoItemComponent
+                v-for="item in items"
+                :key="item.id"
+                :item="item"
+                :to-do-list="toDoList"
+                :is-editing="isEditing"
+                :selected-to-do-item="selectedToDoItem"
+                :is-editing-quantity="isEditingQuantity"
+                :open-menu-id="openMenuId"
+                @toggle-done="toggleToDoItemDone"
+                @open-edit="openEditForm"
+                @close-form="closeForm"
+                @handle-response="handleResponseFormSubmit"
+                @decrement-quantity="decrementQuantity"
+                @increment-quantity="incrementQuantity"
+                @edit-quantity="editQuantity"
+                @save-quantity="saveQuantity"
+                @cancel-edit-quantity="cancelEditQuantity"
+                @show-image="showItemImage"
+                @toggle-menu="toggleMenu"
+                @open-complete-edit="openCompleteEditForm"
+                @delete-item="deleteToDoItem"
+                @update:quantity="handleUpdateQuantity"
               />
-            </div>
+            </ul>
+          </div>
+        </template>
 
-            <div v-else class="flex-grow">
-              <span
-                  :class="[{ 'line-through text-gray-400 dark:text-gray-500': item.done }, { 'cursor-pointer': !item.done }]"
-                  @click="openEditForm(item)"
-              >
-                {{ item.title }}
-              </span>
-            </div>
+        <template v-else>
+          <h2 class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-t-lg text-xl font-semibold">
+            A faire</h2>
 
-            <!-- Section de quantité avec boutons + et - -->
-            <div v-if="toDoList.type.name === 'Shopping'" class="flex items-center gap-2 mr-4">
-              <button
-                  class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500"
-                  @click="decrementQuantity(item)"
-              >
-                <v-icon name="fa-minus" scale="1.2"/>
-              </button>
-              <div class="border border-gray-300 dark:border-gray-600 px-4 py-1 rounded">
-                <input
-                    v-if="isEditingQuantity && selectedToDoItem.id === item.id"
-                    v-model="item.quantity"
-                    class="w-16 bg-transparent text-center border-none focus:outline-none"
-                    type="number"
-                    @blur="saveQuantity(item)"
-                    @keydown.alt.exact="saveQuantity(item)"
-                    @keydown.esc.exact="cancelEditQuantity(item)"
-                />
-                <span v-else @click="editQuantity(item)">
-                  {{ item.quantity }}
-                </span>
-              </div>
-              <button
-                  class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500"
-                  @click="incrementQuantity(item)"
-              >
-                <v-icon name="fa-plus" scale="1.2"/>
-              </button>
-            </div>
-
-            <!-- Actions pour chaque item -->
-            <div class="flex justify-end gap-2 basis-14">
-              <button
-                  v-if="item.image"
-                  class="flex m-auto text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500"
-                  @click="showItemImage(item)"
-              >
-                <v-icon name="md-photocamera-round" scale="1.2"/>
-              </button>
-              <!-- Icône 3 points pour ouvrir le menu -->
-              <button
-                  class="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white menu-container"
-                  @click.stop="toggleMenu(item)"
-              >
-                <v-icon name="bi-three-dots-vertical" scale="1.2"/>
-              </button>
-            </div>
-
-            <!-- Menu déroulant -->
-            <div
-                v-if="openMenuId === item.id"
-                class="absolute right-4 top-10 bg-white dark:bg-gray-900 shadow-lg rounded-lg border border-gray-300 dark:border-gray-700 z-50 menu-container">
-              <ul class="py-2 px-4">
-                <li
-                    class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded"
-                    @click="openCompleteEditForm(item)">
-                  ✏️ Éditer
-                </li>
-                <li
-                    class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded text-red-600"
-                    @click="deleteToDoItem(item)">
-                  🗑️ Supprimer
-                </li>
-              </ul>
-            </div>
-          </li>
-        </ul>
+          <ul v-if="filteredToDoItems.filter(item => !item.done).length > 0">
+            <ToDoItemComponent
+              v-for="item in filteredToDoItems.filter(item => !item.done)"
+              :key="item.id"
+              :item="item"
+              :to-do-list="toDoList"
+              :is-editing="isEditing"
+              :selected-to-do-item="selectedToDoItem"
+              :is-editing-quantity="isEditingQuantity"
+              :open-menu-id="openMenuId"
+              @toggle-done="toggleToDoItemDone"
+              @open-edit="openEditForm"
+              @close-form="closeForm"
+              @handle-response="handleResponseFormSubmit"
+              @decrement-quantity="decrementQuantity"
+              @increment-quantity="incrementQuantity"
+              @edit-quantity="editQuantity"
+              @save-quantity="saveQuantity"
+              @cancel-edit-quantity="cancelEditQuantity"
+              @show-image="showItemImage"
+              @toggle-menu="toggleMenu"
+              @open-complete-edit="openCompleteEditForm"
+              @delete-item="deleteToDoItem"
+              @update:quantity="handleUpdateQuantity"
+            />
+          </ul>
+        </template>
 
         <div v-if="filteredToDoItems.filter(item => item.done).length > 0" class="mt-4">
           <h2
@@ -512,41 +563,15 @@ const handleTasksGenerated = (newItems) => {
           </h2>
 
           <ul>
-            <li
-                v-for="item in filteredToDoItems.filter(item => item.done)" :key="item.id"
-                class="flex gap-4 items-center bg-white dark:bg-gray-800 p-2 pl-4 rounded-lg mb-2 shadow-lg dark:shadow-gray-700"
-            >
-              <button
-                  class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500"
-                  @click="toggleToDoItemDone(item)"
-              >
-                <v-icon name='md-checkbox-outlined'/>
-              </button>
-
-              <div class="flex-grow">
-                <span
-                    :class="[{ 'line-through text-gray-400 dark:text-gray-500': item.done }, { 'cursor-pointer': !item.done }]">
-                  {{ item.title }}
-                </span>
-              </div>
-
-              <!-- Actions pour chaque item -->
-              <div class="flex items-center">
-                <button
-                    v-if="item.image"
-                    class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500 ml-2"
-                    @click="showItemImage(item)"
-                >
-                  <v-icon name="md-photocamera-round" scale="1.2"/>
-                </button>
-                <button
-                    class="text-blue-600 dark:text-yellow-400 hover:text-blue-700 dark:hover:text-yellow-500 ml-2"
-                    @click="deleteToDoItem(item)"
-                >
-                  <v-icon name="fa-regular-trash-alt" scale="1.2"/>
-                </button>
-              </div>
-            </li>
+            <ToDoItemComponent
+              v-for="item in filteredToDoItems.filter(item => item.done)"
+              :key="item.id"
+              :item="item"
+              :to-do-list="toDoList"
+              @toggle-done="toggleToDoItemDone"
+              @delete-item="deleteToDoItem"
+              @show-image="showItemImage"
+            />
           </ul>
         </div>
       </div>

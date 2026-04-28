@@ -17,6 +17,10 @@ export const toDoItemSchema = Joi.object({
   }),
   image: Joi.string(),
   done: Joi.boolean(),
+  category: Joi.string().max(50).allow(null, '').messages({
+    'string.base': 'La catégorie doit être une chaîne de caractères.',
+    'string.max': 'La catégorie ne peut pas dépasser 50 caractères.',
+  }),
   labelId: Joi.number().integer().min(1),
 });
 
@@ -44,5 +48,9 @@ export const updateToDoItemSchema = Joi.object({
       'any.only': 'Le champ image doit être soit une chaîne, soit null.',
     }),
   done: Joi.boolean(),
+  category: Joi.string().max(50).allow(null, '').messages({
+    'string.base': 'La catégorie doit être une chaîne de caractères.',
+    'string.max': 'La catégorie ne peut pas dépasser 50 caractères.',
+  }),
   labelId: Joi.number().integer().min(1),
 });
