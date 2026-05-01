@@ -16,6 +16,7 @@ import { hookApi } from '@/services/requestHook.js';
 import { ToDoItemService } from "@/services/toDoItemService.js";
 import { ToDoListService } from "@/services/toDoListService.js";
 import { AIService } from "@/services/aiService.js";
+import { useSuggestions } from '@/composables/useSuggestions';
 
 const route = useRoute();
 const { showSuccess, showError } = useToast()
@@ -46,6 +47,9 @@ const isMobileMenuOpen = ref(false);
 const quickTaskTitle = ref('');
 const isOrganizing = ref(false);
 
+const quickTaskTitleRef = computed(() => quickTaskTitle.value);
+const { suggestions: quickSuggestions, selectSuggestion } = useSuggestions(toDoItems, quickTaskTitleRef);
+
 // Récupération des items de la ToDoList
 const fetchToDoItems = async () => {
   try {
@@ -71,7 +75,7 @@ const filteredToDoItems = computed(() => {
 
 const isFullyCategorized = computed(() => {
   const pendingItems = toDoItems.value.filter(item => !item.done);
-  return pendingItems.length > 0 && pendingItems.every(item => item.category);
+  return pendingItems.length > 0 && pendingItems.some(item => item.category);
 });
 
 const groupedToDoItems = computed(() => {
@@ -115,6 +119,13 @@ const submitQuickTask = async () => {
     showError('Erreur lors de l\'ajout de la tâche');
     logger.error('Error creating quick ToDoItem:', err?.response?.data?.message || err.message);
   }
+};
+
+const selectQuickSuggestion = (suggestion) => {
+  selectSuggestion(suggestion, (title) => {
+    quickTaskTitle.value = title;
+    submitQuickTask();
+  });
 };
 
 // Ouvrir le formulaire de création
@@ -337,13 +348,20 @@ const clearCategories = async () => {
       <div class="flex justify-between items-center px-4 mb-6 gap-4">
         <div class="flex-grow max-w-md">
           <div class="relative flex items-center">
-            <input
-              v-model="quickTaskTitle"
-              type="text"
-              placeholder="Ajouter une tâche..."
-              class="w-full border border-gray-300 dark:border-gray-600 py-2 pl-4 pr-10 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
-              @keyup.enter="submitQuickTask"
-            />
+            <div class="relative flex-1">
+              <input
+                v-model="quickTaskTitle"
+                type="text"
+                placeholder="Ajouter une tâche..."
+                class="w-full border border-gray-300 dark:border-gray-600 py-2 pl-4 pr-10 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
+                @keyup.enter="submitQuickTask"
+              />
+              <ul v-if="quickSuggestions.length" class="absolute z-10 w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg mt-1">
+                <li v-for="suggestion in quickSuggestions" :key="suggestion.id" class="px-4 py-2 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600" @click="selectQuickSuggestion(suggestion)">
+                  {{ suggestion.title }}
+                </li>
+              </ul>
+            </div>
             <button
               class="absolute right-2 text-blue-600 dark:text-yellow-400 p-1"
               @click="submitQuickTask"
@@ -477,7 +495,6 @@ const clearCategories = async () => {
           :to-do-items="toDoItems"
           @cancel="closeForm"
           @handle-response="handleResponseFormSubmit"
-          @use-suggest="selectedToDoItem = true"
       />
 
       <!-- Loader -->
@@ -615,3 +632,6 @@ button {
   cursor: pointer;
 }
 </style>
+
+
+

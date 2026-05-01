@@ -6,6 +6,7 @@ import { client } from '@/services/requestMaker.js';
 import { hookApi } from "@/services/requestHook.js";
 import logger from "@/utils/logger.js";
 import useFormErrors from "@/utils/handleFormErrors.js";
+import { useSuggestions } from "@/composables/useSuggestions.js";
 
 const emit = defineEmits(['handleResponse', 'cancel', 'useSuggest']);
 const props = defineProps({
@@ -30,7 +31,6 @@ const isEditing = computed(() => !!formData.value.id);
 const isSubmitted = ref(false);
 const imageError = ref(null);
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
-const suggestions = ref([]);
 
 watch(() => props.initialData, (newValue) => {
       formData.value = newValue ? { ...newValue } : { title: '', image: null };
@@ -41,16 +41,9 @@ watch(() => props.initialData, (newValue) => {
 // Utilitaire de gestions des erreurs de formulaire
 const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...formData.value });
 
-// Surveiller les changements dans le champ de saisie du titre
-watch(() => formData.value.title, (newTitle) => {
-  if (newTitle) {
-    suggestions.value = props.toDoItems.filter(item =>
-        item.title.toLowerCase().includes(newTitle.toLowerCase())
-    );
-  } else {
-    suggestions.value = [];
-  }
-});
+const titleRef = computed(() => formData.value.title);
+const toDoItemsRef = computed(() => props.toDoItems);
+const { suggestions, selectSuggestion: selectSuggestionComposable } = useSuggestions(toDoItemsRef, titleRef);
 
 function handleFile(event) {
   imageError.value = null;
