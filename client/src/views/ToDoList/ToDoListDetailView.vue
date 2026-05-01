@@ -25,7 +25,6 @@ const toDoListService = new ToDoListService();
 const aiService = new AIService();
 const { isLoading, error, executeRequest } = hookApi();
 const {
-  error: silentRequestError,
   executeRequest: executeSilentRequest
 } = hookApi();
 
@@ -544,9 +543,9 @@ const clearCategories = async () => {
           <h2 class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-t-lg text-xl font-semibold">
             A faire</h2>
 
-          <ul v-if="filteredToDoItems.filter(item => !item.done).length > 0">
+          <ul v-if="filteredToDoItems.filter(i => !i.done).length > 0">
             <ToDoItemComponent
-              v-for="item in filteredToDoItems.filter(item => !item.done)"
+              v-for="item in filteredToDoItems.filter(i => !i.done)"
               :key="item.id"
               :item="item"
               :to-do-list="toDoList"
@@ -572,7 +571,7 @@ const clearCategories = async () => {
           </ul>
         </template>
 
-        <div v-if="filteredToDoItems.filter(item => item.done).length > 0" class="mt-4">
+        <div v-if="filteredToDoItems.filter(i => i.done).length > 0" class="mt-4">
           <h2
               class="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-t-lg text-xl font-semibold"
           >
@@ -581,7 +580,7 @@ const clearCategories = async () => {
 
           <ul>
             <ToDoItemComponent
-              v-for="item in filteredToDoItems.filter(item => item.done)"
+              v-for="item in filteredToDoItems.filter(i => i.done)"
               :key="item.id"
               :item="item"
               :to-do-list="toDoList"

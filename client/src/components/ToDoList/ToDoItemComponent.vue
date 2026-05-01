@@ -1,7 +1,7 @@
 <script setup>
 import ToDoItemFormComponent from '@/components/ToDoList/ToDoItemFormComponent.vue';
 
-const props = defineProps({
+defineProps({
   item: {
     type: Object,
     required: true,
@@ -28,7 +28,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits([
+defineEmits([
   'toggle-done',
   'open-edit',
   'close-form',
@@ -41,9 +41,9 @@ const emit = defineEmits([
   'show-image',
   'toggle-menu',
   'open-complete-edit',
-  'delete-item'
+  'delete-item',
+  'update:quantity'
 ]);
-
 </script>
 
 <template>

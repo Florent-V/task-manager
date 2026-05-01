@@ -43,7 +43,7 @@ const { errors, defaultError, setErrors, clearErrors } = useFormErrors({ ...form
 
 const titleRef = computed(() => formData.value.title);
 const toDoItemsRef = computed(() => props.toDoItems);
-const { suggestions, selectSuggestion: selectSuggestionComposable } = useSuggestions(toDoItemsRef, titleRef);
+const { suggestions } = useSuggestions(toDoItemsRef, titleRef);
 
 function handleFile(event) {
   imageError.value = null;
