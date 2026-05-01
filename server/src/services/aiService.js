@@ -1,6 +1,7 @@
 import { Mistral } from '@mistralai/mistralai';
 import config from '../config/config.js';
 import logger from '../config/logger.js';
+import { getPrompt } from './promptManager.js';
 
 const apiKey = config.mistralApiKey;
 
@@ -21,14 +22,7 @@ async function generateToDoList(prompt) {
     throw new Error('Client Mistral non initialisé. Vérifiez la configuration de la clé API.');
   }
 
-  const systemPrompt = `Vous êtes un assistant expert en gestion de tâches. Votre rôle est de décomposer une demande de l'utilisateur en une liste de sous-tâches claires et concises. Répondez uniquement avec la liste des tâches, chaque tâche sur une nouvelle ligne. N'ajoutez aucune introduction, explication ou formatage supplémentaire (pas de tirets, de numéros, etc.). Par exemple, si l'utilisateur demande "Organiser une fête d'anniversaire", vous pourriez répondre:
-Trouver une date
-Établir la liste des invités
-Choisir un lieu
-Envoyer les invitations
-Préparer le gâteau
-Acheter les boissons
-Décorer la salle`;
+  const systemPrompt = await getPrompt('generateToDoList');
 
   try {
     const chatResponse = await client.chat.complete({
@@ -66,12 +60,7 @@ async function organizeToDoList(items) {
     throw new Error('Client Mistral non initialisé. Vérifiez la configuration de la clé API.');
   }
 
-  const systemPrompt = `Vous êtes un assistant expert en organisation. Votre tâche est de classer une liste d'éléments de to-do list en catégories logiques (thèmes, rayons de magasin, types d'activités, etc.).
-Vous recevrez une liste d'éléments au format JSON : [{"id": "...", "title": "..."}].
-Vous devez répondre uniquement par un tableau JSON contenant l'id de l'item et le nom de la catégorie associée.
-Le format de réponse doit être strictement : [{"id": "...", "category": "..."}].
-Regroupez le maximum d'items par catégorie pour que l'organisation soit efficace. Utilisez des noms de catégories simples et clairs en français.
-Ne donnez aucune explication, seulement le JSON.`;
+  const systemPrompt = await getPrompt('organizeToDoList');
 
   try {
     const chatResponse = await client.chat.complete({
@@ -93,6 +82,7 @@ Ne donnez aucune explication, seulement le JSON.`;
       } else if (content.startsWith('```')) {
         content = content.replace(/^```/, '').replace(/```$/, '').trim();
       }
+      console.log(JSON.stringify(content, null, 2));
       return JSON.parse(content);
     } else {
       throw new Error("Réponse invalide de l'API Mistral.");
