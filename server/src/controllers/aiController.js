@@ -2,7 +2,6 @@ import aiService from '../services/aiService.js';
 import logger from '../config/logger.js';
 import ToDoList from '../models/toDoListModel.js';
 import ToDoItem from '../models/toDoItemModel.js';
-import ToDoListType from '../models/toDoListTypeModel.js';
 import { includeToDoList } from './toDoListController.js';
 
 export async function generateToDoList(req, res) {

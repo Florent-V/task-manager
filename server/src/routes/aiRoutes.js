@@ -3,9 +3,7 @@ import { authenticateByCookieSession } from '../middleware/authMiddleware.js';
 import { generateToDoList, organizeToDoList } from '../controllers/aiController.js';
 import { authorizeManyToManyRessourceAccess } from '../middleware/ressourceMiddleware.js';
 import { getToDoListById } from '../controllers/toDoListController.js';
-import {
-  setEntity,
-} from '../middleware/toDoListMiddleware.js';
+import { setEntity } from '../middleware/toDoListMiddleware.js';
 
 const router = express.Router();
 
