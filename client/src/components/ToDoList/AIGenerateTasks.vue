@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue';
+
 import { client } from '@/services/requestMaker.js';
 import { hookApi } from '@/services/requestHook.js';
 import logger from '@/utils/logger.js';
@@ -56,7 +57,7 @@ const generateWithAI = async () => {
           <v-icon name="ri-robot-line" class="mr-2" scale="1.2" />
           Générer des tâches avec l'IA
         </h3>
-        <button @click="$emit('close')" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+        <button class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" @click="$emit('close')">
           <v-icon name="md-close" />
         </button>
       </div>

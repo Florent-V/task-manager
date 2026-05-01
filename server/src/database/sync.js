@@ -1,3 +1,5 @@
+/* eslint-disable n/no-process-exit */
+
 import initDB from './init.js';
 import logger from '../config/logger.js';
 

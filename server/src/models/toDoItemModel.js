@@ -36,6 +36,11 @@ const ToDoItem = sequelize.define(
       allowNull: false,
       defaultValue: false,
     },
+    category: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      defaultValue: null,
+    },
     labelId: {
       type: DataTypes.INTEGER,
       allowNull: false,
