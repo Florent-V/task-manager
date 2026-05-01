@@ -44,6 +44,18 @@ dev-db-sync: ## [DEV] Synchronise la base de données (alter) sans supprimer les
 dev-db-force: ## [DEV] Synchronise la base de données (force) avec perte de données (supprime et recrée les tables)
 	docker compose -f $(DEV_COMPOSE_FILE) exec api npm run db:sync:force
 
+dev-lint-back: ## [DEV] Lint le code backend
+	docker compose -f $(DEV_COMPOSE_FILE) exec api npm run lint
+
+dev-lint-front: ## [DEV] Lint le code frontend
+	docker compose -f $(DEV_COMPOSE_FILE) exec client npm run lint
+
+dev-lint-fix-back: ## [DEV] Corrige les problèmes de linting dans le code backend
+	docker compose -f $(DEV_COMPOSE_FILE) exec api npm run lint:fix
+
+dev-lint-fix-front: ## [DEV] Corrige les problèmes de linting dans le code frontend
+	docker compose -f $(DEV_COMPOSE_FILE) exec client npm run lint:fix
+
 dev-logs: ## [DEV] Affiche les logs des conteneurs de développement en temps réel
 	docker compose -f $(DEV_COMPOSE_FILE) logs -f
 
