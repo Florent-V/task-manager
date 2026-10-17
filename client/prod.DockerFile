@@ -22,7 +22,7 @@
 #CMD ["npm", "run", "dev"]
 
 # Étape de build
-FROM node:20-alpine AS build-stage
+FROM node:24-alpine AS build-stage
 
 ARG VITE_API_BASE_URL
 ARG VITE_CLIENT_DOCKER_PORT
@@ -30,7 +30,7 @@ ARG VITE_ENV
 
 WORKDIR /usr/src/app
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 RUN echo "VITE_API_BASE_URL: $VITE_API_BASE_URL"
 COPY . .
 

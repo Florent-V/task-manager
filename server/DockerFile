@@ -1,29 +1,30 @@
-# Utiliser une image de base Node.js
-FROM node:20-alpine
+FROM node:24-alpine
 
 ARG NODE_ENV
 ARG START_METHOD
+# "node" en production (compose prod), "root" en développement (fichiers montés depuis l'hôte)
+ARG APP_USER=root
 
-# Créer un répertoire de travail
+ENV NODE_ENV=${NODE_ENV}
+
 WORKDIR /usr/src/app
 
-# Copier package.json et package-lock.json
-COPY package.json ./
-# COPY package-lock.json ./
+# Le package-lock.json garantit des versions de dépendances identiques à chaque build
+COPY package.json package-lock.json ./
 
-# Installer les dépendances
-# Si NODE_ENV vaut production, installer seulement les prod dependencies, sinon tout installer
 RUN if [ "$NODE_ENV" = "production" ]; then \
-      npm i --only=production; \
+      npm ci --omit=dev; \
     else \
-      npm i; \
-    fi
+      npm ci; \
+    fi && npm cache clean --force
 
-# Copier le reste de l'application
 COPY . .
 
 COPY wait-for-database.sh /usr/wait-for-database.sh
-RUN chmod +x /usr/wait-for-database.sh
+RUN chmod +x /usr/wait-for-database.sh \
+    && mkdir -p public/uploads logs \
+    && chown -R ${APP_USER}:${APP_USER} /usr/src/app
 
-# Démarrer l'application en fonction de START_METHOD
+USER ${APP_USER}
+
 CMD ["sh", "-c", "/usr/wait-for-database.sh db:3306 -- npm run $START_METHOD"]
