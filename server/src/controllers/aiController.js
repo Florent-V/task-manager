@@ -12,6 +12,7 @@ export async function generateToDoList(req, res) {
   }
 
   try {
+    logger.debug(`[IA] /ai/generate-todolist prompt: ${JSON.stringify(prompt)}`);
     const tasks = await aiService.generateToDoList(prompt);
     res.json(tasks);
   } catch (error) {

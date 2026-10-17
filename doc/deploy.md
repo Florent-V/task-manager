@@ -32,7 +32,14 @@ make logs                                      # pas d'erreur au démarrage
 ```
 Tester ensuite l'application via son domaine, et la génération IA d'une liste (les logs affichent `Provider IA : ...`).
 
-La base de données n'est pas modifiée par cette mise à jour : `make db-sync` n'est pas nécessaire.
+### Migration de la base (obligatoire pour cette mise à jour)
+Le modèle `ToDoItem` gagne une colonne `category` (`VARCHAR(50)`, nullable, utilisée par l'organisation IA des listes). Après `make deploy` :
+```bash
+make db-sync
+```
+`db-sync` utilise `sequelize.sync({ alter: true })` : la colonne est ajoutée sans perte de données. Ne jamais utiliser `make db-force` en production (il supprime les tables).
+
+Vérification : `docker compose -f docker-compose-prod.yml exec db sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE" -e "SHOW COLUMNS FROM to_do_item LIKE \"category\""'`
 
 ### Retour arrière
 ```bash
@@ -53,7 +60,7 @@ make db-restore FILE=backups/backup-XXXX.sql   # seulement si les données sont 
 4. `make db-sync` pour créer les tables.
 5. Configurer le reverse proxy vers `127.0.0.1:<port>`.
 
-Pour une mise à jour classique, `make db-sync` n'est nécessaire que si le schéma a changé.
+Pour une mise à jour classique, `make db-sync` n'est nécessaire que si les modèles Sequelize (`server/src/models`) ont changé.
 
 ## 3. Commandes utiles
 
