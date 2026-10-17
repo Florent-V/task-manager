@@ -80,7 +80,7 @@ export const validate = (req, res, next) => {
       }));
 
       logger.debug(
-        `Validation échouée sur ${req.method} ${req.originalUrl}: ${JSON.stringify(errors)} body: ${JSON.stringify(req.body)}`,
+        `Validation échouée sur ${req.method} ${req.originalUrl}: ${JSON.stringify(errors)} body: ${JSON.stringify(req.body)}`
       );
       throw new BadRequestError('Invalid input', errors);
     }

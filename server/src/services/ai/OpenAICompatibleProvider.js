@@ -15,7 +15,7 @@ export default class OpenAICompatibleProvider extends AIProvider {
 
   async complete(messages) {
     logger.debug(
-      `[IA] Requête ${this.name} -> ${this.client.baseURL} (modèle ${this.model}), messages: ${JSON.stringify(messages)}`,
+      `[IA] Requête ${this.name} -> ${this.client.baseURL} (modèle ${this.model}), messages: ${JSON.stringify(messages)}`
     );
     const startedAt = Date.now();
     let response;
@@ -26,12 +26,12 @@ export default class OpenAICompatibleProvider extends AIProvider {
       });
     } catch (error) {
       logger.error(
-        `[IA] Échec ${this.name} après ${Date.now() - startedAt}ms: status=${error.status} message=${error.message} body=${JSON.stringify(error.error)}`,
+        `[IA] Échec ${this.name} après ${Date.now() - startedAt}ms: status=${error.status} message=${error.message} body=${JSON.stringify(error.error)}`
       );
       throw error;
     }
     logger.debug(
-      `[IA] Réponse ${this.name} en ${Date.now() - startedAt}ms: ${JSON.stringify(response)}`,
+      `[IA] Réponse ${this.name} en ${Date.now() - startedAt}ms: ${JSON.stringify(response)}`
     );
     const content = response.choices?.[0]?.message?.content;
     if (!content) {

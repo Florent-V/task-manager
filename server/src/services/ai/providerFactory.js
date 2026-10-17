@@ -6,9 +6,18 @@ import OpenAICompatibleProvider from './OpenAICompatibleProvider.js';
 const PROVIDERS = {
   mistral: { baseURL: 'https://api.mistral.ai/v1', model: 'mistral-small-latest' },
   openai: { baseURL: 'https://api.openai.com/v1', model: 'gpt-4o-mini' },
-  openrouter: { baseURL: 'https://openrouter.ai/api/v1', model: 'mistralai/mistral-small-3.2-24b-instruct' },
-  nvidia: { baseURL: 'https://integrate.api.nvidia.com/v1', model: 'nvidia/nemotron-3.5-lightning-30b-a3b' },
-  gemini: { baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai/', model: 'gemini-3.8-flash' },
+  openrouter: {
+    baseURL: 'https://openrouter.ai/api/v1',
+    model: 'mistralai/mistral-small-3.2-24b-instruct',
+  },
+  nvidia: {
+    baseURL: 'https://integrate.api.nvidia.com/v1',
+    model: 'nvidia/nemotron-3.5-lightning-30b-a3b',
+  },
+  gemini: {
+    baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai/',
+    model: 'gemini-3.8-flash',
+  },
   ollama: { baseURL: 'https://ollama.com/v1', model: 'gpt-oss:120b' }, // Ollama Cloud
 };
 
@@ -24,7 +33,7 @@ export function getProvider() {
   const defaults = PROVIDERS[name];
   if (!defaults) {
     throw new Error(
-      `Provider IA inconnu "${name}". Valeurs possibles : ${Object.keys(PROVIDERS).join(', ')}.`,
+      `Provider IA inconnu "${name}". Valeurs possibles : ${Object.keys(PROVIDERS).join(', ')}.`
     );
   }
   if (!config.ai.apiKey) {
