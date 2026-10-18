@@ -1,51 +1,42 @@
-import { Op } from 'sequelize';
 import User from '../models/userModel.js';
 import { checkAccess } from '../services/authService.js';
-import { authToken } from '../services/tokenService.js';
+import { freshTokens, isRevoked } from '../services/oauthService.js';
 import InvalidTokenError from '../error/invalidTokenError.js';
 import ForbiddenError from '../error/forbiddenError.js';
-import ConflictError from '../error/conflictError.js';
 import logger from '../config/logger.js';
 
-export const authenticateToken = (req, res, next) => {
-  try {
-    const token = req.header('Authorization')?.split(' ')[1];
-    if (!token) throw new InvalidTokenError('Access Denied: No token provided');
+// Ferme la session de l'application (jetons compris)
+export const destroySession = (req) =>
+  new Promise((resolve, reject) => {
+    if (!req.session) return resolve();
+    req.session.destroy((error) => (error ? reject(error) : resolve()));
+  });
 
-    const verified = authToken(token);
-    req.user = verified;
+// À chaque requête protégée : session ouverte ? révoquée par back-channel logout ? jetons à renouveler ?
+// Un refus du serveur OAuth2 (accès retiré, compte bloqué, « déconnecter partout »...) ferme la session.
+export const authenticateByCookieSession = async (req, res, next) => {
+  try {
+    const auth = req.session?.auth;
+    if (!auth) throw new InvalidTokenError('Access Denied: not signed in');
+
+    if (await isRevoked(auth.user.ssoId, auth.loggedInAt)) {
+      await destroySession(req);
+      throw new InvalidTokenError('Access Denied: session revoked');
+    }
+
+    try {
+      auth.tokens = await freshTokens(auth.tokens);
+    } catch (error) {
+      logger.info('Token refresh refused, closing session', { message: error.message });
+      await destroySession(req);
+      throw new InvalidTokenError('Access Denied: session closed by the authorization server');
+    }
+
+    req.user = { id: auth.user.id, username: auth.user.username, ssoId: auth.user.ssoId };
     next();
   } catch (error) {
-    return next({ ...error, stack: error.stack, status: 401 });
+    return next(error);
   }
-};
-
-export const authenticateByCookieSession = (req, res, next) => {
-  // logger.debug('Authenticating by cookie session');
-  // logger.debug('Request cookies:', { cookies: req.cookies });
-  // logger.debug('Request signed cookies:', { signedCookies: req.signedCookies });
-  try {
-    // Switch betwwen token in header and cookie here to make request with frontend
-    // const token = req.header('Authorization')?.split(' ')[1];
-    const token = req.signedCookies.access_token;
-
-    if (!token) throw new InvalidTokenError('Access Denied: No token provided');
-
-    const verified = authToken(token);
-    logger.debug('Verified token payload:', { verified });
-    req.user = verified;
-    next();
-  } catch (error) {
-    return next({ ...error, stack: error.stack, status: 401 });
-  }
-};
-
-export const checkAuth = (req, res, next) => {
-  res.data = {
-    username: req.user.username,
-    isAuthenticated: true,
-  };
-  next();
 };
 
 export const isAdmin = async (req, res, next) => {
@@ -82,35 +73,13 @@ export const isModerator = async (req, res, next) => {
 export const isModeratorOrAdmin = async (req, res, next) => {
   try {
     if (!req.user) throw new ForbiddenError('Require Admin Role!');
-    const user = await User.findByPk(req.user.ifd);
+    const user = await User.findByPk(req.user.id);
     const roles = await user.getRoles();
 
     const access = checkAccess(roles, ['moderator', 'admin']);
     if (access) return next();
 
     throw new ForbiddenError('Require Moderator or Admin Role!');
-  } catch (error) {
-    return next(error);
-  }
-};
-
-export const checkDuplicateUsernameOrEmail = async (req, res, next) => {
-  try {
-    const user = await User.findOne({
-      where: {
-        [Op.or]: [{ username: req.body.username }, { email: req.body.email }],
-      },
-    });
-
-    if (user) {
-      throw new ConflictError(
-        user.username === req.body.username
-          ? 'Failed! Username is already in use!'
-          : 'Failed! Email is already in use!'
-      );
-    }
-
-    next();
   } catch (error) {
     return next(error);
   }

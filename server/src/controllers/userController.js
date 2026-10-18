@@ -9,7 +9,7 @@ import logger from '../config/logger.js';
 export const getAllUsers = async (req, res, next) => {
   try {
     let users = await User.findAll();
-    users = _.map(users, (obj) => _.omit(obj.get(), ['password']));
+    users = _.map(users, (obj) => _.omit(obj.get(), ['password', 'ssoId']));
     res.status(200).json(users);
   } catch (error) {
     return next(error);
@@ -22,7 +22,7 @@ export const getUserById = async (req, res, next) => {
     let user = await User.findByPk(req.params.id);
     if (!user) throw new NotFoundError('User Not Found');
 
-    user = _.omit(user.get(), ['password']);
+    user = _.omit(user.get(), ['password', 'ssoId']);
     res.status(200).json(user);
   } catch (error) {
     return next(error);
@@ -39,7 +39,7 @@ export const updateUser = async (req, res, next) => {
     if (!updated) throw new NotFoundError('User Not Found');
 
     let updatedUser = await User.findByPk(req.params.id);
-    updatedUser = _.omit(updatedUser.get(), ['password']);
+    updatedUser = _.omit(updatedUser.get(), ['password', 'ssoId']);
     res.status(200).json(updatedUser);
   } catch (error) {
     return next(error);
@@ -102,7 +102,7 @@ export const getConnectedUser = async (req, res, next) => {
   try {
     let user = await User.findByPk(req.user.id);
     const autorities = await getAuthorities(user);
-    user = _.omit(user.get(), ['password']);
+    user = _.omit(user.get(), ['password', 'ssoId']);
     user.autorities = autorities;
 
     res.status(200).json({ user });
@@ -115,18 +115,20 @@ export const updateConnectedUser = async (req, res, next) => {
   try {
     logger.debug('Update connected user request body:', { body: req.body });
     const { id } = req.user;
+    // E-mail, mot de passe et id SSO sont gérés par le serveur OAuth2
+    const changes = _.pick(req.body, ['username', 'firstName', 'lastName', 'image']);
     if (req.file) {
-      req.body.image = req.file.filename;
+      changes.image = req.file.filename;
     }
 
-    const [updated] = await User.update(req.body, {
+    const [updated] = await User.update(changes, {
       where: { id },
     });
 
     if (!updated) throw new NotFoundError('User Not Found');
 
     let updatedUser = await User.findByPk(id);
-    updatedUser = _.omit(updatedUser.get(), ['password']);
+    updatedUser = _.omit(updatedUser.get(), ['password', 'ssoId']);
     res.status(200).json({ user: updatedUser });
   } catch (error) {
     return next(error);

@@ -1,146 +1,108 @@
 import User from '../models/userModel.js';
-import RefreshToken from '../models/refreshTokenModel.js';
-import { hashPassword } from '../services/passwordService.js';
-import RefreshTokenError from '../error/refreshTokenError.js';
 import config from '../config/config.js';
-import { authenticateUser } from '../services/authService.js';
+import { findOrCreateSsoUser, getProfile } from '../services/authService.js';
 import {
-  createAuthTokens,
-  storeRefreshToken,
-  validateRefreshToken,
-  rotateRefreshToken,
-  decodeToken,
-} from '../services/tokenService.js';
+  authorizationRequest,
+  finishLogin,
+  logoutUrl,
+  verifyLogoutToken,
+  markRevoked,
+} from '../services/oauthService.js';
+import { destroySession } from '../middleware/authMiddleware.js';
+import InvalidTokenError from '../error/invalidTokenError.js';
 import logger from '../config/logger.js';
 
-// Options des cookies
-const refreshTokensCookieOptions = {
-  httpOnly: true,
-  secure: true,
-  sameSite: 'Strict',
-  maxAge: config.refreshTokenCookieLifetime,
-  signed: true,
-  path: '/api/auth/refresh-token',
+// Page du front où revenir après la connexion : chemin local uniquement (pas de redirection ouverte)
+const safeReturnTo = (value) =>
+  typeof value === 'string' && /^\/(?![/\\])/.test(value) ? value : '/';
+
+// GET /api/auth/login : redirection vers le serveur OAuth2 (state + PKCE gardés en session)
+export const login = (req, res, next) => {
+  const { url, pending } = authorizationRequest();
+  req.session.oauthPending = { ...pending, returnTo: safeReturnTo(req.query.returnTo) };
+  req.session.save((error) => (error ? next(error) : res.redirect(url)));
 };
 
-const accessTokensCookieOptions = {
-  httpOnly: true,
-  secure: true,
-  sameSite: 'Strict',
-  maxAge: config.accessTokenCookieLifetime, // 1 heure
-  signed: true,
-  path: '/',
-};
+// GET /api/auth/callback : échange du code, rattachement du compte local, ouverture de la session
+export const callback = async (req, res) => {
+  const pending = req.session.oauthPending;
+  delete req.session.oauthPending;
 
-export const signup = async (req, res, next) => {
   try {
-    const hashedPassword = await hashPassword(req.body.password);
+    const { userInfo, tokens } = await finishLogin(req.query, pending);
+    const user = await findOrCreateSsoUser(userInfo);
 
-    const user = await User.create({
-      ...req.body,
-      password: hashedPassword,
-    });
-    await user.setRoles([1]);
-
-    res.status(201).send({ message: 'User registered successfully!' });
-  } catch (error) {
-    return next(error);
-  }
-};
-
-export const signin = async (req, res, next) => {
-  try {
-    const { email, password } = req.body;
-
-    // Authentification de l'utilisateur
-    const { user, authorities } = await authenticateUser(email, password);
-
-    // Crée les tokens
-    const { token, refreshToken } = createAuthTokens(user);
-
-    // Enregistre le refresh token en BDD
-    await storeRefreshToken(user, refreshToken);
-
-    // Envoie les tokens dans les cookies
-    res.cookie('refresh_token', refreshToken, refreshTokensCookieOptions);
-    res.cookie('access_token', token, accessTokensCookieOptions);
-
-    return res.status(200).send({
-      id: user.id,
-      username: user.username,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      roles: authorities,
-      image: user.image,
-    });
-  } catch (error) {
-    return next(error);
-  }
-};
-
-export const handleRefreshToken = async (req, res, next) => {
-  try {
-    const { userRefreshTokenEntity, userId } = await validateRefreshToken(
-      req.signedCookies.refresh_token
+    // Nouvel identifiant de session (fixation de session)
+    await new Promise((resolve, reject) =>
+      req.session.regenerate((error) => (error ? reject(error) : resolve()))
+    );
+    req.session.auth = {
+      user: { id: user.id, username: user.username, ssoId: user.ssoId },
+      tokens,
+      loggedInAt: Date.now(),
+    };
+    await new Promise((resolve, reject) =>
+      req.session.save((error) => (error ? reject(error) : resolve()))
     );
 
-    const user = await User.findByPk(userId);
-    if (!user) {
-      throw new RefreshTokenError('Invalid refresh token : no user found');
-    }
+    return res.redirect(`${config.clientOrigin}${pending.returnTo}`);
+  } catch (error) {
+    logger.error('OAuth2 callback failed:', { message: error.message, stack: error.stack });
+    return res.redirect(`${config.clientOrigin}/signin?error=login_failed`);
+  }
+};
 
-    // Génération new access token
-    const { token: newAccessToken, refreshToken: newRefreshTokenValue } = createAuthTokens(user);
+// GET /api/auth/logout : déconnexion locale, puis globale sur le serveur OAuth2
+export const logout = async (req, res) => {
+  await destroySession(req).catch((error) =>
+    logger.error('Error during logout:', { message: error.message, stack: error.stack })
+  );
+  return res.redirect(logoutUrl(`${config.clientOrigin}/`));
+};
 
-    // Mise à jour des tokens
-    await rotateRefreshToken(userRefreshTokenEntity, newRefreshTokenValue);
-
-    // Mise à jour du refresh token dans le cookie
-    res.cookie('access_token', newAccessToken, accessTokensCookieOptions);
-    res.cookie('refresh_token', newRefreshTokenValue, refreshTokensCookieOptions);
-
-    res.status(200).json({
-      success: true,
-      // accessToken: newAccessToken,
-      // refreshToken: newRefreshTokenValue,
+// POST /api/auth/backchannel-logout : appelé par le serveur OAuth2 (pas par un navigateur)
+// quand un utilisateur est révoqué (accès retiré, compte bloqué, « déconnecter partout »...)
+export const backchannelLogout = async (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  let ssoId;
+  try {
+    ssoId = verifyLogoutToken(String(req.body?.logout_token ?? ''));
+  } catch (error) {
+    return res.status(400).json({ error: 'invalid_request', error_description: error.message });
+  }
+  try {
+    await markRevoked(ssoId);
+  } catch (error) {
+    // 5xx : le serveur OAuth2 réessaie
+    logger.error('Back-channel logout not recorded:', {
+      message: error.message,
+      stack: error.stack,
     });
+    return res.status(500).json({ error: 'server_error' });
+  }
+  logger.info('Back-channel logout received', { ssoId });
+  return res.status(200).json({});
+};
+
+// GET /api/auth/me : profil de l'utilisateur connecté
+export const me = async (req, res, next) => {
+  try {
+    const user = await User.findByPk(req.user.id);
+    if (!user) {
+      await destroySession(req);
+      throw new InvalidTokenError('Access Denied: user no longer exists');
+    }
+    res.data = await getProfile(user);
+    next();
   } catch (error) {
     return next(error);
   }
 };
 
-export const logout = async (req, res) => {
-  try {
-    res.clearCookie('refresh_token', {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'Strict',
-      path: '/api/auth/refresh-token',
-    });
-
-    res.clearCookie('access_token', {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'Strict',
-      path: '/',
-    });
-
-    const token = req.signedCookies.access_token;
-    if (token) {
-      const decoded = decodeToken(token);
-      logger.info('User token decoded during logout:', { decoded });
-      await RefreshToken.update({ valid: 0 }, { where: { userId: decoded.id } });
-    }
-
-    return res.status(200).send({
-      message: "You've been signed out successfully!",
-    });
-  } catch (error) {
-    // TODO: It's generally better to pass the error to the next error handler or send a response.
-    logger.error('Error during logout:', { message: error.message, stack: error.stack });
-    return res.status(500).send({
-      message: 'An error occurred while logging out. Please try again later.',
-    });
-  }
+export const checkAuth = (req, res, next) => {
+  res.data = {
+    username: req.user.username,
+    isAuthenticated: true,
+  };
+  next();
 };
