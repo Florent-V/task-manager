@@ -24,5 +24,10 @@ export default {
   accessTokenCookieLifetime: process.env.ACCESS_TOKEN_COOKIE_LIFETIME,
   refreshTokenLifetime: process.env.REFRESH_TOKEN_LIFETIME,
   refreshTokenCookieLifetime: process.env.REFRESH_TOKEN_COOKIE_LIFETIME,
-  mistralApiKey: process.env.MISTRAL_API_KEY,
+  ai: {
+    provider: process.env.AI_PROVIDER || 'mistral',
+    apiUrl: process.env.AI_API_URL,
+    apiKey: process.env.AI_API_KEY,
+    model: process.env.AI_MODEL,
+  },
 };

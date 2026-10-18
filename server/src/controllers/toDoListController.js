@@ -6,7 +6,7 @@ import User from '../models/userModel.js';
 import ForbiddenError from '../error/forbiddenError.js';
 import NotFoundError from '../error/notFoundError.js';
 
-const includeToDoList = [
+export const includeToDoList = [
   {
     model: ToDoItem,
     as: 'toDoItems',
@@ -37,6 +37,27 @@ export const createToDoList = async (req, res, next) => {
     res.statusCode = 201;
     res.data.toDoList = toDoList;
 
+    next();
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// Nettoyer les catégories d'une ToDoList
+export const clearCategories = async (req, res, next) => {
+  try {
+    const toDoListId = req.params.id;
+
+    await ToDoItem.update(
+      { category: null },
+      {
+        where: { toDoListId: toDoListId },
+      }
+    );
+
+    res.data.toDoList = await ToDoList.findByPk(toDoListId, {
+      include: includeToDoList,
+    });
     next();
   } catch (error) {
     return next(error);
