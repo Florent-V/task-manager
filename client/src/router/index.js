@@ -63,7 +63,7 @@ const router = createRouter({
   ]
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to) => {
   const { title, description } = to.meta;
   const defaultTitle = 'Default Title';
   const defaultDescription = 'Default Description';
@@ -73,17 +73,23 @@ router.beforeEach((to, from, next) => {
   const descriptionElement = document.querySelector('meta[name="description"]')
   descriptionElement.setAttribute('content', description || defaultDescription)
 
+  // Session vérifiée auprès de l'API au premier affichage
+  if (!authStore.loaded) {
+    await authStore.loadUser();
+  }
+
   if (to.meta.requiresAuth) {
     if (!authStore.isAuthenticated) {
-      // Si l'utilisateur n'est pas connecté
-      return next({ name: 'signin' });
+      // Si l'utilisateur n'est pas connecté : connexion via le serveur OAuth2, puis retour sur cette page
+      authStore.login(to.fullPath);
+      return false;
     }
     if (to.meta.role && !authStore.user.roles.includes(to.meta.role)) {
       // Si l'utilisateur n'a pas le rôle requis
-      return next({ name: 'accessDenied' }); // Redirigez vers une page appropriée
+      return { name: 'accessDenied' }; // Redirigez vers une page appropriée
     }
   }
-  next();
+  return true;
 })
 
 router.beforeEach((to, from) => {

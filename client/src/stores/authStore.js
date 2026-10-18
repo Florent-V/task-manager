@@ -1,108 +1,50 @@
 import { defineStore } from 'pinia';
 
-import { client } from '@/services/requestMaker.js';
+import { apiClient, apiBaseUrl } from '@/services/requestMaker.js';
 import logger from "@/utils/logger.js";
 
-import router from '../router';
-
-const getLocalStorageUser = () => {
-  const storedUser = localStorage.getItem('user');
-  logger.debug('getLocalStorageUser() - storedUser:', storedUser);
-  logger.debug('getLocalStorageUser() - storedUser parsed:', JSON.parse(storedUser));
-  return storedUser ? JSON.parse(storedUser) : null;
-};
-
+// La connexion est déléguée au serveur OAuth2 (SSO) par l'API : le navigateur n'a qu'un cookie de session
+// HttpOnly, il ne voit jamais de jeton. Connexion et déconnexion sont des navigations, pas des appels XHR.
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    authenticated: false,
-    user: getLocalStorageUser(),
+    user: null,
+    // Vrai une fois la session vérifiée auprès de l'API (au premier affichage)
+    loaded: false,
   }),
   getters: {
     isAdmin: (state) => state.user?.roles?.includes('ROLE_ADMIN'),
     isAuthenticated: (state) => !!state.user,
   },
   actions: {
-    async login(email, password) {
+    async loadUser() {
       try {
-        logger.debug('Tentative de connexion...');
-        const data = await client.post(
-          '/api/auth/signin',
-          { email, password }
-        );
-        logger.debug('Connexion réussie:', data);
-        localStorage.setItem('user', JSON.stringify(data));
-        this.user = data;
-        this.user.fullName = `${data.firstName} ${data.lastName}`;
-        this.authenticated = true;
-        return data;
+        const { data } = await apiClient.get('/api/auth/me', { withCredentials: true });
+        this.setUser(data);
       } catch (error) {
-        logger.error('Erreur lors de la connexion:');
-        logger.error('error', error);
-        throw error;
-      }
-    },
-    async signup(signupForm) {
-      try {
-        logger.debug('Tentative d\'inscription...');
-        const data = await client.post(
-          '/api/auth/signup',
-          signupForm
-        );
-        logger.debug('Inscription réussie:', data);
-        return data;
-      } catch (error) {
-        logger.error('Erreur lors de l\'inscription');
-        throw error;
-      }
-    },
-    async logout() {
-      try {
-        logger.debug('logout() - Tentative de déconnexion...');
-        await client.post('/api/auth/logout', {});
-        logger.debug('logout() - Déconnexion réussie');
-      } catch (error) {
-        logger.error('logout() - Erreur lors de la déconnexion:', error);
-        logger.debug('logout() - Erreur lors de la déconnexion');
-      } finally {
-        logger.debug('logout() - Suppression du token');
-        localStorage.removeItem('user');
-        this.user = null;
-        this.authenticated = false;
-        logger.debug('logout() - Redirection vers la page de connexion');
-        await router.push('/signin');
-      }
-    },
-    async refreshToken() {
-      try {
-        logger.debug('refreshToken() - Tentative de rafraîchissement du token...');
-        const data = await client.post('/api/auth/refresh-token', {});
-        logger.debug('refreshToken() - Token rafraîchi:', data);
-        return data;
-      } catch (error) {
-        logger.error('refreshToken() - Erreur lors du rafraîchissement du token');
-        throw error;
-      }
-    },
-    async checkAuth() {
-      try {
-        logger.debug('checkAuth() - Vérification de l\'authentification...');
-        const data = await client.get('/api/auth/check');
-        logger.debug('checkAuth() - Authentification vérifiée:', data);
-        if (data) {
-          this.authenticated = data.isAuthenticated;
-          this.user = data.username;
+        if (error.response?.status !== 401) {
+          logger.error('loadUser() - Erreur lors de la récupération de l\'utilisateur:', error);
         }
-      } catch (error) {
-        logger.error('checkAuth() - Erreur lors de la vérification de l\'authentification:');
-        throw error;
+        this.user = null;
+      } finally {
+        this.loaded = true;
       }
+      return this.user;
+    },
+    // Redirige vers le serveur OAuth2, puis revient sur returnTo (chemin du front)
+    login(returnTo = '/') {
+      const params = new URLSearchParams({ returnTo });
+      window.location.assign(`${apiBaseUrl}/api/auth/login?${params}`);
+    },
+    // Ferme la session de l'application puis celle du serveur OAuth2
+    logout() {
+      this.user = null;
+      window.location.assign(`${apiBaseUrl}/api/auth/logout`);
     },
     setUser(userData) {
-      this.user = userData;
+      this.user = userData ? { ...userData, fullName: `${userData.firstName ?? ''} ${userData.lastName ?? ''}`.trim() } : null;
     },
     clearUser() {
       this.user = null;
     },
   },
-  persist: true,
 });
