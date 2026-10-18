@@ -22,40 +22,16 @@ export const apiClient = axios.create({
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
-
-    const originalConfig = error.config;
+    const originalConfig = error.config ?? {};
     logger.error('####Interceptor');
 
-    if (error.response && error.response.status === 401 && !originalConfig._retry) {
+    // Session absente, expirée ou révoquée (accès retiré, compte bloqué...) : nouvelle connexion via le SSO
+    if (error.response && error.response.status === 401 && !originalConfig.url?.includes('/api/auth/me')) {
       logger.error('Interceptor - 401:', error.response.data.message);
-      originalConfig._retry = true; // Prevent infinite loop
       const authStore = useAuthStore();
-
-      // Vérifiez si c'est une erreur sur la route de login
-      if (originalConfig.url.includes('/signin')) {
-        logger.error('Interceptor - On login, no refresh token needed');
-        return Promise.reject(error); // Retournez simplement l'erreur pour le login incorrect
-      }
-
-      // Si c'est une erreur de rafraîchissement, déconnectez l'utilisateur immédiatement
-      if (error.response.data.name === 'RefreshTokenError') {
-        logger.error(' Interceptor - RefreshTokenError');
-        await authStore.logout();
-        router.push('/signin');
-        return Promise.reject(error);
-      }
-
-      try {
-        logger.debug('Interceptor - Tentative de rafraîchissement du token...');
-        const data = await authStore.refreshToken();
-        logger.debug('Interceptor - Token rafraîchi:', data);
-        return apiClient(originalConfig); // Retry the original request
-      } catch (_error) {
-        logger.error('Interceptor - Error in try/catch');
-        logger.error('Interceptor - Erreur lors du rafraîchissement du token:', _error);
-        router.push('/signin');
-        // return Promise.reject(_error);
-      }
+      authStore.clearUser();
+      authStore.login(router.currentRoute.value.fullPath);
+      return Promise.reject(error);
     }
 
     if (error.response && error.response.status === 403) {

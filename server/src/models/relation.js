@@ -28,16 +28,6 @@ export const defineAssociations = () => {
     foreignKey: 'userId',
   });
   //
-  // Relation user <-> refreshToken
-  //
-  models.user.hasOne(models.refreshToken, {
-    foreignKey: 'userId',
-  });
-  models.refreshToken.belongsTo(models.user, {
-    foreignKey: 'userId',
-    onDelete: 'CASCADE',
-  });
-  //
   // Relation user <-> toDoList
   //
   models.user.belongsToMany(models.toDoList, {

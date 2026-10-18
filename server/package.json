@@ -16,7 +16,8 @@
     "db:migrate": "sequelize-cli db:migrate",
     "db:migrate:undo": "sequelize-cli db:migrate:undo",
     "db:migrate:status": "sequelize-cli db:migrate:status",
-    "migration:generate": "sequelize-cli migration:generate --migrations-path migrations --name"
+    "migration:generate": "sequelize-cli migration:generate --migrations-path migrations --name",
+    "oauth:export-users": "node src/database/exportUsersForOAuth.js"
   },
   "keywords": [
     "node",
@@ -35,13 +36,14 @@
     "@adminjs/express": "6.1.1",
     "@adminjs/sequelize": "^4.1.1",
     "adminjs": "^7.8.15",
-    "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
+    "connect-session-sequelize": "^8.0.6",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "exceljs": "^4.4.0",
     "express": "^4.19.2",
+    "express-session": "^1.19.0",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
@@ -65,5 +67,8 @@
     "globals": "^16.2.0",
     "nodemon": "^3.1.4",
     "prettier": "^3.5.3"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

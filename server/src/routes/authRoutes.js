@@ -1,19 +1,24 @@
 import express from 'express';
-import { signup, signin, logout, handleRefreshToken } from '../controllers/authController.js';
-import { setSignupValidator, setSigninValidator } from '../middleware/userMiddleware.js';
-import { validate } from '../middleware/ressourceMiddleware.js';
 import {
-  checkDuplicateUsernameOrEmail,
-  authenticateByCookieSession,
+  login,
+  callback,
+  logout,
+  backchannelLogout,
+  me,
   checkAuth,
-} from '../middleware/authMiddleware.js';
+} from '../controllers/authController.js';
+import { authenticateByCookieSession } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
+// Connexion déléguée au serveur OAuth2 (SSO) : navigation du navigateur, pas des appels XHR
+router.get('/login', login);
+router.get('/callback', callback);
+router.get('/logout', logout);
+// Appelée de serveur à serveur par le serveur OAuth2
+router.post('/backchannel-logout', backchannelLogout);
+
+router.get('/me', authenticateByCookieSession, me);
 router.get('/check', authenticateByCookieSession, checkAuth);
-router.post('/signup', setSignupValidator, validate, checkDuplicateUsernameOrEmail, signup);
-router.post('/signin', setSigninValidator, validate, signin);
-router.post('/refresh-token', handleRefreshToken);
-router.post('/logout', logout);
 
 export default router;

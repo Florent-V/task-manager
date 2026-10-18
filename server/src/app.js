@@ -2,7 +2,11 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import session from 'express-session';
+import connectSessionSequelize from 'connect-session-sequelize';
 import logger from './config/logger.js';
+import config from './config/config.js';
+import sequelize from './database/connect.js';
 
 import initDB from './database/init.js';
 import { errorHandler, notFound, logError } from './middleware/errorMiddleware.js';
@@ -20,12 +24,21 @@ import sizeRoutes from './routes/sizeRoutes.js';
 import kanbanRoutes from './routes/kanbanRoutes.js';
 import timeTrackingRoutes from './routes/timeTrackingRoutes.js';
 import aiRoutes from './routes/aiRoutes.js';
-import { authenticateByCookieSession } from './middleware/authMiddleware.js';
+import { authenticateByCookieSession, isAdmin } from './middleware/authMiddleware.js';
 
 dotenv.config();
 const app = express();
 
 const port = process.env.NODE_API_DOCKER_PORT || 3000;
+
+// Sessions côté serveur (table « session ») : les jetons OAuth2 ne quittent jamais l'API,
+// le navigateur n'a qu'un cookie HttpOnly
+const SequelizeStore = connectSessionSequelize(session.Store);
+const sessionStore = new SequelizeStore({
+  db: sequelize,
+  tableName: 'session',
+  expiration: config.sessionLifetime,
+});
 
 const corsOptions = {
   origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173',
@@ -44,6 +57,24 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
 // serve the `backend/public` folder for public resources
 app.use('/api/uploads', express.static('public/uploads'));
+// Derrière le reverse proxy (HTTPS) : nécessaire pour les cookies Secure
+app.set('trust proxy', 1);
+app.use(
+  session({
+    name: 'tm.sid',
+    secret: config.sessionSecret,
+    store: sessionStore,
+    resave: false,
+    saveUninitialized: false,
+    rolling: true,
+    cookie: {
+      httpOnly: true,
+      secure: config.cookieSecure,
+      sameSite: 'lax',
+      maxAge: config.sessionLifetime,
+    },
+  })
+);
 // Utiliser le routeur AdminJS
 
 // Middlewares
@@ -51,7 +82,7 @@ app.use(start);
 app.use(init);
 // Test Routes
 app.use('', testRoutes);
-app.use('/api/admin-panel', setRouteFound, authenticateByCookieSession, adminRouter);
+app.use('/api/admin-panel', setRouteFound, authenticateByCookieSession, isAdmin, adminRouter);
 // Auth Routes
 app.use('/api/auth', setRouteFound, authRoutes);
 // User Routes

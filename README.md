@@ -129,10 +129,8 @@ This project is production ready with a docker-compose-prod.yml file which conta
 ## Features
 
 + CRUD operations with MySQL and Sequelize
-+ JWT Authentication with roles based authentication
++ Authentication delegated to an OAuth2 SSO server (Authorization Code + PKCE, server-side session, back-channel logout), local roles based authorization
 + Containerized with Docker
-+ Refresh Token
-+ Session Token
 + AdminJS Dashboard to manage the database
 + **AI-Powered To-Do List Generation**
 + **Time Tracking and Reporting (Imputations)**
@@ -152,7 +150,7 @@ This project is production ready with a docker-compose-prod.yml file which conta
 
 > The project will start locally at localhost:${VITE_CLIENT_PORT}
 > The adminJs dashboard will start locally at localhost:${NODE_API_PORT}/admin-panel
-> You can authenticate with credentials in src/databse/seed.js
+> Sign in goes through the OAuth2 server: see [Authentication (SSO)](#authentication-sso)
 
 > I haven't try to launch the project without docker, but you can try with `npm start` or `npm run dev` if you have a MySQL database running on your machine. Don't forget to configure the .env file in the root of the project.
 
@@ -220,30 +218,75 @@ MAIL_FROM="My Awesome Kanban App" <noreply@myawesomekanban.com>
 *   Always use environment variables provided by your hosting platform or a secure secrets management system to store and inject these sensitive details into your production application.
 *   Ensure your `server/.env` file (if used in production, though not recommended for credentials) is listed in your `.gitignore` file.
 
-## Setup Password for user
+## Authentication (SSO)
 
-To set up a password for a user, you can use the following command to generate a bcrypt hash of your password.
-This is useful for creating an admin user or any user in your database.
+Users sign in on the OAuth2 server (`OAuth-serveur` repository), never in this app. The Express API is the
+confidential OAuth2 client (*BFF* pattern):
+
+| Route | Role |
+|---|---|
+| `GET /api/auth/login?returnTo=/path` | Redirects to the OAuth2 server (`state` + PKCE kept in session) |
+| `GET /api/auth/callback` | Exchanges the code, links the local account, opens the session, redirects to the front |
+| `GET /api/auth/logout` | Closes the session, then the OAuth2 server session |
+| `POST /api/auth/backchannel-logout` | Called by the OAuth2 server when a user is revoked |
+| `GET /api/auth/me` | Connected user profile (401 if not signed in) |
+
+- The browser only gets an HttpOnly session cookie (`tm.sid`); tokens are stored in the `session` table.
+- On each protected request, the session is closed if the user was revoked (back-channel logout, table
+  `oauth_revocation`) or if the OAuth2 server refuses to renew the access token (access removed, account blocked…).
+- Local accounts are keyed by `user.ssoId` (the OAuth2 server `id`). On first sign in, an existing account is
+  linked **once** by e-mail: the user keeps all their data. Unknown users get a new account with the `user` role.
+- Roles (`user`, `moderator`, `admin`) stay managed in this app. Access to the app is granted on the OAuth2 server.
+
+### Declare the application on the OAuth2 server
+
 ```bash
-docker exec -it <container_name_or_id> sh
-# and
-node -e "const bcrypt = require('bcryptjs'); bcrypt.genSalt(10).then(salt => bcrypt.hash('VOTRE_MOT_DE_PASSE', salt)).then(hash => console.log('\nVotre hash est : ' + hash + '\n'));"
-or
-node --input-type="module" -e "import bcrypt from 'bcryptjs'; const salt = await bcrypt.genSalt(10); const hash = await bcrypt.hash('VOTRE_MOT_DE_PASSE', salt); console.log('\nVotre hash est : ' + hash + '\n');"
+# On the OAuth2 server
+make prod-console c='app:application:create "Task Manager" --id=task-manager \
+    --home-url=https://<CLIENT_URL>/ \
+    --redirect-uri=https://<API_BASE_URL>/api/auth/callback \
+    --backchannel-logout-uri=https://<API_BASE_URL>/api/auth/backchannel-logout'
+make prod-public-key        # -> OAUTH_PUBLIC_KEY (one line, with \n)
 ```
-Then, copy the generated hash and update the `password` field of the user in the database with this hash.
-You need to connect to the MySQL container and execute a SQL query to update the password of the user.
-```bash
-docker exec -it <container_name_or_id> sh
-# and
-mysql -u<username> -p<password>
-# and
-USE <database_name>;
-```
-You can do this with a SQL query like this
-```sql
-UPDATE users SET password = 'VOTRE_HASH' WHERE email = 'EMAIL_DE_L_UTILISATEUR';
-```
+
+Then fill the `OAUTH2 / SSO` and `SESSION` sections of `.env` (see `.env.template`). For development, declare a
+second application (`task-manager-dev`) with `http://localhost:…` URLs.
+
+The front and the API must be on the same site (e.g. `app.mydomain.com` and `api.mydomain.com`, or the same domain)
+so the `SameSite=Lax` session cookie is sent with API calls.
+
+### Migrating existing users (no account to recreate, no data lost)
+
+Existing passwords are bcrypt hashes, which the OAuth2 server accepts as is: **users keep their password**.
+
+1. Fill the new `.env` variables (`OAUTH_*`, `SESSION_SECRET`, `COOKIE_SECURE`), then deploy:
+   ```bash
+   make deploy
+   ```
+   `make deploy` backs up the database and applies the pending migrations, including `oauth-sso`
+   (`server/migrations/20261018120000-oauth-sso.cjs`): adds `user.ssoId`, makes `user.password` optional, creates the
+   `session` and `oauth_revocation` tables and drops `refresh_token`. No user data is changed. Check with
+   `make db-migrate-status`. Existing users cannot sign in until step 3 is done: run steps 2 and 3 right after.
+2. Export the accounts (e-mail, username, password hash) to `server/oauth-users.json`:
+   ```bash
+   make oauth-export-users
+   ```
+3. Import them on the OAuth2 server with access to the app (`--dry-run` first), then **delete the file everywhere**:
+   ```bash
+   # On the OAuth2 server
+   docker compose --env-file .env.docker -f compose.yaml -f compose.prod.yaml cp oauth-users.json php:/tmp/users.json
+   make prod-console c='app:user:import /tmp/users.json --grant=task-manager --dry-run'
+   make prod-console c='app:user:import /tmp/users.json --grant=task-manager'
+   docker compose --env-file .env.docker -f compose.yaml -f compose.prod.yaml exec php rm /tmp/users.json
+   ```
+4. Each user signs in on the OAuth2 server with their usual e-mail and password (plus the e-mail code), and gets
+   back their account and data in Task Manager (linked by e-mail at first sign in).
+
+Notes:
+- An e-mail that already exists on the OAuth2 server keeps its password there; it is linked by e-mail the same way.
+- If a hash cannot be reused, the account is created without a usable password: the user clicks "Forgot password"
+  on the OAuth2 server.
+- The `user.password` column is no longer used after the migration; it can be dropped once every user has signed in.
 
 ## Checklist
 

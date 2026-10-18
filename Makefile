@@ -1,4 +1,4 @@
-.PHONY: help up down deploy db-sync db-force logs restart dev-up dev-down dev-db-sync dev-db-force dev-logs dev-restart dev-install dev-rebuild dev-reset db-backup db-restore dev-db-backup db-migrate db-migrate-status db-rollback dev-db-migrate dev-db-migrate-status dev-db-rollback dev-db-migration-new clean clean-all clean-prod-volumes
+.PHONY: help up down deploy db-sync db-force logs restart dev-up dev-down dev-db-sync dev-db-force dev-logs dev-restart dev-install dev-rebuild dev-reset db-backup db-restore dev-db-backup db-migrate db-migrate-status db-rollback dev-db-migrate dev-db-migrate-status dev-db-rollback dev-db-migration-new clean clean-all clean-prod-volumes oauth-export-users dev-oauth-export-users
 
 # Définition du fichier docker-compose par défaut pour la production
 COMPOSE_FILE=docker-compose-prod.yml
@@ -64,6 +64,12 @@ logs: ## Affiche les logs des conteneurs en temps réel
 restart: ## Redémarre tous les conteneurs
 	docker compose -f $(COMPOSE_FILE) restart
 
+oauth-export-users: ## Exporte les comptes (mots de passe hachés) pour le serveur OAuth2 dans server/oauth-users.json
+	docker compose -f $(COMPOSE_FILE) exec api npm run oauth:export-users -- /tmp/oauth-users.json
+	docker compose -f $(COMPOSE_FILE) cp api:/tmp/oauth-users.json server/oauth-users.json
+	docker compose -f $(COMPOSE_FILE) exec api rm /tmp/oauth-users.json
+	@chmod 600 server/oauth-users.json
+
 # --- Environnement de Développement ---
 
 DEV_COMPOSE_FILE=docker-compose.yml
@@ -127,3 +133,6 @@ dev-db-backup: ## [DEV] Exporte la base MySQL dans backups/dev-<date>.sql
 	@mkdir -p backups
 	docker compose -f $(DEV_COMPOSE_FILE) exec -T db sh -c 'exec mysqldump -uroot -p"$$MYSQL_ROOT_PASSWORD" --single-transaction --routines --triggers --no-tablespaces "$$MYSQL_DATABASE"' > backups/dev-backup-$$(date +%Y%m%d-%H%M%S).sql
 	@ls -lh backups | tail -1
+
+dev-oauth-export-users: ## [DEV] Exporte les comptes pour le serveur OAuth2 dans server/oauth-users.json
+	docker compose -f $(DEV_COMPOSE_FILE) exec api npm run oauth:export-users

@@ -1,13 +1,11 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { useRouter } from 'vue-router';
 
 import { useTheme } from "@/composables/useTheme.js";
 import { useAuthStore } from '@/stores/authStore';
 import logger from "@/utils/logger.js";
 import { apiBaseUrl } from "@/services/requestMaker.js";
 
-const router = useRouter();
 const userStore = useAuthStore();
 const user = computed(() => userStore.user);
 const filesApiUrl = `${apiBaseUrl}/api/uploads`;
@@ -70,7 +68,6 @@ const manageOutsideClickListener = () => {
 
 const logout = () => {
   userStore.logout();
-  router.push(`/signin`);
 }
 
 onMounted(() => {
@@ -194,10 +191,6 @@ onMounted(() => {
             class="bg-blue-500 dark:bg-yellow-400 hover:bg-blue-600 dark:hover:bg-yellow-500 text-white dark:text-gray-900 px-6 py-2 rounded-full font-semibold transition duration-300">
           <RouterLink to="/signin" class="">
             Login
-          </RouterLink>
-          /
-          <RouterLink to="/signup" class="">
-            Register
           </RouterLink>
         </button>
         <button class="md:hidden p-2" @click.stop="toggleMobileMenu">

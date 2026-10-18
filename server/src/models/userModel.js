@@ -28,9 +28,16 @@ const User = sequelize.define(
       allowNull: false,
       unique: true,
     },
+    // Identifiant public et stable de l'utilisateur sur le serveur OAuth2 (UUID, « id » de /api/userinfo)
+    ssoId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      unique: true,
+    },
+    // Ancien mot de passe (avant le SSO) : conservé pour l'export vers le serveur OAuth2, plus utilisé
     password: {
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: true,
     },
   },
   {

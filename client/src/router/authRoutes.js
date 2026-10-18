@@ -1,5 +1,4 @@
 import SignInView from "@/views/Auth/SignInView.vue";
-import SignUpView from "@/views/Auth/SignUpView.vue";
 
 export default [
     {
@@ -12,12 +11,9 @@ export default [
         component: SignInView
     },
     {
+        // L'inscription se fait sur le serveur OAuth2 (lien « Créer un compte » de sa page de connexion)
         path: '/signup',
         name: 'signup',
-        meta: {
-            title: 'Sign Up',
-            description: 'Page to sign up'
-        },
-        component: SignUpView
+        redirect: { name: 'signin' }
     }
 ]
