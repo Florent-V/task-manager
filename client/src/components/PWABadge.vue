@@ -99,11 +99,17 @@ function close() {
   margin: 16px;
   padding: 12px;
   border: 1px solid #8885;
-  border-radius: 4px;
-  z-index: 1;
+  border-radius: 8px;
+  background-color: #fff;
+  color: #1f2937;
+  z-index: 9999;
   text-align: left;
-  box-shadow: 3px 4px 5px 0 #8885;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
   display: grid;
+}
+:global(.dark) .pwa-toast {
+  background-color: #1f2937;
+  color: #f3f4f6;
 }
 .pwa-toast .message {
   margin-bottom: 8px;
@@ -115,10 +121,16 @@ function close() {
   border: 1px solid #8885;
   outline: none;
   margin-right: 5px;
-  border-radius: 2px;
-  padding: 3px 10px;
+  border-radius: 4px;
+  padding: 6px 14px;
+  background-color: transparent;
+  color: inherit;
+  cursor: pointer;
 }
 .pwa-toast button.reload {
   display: block;
+  background-color: #3E1B65;
+  border-color: #3E1B65;
+  color: #fff;
 }
 </style>

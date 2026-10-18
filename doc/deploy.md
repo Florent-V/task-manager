@@ -23,7 +23,7 @@ Toutes les commandes se lancent depuis le dossier du projet sur le serveur (là 
 ```bash
 make deploy
 ```
-Équivaut à `git pull` puis `docker compose -f docker-compose-prod.yml up -d --build --force-recreate`.
+`make deploy` enchaîne : `git pull`, build des images, sauvegarde de la base (`backups/`), application des migrations en attente (avec la nouvelle image, avant la bascule : si une migration échoue, les anciens conteneurs continuent de tourner), recréation des conteneurs, puis affichage de l'état des migrations.
 
 ### Vérifier
 ```bash
@@ -32,19 +32,19 @@ make logs                                      # pas d'erreur au démarrage
 ```
 Tester ensuite l'application via son domaine, et la génération IA d'une liste (les logs affichent `Provider IA : ...`).
 
-### Migration de la base (obligatoire pour cette mise à jour)
-Le modèle `ToDoItem` gagne une colonne `category` (`VARCHAR(50)`, nullable, utilisée par l'organisation IA des listes). Après `make deploy` :
+### Migrations de la base
+Le schéma est géré par des migrations (voir [migrations.md](migrations.md)). `make deploy` les applique automatiquement ; une seule commande suffit pour une mise en prod. Manuellement :
 ```bash
-make db-sync
+make db-migrate          # sauvegarde automatique, puis applique les migrations en attente
+make db-migrate-status   # vérifie : toutes les migrations doivent être "up"
 ```
-`db-sync` utilise `sequelize.sync({ alter: true })` : la colonne est ajoutée sans perte de données. Ne jamais utiliser `make db-force` en production (il supprime les tables).
-
-Vérification : `docker compose -f docker-compose-prod.yml exec db sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" "$MYSQL_DATABASE" -e "SHOW COLUMNS FROM to_do_item LIKE \"category\""'`
+**Base existante** : la migration de base (`baseline-schema`) utilise `CREATE TABLE IF NOT EXISTS`. Sur une base déjà en place elle ne modifie aucune table, elle s'enregistre seulement dans la table `SequelizeMeta`. Toute évolution du schéma passe ensuite par une nouvelle migration (voir [migrations.md](migrations.md)).
 
 ### Retour arrière
 ```bash
 git checkout <commit-precedent>
 make deploy
+make db-rollback                                # si une migration doit être annulée
 make db-restore FILE=backups/backup-XXXX.sql   # seulement si les données sont à restaurer
 ```
 
@@ -56,11 +56,10 @@ make db-restore FILE=backups/backup-XXXX.sql   # seulement si les données sont 
    ```bash
    mkdir -p server/public/uploads server/logs && sudo chown -R 1000:1000 server/public/uploads server/logs
    ```
-3. `make deploy` (la base démarre vide).
-4. `make db-sync` pour créer les tables.
-5. Configurer le reverse proxy vers `127.0.0.1:<port>`.
+3. `make deploy` (la base démarre vide, les migrations créent les tables).
+4. Configurer le reverse proxy vers `127.0.0.1:<port>`.
 
-Pour une mise à jour classique, `make db-sync` n'est nécessaire que si les modèles Sequelize (`server/src/models`) ont changé.
+Pour une mise à jour classique, `make deploy` suffit.
 
 ## 3. Commandes utiles
 
@@ -74,7 +73,9 @@ Pour une mise à jour classique, `make db-sync` n'est nécessaire que si les mod
 | `make clean` | Supprime images orphelines et cache de build (sans risque pour les données) |
 | `make clean-all` | Supprime toutes les images non utilisées (anciennes images `node:20`...) |
 | `make clean-prod-volumes` | Supprime les anciens volumes `node_modules` (prod uniquement, après `make deploy`) |
-| `make db-sync` | Synchroniser le schéma (alter), sans perte |
+| `make db-migrate` | Sauvegarde puis applique les migrations en attente |
+| `make db-migrate-status` | État des migrations |
+| `make db-rollback` | Annule la dernière migration |
 
 Après une modification du `.env`, un simple `restart` ne suffit pas : relancer `make deploy` (ou `docker compose -f docker-compose-prod.yml up -d --force-recreate api`).
 

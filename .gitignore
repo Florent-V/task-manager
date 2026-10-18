@@ -17,3 +17,5 @@ server/public/uploads/*.mp4
 server/public/uploads/*.webp
 server/logs/
 backups/
+# Généré au démarrage par AdminJS (adminJS.watch())
+server/.adminjs/
