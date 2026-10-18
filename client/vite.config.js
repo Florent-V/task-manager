@@ -29,8 +29,8 @@ export default defineConfig({
       },
 
       manifest: {
-        name: "Task Manager",
-        short_name: "Task",
+        name: "ToDo",
+        short_name: "ToDo",
         description: "An application to handle tasks with To Do Lists and projects with Kanban",
         start_url: "/",
         display: "standalone",

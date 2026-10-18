@@ -88,7 +88,7 @@ onMounted(() => {
           <RouterLink
               to="/"
               class="text-xl font-bold hover:text-blue-600 dark:hover:text-yellow-300 transition duration-100">
-            Task Manager
+            ToDo
           </RouterLink>
         </div>
         <ul class="hidden md:flex space-x-6 text-lg">

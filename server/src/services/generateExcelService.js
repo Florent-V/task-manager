@@ -227,7 +227,7 @@ class GenerateExcelService {
 
   _createWorkbook() {
     const workbook = new ExcelJS.Workbook();
-    workbook.creator = 'Task Manager App';
+    workbook.creator = 'ToDo App';
     workbook.created = new Date();
     return workbook;
   }
