@@ -101,4 +101,14 @@ export class ToDoListService {
     logger.debug(`Joining ToDoList with ID: ${toDoListId}`);
     return client.post(`${this._basePath()}/${toDoListId}/join`, { token: joinToken });
   }
+
+  /**
+   * Clears categories for all items in a ToDoList.
+   * @param {string} toDoListId - The ID of the ToDoList.
+   * @returns {Promise<any>} The promise from the API call.
+   */
+  clearCategories(toDoListId) {
+    logger.debug(`Clearing categories for ToDoList ID: ${toDoListId}`);
+    return client.delete(`${this._basePath()}/${toDoListId}/categories`);
+  }
 }

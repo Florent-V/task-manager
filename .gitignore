@@ -4,7 +4,6 @@ client/dev-dist/
 client/dist/
 .idea/
 .vscode/
-package-lock.json
 .env.old
 .env
 .env.test
@@ -17,3 +16,4 @@ server/public/uploads/*.svg
 server/public/uploads/*.mp4
 server/public/uploads/*.webp
 server/logs/
+backups/
