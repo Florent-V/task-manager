@@ -7,8 +7,8 @@ const currentYear = new Date().getFullYear()
     <div class="container mx-auto px-4">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div>
-          <h3 class="text-xl font-semibold mb-4">About Task Manager</h3>
-          <p>Task Manager est une application de gestion de tâches et de liste de courses</p>
+          <h3 class="text-xl font-semibold mb-4">About ToDo</h3>
+          <p>ToDo est une application de gestion de tâches et de liste de courses</p>
         </div>
         <div>
           <h3 class="text-xl font-semibold mb-4">Quick Links</h3>
@@ -32,7 +32,7 @@ const currentYear = new Date().getFullYear()
         </div>
       </div>
       <div class="mt-8 pt-8 border-t border-gray-700 text-center">
-        <p>&copy; {{ currentYear }} Task Manager. All rights reserved.</p>
+        <p>&copy; {{ currentYear }} ToDo. All rights reserved.</p>
       </div>
     </div>
   </footer>

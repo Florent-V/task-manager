@@ -56,7 +56,7 @@ const adminJS = new AdminJS({
     // Ajoute d'autres ressources ici
   ],
   branding: {
-    companyName: 'Task Manager', // Personnalise le titre de la page
+    companyName: 'ToDo', // Personnalise le titre de la page
     logo: '/api/uploads/favicon-256.png', // Optionnel : chemin vers ton logo
     favicon: '/api/uploads/favicon.ico', // Chemin vers ton favicon
   },
