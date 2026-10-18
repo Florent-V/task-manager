@@ -1,4 +1,4 @@
-.PHONY: help up down deploy db-sync db-force logs restart dev-up dev-down dev-db-sync dev-db-force dev-logs dev-restart dev-install dev-rebuild dev-reset db-backup db-restore dev-db-backup clean clean-all clean-prod-volumes
+.PHONY: help up down deploy db-sync db-force logs restart dev-up dev-down dev-db-sync dev-db-force dev-logs dev-restart dev-install dev-rebuild dev-reset db-backup db-restore dev-db-backup db-migrate db-migrate-status db-rollback dev-db-migrate dev-db-migrate-status dev-db-rollback dev-db-migration-new clean clean-all clean-prod-volumes
 
 # Définition du fichier docker-compose par défaut pour la production
 COMPOSE_FILE=docker-compose-prod.yml
@@ -12,11 +12,24 @@ up: ## Démarre les conteneurs en tâche de fond
 down: ## Arrête et supprime les conteneurs
 	docker compose -f $(COMPOSE_FILE) down
 
-deploy: ## Met à jour la prod : git pull, rebuild des images (code + dépendances) et recréation des conteneurs
+deploy: ## Met à jour la prod : git pull, build, sauvegarde, migrations, puis recréation des conteneurs
 	git pull
-	docker compose -f $(COMPOSE_FILE) up -d --build --force-recreate
+	docker compose -f $(COMPOSE_FILE) build
+	@if docker compose -f $(COMPOSE_FILE) ps --status running --services | grep -qx db; then $(MAKE) db-backup; else echo "Base non démarrée : sauvegarde ignorée (premier déploiement)"; fi
+	docker compose -f $(COMPOSE_FILE) run --rm api npm run db:migrate
+	docker compose -f $(COMPOSE_FILE) up -d --force-recreate
+	docker compose -f $(COMPOSE_FILE) exec api npm run db:migrate:status
 
-db-sync: ## Synchronise la base de données (alter) sans supprimer les données existantes
+db-migrate: db-backup ## Sauvegarde la base puis applique les migrations en attente
+	docker compose -f $(COMPOSE_FILE) exec api npm run db:migrate
+
+db-migrate-status: ## Liste les migrations appliquées (up) et en attente (down)
+	docker compose -f $(COMPOSE_FILE) exec api npm run db:migrate:status
+
+db-rollback: ## Annule la dernière migration appliquée
+	docker compose -f $(COMPOSE_FILE) exec api npm run db:migrate:undo
+
+db-sync: ## [Déprécié, préférer db-migrate] Synchronise le schéma avec les modèles (alter)
 	docker compose -f $(COMPOSE_FILE) exec api npm run db:sync
 
 db-force: ## Synchronise la base de données (force) avec perte de données (supprime et recrée les tables)
@@ -61,7 +74,20 @@ dev-up: ## [DEV] Démarre les conteneurs de développement en tâche de fond
 dev-down: ## [DEV] Arrête et supprime les conteneurs de développement
 	docker compose -f $(DEV_COMPOSE_FILE) down
 
-dev-db-sync: ## [DEV] Synchronise la base de données (alter) sans supprimer les données existantes
+dev-db-migrate: ## [DEV] Applique les migrations en attente
+	docker compose -f $(DEV_COMPOSE_FILE) exec api npm run db:migrate
+
+dev-db-migrate-status: ## [DEV] Liste les migrations appliquées et en attente
+	docker compose -f $(DEV_COMPOSE_FILE) exec api npm run db:migrate:status
+
+dev-db-rollback: ## [DEV] Annule la dernière migration appliquée
+	docker compose -f $(DEV_COMPOSE_FILE) exec api npm run db:migrate:undo
+
+dev-db-migration-new: ## [DEV] Crée une migration vide : make dev-db-migration-new NAME=add-xxx-to-yyy
+	@test -n "$(NAME)" || (echo "Usage: make dev-db-migration-new NAME=add-xxx-to-yyy" && exit 1)
+	docker compose -f $(DEV_COMPOSE_FILE) exec -u $$(id -u):$$(id -g) api npm run migration:generate -- $(NAME)
+
+dev-db-sync: ## [DEV] [Déprécié] Synchronise la base de données (alter) sans supprimer les données existantes
 	docker compose -f $(DEV_COMPOSE_FILE) exec api npm run db:sync
 
 dev-db-force: ## [DEV] Synchronise la base de données (force) avec perte de données (supprime et recrée les tables)
