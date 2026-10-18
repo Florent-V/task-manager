@@ -1,5 +1,5 @@
 <script setup>
-
+const currentYear = new Date().getFullYear()
 </script>
 
 <template>
@@ -32,7 +32,7 @@
         </div>
       </div>
       <div class="mt-8 pt-8 border-t border-gray-700 text-center">
-        <p>&copy; 2024 Task Manager. All rights reserved.</p>
+        <p>&copy; {{ currentYear }} Task Manager. All rights reserved.</p>
       </div>
     </div>
   </footer>
