@@ -125,6 +125,9 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,svg,png,ico}'],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
+        // Les URL de l'API ouvertes dans le navigateur (connexion SSO, callback, logout, admin-panel)
+        // doivent atteindre le serveur, pas être servies par index.html depuis le cache
+        navigateFallbackDenylist: [/^\/api\//],
       },
 
       devOptions: {
