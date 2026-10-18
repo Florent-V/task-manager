@@ -48,6 +48,15 @@ make db-rollback                                # si une migration doit être an
 make db-restore FILE=backups/backup-XXXX.sql   # seulement si les données sont à restaurer
 ```
 
+## 1 bis. Passage à l'authentification SSO (serveur OAuth2)
+
+À faire une seule fois, lors du déploiement de la version SSO. Détail complet dans le [README](../README.md#authentication-sso).
+1. Déclarer l'application sur le serveur OAuth2 et compléter le `.env` (`OAUTH_*`, `SESSION_SECRET`, `COOKIE_SECURE`). Les variables `JWT_REFRESH_SECRET`, `PRIVATE_KEY`, `PUBLIC_KEY` et `*_LIFETIME` ne sont plus utilisées.
+2. `make deploy` : la migration `oauth-sso` ajoute `user.ssoId`, rend `user.password` facultatif, crée les tables `session` et `oauth_revocation` et supprime `refresh_token`. Aucune donnée utilisateur n'est modifiée.
+3. Juste après : `make oauth-export-users` (crée `server/oauth-users.json`, qui contient les hash des mots de passe), puis import sur le serveur OAuth2 avec `app:user:import ... --grant=task-manager`. **Supprimer ensuite le fichier partout.**
+
+Les utilisateurs se connectent ensuite avec leur e-mail et leur mot de passe habituels ; leur compte est retrouvé par e-mail.
+
 ## 2. Premier déploiement (serveur vierge)
 
 `make deploy` sert aussi au premier déploiement, après ces étapes :
@@ -76,6 +85,7 @@ Pour une mise à jour classique, `make deploy` suffit.
 | `make db-migrate` | Sauvegarde puis applique les migrations en attente |
 | `make db-migrate-status` | État des migrations |
 | `make db-rollback` | Annule la dernière migration |
+| `make oauth-export-users` | Exporte les comptes pour le serveur OAuth2 (`server/oauth-users.json`, à supprimer après import) |
 
 Après une modification du `.env`, un simple `restart` ne suffit pas : relancer `make deploy` (ou `docker compose -f docker-compose-prod.yml up -d --force-recreate api`).
 
