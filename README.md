@@ -1,5 +1,5 @@
 <h1 align="center"><a href="https://github.com/ElanYoung/vite-vue-js-starter-template" target="_blank">
-🚀 Express - MYSQL - Vue 3  Task Manager App  🚀
+🚀 Express - MYSQL - Vue 3  ToDo App  🚀
 </a></h1>
 
 <p align="center">
@@ -29,7 +29,7 @@
   </a>
 </p>
 
-This project is a task manager app with a front in VueJS and a back in Express.
+This project is a ToDo app with a front in VueJS and a back in Express.
 This app allows you to manage your tasks and your todolists. You can create, edit and delete tasks and todolists.
 You can also create a todolist and add tasks to it.
 All is dockerized and ready to use.

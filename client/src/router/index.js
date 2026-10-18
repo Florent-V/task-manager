@@ -21,8 +21,8 @@ const router = createRouter({
       path: '/',
       name: 'home',
       meta: {
-        title: 'Task Manager - Home',
-        description: 'Welcome to the Task Manager'
+        title: 'ToDo - Home',
+        description: 'Welcome to ToDo'
       },
       component: HomeView
     },
