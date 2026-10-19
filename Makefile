@@ -1,4 +1,4 @@
-.PHONY: help up down deploy db-sync db-force logs restart dev-up dev-down dev-db-sync dev-db-force dev-logs dev-restart dev-install dev-rebuild dev-reset db-backup db-restore dev-db-backup db-migrate db-migrate-status db-rollback dev-db-migrate dev-db-migrate-status dev-db-rollback dev-db-migration-new clean clean-all clean-prod-volumes oauth-export-users dev-oauth-export-users
+.PHONY: help up down deploy deploy-quick db-sync db-force logs restart dev-up dev-down dev-db-sync dev-db-force dev-logs dev-restart dev-install dev-rebuild dev-reset db-backup db-restore dev-db-backup db-migrate db-migrate-status db-rollback dev-db-migrate dev-db-migrate-status dev-db-rollback dev-db-migration-new clean clean-all clean-prod-volumes oauth-export-users dev-oauth-export-users
 
 # Définition du fichier docker-compose par défaut pour la production
 COMPOSE_FILE=docker-compose-prod.yml
@@ -19,6 +19,15 @@ deploy: ## Met à jour la prod : git pull, build, sauvegarde, migrations, puis r
 	docker compose -f $(COMPOSE_FILE) run --rm api npm run db:migrate
 	docker compose -f $(COMPOSE_FILE) up -d --force-recreate
 	docker compose -f $(COMPOSE_FILE) exec api npm run db:migrate:status
+
+deploy-quick: ## Déploiement rapide sans sauvegarde ni migration (code seul) : git pull, build, recréation de api et client
+	@before=$$(git rev-parse HEAD); \
+	git pull || exit 1; \
+	if git diff --name-only $$before HEAD -- server/migrations | grep -q .; then \
+		echo "Nouvelles migrations détectées dans server/migrations : utiliser 'make deploy'"; exit 1; \
+	fi
+	docker compose -f $(COMPOSE_FILE) build api client
+	docker compose -f $(COMPOSE_FILE) up -d --no-deps --force-recreate api client
 
 db-migrate: db-backup ## Sauvegarde la base puis applique les migrations en attente
 	docker compose -f $(COMPOSE_FILE) exec api npm run db:migrate
