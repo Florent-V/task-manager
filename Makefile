@@ -14,7 +14,7 @@ down: ## Arrête et supprime les conteneurs
 
 deploy: ## Met à jour la prod : git pull, build, sauvegarde, migrations, puis recréation des conteneurs
 	git pull
-	docker compose -f $(COMPOSE_FILE) build
+	docker compose -f $(COMPOSE_FILE) build --pull
 	@if docker compose -f $(COMPOSE_FILE) ps --status running --services | grep -qx db; then $(MAKE) db-backup; else echo "Base non démarrée : sauvegarde ignorée (premier déploiement)"; fi
 	docker compose -f $(COMPOSE_FILE) run --rm api npm run db:migrate
 	docker compose -f $(COMPOSE_FILE) up -d --force-recreate
@@ -26,7 +26,7 @@ deploy-quick: ## Déploiement rapide sans sauvegarde ni migration (code seul) : 
 	if git diff --name-only $$before HEAD -- server/migrations | grep -q .; then \
 		echo "Nouvelles migrations détectées dans server/migrations : utiliser 'make deploy'"; exit 1; \
 	fi
-	docker compose -f $(COMPOSE_FILE) build api client
+	docker compose -f $(COMPOSE_FILE) build --pull api client
 	docker compose -f $(COMPOSE_FILE) up -d --no-deps --force-recreate api client
 
 db-migrate: db-backup ## Sauvegarde la base puis applique les migrations en attente
