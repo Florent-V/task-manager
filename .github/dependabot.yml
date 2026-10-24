@@ -37,6 +37,16 @@ updates:
     commit-message:
       prefix: "chore(docker)"
 
+  # Actions GitHub utilisées par la CI (met à jour les SHA épinglés)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "prod-sso"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    commit-message:
+      prefix: "chore(ci)"
+
   # Images des fichiers docker-compose (mysql)
   - package-ecosystem: "docker-compose"
     directory: "/"
