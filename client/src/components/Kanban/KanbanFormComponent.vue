@@ -211,7 +211,7 @@ onMounted(async () => {
           >
             <!-- Ligne 1 : Nom et MaxRecord -->
             <div class="flex items-center gap-4">
-              <div class="flex-grow">
+              <div class="grow">
                 <label class="block text-gray-700 dark:text-gray-300">Nom de la colonne</label>
                 <input
                     v-model="stage.name"

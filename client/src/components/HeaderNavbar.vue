@@ -77,7 +77,7 @@ onMounted(() => {
 
 <template>
   <header
-      class="fixed top-0 left-0 right-0 bg-white bg-opacity-20 dark:bg-gray-800 dark:bg-opacity-20 backdrop-blur-md py-4 transition-colors duration-100 z-50">
+      class="fixed top-0 left-0 right-0 bg-white/20 dark:bg-gray-800/20 backdrop-blur-md py-4 transition-colors duration-100 z-50">
     <nav class="container mx-auto px-4 flex items-center justify-between">
       <div class="flex items-center space-x-8">
         <div class="flex items-center space-x-2">
@@ -127,7 +127,7 @@ onMounted(() => {
 
         <div>
           <button
-              class="darkMode relative inline-flex items-center justify-center w-12 h-6 bg-gray-300 dark:bg-gray-600 rounded-full p-1 transition duration-300 focus:outline-none"
+              class="darkMode relative inline-flex items-center justify-center w-12 h-6 bg-gray-300 dark:bg-gray-600 rounded-full p-1 transition duration-300 focus:outline-hidden"
               @click="toggleDarkMode">
             <span
                 v-if="isDarkMode"
@@ -207,7 +207,7 @@ onMounted(() => {
     <!-- Mobile menu -->
     <div
         v-show="isMobileMenuOpen"
-        class="md:hidden bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300 dark:from-gray-900 dark:via-purple-900 dark:to-indigo-900 py-2">
+        class="md:hidden bg-linear-to-br from-blue-100 via-blue-200 to-blue-300 dark:from-gray-900 dark:via-purple-900 dark:to-indigo-900 py-2">
       <ul class="px-4 space-y-2">
         <li>
           <RouterLink

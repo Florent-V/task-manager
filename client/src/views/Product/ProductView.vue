@@ -19,11 +19,11 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="flex-grow container mx-auto p-6">
+  <div class="grow container mx-auto p-6">
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold">Tous les Produits</h1>
       <button
-          class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+          class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 focus:outline-hidden focus:ring-2 focus:ring-blue-500/50"
           @click="navigateToCreateProduct"
       >
         <span class="flex items-center">

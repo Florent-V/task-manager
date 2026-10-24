@@ -239,7 +239,7 @@ onMounted(() => {
 <template>
   <LoaderComponent v-if="requestLoading" class="flex place-content-center"/>
 
-  <div v-else class="container mx-auto mb-8 flex-grow">
+  <div v-else class="container mx-auto mb-8 grow">
     <div
         v-if="requestError"
         class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800" role="alert"
@@ -250,11 +250,11 @@ onMounted(() => {
     </div>
 
     <div v-else class="flex flex-col">
-      <h1 class="text-4xl font-bold mb-8 text-center text-blue-800 dark:text-yellow-300 break-words">
+      <h1 class="text-4xl font-bold mb-8 text-center text-blue-800 dark:text-yellow-300 wrap-break-word">
         {{ kanban.title }}
       </h1>
 
-      <div v-if="kanban" class="px-4 mb-4 prose dark:prose-invert max-w-none text-gray-600 dark:text-gray-400 break-words">
+      <div v-if="kanban" class="px-4 mb-4 prose dark:prose-invert max-w-none text-gray-600 dark:text-gray-400 wrap-break-word">
         <div v-html="kanban.description"></div>
       </div>
 
@@ -326,7 +326,7 @@ onMounted(() => {
         </div>
 
         <!-- Contenu des tâches, conditionné par l'état de dépliement -->
-        <div v-if="!foldedGroups[assignedToId]" class="overflow-x-auto flex-grow">
+        <div v-if="!foldedGroups[assignedToId]" class="overflow-x-auto grow">
           <!-- Grille avec colonnes dynamiques -->
           <div
               class="grid gap-4 auto-cols-[minmax(300px,1fr)] grid-flow-col"
@@ -371,7 +371,7 @@ onMounted(() => {
                     v-for="task in getTasksByStatus(group.tasks, column.id)"
                     :key="task.id"
                     draggable="true"
-                    class="task bg-gray-100 dark:bg-gray-700 rounded-lg p-4 shadow hover:shadow-md dark:hover:shadow-gray-600 cursor-pointer"
+                    class="task bg-gray-100 dark:bg-gray-700 rounded-lg p-4 shadow-sm hover:shadow-md dark:hover:shadow-gray-600 cursor-pointer"
                     @dragstart="handleDragStart(task)"
                     @click="openTaskModal(task)"
                 >
@@ -455,7 +455,7 @@ onMounted(() => {
         </div>
 
         <!-- Contenu des tâches, conditionné par l'état de dépliement -->
-        <div v-if="!foldedGroups['unassigned']" class="overflow-x-auto flex-grow">
+        <div v-if="!foldedGroups['unassigned']" class="overflow-x-auto grow">
           <!-- Zone de tâches non assignées -->
           <div v-if="unassignedTasks.length" class="mb-8">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-700 p-4">
@@ -463,7 +463,7 @@ onMounted(() => {
                 <div
                     v-for="task in unassignedTasks"
                     :key="task.id"
-                    class="task bg-gray-100 dark:bg-gray-700 rounded-lg p-4 shadow hover:shadow-md dark:hover:shadow-gray-600 cursor-pointer"
+                    class="task bg-gray-100 dark:bg-gray-700 rounded-lg p-4 shadow-sm hover:shadow-md dark:hover:shadow-gray-600 cursor-pointer"
                     @click="openTaskModal(task)"
                 >
                   <h3 class="font-bold text-gray-900 dark:text-gray-300">
@@ -533,7 +533,7 @@ onMounted(() => {
         </div>
 
         <!-- Contenu des tâches, conditionné par l'état de dépliement -->
-        <div v-if="!foldedGroups['archived']" class="overflow-x-auto flex-grow">
+        <div v-if="!foldedGroups['archived']" class="overflow-x-auto grow">
           <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-700 p-4">
             <!-- Header -->
             <div class="flex text-sm font-semibold text-gray-600 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700 pb-2 mb-2">

@@ -157,7 +157,7 @@ const resetForm = () => {
           <input
               id="timeSpentString"
               v-model="formData.timeSpentString"
-              class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:text-gray-200"
+              class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-xs focus:outline-hidden focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:text-gray-200"
               placeholder="ex: 1h 30m ou 2d"
               type="text"
               @blur="checkImputationValue"
@@ -178,7 +178,7 @@ const resetForm = () => {
           <input
               id="date"
               v-model="formData.date"
-              class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:text-gray-200"
+              class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-xs focus:outline-hidden focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:text-gray-200"
               type="date"
           />
           <p v-if="errors.date" class="text-red-500 dark:text-red-400">
@@ -197,7 +197,7 @@ const resetForm = () => {
         <textarea
             id="comment"
             v-model="formData.comment"
-            class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:text-gray-200"
+            class="mt-1 block w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-xs focus:outline-hidden focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:text-gray-200"
             rows="3"
         ></textarea>
         <p v-if="errors.comment" class="text-red-500 dark:text-red-400">{{ errors.comment }}</p>
@@ -209,13 +209,13 @@ const resetForm = () => {
       <div class="flex space-x-3">
         <button
             :disabled="isImputationFormInvalid"
-            class="px-4 py-2 rounded-md bg-green-600 text-white  hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="px-4 py-2 rounded-md bg-green-600 text-white  hover:bg-green-700 focus:outline-hidden focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             type="submit"
         >
           {{ isEditing ? 'Mettre à jour' : 'Enregistrer' }}
         </button>
         <button
-            class="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-400 dark:hover:bg-gray-500 focus:outline-none"
+            class="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-400 dark:hover:bg-gray-500 focus:outline-hidden"
             @click="closeForm"
         >
           Annuler

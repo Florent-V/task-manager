@@ -71,7 +71,7 @@ function handlePageChange(newPage) {
 </script>
 
 <template>
-  <div class="mb-8 bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
+  <div class="mb-8 bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm dark:shadow-gray-700">
     <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Tasks Summary</h2>
     <!-- Loader -->
     <div v-if="isLoading" class="flex justify-center py-4">

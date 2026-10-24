@@ -202,17 +202,17 @@ const exportToExcel = async () => {
   <div class="container mx-auto p-4">
     <!-- Setting Panel-->
     <div>
-      <h1 class="text-4xl font-bold mb-6 text-center text-blue-800 dark:text-yellow-300 break-words">
+      <h1 class="text-4xl font-bold mb-6 text-center text-blue-800 dark:text-yellow-300 wrap-break-word">
         Timelog Report for {{ viewedUser.firstName }} {{ viewedUser.lastName }}
       </h1>
       <!-- Combined View Mode Toggle and Filter Controls -->
-      <div class="mb-8 p-4 flex flex-col gap-4 bg-base-200 dark:bg-slate-800 rounded-lg shadow">
+      <div class="mb-8 p-4 flex flex-col gap-4 bg-base-200 dark:bg-slate-800 rounded-lg shadow-sm">
         <div class="flex justify-between items-center">
           <h2 class="text-xl font-semibold text-gray-700 dark:text-gray-200">Filter Imputations (Summary Report)</h2>
 
           <div class="flex items-center space-x-3">
             <button
-                class="px-4 py-2 rounded-md focus:outline-none bg-green-600 text-white hover:bg-green-700"
+                class="px-4 py-2 rounded-md focus:outline-hidden bg-green-600 text-white hover:bg-green-700"
                 @click="exportToExcel"
             >
               <v-icon name="ri-file-excel-2-line" scale="1.2" class="mr-2"/>
@@ -220,14 +220,14 @@ const exportToExcel = async () => {
             </button>
             <button
                 :class="currentViewMode === 'report' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'"
-                class="px-4 py-2 rounded-md focus:outline-none" @click="currentViewMode = 'report'"
+                class="px-4 py-2 rounded-md focus:outline-hidden" @click="currentViewMode = 'report'"
             >
               <v-icon name="hi-document-report" scale="1.2" class="mr-2"/>
               <span>Summary Report</span>
             </button>
             <button
                 :class="currentViewMode === 'calendar' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'"
-                class="px-4 py-2 rounded-md focus:outline-none" @click="currentViewMode = 'calendar'"
+                class="px-4 py-2 rounded-md focus:outline-hidden" @click="currentViewMode = 'calendar'"
             >
               <v-icon name="bi-calendar4-week" scale="1.2" class="mr-2"/>
               <span>Monthly Calendar</span>
@@ -242,7 +242,7 @@ const exportToExcel = async () => {
               <label for="filterType" class="text-gray-700 dark:text-gray-300 font-medium">Filter By</label>
               <select
                   id="filterType" v-model="filterTypeProxy"
-                  class="flex-1 py-2 px-3 mx-0 border border-gray-300 bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-yellow-400">
+                  class="flex-1 py-2 px-3 mx-0 border border-gray-300 bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-gray-200 rounded-md focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:focus:ring-yellow-400">
                 <option value="month">Month/Year</option>
                 <option value="customRange">Custom Range</option>
                 <option value="overall">Overall</option>
@@ -317,7 +317,7 @@ const exportToExcel = async () => {
           <div v-else>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
               <div
-                  class="bg-white dark:bg-slate-700 p-6 rounded-lg shadow dark:shadow-gray-700 col-span-1 md:col-span-2">
+                  class="bg-white dark:bg-slate-700 p-6 rounded-lg shadow-sm dark:shadow-gray-700 col-span-1 md:col-span-2">
                 <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">
                   Total Time Logged {{ reportPeriodDescription }} by {{ viewedUser.firstName }} {{
                     viewedUser.lastName

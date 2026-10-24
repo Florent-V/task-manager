@@ -3,7 +3,7 @@
 </script>
 
 <template>
-  <div class="bg-gradient-to-br from-purple-900 to-black h-screen flex flex-col items-center justify-center">
+  <div class="bg-linear-to-br from-purple-900 to-black h-screen flex flex-col items-center justify-center">
     <h1 class="text-[45vw] text-center fixed w-full text-white/15 z-10 font-bold top-1/2 transform -translate-y-1/2 select-none">
       403
     </h1>

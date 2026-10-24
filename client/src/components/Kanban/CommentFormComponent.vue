@@ -122,7 +122,7 @@ const resetForm = () => {
           {{ isEditing ? 'Mettre à jour' : 'Enregistrer' }}
         </button>
         <button
-            class="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-400 dark:hover:bg-gray-500 focus:outline-none"
+            class="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-md hover:bg-gray-400 dark:hover:bg-gray-500 focus:outline-hidden"
             @click="closeForm"
         >
           Annuler

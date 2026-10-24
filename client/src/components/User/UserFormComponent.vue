@@ -130,7 +130,7 @@ const resetForm = () => {
                 type="text"
                 maxlength="50"
                 placeholder="Mon pseudo"
-                class="peer border border-gray-300 dark:border-gray-600 p-3 rounded-lg md:rounded-r-none focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 transition w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                class="peer border border-gray-300 dark:border-gray-600 p-3 rounded-lg md:rounded-r-none focus:outline-hidden focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 transition w-full bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             />
           </div>
           <!-- File upload field -->

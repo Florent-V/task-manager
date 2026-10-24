@@ -59,7 +59,7 @@ onBeforeUnmount(() => clearTimeout(sessionCheckTimer));
     </div>
 
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-      <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 dark:bg-gray-800">
+      <div class="bg-white py-8 px-4 shadow-sm sm:rounded-lg sm:px-10 dark:bg-gray-800">
         <p v-if="loginFailed" class="mb-6 text-sm text-red-600 dark:text-red-400">
           Sign in failed. Please try again.
         </p>
@@ -69,7 +69,7 @@ onBeforeUnmount(() => clearTimeout(sessionCheckTimer));
 
         <button
           type="button"
-          class="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          class="w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
           @click="signIn">
           Sign In
         </button>
