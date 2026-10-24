@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const oauthServerUrl = (process.env.OAUTH_SERVER_URL || '').replace(/\/+$/, '');
+// URL utilisée par l'API pour ses appels serveur à serveur (/token, /api/userinfo) ; par défaut l'URL publique
+const oauthInternalUrl = (process.env.OAUTH_INTERNAL_URL || oauthServerUrl).replace(/\/+$/, '');
 
 export default {
   db: {
@@ -21,6 +23,7 @@ export default {
   // Serveur d'authentification OAuth2 (SSO) : cette API est le client confidentiel (BFF)
   oauth: {
     serverUrl: oauthServerUrl,
+    internalUrl: oauthInternalUrl,
     // « iss » des logout tokens : l'URL publique du serveur
     issuer: (process.env.OAUTH_ISSUER || oauthServerUrl).replace(/\/+$/, ''),
     clientId: process.env.OAUTH_CLIENT_ID,

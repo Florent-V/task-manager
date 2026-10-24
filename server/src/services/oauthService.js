@@ -33,7 +33,7 @@ export function authorizationRequest() {
 }
 
 async function tokenRequest(params) {
-  const response = await fetch(`${config.oauth.serverUrl}/token`, {
+  const response = await fetch(`${config.oauth.internalUrl}/token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
@@ -79,7 +79,7 @@ export async function finishLogin(query, pending) {
     code_verifier: pending.verifier,
   });
 
-  const response = await fetch(`${config.oauth.serverUrl}/api/userinfo`, {
+  const response = await fetch(`${config.oauth.internalUrl}/api/userinfo`, {
     headers: { Authorization: `Bearer ${tokens.access_token}` },
     signal: AbortSignal.timeout(10000),
   });
