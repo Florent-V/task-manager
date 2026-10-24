@@ -101,7 +101,7 @@ services:
 #########################################
   db:
     container_name: ${DB_HOST}
-    image: mysql:8.0
+    image: mysql:8.3
     restart: unless-stopped
     ports:
       - '127.0.0.1:${DB_PORT}:3306' # accessible uniquement depuis le serveur (pas depuis l'extérieur)
