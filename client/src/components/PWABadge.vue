@@ -94,7 +94,7 @@ function close() {
   >
     <div
         v-if="offlineReady || needRefresh"
-        class="fixed bottom-4 right-4 left-4 sm:left-auto z-[9999] sm:w-96 flex items-start gap-3 p-4 rounded-lg shadow-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600"
+        class="fixed bottom-4 right-4 left-4 sm:left-auto z-9999 sm:w-96 flex items-start gap-3 p-4 rounded-lg shadow-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600"
         aria-labelledby="pwa-toast-message"
         role="alert"
     >

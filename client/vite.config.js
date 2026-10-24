@@ -3,6 +3,7 @@ import { fileURLToPath, URL } from 'node:url'
 import { VitePWA } from 'vite-plugin-pwa';
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import tailwindcss from '@tailwindcss/vite'
 import nightwatchPlugin from 'vite-plugin-nightwatch'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import dotenv from 'dotenv';
@@ -17,6 +18,7 @@ export default defineConfig({
   },
   plugins: [
     vue(),
+    tailwindcss(),
     nightwatchPlugin(),
     vueDevTools(),
     VitePWA({
@@ -140,35 +142,14 @@ export default defineConfig({
   ],
   build: {
     chunkSizeWarningLimit: 2000, // Augmenter la limite à 2000 kB (2 MB)
-    rollupOptions: {
+    rolldownOptions: {
       output: {
-        manualChunks(id) {
-          // 1. Séparer les composants volumineux
-          if (id.includes('/src/components/')) {
-            const componentName = id.split('/src/components/')[1].split('.')[0];
-            return `components/${componentName}`;
-          }
-
-          // 2. Séparer les vues (pages)
-          if (id.includes('/src/views/')) {
-            const viewName = id.split('/src/views/')[1].split('.')[0];
-            return `views/${viewName}`;
-          }
-
-          // 3. Séparer les modules du store (si volumineux)
-          if (id.includes('/src/stores/')) {
-            return 'stores';
-          }
-
-          // 4. Séparer les utilitaires (si volumineux)
-          if (id.includes('/src/utils/')) {
-            return 'utils';
-          }
-
-          // 5. Regrouper les dépendances tierces (si nécessaire)
-          if (id.includes('/node_modules/')) {
-            return 'vendor';
-          }
+        codeSplitting: {
+          groups: [
+            { name: 'vendor', test: /[\\/]node_modules[\\/]/, priority: 2 },
+            { name: 'stores', test: /[\\/]src[\\/]stores[\\/]/, priority: 1 },
+            { name: 'utils', test: /[\\/]src[\\/]utils[\\/]/, priority: 1 },
+          ],
         },
       },
     },

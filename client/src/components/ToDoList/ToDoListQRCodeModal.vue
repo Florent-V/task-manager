@@ -35,7 +35,7 @@ async function copyLink() {
 
 <template>
   <!-- Modal Background -->
-  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
     <!-- Modal Content -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-11/12 md:w-1/3 max-w-md">
       <h2 class="text-2xl font-bold mb-4 text-center text-blue-800 dark:text-yellow-300">Partager la ToDoList</h2>

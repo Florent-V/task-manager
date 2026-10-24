@@ -200,15 +200,15 @@ watch(() => props.initialMonth, (newInitialMonth) => {
         </h2>
         <div class="flex items-center gap-2 mt-3 sm:mt-0">
           <button
-              class="px-3 py-1 border border-blue-600 text-blue-600 rounded hover:bg-blue-50 dark:border-yellow-400 dark:text-yellow-400 dark:hover:bg-slate-700"
+              class="px-3 py-1 border border-blue-600 text-blue-600 rounded-sm hover:bg-blue-50 dark:border-yellow-400 dark:text-yellow-400 dark:hover:bg-slate-700"
               @click="goToPreviousMonth">&lt; Prev
           </button>
           <button
-              class="px-3 py-1 border border-gray-400 text-gray-700 rounded hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-slate-700"
+              class="px-3 py-1 border border-gray-400 text-gray-700 rounded-sm hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-slate-700"
               @click="goToCurrentMonth">Today
           </button>
           <button
-              class="px-3 py-1 border border-blue-600 text-blue-600 rounded hover:bg-blue-50 dark:border-yellow-400 dark:text-yellow-400 dark:hover:bg-slate-700"
+              class="px-3 py-1 border border-blue-600 text-blue-600 rounded-sm hover:bg-blue-50 dark:border-yellow-400 dark:text-yellow-400 dark:hover:bg-slate-700"
               @click="goToNextMonth">Next &gt;
           </button>
         </div>

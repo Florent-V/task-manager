@@ -50,12 +50,12 @@ const handleQuickEdit = (editedProduct) => {
       <div class="flex mt-6 space-x-4">
         <RouterLink
 :to="`/product/${product.id}/edit`"
-                    class="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded">Éditer
+                    class="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded-sm">Éditer
         </RouterLink>
-        <button class="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded" @click="deleteProduct">Supprimer
+        <button class="bg-red-500 hover:bg-red-700 text-white py-2 px-4 rounded-sm" @click="deleteProduct">Supprimer
         </button>
         <!-- Bouton pour afficher/masquer le formulaire d'édition -->
-        <button class="bg-green-500 hover:bg-green-700 text-white py-2 px-4 rounded" @click="isEditing = !isEditing">
+        <button class="bg-green-500 hover:bg-green-700 text-white py-2 px-4 rounded-sm" @click="isEditing = !isEditing">
           {{ isEditing ? 'Cancel' : 'Edition Rapide' }}
         </button>
       </div>

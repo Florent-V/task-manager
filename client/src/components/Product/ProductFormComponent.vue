@@ -102,7 +102,7 @@ const submitForm = async () => {
             v-model="localForm.name"
             type="text"
             required
-            class="bg-white dark:bg-gray-600 text-gray-900 dark:text-white p-2 rounded w-full"
+            class="bg-white dark:bg-gray-600 text-gray-900 dark:text-white p-2 rounded-sm w-full"
           >
         </div>
         
@@ -112,7 +112,7 @@ const submitForm = async () => {
             id="description"
             v-model="localForm.description"
             required
-            class="bg-white dark:bg-gray-600 text-gray-900 dark:text-white p-2 rounded w-full"
+            class="bg-white dark:bg-gray-600 text-gray-900 dark:text-white p-2 rounded-sm w-full"
           ></textarea>
         </div>
 
@@ -124,7 +124,7 @@ const submitForm = async () => {
             type="number"
             required
             step="0.01"
-            class="bg-white dark:bg-gray-600 text-gray-900 dark:text-white p-2 rounded w-full"
+            class="bg-white dark:bg-gray-600 text-gray-900 dark:text-white p-2 rounded-sm w-full"
           >
         </div>
 
@@ -135,7 +135,7 @@ const submitForm = async () => {
             v-model="localForm.quantity"
             type="number"
             required
-            class="bg-white dark:bg-gray-600 text-gray-900 dark:text-white p-2 rounded w-full"
+            class="bg-white dark:bg-gray-600 text-gray-900 dark:text-white p-2 rounded-sm w-full"
           >
         </div>
 
@@ -146,7 +146,7 @@ const submitForm = async () => {
             v-model="localForm.releaseDate"
             type="date"
             required
-            class="bg-white dark:bg-gray-600 text-gray-900 dark:text-white p-2 rounded w-full"
+            class="bg-white dark:bg-gray-600 text-gray-900 dark:text-white p-2 rounded-sm w-full"
           >
         </div>
 
@@ -155,7 +155,7 @@ const submitForm = async () => {
           <input
             id="image"
             type="file"
-            class="bg-white dark:bg-gray-600 text-gray-900 dark:text-white p-2 rounded w-full"
+            class="bg-white dark:bg-gray-600 text-gray-900 dark:text-white p-2 rounded-sm w-full"
             @change="handleFileUpload"
           >
         </div>
@@ -172,7 +172,7 @@ const submitForm = async () => {
 
         <button
           type="submit"
-          class="bg-blue-500 dark:bg-blue-700 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:opacity-50"
+          class="bg-blue-500 dark:bg-blue-700 text-white py-2 px-4 rounded-sm hover:bg-blue-600 disabled:opacity-50"
         >
           {{ isEditMode ? 'Mettre à jour' : 'Ajouter' }}
         </button>

@@ -139,7 +139,7 @@ const exportToExcel = async () => {
   <div class="container mx-auto p-4">
     <!-- Header with overall stats-->
     <div>
-      <h1 class="flex mb-8 gap-2 justify-center items-center text-center text-blue-800 dark:text-yellow-300 break-words">
+      <h1 class="flex mb-8 gap-2 justify-center items-center text-center text-blue-800 dark:text-yellow-300 wrap-break-word">
         <span class="text-4xl font-bold">Kanban Report:</span>
         <span v-if="requestKanbanLoading" class="ml-10">
             <LoaderDotsComponent/>
@@ -148,7 +148,7 @@ const exportToExcel = async () => {
       </h1>
       <div class="flex justify-end mb-4">
         <button
-            class="px-4 py-2 rounded-md focus:outline-none bg-green-600 text-white hover:bg-green-700"
+            class="px-4 py-2 rounded-md focus:outline-hidden bg-green-600 text-white hover:bg-green-700"
             @click="exportToExcel"
         >
           <v-icon name="ri-file-excel-2-line" scale="1.2" class="mr-2"/>
@@ -160,7 +160,7 @@ const exportToExcel = async () => {
 
     <!-- Overall Summary -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-      <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
+      <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm dark:shadow-gray-700">
         <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Total Time Spent (All
           Imputations)</h2>
         <div v-if="requestTotalsLoading" class="flex justify-center py-1">
@@ -173,7 +173,7 @@ const exportToExcel = async () => {
         </p>
         <p class="text-sm text-gray-500 dark:text-gray-400">on this Kanban board</p>
       </div>
-      <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
+      <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm dark:shadow-gray-700">
         <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Total Remaining Time</h2>
         <div v-if="requestTotalsLoading" class="flex justify-center py-1">
           <LoaderComponent size="small"/>
@@ -183,7 +183,7 @@ const exportToExcel = async () => {
         </p>
         <p class="text-sm text-gray-500 dark:text-gray-400">remaining for all tasks</p>
       </div>
-      <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
+      <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm dark:shadow-gray-700">
         <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Total Estimated Time (All Tasks)</h2>
         <div v-if="requestTotalsLoading" class="flex justify-center py-1">
           <LoaderComponent size="small"/>
@@ -193,7 +193,7 @@ const exportToExcel = async () => {
         </p>
         <p class="text-sm text-gray-500 dark:text-gray-400">for all tasks on this board</p>
       </div>
-      <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
+      <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm dark:shadow-gray-700">
         <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Delta (Estimated vs Actuals)</h2>
         <div v-if="requestTotalsLoading" class="flex justify-center py-1">
           <LoaderComponent size="small"/>
