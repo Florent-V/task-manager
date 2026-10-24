@@ -1,0 +1,52 @@
+version: 2
+
+# Les correctifs de sécurité npm (Dependabot security updates, activées dans Settings)
+# arrivent en continu, en plus de ce planning hebdomadaire.
+updates:
+  # Dépendances npm
+  - package-ecosystem: "npm"
+    directories:
+      - "/server"
+      - "/client"
+    target-branch: "prod-sso"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 10
+    groups:
+      # Une seule PR pour les mises à jour mineures et correctives, les majeures restent séparées
+      minor-and-patch:
+        applies-to: version-updates
+        update-types: ["minor", "patch"]
+    commit-message:
+      prefix: "chore(deps)"
+
+  # Images de base des Dockerfiles (node)
+  - package-ecosystem: "docker"
+    directories:
+      - "/server"
+      - "/client"
+    target-branch: "prod-sso"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    ignore:
+      # Changement de version majeure de Node (24 -> 26) fait à la main
+      - dependency-name: "node"
+        update-types: ["version-update:semver-major"]
+    commit-message:
+      prefix: "chore(docker)"
+
+  # Images des fichiers docker-compose (mysql)
+  - package-ecosystem: "docker-compose"
+    directory: "/"
+    target-branch: "prod-sso"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    ignore:
+      # MySQL 9.x : changement de version majeure fait à la main
+      - dependency-name: "mysql"
+        update-types: ["version-update:semver-major"]
+    commit-message:
+      prefix: "chore(docker)"
