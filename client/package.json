@@ -37,7 +37,7 @@
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-prettier": "^5.3.3",
     "eslint-plugin-vue": "^10.3.0",
-    "geckodriver": "^4.4.1",
+    "geckodriver": "^8.0.0",
     "globals": "^16.2.0",
     "jsdom": "^24.1.0",
     "nightwatch": "^3.6.3",
