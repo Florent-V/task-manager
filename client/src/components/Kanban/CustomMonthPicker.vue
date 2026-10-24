@@ -63,7 +63,7 @@ function changeMonth(offset) {
     <div class="flex items-center border border-gray-300 dark:border-slate-600 rounded-md overflow-hidden">
       <button
           type="button"
-          class="p-2 hover:bg-gray-100 dark:hover:bg-slate-600 focus:outline-none"
+          class="p-2 hover:bg-gray-100 dark:hover:bg-slate-600 focus:outline-hidden"
           @click="changeMonth(-1)"
       >
         <v-icon name="co-chevron-left" class="w-5 h-5 text-gray-600 dark:text-gray-200"/>
@@ -73,7 +73,7 @@ function changeMonth(offset) {
       </div>
       <button
           type="button"
-          class="p-2 hover:bg-gray-100 dark:hover:bg-slate-600 focus:outline-none"
+          class="p-2 hover:bg-gray-100 dark:hover:bg-slate-600 focus:outline-hidden"
           @click="changeMonth(1)"
       >
         <v-icon name="co-chevron-right" class="w-5 h-5 text-gray-600 dark:text-gray-200"/>

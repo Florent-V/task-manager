@@ -184,7 +184,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
     <div class="w-full max-w-6xl max-h-[90vh] p-4 bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-auto">
       <!-- Header -->
       <div class="flex justify-between items-center border-b pb-4 dark:border-gray-600">

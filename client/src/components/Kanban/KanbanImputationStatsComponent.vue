@@ -28,7 +28,7 @@ const averageTimeFormatted = computed(() => timeParser.formatMinutesToTimeString
 </script>
 
 <template>
-  <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700 mb-6">
+  <div class="bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm dark:shadow-gray-700 mb-6">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
       <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-2 md:mb-0">
         {{ kanbanTitle }} — {{ sortedImputations.length }} imputation{{ sortedImputations.length === 1 ? '' : 's' }}
@@ -37,11 +37,11 @@ const averageTimeFormatted = computed(() => timeParser.formatMinutesToTimeString
 
     <div v-if="sortedImputations.length > 0">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-        <div class="p-4 bg-blue-50 dark:bg-slate-700 rounded">
+        <div class="p-4 bg-blue-50 dark:bg-slate-700 rounded-sm">
           <p class="text-sm text-gray-600 dark:text-gray-300">Total Time Spent</p>
           <p class="text-2xl font-bold text-blue-600 dark:text-yellow-300">{{ totalTimeFormatted }}</p>
         </div>
-        <div class="p-4 bg-green-50 dark:bg-slate-700 rounded">
+        <div class="p-4 bg-green-50 dark:bg-slate-700 rounded-sm">
           <p class="text-sm text-gray-600 dark:text-gray-300">Average / Imputation</p>
           <p class="text-2xl font-bold text-green-600 dark:text-green-300">{{ averageTimeFormatted }}</p>
         </div>

@@ -91,7 +91,7 @@ onMounted(fetchComments);
 </script>
 
 <template>
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
     <div
         class="bg-white dark:bg-gray-800 w-full max-w-7xl rounded-lg shadow-lg p-6 max-h-[90vh] overflow-y-auto"
     >

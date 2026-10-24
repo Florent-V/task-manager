@@ -13,7 +13,7 @@ const cancel = () => emit('cancel');
 </script>
 
 <template>
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
     <div class="bg-white dark:bg-gray-800 w-full max-w-md rounded-lg shadow-lg p-6">
       <!-- Question -->
       <h3 class="text-xl font-bold text-gray-900 dark:text-yellow-300">{{ question }}</h3>

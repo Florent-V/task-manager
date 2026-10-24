@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-grow loader-wrapper my-2">
+  <div class="grow loader-wrapper my-2">
     <div class="dot-loader">
       <div></div>
       <div></div>

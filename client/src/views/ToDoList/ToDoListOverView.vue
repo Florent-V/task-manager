@@ -105,7 +105,7 @@ onMounted(fetchToDoLists);
             <th class="px-6 py-3 text-left">Titre</th>
             <th class="px-6 py-3 text-left hidden md:table-cell">Description</th>
             <th class="px-6 py-3 text-center">Type</th>
-            <th class="px-6 py-3 text-center w-[5rem]">Action</th>
+            <th class="px-6 py-3 text-center w-20">Action</th>
           </tr>
           </thead>
           <tbody>

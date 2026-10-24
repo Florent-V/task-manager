@@ -57,7 +57,7 @@ defineEmits([
       <v-icon :name="item.done ? 'md-checkbox-outlined' : 'md-checkboxoutlineblank'"/>
     </button>
 
-    <div v-if="isEditing && selectedToDoItem && selectedToDoItem.id === item.id" class="flex-grow">
+    <div v-if="isEditing && selectedToDoItem && selectedToDoItem.id === item.id" class="grow">
       <ToDoItemFormComponent
         :initial-data="selectedToDoItem"
         :inline-form="true"
@@ -66,7 +66,7 @@ defineEmits([
       />
     </div>
 
-    <div v-else class="flex-grow">
+    <div v-else class="grow">
       <span
         :class="[{ 'line-through text-gray-400 dark:text-gray-500': item.done }, { 'cursor-pointer': !item.done }]"
         @click="$emit('open-edit', item)"
@@ -83,11 +83,11 @@ defineEmits([
       >
         <v-icon name="fa-minus" scale="1.2"/>
       </button>
-      <div class="border border-gray-300 dark:border-gray-600 px-4 py-1 rounded">
+      <div class="border border-gray-300 dark:border-gray-600 px-4 py-1 rounded-sm">
         <input
           v-if="isEditingQuantity && selectedToDoItem && selectedToDoItem.id === item.id"
           :value="item.quantity"
-          class="w-16 bg-transparent text-center border-none focus:outline-none"
+          class="w-16 bg-transparent text-center border-none focus:outline-hidden"
           type="number"
           @input="$emit('update:quantity', { item, quantity: parseInt($event.target.value) })"
           @blur="$emit('save-quantity', item)"
@@ -139,12 +139,12 @@ defineEmits([
       class="absolute right-4 top-10 bg-white dark:bg-gray-900 shadow-lg rounded-lg border border-gray-300 dark:border-gray-700 z-50 menu-container">
       <ul class="py-2 px-4">
         <li
-          class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded"
+          class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded-sm"
           @click="$emit('open-complete-edit', item)">
           ✏️ Éditer
         </li>
         <li
-          class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded text-red-600"
+          class="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 px-2 py-1 rounded-sm text-red-600"
           @click="$emit('delete-item', item)">
           🗑️ Supprimer
         </li>

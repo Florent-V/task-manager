@@ -98,7 +98,7 @@ fill-rule="evenodd"
           <tr class="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-md">
             <th class="px-6 py-3 text-left">id</th>
             <th class="px-6 py-3 text-left hidden md:table-cell">Nom du type</th>
-            <th class="px-6 py-3 text-center w-[5rem]">Action</th>
+            <th class="px-6 py-3 text-center w-20">Action</th>
           </tr>
           </thead>
           <tbody>

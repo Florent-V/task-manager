@@ -32,6 +32,8 @@ services:
       args:
         NODE_ENV: ${NODE_ENV}
         START_METHOD: ${START_METHOD}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "${NODE_API_PORT}:${NODE_API_DOCKER_PORT}"
     environment:
@@ -47,6 +49,7 @@ services:
       - SESSION_SECRET=${SESSION_SECRET}
       - COOKIE_SECURE=${COOKIE_SECURE:-true}
       - OAUTH_SERVER_URL=${OAUTH_SERVER_URL}
+      - OAUTH_INTERNAL_URL=${OAUTH_INTERNAL_URL:-}
       - OAUTH_ISSUER=${OAUTH_ISSUER:-}
       - OAUTH_CLIENT_ID=${OAUTH_CLIENT_ID}
       - OAUTH_CLIENT_SECRET=${OAUTH_CLIENT_SECRET}

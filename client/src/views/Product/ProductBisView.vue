@@ -33,9 +33,9 @@ onMounted(async () => {
 
       <div class="p-4">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <input v-model="newProduct.id" type="text" placeholder="ID" class="border border-gray-300 dark:border-gray-600 p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 transition" />
-          <input v-model="newProduct.name" type="text" placeholder="Name" class="border border-gray-300 dark:border-gray-600 p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 transition" />
-          <input v-model="newProduct.price" type="number" placeholder="Price" class="border border-gray-300 dark:border-gray-600 p-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 transition" />
+          <input v-model="newProduct.id" type="text" placeholder="ID" class="border border-gray-300 dark:border-gray-600 p-4 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 transition" />
+          <input v-model="newProduct.name" type="text" placeholder="Name" class="border border-gray-300 dark:border-gray-600 p-4 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 transition" />
+          <input v-model="newProduct.price" type="number" placeholder="Price" class="border border-gray-300 dark:border-gray-600 p-4 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 transition" />
         </div>
         <div class="text-right mt-4">
           <button class="bg-blue-600 dark:bg-yellow-400 text-white dark:text-gray-900 hover:bg-blue-700 dark:hover:bg-yellow-500 px-6 py-3 rounded-full text-lg transition duration-300 font-semibold" @click="addProduct">Add</button>

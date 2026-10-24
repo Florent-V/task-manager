@@ -99,7 +99,7 @@ function handlePageChange(newPage) {
 
 <template>
   <!-- Detailed Imputations Table -->
-  <div class="mb-8 bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
+  <div class="mb-8 bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm dark:shadow-gray-700">
     <h2 class="text-2xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Detailed Imputations</h2>
     <!-- Loader -->
     <div v-if="isLoading" class="flex justify-center py-4">
@@ -165,7 +165,7 @@ function handlePageChange(newPage) {
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
               {{ new Date(imputation.date).toLocaleDateString() }}
             </td>
-            <td class="px-6 py-4 whitespace-normal text-sm text-gray-500 dark:text-gray-400 max-w-xs break-words">
+            <td class="px-6 py-4 whitespace-normal text-sm text-gray-500 dark:text-gray-400 max-w-xs wrap-break-word">
               {{ imputation.comment }}
             </td>
           </tr>
@@ -189,7 +189,7 @@ function handlePageChange(newPage) {
     <!-- User Selection Section moved here -->
     <div
         v-if="props.usersOnThisKanban && props.usersOnThisKanban.length > 0"
-        class="mb-8 bg-white dark:bg-slate-800 p-6 rounded-lg shadow dark:shadow-gray-700">
+        class="mb-8 bg-white dark:bg-slate-800 p-6 rounded-lg shadow-sm dark:shadow-gray-700">
       <h2 class="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Select User for Detailed Stats</h2>
       <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
         Select a user to view their imputation statistics from the table above. The stats shown will be based on the
@@ -198,7 +198,7 @@ function handlePageChange(newPage) {
       <ul class="space-y-2">
         <li v-for="user in props.usersOnThisKanban" :key="user.id" class="text-sm">
           <button
-              :class="['text-blue-600 hover:text-blue-800 hover:underline dark:text-yellow-400 dark:hover:text-yellow-200', selectedUserId === user.id ? 'font-semibold ring-2 ring-blue-500 dark:ring-yellow-500 rounded px-1' : 'px-1']"
+              :class="['text-blue-600 hover:text-blue-800 hover:underline dark:text-yellow-400 dark:hover:text-yellow-200', selectedUserId === user.id ? 'font-semibold ring-2 ring-blue-500 dark:ring-yellow-500 rounded-sm px-1' : 'px-1']"
               @click="selectUser(user.id)"
           >
             {{ user.fullName }}

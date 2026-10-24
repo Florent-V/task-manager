@@ -30,7 +30,7 @@ watch(() => props.modelValue, (newValue) => {
     <input
         v-model="internalValue"
         :placeholder="placeholder"
-        class="w-full px-4 py-2 pr-10 text-gray-700 bg-white border border-gray-300 rounded-lg dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:outline-none focus:border-blue-500"
+        class="w-full px-4 py-2 pr-10 text-gray-700 bg-white border border-gray-300 rounded-lg dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:outline-hidden focus:border-blue-500"
         type="text"
     />
     <span class="absolute inset-y-0 right-0 flex items-center pr-3">

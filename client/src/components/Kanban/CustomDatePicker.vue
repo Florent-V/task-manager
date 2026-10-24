@@ -157,7 +157,7 @@ onUnmounted(() => {
         id="dateInput"
         tabindex="0"
         role="button"
-        class="w-full py-2 px-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-800 dark:text-gray-200 rounded-md flex items-center justify-between cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-yellow-400 min-h-[2.5rem]"
+        class="w-full py-2 px-3 border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-800 dark:text-gray-200 rounded-md flex items-center justify-between cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-blue-500 dark:focus:ring-yellow-400 min-h-10"
         :class="{'text-gray-400 dark:text-slate-500': !modelValue}"
         aria-haspopup="true"
         :aria-expanded="showCalendar"
@@ -186,7 +186,7 @@ onUnmounted(() => {
       >
         <div class="flex justify-between items-center mb-3">
           <button
-              aria-label="Previous month" class="p-1 rounded hover:bg-gray-200 dark:hover:bg-slate-600"
+              aria-label="Previous month" class="p-1 rounded-sm hover:bg-gray-200 dark:hover:bg-slate-600"
               @click.stop="changeDisplayMonth(-1)"
           >
             &lt;
@@ -195,7 +195,7 @@ onUnmounted(() => {
             {{ currentCalendarMonthName }}
           </div>
           <button
-              aria-label="Next month" class="p-1 rounded hover:bg-gray-200 dark:hover:bg-slate-600"
+              aria-label="Next month" class="p-1 rounded-sm hover:bg-gray-200 dark:hover:bg-slate-600"
               @click.stop="changeDisplayMonth(1)"
           >
             &gt;
