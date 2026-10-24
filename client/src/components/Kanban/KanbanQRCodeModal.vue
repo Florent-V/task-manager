@@ -65,7 +65,7 @@ async function shareByEmail() {
 
 <template>
   <!-- Modal Background -->
-  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
     <!-- Modal Content -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-11/12 md:w-1/3 max-w-md">
 
@@ -105,7 +105,7 @@ async function shareByEmail() {
       <!-- Bouton Copier -->
       <div class="flex flex-col items-center mb-6">
         <button
-            class="bg-blue-600 dark:bg-yellow-400 text-white px-4 py-2 rounded hover:bg-blue-700 dark:hover:bg-yellow-500"
+            class="bg-blue-600 dark:bg-yellow-400 text-white px-4 py-2 rounded-sm hover:bg-blue-700 dark:hover:bg-yellow-500"
             @click="copyLink">
           Copier le lien
         </button>

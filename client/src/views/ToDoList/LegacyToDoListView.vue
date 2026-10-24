@@ -79,13 +79,13 @@ class="button bg-blue-500 text-white px-4 rounded-r-lg hover:bg-blue-600"
 
     <div class="tasks__clear flex justify-end space-x-2 mt-4">
       <button
-class="button warning small bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+class="button warning small bg-yellow-500 text-white px-4 py-2 rounded-sm hover:bg-yellow-600"
               @click="clearCompleted"
       >
         <v-icon name="fa-regular-check-square" scale="1.2" /> Clear Completed
       </button>
       <button
-class="button alert small bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+class="button alert small bg-red-500 text-white px-4 py-2 rounded-sm hover:bg-red-600"
               @click="clearAll"
       >
         <v-icon name="fa-regular-trash-alt" scale="1.2" /> Clear All
@@ -97,7 +97,7 @@ class="button alert small bg-red-500 text-white px-4 py-2 rounded hover:bg-red-6
       <li
 v-for="(task, index) in tasks" 
           :key="index"
-          class="tasks__item flex justify-between items-center p-4 bg-gray-100 dark:bg-gray-700 rounded-lg shadow-sm"
+          class="tasks__item flex justify-between items-center p-4 bg-gray-100 dark:bg-gray-700 rounded-lg shadow-xs"
       >
         <button
 :class="getClassName(task)"

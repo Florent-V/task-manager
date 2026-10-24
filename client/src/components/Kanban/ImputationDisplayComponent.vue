@@ -139,7 +139,7 @@ defineExpose({
       <!-- Add button -->
       <div v-if="showFormButton" class="flex gap-4">
         <button
-            class="bg-blue-600 dark:bg-yellow-400 text-white px-2 py-2 rounded"
+            class="bg-blue-600 dark:bg-yellow-400 text-white px-2 py-2 rounded-sm"
             @click="fetchImputations"
         >
           <span class="flex items-center">
@@ -147,7 +147,7 @@ defineExpose({
           </span>
         </button>
         <button
-            class="bg-blue-600 dark:bg-yellow-400 text-white px-2 py-2 rounded"
+            class="bg-blue-600 dark:bg-yellow-400 text-white px-2 py-2 rounded-sm"
             @click="$emit('create-imputation')"
         >
         <span class="flex items-center">
@@ -179,7 +179,7 @@ defineExpose({
       <ul v-else class="space-y-4">
         <li
             v-for="imputation in sortedImputations" :key="imputation.id"
-            class="p-3 bg-gray-50 dark:bg-gray-700 rounded-md shadow-sm">
+            class="p-3 bg-gray-50 dark:bg-gray-700 rounded-md shadow-xs">
           <div class="flex justify-between items-start">
             <div>
               <p class="font-semibold text-blue-600 dark:text-blue-400">

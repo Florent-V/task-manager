@@ -66,7 +66,7 @@ const generateWithAI = async () => {
             v-model="aiPrompt"
             type="text"
             placeholder="Ex: Ingrédients pour une tarte aux pommes"
-            class="flex-grow border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            class="grow border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-blue-600 dark:focus:ring-yellow-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             @keyup.enter="generateWithAI"
         />
         <button
